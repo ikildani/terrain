@@ -44,10 +44,36 @@ export default function MarketSizingPage() {
   const [results, setResults] = useState<MarketSizingOutput | null>(null);
   const [formInput, setFormInput] = useState<MarketSizingInput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleResults(data: MarketSizingOutput, input: MarketSizingInput) {
-    setResults(data);
-    setFormInput(input);
+  async function handleSubmit(productCategory: string, formData: Record<string, unknown>) {
+    setIsLoading(true);
+    setError(null);
+    setResults(null);
+
+    try {
+      const response = await fetch('/api/analyze/market', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_category: productCategory,
+          input: formData,
+        }),
+      });
+
+      const json = await response.json();
+
+      if (!json.success) {
+        throw new Error(json.error || 'Analysis failed');
+      }
+
+      setResults(json.data);
+      setFormInput(formData as unknown as MarketSizingInput);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Analysis failed');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -60,16 +86,23 @@ export default function MarketSizingPage() {
         {/* Left panel — Form */}
         <div className="w-full lg:w-[380px] lg:flex-shrink-0">
           <MarketSizingForm
-            onResults={handleResults}
-            onLoading={setIsLoading}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
           />
         </div>
 
         {/* Right panel — Results */}
         <div className="flex-1 min-w-0">
           {isLoading && <ResultsSkeleton />}
-          {!isLoading && !results && <EmptyState />}
-          {!isLoading && results && formInput && (
+          {!isLoading && error && (
+            <div className="card p-8 text-center">
+              <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
+                {error}
+              </p>
+            </div>
+          )}
+          {!isLoading && !error && !results && <EmptyState />}
+          {!isLoading && !error && results && formInput && (
             <MarketSizingReport data={results} input={formInput} />
           )}
         </div>

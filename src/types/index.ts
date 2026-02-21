@@ -498,7 +498,7 @@ export interface Report {
   title: string;
   report_type: ReportType;
   indication: string;
-  inputs: MarketSizingInput | Partial<MarketSizingInput>;
+  inputs: MarketSizingInput | Partial<MarketSizingInput> | null;
   outputs: MarketSizingOutput | CompetitiveLandscapeOutput | null;
   status: 'draft' | 'final';
   is_starred: boolean;

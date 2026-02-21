@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { ReportType } from '@/types';
+import type { Report, ReportType } from '@/types';
 import { reportsStore } from '@/lib/reports-store';
 
 export async function GET() {

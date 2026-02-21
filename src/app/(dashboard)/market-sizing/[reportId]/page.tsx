@@ -1,17 +1,48 @@
-import { PageHeader } from '@/components/layout/PageHeader';
-import { FileText, ArrowLeft } from 'lucide-react';
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { PageHeader } from '@/components/layout/PageHeader';
+import MarketSizingReport from '@/components/market-sizing/MarketSizingReport';
+import { SkeletonCard, SkeletonMetric } from '@/components/ui/Skeleton';
+import { Button } from '@/components/ui/Button';
+import { apiGet } from '@/lib/utils/api';
+import { ArrowLeft, FileText } from 'lucide-react';
+import type { Report, MarketSizingOutput, MarketSizingInput } from '@/types';
 
 export default function MarketSizingReportPage({
   params,
 }: {
   params: { reportId: string };
 }) {
+  const [report, setReport] = useState<Report | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      setIsLoading(true);
+      try {
+        const res = await apiGet<Report>(`/api/reports/${params.reportId}`);
+        if (res.success && res.data) {
+          setReport(res.data);
+        } else {
+          setError(res.error ?? 'Report not found');
+        }
+      } catch {
+        setError('Failed to load report');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    load();
+  }, [params.reportId]);
+
   return (
     <>
       <PageHeader
-        title="Market Assessment Report"
-        subtitle={`Report ID: ${params.reportId}`}
+        title={report?.title ?? 'Market Assessment Report'}
+        subtitle={report ? `${report.indication} — ${report.report_type}` : `Report ${params.reportId}`}
         actions={
           <Link href="/market-sizing" className="btn btn-ghost">
             <ArrowLeft className="w-4 h-4" />
@@ -19,19 +50,36 @@ export default function MarketSizingReportPage({
           </Link>
         }
       />
-      <div className="card p-12 text-center flex flex-col items-center">
-        <FileText className="w-12 h-12 text-navy-600 mb-4" />
-        <h3 className="font-display text-lg text-white mb-2">
-          Saved Report View
-        </h3>
-        <p className="text-sm text-slate-500 max-w-md">
-          Report viewing will be available once Supabase integration is complete.
-          Reports are currently generated in real-time on the Market Sizing page.
-        </p>
-        <Link href="/market-sizing" className="btn btn-primary mt-6">
-          Go to Market Sizing
-        </Link>
-      </div>
+
+      {isLoading && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map(i => <SkeletonMetric key={i} />)}
+          </div>
+          <SkeletonCard className="h-[200px]" />
+          <SkeletonCard className="h-[300px]" />
+        </div>
+      )}
+
+      {error && !isLoading && (
+        <div className="card p-12 text-center flex flex-col items-center">
+          <FileText className="w-12 h-12 text-navy-600 mb-4" />
+          <h3 className="font-display text-lg text-slate-200 mb-2">
+            Report Not Found
+          </h3>
+          <p className="text-sm text-slate-500 max-w-md mb-6">{error}</p>
+          <Link href="/market-sizing">
+            <Button variant="primary">Go to Market Sizing</Button>
+          </Link>
+        </div>
+      )}
+
+      {!isLoading && report && report.outputs && (
+        <MarketSizingReport
+          data={report.outputs as unknown as MarketSizingOutput}
+          input={report.inputs as unknown as MarketSizingInput}
+        />
+      )}
     </>
   );
 }
