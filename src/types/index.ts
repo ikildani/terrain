@@ -355,6 +355,32 @@ export interface PartnerMatch {
   watch_signals: string[];               // Why they might be motivated right now
 }
 
+export interface DealBenchmark {
+  stage: string;
+  avg_upfront_m: number;
+  median_upfront_m: number;
+  avg_total_value_m: number;
+  median_total_value_m: number;
+  typical_royalty_range: string;
+  sample_size: number;
+}
+
+export interface PartnerDiscoveryOutput {
+  ranked_partners: PartnerMatch[];
+  deal_benchmarks: DealBenchmark;
+  summary: {
+    total_screened: number;
+    total_matched: number;
+    top_tier_count: number;
+    avg_match_score: number;
+    indication: string;
+    development_stage: string;
+  };
+  methodology: string;
+  data_sources: DataSource[];
+  generated_at: string;
+}
+
 // ────────────────────────────────────────────────────────────
 // REGULATORY INTELLIGENCE
 // ────────────────────────────────────────────────────────────

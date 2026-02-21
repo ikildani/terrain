@@ -808,3 +808,55 @@ body {
     padding: 20px 16px;
   }
 }
+
+/* ============================================
+   ACCESSIBILITY — FOCUS INDICATORS
+   ============================================ */
+
+/* Visible focus ring for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--teal-500);
+  outline-offset: 2px;
+}
+
+/* Remove focus ring for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Specific overrides for components that use box-shadow for focus */
+.input:focus-visible {
+  outline: none;
+  border-color: var(--teal-500);
+  box-shadow: 0 0 0 3px rgba(0, 201, 167, 0.2);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 201, 167, 0.25);
+}
+
+.sidebar-nav-item:focus-visible {
+  outline: none;
+  background: var(--bg-hover);
+  box-shadow: inset 0 0 0 2px var(--teal-500);
+}
+
+/* Skip to content link */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 100;
+  padding: 8px 16px;
+  background: var(--teal-500);
+  color: var(--navy-950);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 0 0 6px 6px;
+  transition: top 0.15s ease;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}

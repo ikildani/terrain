@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { AlertCircle, TrendingUp, Sparkles, Database } from 'lucide-react';
+import { useState, useMemo, useRef } from 'react';
+import { AlertCircle, TrendingUp, Sparkles, Database, TableProperties } from 'lucide-react';
 import type { CompetitiveLandscapeOutput, Competitor } from '@/types';
 import LandscapeMap from './LandscapeMap';
 import PipelineTable from './PipelineTable';
 import MarketShareChart from './MarketShareChart';
 import CompetitorCard from './CompetitorCard';
+import { SaveReportButton } from '@/components/shared/SaveReportButton';
+import { ExportButton } from '@/components/shared/ExportButton';
 
 interface CompetitiveLandscapeReportProps {
   data: CompetitiveLandscapeOutput;
@@ -32,6 +34,7 @@ export default function CompetitiveLandscapeReport({
   mechanism,
 }: CompetitiveLandscapeReportProps) {
   const [activeTab, setActiveTab] = useState<TabId>('approved');
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const allCompetitors = useMemo<Competitor[]>(() => {
     return [
@@ -47,6 +50,30 @@ export default function CompetitiveLandscapeReport({
       .sort((a, b) => b.differentiation_score - a.differentiation_score)
       .slice(0, 5);
   }, [allCompetitors]);
+
+  // CSV export data: flatten all competitors into a table-friendly format
+  const csvData = useMemo(() => {
+    return allCompetitors.map((c) => ({
+      Company: c.company,
+      Asset: c.asset_name,
+      Phase: c.phase,
+      Mechanism: c.mechanism,
+      Endpoint: c.primary_endpoint || '',
+      'Key Data': c.key_data || '',
+      Partner: c.partner || '',
+      'Deal Value': c.partnership_deal_value || '',
+      'Differentiation Score': c.differentiation_score,
+      'Evidence Strength': c.evidence_strength,
+      Strengths: c.strengths.join('; '),
+      Weaknesses: c.weaknesses.join('; '),
+    }));
+  }, [allCompetitors]);
+
+  // Comparison matrix column headers (competitor names)
+  const matrixColumns = useMemo(() => {
+    if (!data.comparison_matrix || data.comparison_matrix.length === 0) return [];
+    return Object.keys(data.comparison_matrix[0].competitors);
+  }, [data.comparison_matrix]);
 
   const tabs: TabDef[] = [
     { id: 'approved', label: 'Approved', count: data.approved_products.length },
@@ -71,7 +98,7 @@ export default function CompetitiveLandscapeReport({
   }, [activeTab, data]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={reportRef} data-report-content>
       {/* ─── 1. Summary Metrics Row ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="stat-card">
@@ -276,7 +303,67 @@ export default function CompetitiveLandscapeReport({
         </div>
       </div>
 
-      {/* ─── 8. Data Sources Footer ─── */}
+      {/* ─── 8. Comparison Matrix ─── */}
+      {data.comparison_matrix && data.comparison_matrix.length > 0 && matrixColumns.length > 0 && (
+        <div className="card">
+          <div className="flex items-center gap-2 mb-4">
+            <TableProperties className="h-4 w-4 text-teal-500" />
+            <h3 className="chart-title">Head-to-Head Comparison</h3>
+          </div>
+          <div className="overflow-x-auto -mx-5 px-5">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th className="sticky left-0 bg-navy-900 z-10">Attribute</th>
+                  {matrixColumns.map((col) => (
+                    <th key={col} className="whitespace-nowrap">{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.comparison_matrix.map((row, i) => (
+                  <tr key={i}>
+                    <td className="sticky left-0 bg-navy-900 z-10 text-slate-100 font-medium whitespace-nowrap">
+                      {row.attribute}
+                    </td>
+                    {matrixColumns.map((col) => (
+                      <td key={col} className="text-slate-400 text-xs max-w-[180px] truncate">
+                        {row.competitors[col] ?? '\u2014'}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 9. Action Bar ─── */}
+      <div className="flex items-center justify-end gap-3">
+        <SaveReportButton
+          reportData={{
+            title: `Competitive Landscape — ${data.summary.crowding_label}`,
+            report_type: 'competitive',
+            indication: data.summary.crowding_label,
+            inputs: { indication: data.summary.crowding_label, mechanism: mechanism ?? '' },
+            outputs: data as unknown as Record<string, unknown>,
+          }}
+        />
+        <ExportButton
+          format="pdf"
+          targetRef={reportRef}
+          reportTitle={`Competitive Landscape — ${data.summary.crowding_label}`}
+          filename={`competitive-landscape-${Date.now()}`}
+        />
+        <ExportButton
+          format="csv"
+          data={csvData}
+          filename={`competitive-landscape-${Date.now()}`}
+        />
+      </div>
+
+      {/* ─── 10. Data Sources Footer ─── */}
       {data.data_sources.length > 0 && (
         <div className="card">
           <div className="flex items-center gap-2 mb-2">

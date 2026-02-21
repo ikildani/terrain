@@ -1230,3 +1230,432 @@ export function getExpeditedPathways(agency: RegulatoryAgency): RegulatoryPathwa
     (p) => p.agency === agency && names.includes(p.pathway),
   );
 }
+
+// ────────────────────────────────────────────────────────────
+// DESIGNATION OPPORTUNITIES (for eligibility scoring)
+// ────────────────────────────────────────────────────────────
+
+export interface DesignationDefinition {
+  id: string;
+  name: string;
+  agency: RegulatoryAgency;
+  benefit: string;
+  eligibility_criteria: string;
+  typical_timeline_reduction_months: number;
+  success_rate_if_applied: number;
+  application_timing: string;
+}
+
+export const DESIGNATION_DEFINITIONS: DesignationDefinition[] = [
+  {
+    id: 'breakthrough_therapy',
+    name: 'Breakthrough Therapy',
+    agency: 'FDA',
+    benefit: 'Intensive FDA guidance on trial design, rolling review, senior management involvement. Reduces development timeline by 1-4 years.',
+    eligibility_criteria: 'Preliminary clinical evidence of substantial improvement over available therapy on clinically significant endpoint.',
+    typical_timeline_reduction_months: 24,
+    success_rate_if_applied: 0.89,
+    application_timing: 'After Phase 1 or early Phase 2 clinical data showing substantial improvement.',
+  },
+  {
+    id: 'fast_track',
+    name: 'Fast Track',
+    agency: 'FDA',
+    benefit: 'Early and frequent FDA meetings, rolling review capability, eligibility for Accelerated Approval and Priority Review.',
+    eligibility_criteria: 'Drug intended to treat serious condition and demonstrates potential to address unmet medical need.',
+    typical_timeline_reduction_months: 6,
+    success_rate_if_applied: 0.82,
+    application_timing: 'Can be requested at any time during development, typically after IND filing. Earlier is better.',
+  },
+  {
+    id: 'priority_review',
+    name: 'Priority Review',
+    agency: 'FDA',
+    benefit: 'Shortens review clock from 12 to 8 months (6 months from filing). Earlier market access and revenue generation.',
+    eligibility_criteria: 'Drug treats serious condition and provides significant improvement in safety or effectiveness over available therapy.',
+    typical_timeline_reduction_months: 4,
+    success_rate_if_applied: 0.88,
+    application_timing: 'Requested at time of NDA/BLA submission. FDA decision within 60 days of receipt.',
+  },
+  {
+    id: 'accelerated_approval',
+    name: 'Accelerated Approval',
+    agency: 'FDA',
+    benefit: 'Approval based on surrogate endpoint years before full clinical benefit is demonstrated. Earlier patient access.',
+    eligibility_criteria: 'Drug treats serious condition with unmet need, and surrogate endpoint is reasonably likely to predict clinical benefit.',
+    typical_timeline_reduction_months: 36,
+    success_rate_if_applied: 0.76,
+    application_timing: 'Determined during development based on availability of validated or reasonably likely surrogate endpoint.',
+  },
+  {
+    id: 'orphan_drug',
+    name: 'Orphan Drug',
+    agency: 'FDA',
+    benefit: '7-year market exclusivity, tax credits for clinical trial costs (25%), PDUFA user fee waiver (~$4.0M), FDA grant eligibility.',
+    eligibility_criteria: 'Disease or condition affects fewer than 200,000 persons in the US annually.',
+    typical_timeline_reduction_months: 0,
+    success_rate_if_applied: 0.75,
+    application_timing: 'Can be requested at any development stage, from preclinical onward. Earlier maximizes benefits.',
+  },
+  {
+    id: 'rmat',
+    name: 'Regenerative Medicine Advanced Therapy (RMAT)',
+    agency: 'FDA',
+    benefit: 'All Breakthrough Therapy features plus eligibility for accelerated approval based on surrogate/intermediate endpoints for regenerative medicine.',
+    eligibility_criteria: 'Regenerative medicine therapy (cell therapy, gene therapy, tissue engineering) for serious condition with preliminary clinical evidence.',
+    typical_timeline_reduction_months: 18,
+    success_rate_if_applied: 0.80,
+    application_timing: 'After IND filing with preliminary clinical evidence. Typically Phase 1/2 data.',
+  },
+  {
+    id: 'prime',
+    name: 'PRIME (Priority Medicines)',
+    agency: 'EMA',
+    benefit: 'Early CHMP rapporteur appointment, enhanced scientific advice, eligibility for accelerated assessment at MAA filing.',
+    eligibility_criteria: 'Product targeting unmet medical need in EU with preliminary clinical evidence of major therapeutic advantage.',
+    typical_timeline_reduction_months: 6,
+    success_rate_if_applied: 0.85,
+    application_timing: 'After Phase 1/2 data showing major therapeutic advantage. SMEs can apply with nonclinical data.',
+  },
+  {
+    id: 'sakigake',
+    name: 'SAKIGAKE Designation',
+    agency: 'PMDA',
+    benefit: '6-month target review (vs. 12 months standard), dedicated PMDA consultation team, priority NHI pricing.',
+    eligibility_criteria: 'Novel mechanism, serious condition with high unmet need in Japan, and Japan-first or simultaneous global development.',
+    typical_timeline_reduction_months: 6,
+    success_rate_if_applied: 0.87,
+    application_timing: 'Early development stage, before pivotal trial. Must commit to Japan-first launch strategy.',
+  },
+];
+
+// ────────────────────────────────────────────────────────────
+// COMPARABLE APPROVALS DATABASE
+// Real FDA approvals across therapy areas, used for
+// timeline benchmarking and precedent analysis.
+// ────────────────────────────────────────────────────────────
+
+export interface ComparableApprovalRecord {
+  drug: string;
+  company: string;
+  indication: string;
+  therapy_area: string;
+  pathway: string;
+  designations: string[];
+  approval_year: number;
+  review_months: number;
+  total_development_months: number;
+  product_type: 'pharma' | 'biologic' | 'device' | 'diagnostic';
+}
+
+export const COMPARABLE_APPROVALS: ComparableApprovalRecord[] = [
+  // ONCOLOGY
+  {
+    drug: 'Keytruda (pembrolizumab)',
+    company: 'Merck',
+    indication: 'Melanoma (unresectable/metastatic)',
+    therapy_area: 'oncology',
+    pathway: 'BLA',
+    designations: ['Breakthrough Therapy', 'Priority Review', 'Fast Track'],
+    approval_year: 2014,
+    review_months: 6,
+    total_development_months: 48,
+    product_type: 'biologic',
+  },
+  {
+    drug: 'Tagrisso (osimertinib)',
+    company: 'AstraZeneca',
+    indication: 'NSCLC EGFR T790M+',
+    therapy_area: 'oncology',
+    pathway: 'Accelerated Approval',
+    designations: ['Breakthrough Therapy', 'Priority Review'],
+    approval_year: 2015,
+    review_months: 3,
+    total_development_months: 30,
+    product_type: 'pharma',
+  },
+  {
+    drug: 'Lumakras (sotorasib)',
+    company: 'Amgen',
+    indication: 'NSCLC KRAS G12C',
+    therapy_area: 'oncology',
+    pathway: 'Accelerated Approval',
+    designations: ['Breakthrough Therapy', 'Priority Review', 'Fast Track', 'Orphan Drug'],
+    approval_year: 2021,
+    review_months: 4,
+    total_development_months: 36,
+    product_type: 'pharma',
+  },
+  {
+    drug: 'Enhertu (trastuzumab deruxtecan)',
+    company: 'Daiichi Sankyo / AstraZeneca',
+    indication: 'HER2+ Breast Cancer (3L+)',
+    therapy_area: 'oncology',
+    pathway: 'Accelerated Approval',
+    designations: ['Breakthrough Therapy', 'Priority Review'],
+    approval_year: 2019,
+    review_months: 5,
+    total_development_months: 42,
+    product_type: 'biologic',
+  },
+  {
+    drug: 'Krazati (adagrasib)',
+    company: 'Mirati Therapeutics',
+    indication: 'NSCLC KRAS G12C',
+    therapy_area: 'oncology',
+    pathway: 'Accelerated Approval',
+    designations: ['Breakthrough Therapy', 'Priority Review'],
+    approval_year: 2022,
+    review_months: 5,
+    total_development_months: 42,
+    product_type: 'pharma',
+  },
+  {
+    drug: 'Kymriah (tisagenlecleucel)',
+    company: 'Novartis',
+    indication: 'Pediatric B-cell ALL',
+    therapy_area: 'oncology',
+    pathway: 'BLA',
+    designations: ['Breakthrough Therapy', 'Priority Review', 'Orphan Drug'],
+    approval_year: 2017,
+    review_months: 6,
+    total_development_months: 60,
+    product_type: 'biologic',
+  },
+  {
+    drug: 'Padcev (enfortumab vedotin)',
+    company: 'Astellas / Seagen',
+    indication: 'Urothelial Cancer',
+    therapy_area: 'oncology',
+    pathway: 'Accelerated Approval',
+    designations: ['Breakthrough Therapy', 'Priority Review', 'Fast Track'],
+    approval_year: 2019,
+    review_months: 5,
+    total_development_months: 48,
+    product_type: 'biologic',
+  },
+  {
+    drug: 'Calquence (acalabrutinib)',
+    company: 'AstraZeneca',
+    indication: 'Mantle Cell Lymphoma',
+    therapy_area: 'oncology',
+    pathway: 'Accelerated Approval',
+    designations: ['Breakthrough Therapy', 'Priority Review', 'Orphan Drug'],
+    approval_year: 2017,
+    review_months: 4,
+    total_development_months: 36,
+    product_type: 'pharma',
+  },
+  // RARE DISEASE
+  {
+    drug: 'Spinraza (nusinersen)',
+    company: 'Biogen',
+    indication: 'Spinal Muscular Atrophy',
+    therapy_area: 'rare_disease',
+    pathway: 'Standard NDA',
+    designations: ['Priority Review', 'Orphan Drug', 'Fast Track'],
+    approval_year: 2016,
+    review_months: 8,
+    total_development_months: 72,
+    product_type: 'pharma',
+  },
+  {
+    drug: 'Zolgensma (onasemnogene abeparvovec)',
+    company: 'Novartis Gene Therapies',
+    indication: 'Spinal Muscular Atrophy (Type 1)',
+    therapy_area: 'rare_disease',
+    pathway: 'BLA',
+    designations: ['Breakthrough Therapy', 'Priority Review', 'Orphan Drug', 'Rare Pediatric Disease'],
+    approval_year: 2019,
+    review_months: 6,
+    total_development_months: 60,
+    product_type: 'biologic',
+  },
+  {
+    drug: 'Skysona (elivaldogene autotemcel)',
+    company: 'bluebird bio',
+    indication: 'Cerebral Adrenoleukodystrophy',
+    therapy_area: 'rare_disease',
+    pathway: 'BLA',
+    designations: ['Breakthrough Therapy', 'Priority Review', 'Orphan Drug', 'Rare Pediatric Disease'],
+    approval_year: 2022,
+    review_months: 8,
+    total_development_months: 96,
+    product_type: 'biologic',
+  },
+  {
+    drug: 'Trikafta (elexacaftor/tezacaftor/ivacaftor)',
+    company: 'Vertex Pharmaceuticals',
+    indication: 'Cystic Fibrosis (F508del)',
+    therapy_area: 'rare_disease',
+    pathway: 'Standard NDA',
+    designations: ['Breakthrough Therapy', 'Priority Review', 'Orphan Drug', 'Fast Track'],
+    approval_year: 2019,
+    review_months: 3,
+    total_development_months: 36,
+    product_type: 'pharma',
+  },
+  // NEUROLOGY
+  {
+    drug: 'Leqembi (lecanemab)',
+    company: 'Eisai / Biogen',
+    indication: 'Alzheimer\'s Disease (Early)',
+    therapy_area: 'neurology',
+    pathway: 'Accelerated Approval',
+    designations: ['Breakthrough Therapy', 'Priority Review', 'Fast Track'],
+    approval_year: 2023,
+    review_months: 6,
+    total_development_months: 84,
+    product_type: 'biologic',
+  },
+  {
+    drug: 'Kisunla (donanemab)',
+    company: 'Eli Lilly',
+    indication: 'Alzheimer\'s Disease (Early Symptomatic)',
+    therapy_area: 'neurology',
+    pathway: 'Standard NDA',
+    designations: ['Breakthrough Therapy', 'Priority Review'],
+    approval_year: 2024,
+    review_months: 8,
+    total_development_months: 78,
+    product_type: 'biologic',
+  },
+  {
+    drug: 'Mayzent (siponimod)',
+    company: 'Novartis',
+    indication: 'Secondary Progressive MS',
+    therapy_area: 'neurology',
+    pathway: 'Standard NDA',
+    designations: ['Priority Review'],
+    approval_year: 2019,
+    review_months: 8,
+    total_development_months: 72,
+    product_type: 'pharma',
+  },
+  // AUTOIMMUNE / IMMUNOLOGY
+  {
+    drug: 'Rinvoq (upadacitinib)',
+    company: 'AbbVie',
+    indication: 'Rheumatoid Arthritis',
+    therapy_area: 'immunology',
+    pathway: 'Standard NDA',
+    designations: [],
+    approval_year: 2019,
+    review_months: 8,
+    total_development_months: 66,
+    product_type: 'pharma',
+  },
+  {
+    drug: 'Dupixent (dupilumab)',
+    company: 'Regeneron / Sanofi',
+    indication: 'Atopic Dermatitis',
+    therapy_area: 'immunology',
+    pathway: 'BLA',
+    designations: ['Breakthrough Therapy', 'Priority Review'],
+    approval_year: 2017,
+    review_months: 6,
+    total_development_months: 54,
+    product_type: 'biologic',
+  },
+  {
+    drug: 'Skyrizi (risankizumab)',
+    company: 'AbbVie',
+    indication: 'Plaque Psoriasis',
+    therapy_area: 'immunology',
+    pathway: 'BLA',
+    designations: [],
+    approval_year: 2019,
+    review_months: 10,
+    total_development_months: 60,
+    product_type: 'biologic',
+  },
+  // METABOLIC / CARDIOLOGY
+  {
+    drug: 'Mounjaro (tirzepatide)',
+    company: 'Eli Lilly',
+    indication: 'Type 2 Diabetes',
+    therapy_area: 'metabolic',
+    pathway: 'Standard NDA',
+    designations: ['Fast Track'],
+    approval_year: 2022,
+    review_months: 8,
+    total_development_months: 60,
+    product_type: 'pharma',
+  },
+  {
+    drug: 'Wegovy (semaglutide)',
+    company: 'Novo Nordisk',
+    indication: 'Chronic Weight Management',
+    therapy_area: 'metabolic',
+    pathway: 'Standard NDA',
+    designations: [],
+    approval_year: 2021,
+    review_months: 12,
+    total_development_months: 72,
+    product_type: 'pharma',
+  },
+  {
+    drug: 'Leqvio (inclisiran)',
+    company: 'Novartis',
+    indication: 'Hypercholesterolemia',
+    therapy_area: 'cardiology',
+    pathway: 'Standard NDA',
+    designations: [],
+    approval_year: 2021,
+    review_months: 10,
+    total_development_months: 84,
+    product_type: 'pharma',
+  },
+  // INFECTIOUS DISEASE
+  {
+    drug: 'Paxlovid (nirmatrelvir/ritonavir)',
+    company: 'Pfizer',
+    indication: 'COVID-19 (mild-to-moderate)',
+    therapy_area: 'infectious_disease',
+    pathway: 'Standard NDA',
+    designations: ['Priority Review', 'Fast Track'],
+    approval_year: 2023,
+    review_months: 6,
+    total_development_months: 18,
+    product_type: 'pharma',
+  },
+  // GENE THERAPY
+  {
+    drug: 'Casgevy (exagamglogene autotemcel)',
+    company: 'Vertex / CRISPR Therapeutics',
+    indication: 'Sickle Cell Disease (severe)',
+    therapy_area: 'rare_disease',
+    pathway: 'BLA',
+    designations: ['Priority Review', 'Orphan Drug', 'Fast Track', 'Regenerative Medicine Advanced Therapy (RMAT)'],
+    approval_year: 2023,
+    review_months: 8,
+    total_development_months: 72,
+    product_type: 'biologic',
+  },
+  {
+    drug: 'Lyfgenia (lovotibeglogene autotemcel)',
+    company: 'bluebird bio',
+    indication: 'Sickle Cell Disease',
+    therapy_area: 'rare_disease',
+    pathway: 'BLA',
+    designations: ['Priority Review', 'Orphan Drug', 'Breakthrough Therapy', 'Regenerative Medicine Advanced Therapy (RMAT)'],
+    approval_year: 2023,
+    review_months: 10,
+    total_development_months: 96,
+    product_type: 'biologic',
+  },
+];
+
+export function getComparableApprovalsByTherapyArea(therapyArea: string): ComparableApprovalRecord[] {
+  const normalized = therapyArea.toLowerCase().replace(/[\s-_]+/g, '_');
+  return COMPARABLE_APPROVALS.filter(
+    (a) => a.therapy_area.toLowerCase().replace(/[\s-_]+/g, '_') === normalized,
+  );
+}
+
+export function getComparableApprovalsByDesignation(designation: string): ComparableApprovalRecord[] {
+  const normalized = designation.toLowerCase();
+  return COMPARABLE_APPROVALS.filter(
+    (a) => a.designations.some((d) => d.toLowerCase().includes(normalized)),
+  );
+}

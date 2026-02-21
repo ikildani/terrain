@@ -14,10 +14,13 @@ export function DashboardShell({ children }: DashboardShellProps) {
 
   return (
     <>
+      <a href="#main-content" className="skip-to-content">
+        Skip to content
+      </a>
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="dashboard-layout">
         <Topbar onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
-        <main className="page-content">
+        <main id="main-content" className="page-content">
           <ErrorBoundary>{children}</ErrorBoundary>
         </main>
       </div>

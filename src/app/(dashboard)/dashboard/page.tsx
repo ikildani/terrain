@@ -3,18 +3,18 @@
 import Link from 'next/link';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { StatCard } from '@/components/shared/StatCard';
-import { UpgradeGate } from '@/components/shared/UpgradeGate';
 import { Progress } from '@/components/ui/Progress';
 import {
   BarChart3,
   Network,
-  TestTube2,
   Users,
+  Shield,
   FileText,
   ArrowRight,
-  Bell,
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useReports } from '@/hooks/useReports';
+import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { PLAN_LIMITS } from '@/lib/subscription';
 
 const quickActions = [
@@ -31,16 +31,16 @@ const quickActions = [
     icon: Network,
   },
   {
-    label: 'Search Pipeline',
-    desc: 'Clinical trials and development assets',
-    href: '/pipeline',
-    icon: TestTube2,
-  },
-  {
     label: 'Find Partners',
     desc: 'BD match scoring and deal benchmarks',
     href: '/partners',
     icon: Users,
+  },
+  {
+    label: 'Regulatory Intel',
+    desc: 'FDA/EMA pathway analysis and timelines',
+    href: '/regulatory',
+    icon: Shield,
   },
 ];
 
@@ -52,8 +52,11 @@ function getGreeting() {
 }
 
 export default function DashboardPage() {
-  const { plan, isPro } = useSubscription();
+  const { plan } = useSubscription();
   const limits = PLAN_LIMITS[plan];
+  const { reports, isLoading: reportsLoading } = useReports();
+  const { analysesThisMonth, totalReports } = useDashboardStats();
+  const recentReports = reports.slice(0, 5);
 
   return (
     <>
@@ -85,8 +88,16 @@ export default function DashboardPage() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard label="Analyses Run" value="0" subvalue="This month" />
-        <StatCard label="Reports Saved" value="0" subvalue="Total" />
+        <StatCard
+          label="Analyses Run"
+          value={String(analysesThisMonth)}
+          subvalue="This month"
+        />
+        <StatCard
+          label="Reports Saved"
+          value={String(totalReports)}
+          subvalue="Total"
+        />
         <StatCard
           label="Indications Covered"
           value="152"
@@ -101,7 +112,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Usage Meters + Recent Reports + Alert Feed */}
+      {/* Usage Meters + Recent Reports */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Usage meters */}
         {plan === 'free' && (
@@ -110,7 +121,7 @@ export default function DashboardPage() {
             <div className="space-y-4">
               <Progress
                 label="Market Sizing"
-                value={0}
+                value={analysesThisMonth}
                 max={limits.market_sizing as number}
                 showValue
               />
@@ -122,7 +133,7 @@ export default function DashboardPage() {
               />
               <Progress
                 label="Saved Reports"
-                value={0}
+                value={totalReports}
                 max={limits.reports_saved as number}
                 showValue
               />
@@ -137,48 +148,57 @@ export default function DashboardPage() {
         )}
 
         {/* Recent Reports */}
-        <div className={plan === 'free' ? 'card' : 'lg:col-span-2 card'}>
-          <h3 className="label mb-4">Recent Reports</h3>
-          <div className="flex flex-col items-center py-8 text-center">
-            <FileText className="w-10 h-10 text-navy-600 mb-3" />
-            <p className="text-sm text-slate-400 mb-1">No reports yet</p>
-            <p className="text-xs text-slate-600 mb-4">
-              Run your first market analysis to get started.
-            </p>
-            <Link href="/market-sizing" className="btn btn-primary btn-sm">
-              New Market Analysis
-            </Link>
-          </div>
-        </div>
-
-        {/* Alert Feed */}
-        <div className="card">
-          <h3 className="label mb-4">Alert Feed</h3>
-          {isPro ? (
-            <div className="flex flex-col items-center py-8 text-center">
-              <Bell className="w-10 h-10 text-navy-600 mb-3" />
-              <p className="text-sm text-slate-400 mb-1">No alerts configured</p>
-              <p className="text-xs text-slate-600 mb-4">
-                Set up deal alerts to track your market.
-              </p>
-              <Link href="/alerts" className="btn btn-secondary btn-sm">
-                Configure Alerts
+        <div className={plan === 'free' ? 'lg:col-span-2 card' : 'lg:col-span-3 card'}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="label">Recent Reports</h3>
+            {recentReports.length > 0 && (
+              <Link href="/reports" className="text-xs text-teal-500 hover:text-teal-400 transition-colors">
+                View all
               </Link>
+            )}
+          </div>
+          {reportsLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-14 bg-navy-800/50 rounded-md animate-pulse" />
+              ))}
             </div>
-          ) : (
-            <UpgradeGate feature="Deal Alerts">
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex gap-3 items-start">
-                    <div className="w-2 h-2 rounded-full bg-teal-500 mt-1.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <div className="h-3 bg-navy-700 rounded w-3/4 mb-1.5" />
-                      <div className="h-2.5 bg-navy-800 rounded w-full" />
+          ) : recentReports.length > 0 ? (
+            <div className="space-y-2">
+              {recentReports.map((report) => (
+                <Link
+                  key={report.id}
+                  href={`/market-sizing/${report.id}`}
+                  className="flex items-center justify-between p-3 rounded-md hover:bg-navy-800/50 transition-colors group"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <FileText className="w-4 h-4 text-slate-600 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm text-slate-300 truncate group-hover:text-white transition-colors">
+                        {report.title}
+                      </p>
+                      <p className="text-xs text-slate-600">
+                        {report.indication} · {new Date(report.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            </UpgradeGate>
+                  <span className="text-2xs font-mono text-slate-600 uppercase px-2 py-0.5 bg-navy-800 rounded shrink-0">
+                    {report.report_type.replace('_', ' ')}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center py-8 text-center">
+              <FileText className="w-10 h-10 text-navy-600 mb-3" />
+              <p className="text-sm text-slate-400 mb-1">No reports yet</p>
+              <p className="text-xs text-slate-600 mb-4">
+                Run your first market analysis to get started.
+              </p>
+              <Link href="/market-sizing" className="btn btn-primary btn-sm">
+                New Market Analysis
+              </Link>
+            </div>
           )}
         </div>
       </div>

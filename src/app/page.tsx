@@ -19,14 +19,15 @@ import {
   Clock,
   DollarSign,
   Target,
-  LineChart,
   ChevronDown,
   Building2,
   Briefcase,
   PieChart,
   Menu,
   X,
-  Bell,
+  Search,
+  Loader2,
+  Sparkles,
 } from 'lucide-react';
 
 // ────────────────────────────────────────────────────────────
@@ -65,22 +66,6 @@ const MODULES = [
       'FDA/EMA/PMDA pathway analysis, designation eligibility, device classification, and timeline benchmarking.',
     metric: 'FDA + EMA + PMDA',
     href: '/regulatory',
-  },
-  {
-    name: 'Pipeline Intelligence',
-    icon: LineChart,
-    description:
-      'Search ClinicalTrials.gov in real time. Filter by phase, mechanism, company, and geography. Export deal-ready pipeline tables.',
-    metric: 'Live ClinicalTrials.gov',
-    href: '/pipeline',
-  },
-  {
-    name: 'Deal Alerts',
-    icon: Bell,
-    description:
-      'Monitor competitor filings, partner deal activity, FDA actions, and market shifts. Daily digest or near-real-time for Team plan.',
-    metric: 'Pro + Team',
-    href: '/alerts',
   },
 ];
 
@@ -138,6 +123,7 @@ const PRICING = [
   {
     name: 'Free',
     price: 0,
+    annualPrice: 0,
     period: '',
     description: 'Explore the platform with core market intelligence.',
     cta: 'Start for free',
@@ -154,6 +140,8 @@ const PRICING = [
   {
     name: 'Pro',
     price: 149,
+    annualPrice: 124,
+    annualTotal: 1490,
     period: '/mo',
     description: 'Full intelligence suite for active deal-makers.',
     cta: 'Start Pro trial',
@@ -172,6 +160,8 @@ const PRICING = [
   {
     name: 'Team',
     price: 499,
+    annualPrice: 416,
+    annualTotal: 4990,
     period: '/mo',
     description: 'Shared intelligence for deal teams and BD groups.',
     cta: 'Contact us',
@@ -184,6 +174,24 @@ const PRICING = [
       'API access',
       'Custom alert configurations',
       'Priority support',
+    ],
+  },
+  {
+    name: 'Enterprise',
+    price: -1,
+    annualPrice: -1,
+    period: '',
+    description: 'Custom intelligence infrastructure for large organizations.',
+    cta: 'Contact sales',
+    href: 'mailto:team@ambrosiaventures.co?subject=Terrain Enterprise',
+    highlighted: false,
+    features: [
+      'Everything in Team',
+      'Unlimited seats',
+      'White-label reports',
+      'Dedicated customer success manager',
+      'Custom integrations & API priority',
+      'SLA & enterprise security review',
     ],
   },
 ];
@@ -585,6 +593,215 @@ function LiveDemo() {
 }
 
 // ────────────────────────────────────────────────────────────
+// TRY IT YOURSELF (Interactive Demo)
+// ────────────────────────────────────────────────────────────
+
+const DEMO_STAGES = [
+  { value: 'preclinical', label: 'Preclinical' },
+  { value: 'phase1', label: 'Phase 1' },
+  { value: 'phase2', label: 'Phase 2' },
+  { value: 'phase3', label: 'Phase 3' },
+];
+
+const DEMO_SUGGESTIONS = [
+  'Non-Small Cell Lung Cancer',
+  'Multiple Myeloma',
+  'Atopic Dermatitis',
+  'Rheumatoid Arthritis',
+];
+
+function TryItYourself() {
+  const [indication, setIndication] = useState('');
+  const [stage, setStage] = useState('phase2');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const [error, setError] = useState('');
+
+  async function handleAnalyze() {
+    if (!indication.trim()) return;
+    setLoading(true);
+    setError('');
+    setResult(null);
+
+    try {
+      const res = await fetch('/api/analyze/market', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          demo: true,
+          product_category: 'pharmaceutical',
+          input: {
+            indication: indication.trim(),
+            development_stage: stage,
+            geography: ['US'],
+            launch_year: 2027,
+            pricing_assumption: 'base',
+          },
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Analysis failed. Try again.');
+      } else {
+        setResult(data.data as Record<string, unknown>);
+      }
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const summary = result?.summary as Record<string, unknown> | undefined;
+  const tamUs = summary?.tam_us as { value: number; unit: string } | undefined;
+  const samUs = summary?.sam_us as { value: number; unit: string } | undefined;
+  const somUs = summary?.som_us as { value: number; unit: string } | undefined;
+  const cagr = summary?.cagr_5yr as number | undefined;
+
+  return (
+    <div className="mt-16">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-teal-500/20 bg-teal-500/5 mb-4">
+          <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+          <span className="text-xs font-mono text-teal-400 tracking-wide">
+            Try it yourself — no signup required
+          </span>
+        </div>
+        <h3 className="font-display text-2xl text-white mb-2">
+          Run a real analysis
+        </h3>
+        <p className="text-sm text-slate-400 max-w-lg mx-auto">
+          Type any indication and see instant market sizing powered by our engine.
+        </p>
+      </div>
+
+      <div className="card noise p-6 max-w-2xl mx-auto">
+        {/* Indication input */}
+        <div className="mb-4">
+          <label className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2 block">
+            Indication
+          </label>
+          <input
+            type="text"
+            value={indication}
+            onChange={(e) => setIndication(e.target.value)}
+            placeholder="e.g., Non-Small Cell Lung Cancer"
+            className="input w-full"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleAnalyze();
+            }}
+          />
+          <div className="flex flex-wrap gap-2 mt-2">
+            {DEMO_SUGGESTIONS.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setIndication(s)}
+                className="text-[10px] font-mono text-slate-500 hover:text-teal-400 px-2 py-1 rounded border border-navy-700 hover:border-teal-500/30 transition-colors"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Stage pills */}
+        <div className="mb-6">
+          <label className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2 block">
+            Development Stage
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {DEMO_STAGES.map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => setStage(s.value)}
+                className={`px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
+                  stage === s.value
+                    ? 'bg-teal-500/10 border-teal-500/30 text-teal-400'
+                    : 'bg-navy-800 border-navy-700 text-slate-400 hover:border-navy-600'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Analyze button */}
+        <button
+          onClick={handleAnalyze}
+          disabled={loading || !indication.trim()}
+          className="btn btn-primary w-full py-3 text-sm inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Analyzing...
+            </>
+          ) : (
+            <>
+              <Search className="w-4 h-4" />
+              Analyze Market
+            </>
+          )}
+        </button>
+
+        {/* Error */}
+        {error && (
+          <div className="mt-4 p-3 rounded bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+            {error}
+          </div>
+        )}
+
+        {/* Results */}
+        {result && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mt-6 pt-6 border-t border-navy-700/60"
+          >
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+              {[
+                { label: 'US TAM', val: tamUs ? `$${tamUs.value}${tamUs.unit}` : '—' },
+                { label: 'US SAM', val: samUs ? `$${samUs.value}${samUs.unit}` : '—' },
+                { label: 'Peak Revenue', val: somUs ? `$${somUs.value}${somUs.unit}` : '—' },
+                { label: '5-yr CAGR', val: cagr != null ? `+${cagr.toFixed(1)}%` : '—' },
+              ].map((m) => (
+                <div key={m.label}>
+                  <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
+                    {m.label}
+                  </div>
+                  <div className="font-mono text-lg text-white font-medium">
+                    {m.val}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-4 rounded-lg bg-teal-500/5 border border-teal-500/20 text-center">
+              <p className="text-sm text-slate-300 mb-3">
+                Sign up to see the full report — patient funnel, geography breakdown, competitive density, and partner matching.
+              </p>
+              <Link
+                href="/signup"
+                className="btn btn-primary text-sm px-6 py-2 inline-flex items-center gap-2"
+              >
+                Create free account
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
 // FAQ ITEM
 // ────────────────────────────────────────────────────────────
 
@@ -627,6 +844,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 export default function HomePage() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -907,16 +1125,31 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* ── SOCIAL PROOF ────────────────────────────────────── */}
-      <section className="py-10 px-6 border-t border-navy-700/40">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] mb-6">
-            Trusted by life sciences professionals at
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 opacity-40">
-            {['Series A Biotech', 'BD Teams', 'Life Sciences VC', 'CRO Partners'].map((name) => (
-              <span key={name} className="text-sm font-mono text-slate-400">{name}</span>
-            ))}
+      {/* ── CREDIBILITY ──────────────────────────────────────── */}
+      <section className="py-12 px-6 border-t border-navy-700/40 bg-navy-900/30 noise">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="font-mono text-2xl text-teal-400 font-medium mb-1">10,000+</div>
+              <div className="text-xs text-slate-500 uppercase tracking-wider">Biopharma transactions analyzed</div>
+            </div>
+            <div>
+              <div className="font-mono text-2xl text-teal-400 font-medium mb-1">12</div>
+              <div className="text-xs text-slate-500 uppercase tracking-wider">Therapeutic areas covered</div>
+            </div>
+            <div>
+              <div className="font-mono text-2xl text-teal-400 font-medium mb-1">3</div>
+              <div className="text-xs text-slate-500 uppercase tracking-wider">Product categories (Pharma, Devices, Dx)</div>
+            </div>
+          </div>
+          <div className="mt-8 pt-6 border-t border-navy-700/40 text-center">
+            <p className="text-sm text-slate-500">
+              Built by{' '}
+              <a href="https://ambrosiaventures.co" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white transition-colors">
+                Ambrosia Ventures
+              </a>
+              {' '}&mdash; life sciences M&A and strategy advisory. Our deal experience is embedded in every calculation.
+            </p>
           </div>
         </div>
       </section>
@@ -929,7 +1162,7 @@ export default function HomePage() {
               Intelligence Modules
             </p>
             <h2 className="font-display text-3xl sm:text-4xl text-white mb-4">
-              Six modules. One platform.
+              Four modules. One platform.
             </h2>
             <p className="text-slate-400 max-w-2xl mx-auto">
               Every module answers the questions that precede licensing
@@ -938,7 +1171,7 @@ export default function HomePage() {
           </div>
 
           <motion.div
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto"
+            className="grid md:grid-cols-2 gap-5 max-w-4xl mx-auto"
             variants={stagger}
             initial="hidden"
             whileInView="visible"
@@ -1061,6 +1294,9 @@ export default function HomePage() {
 
             <LiveDemo />
           </div>
+
+          {/* Interactive Demo */}
+          <TryItYourself />
         </div>
       </Section>
 
@@ -1169,78 +1405,140 @@ export default function HomePage() {
             <h2 className="font-display text-3xl sm:text-4xl text-white mb-4">
               Intelligence at every scale
             </h2>
-            <p className="text-slate-400 max-w-xl mx-auto">
+            <p className="text-slate-400 max-w-xl mx-auto mb-8">
               Start free. Upgrade when Terrain becomes indispensable.
             </p>
+
+            {/* Billing toggle */}
+            <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-navy-800 border border-navy-700">
+              <button
+                onClick={() => setBillingPeriod('monthly')}
+                className={`px-4 py-2 rounded-md text-xs font-medium transition-colors ${
+                  billingPeriod === 'monthly'
+                    ? 'bg-navy-700 text-white'
+                    : 'text-slate-400 hover:text-slate-300'
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingPeriod('annual')}
+                className={`px-4 py-2 rounded-md text-xs font-medium transition-colors inline-flex items-center gap-2 ${
+                  billingPeriod === 'annual'
+                    ? 'bg-navy-700 text-white'
+                    : 'text-slate-400 hover:text-slate-300'
+                }`}
+              >
+                Annual
+                <span className="text-[10px] font-mono text-teal-400 bg-teal-500/10 px-1.5 py-0.5 rounded">
+                  Save ~17%
+                </span>
+              </button>
+            </div>
           </div>
 
           <motion.div
-            className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto"
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto"
             variants={stagger}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-60px' }}
           >
-            {PRICING.map((plan) => (
-              <motion.div
-                key={plan.name}
-                variants={fadeUp}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className={`card noise p-6 relative flex flex-col ${
-                  plan.highlighted
-                    ? 'border-teal-500/40 ring-1 ring-teal-500/20 shadow-teal-sm'
-                    : ''
-                }`}
-              >
-                {plan.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="badge-teal text-[10px] px-3 py-1">
-                      Most Popular
-                    </span>
-                  </div>
-                )}
+            {PRICING.map((plan) => {
+              const isEnterprise = plan.price === -1;
+              const displayPrice = isEnterprise
+                ? null
+                : billingPeriod === 'annual' && plan.annualPrice > 0
+                  ? plan.annualPrice
+                  : plan.price;
 
-                <div className="mb-6">
-                  <h3 className="font-display text-xl text-white mb-1">
-                    {plan.name}
-                  </h3>
-                  <p className="text-sm text-slate-500 mb-4">
-                    {plan.description}
-                  </p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="font-mono text-4xl text-white font-medium">
-                      ${plan.price}
-                    </span>
-                    {plan.period && (
-                      <span className="text-sm text-slate-500">
-                        {plan.period}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <ul className="space-y-3 mb-8 flex-1">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-300">
-                      <Check className="w-4 h-4 text-teal-500 mt-0.5 shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href={plan.href}
-                  className={`btn w-full text-center text-sm py-2.5 ${
+              return (
+                <motion.div
+                  key={plan.name}
+                  variants={fadeUp}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                  className={`card noise p-6 relative flex flex-col ${
                     plan.highlighted
-                      ? 'btn-primary shadow-teal-sm hover:shadow-teal-md transition-shadow'
-                      : 'btn-secondary'
+                      ? 'border-teal-500/40 ring-1 ring-teal-500/20 shadow-teal-sm'
+                      : isEnterprise
+                        ? 'border-slate-600/40'
+                        : ''
                   }`}
                 >
-                  {plan.cta}
-                </Link>
-              </motion.div>
-            ))}
+                  {plan.highlighted && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <span className="badge-teal text-[10px] px-3 py-1">
+                        Most Popular
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="mb-6">
+                    <h3 className="font-display text-xl text-white mb-1">
+                      {plan.name}
+                    </h3>
+                    <p className="text-sm text-slate-500 mb-4">
+                      {plan.description}
+                    </p>
+                    {isEnterprise ? (
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-display text-3xl text-white font-medium">
+                          Custom
+                        </span>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-baseline gap-1">
+                          <span className="font-mono text-4xl text-white font-medium">
+                            ${displayPrice}
+                          </span>
+                          {plan.period && (
+                            <span className="text-sm text-slate-500">
+                              {plan.period}
+                            </span>
+                          )}
+                        </div>
+                        {billingPeriod === 'annual' && plan.annualTotal && (
+                          <p className="text-xs text-slate-500 mt-1">
+                            Billed annually at ${plan.annualTotal.toLocaleString()}/yr
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <ul className="space-y-3 mb-8 flex-1">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-300">
+                        <Check className="w-4 h-4 text-teal-500 mt-0.5 shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {isEnterprise ? (
+                    <a
+                      href={plan.href}
+                      className="btn btn-secondary w-full text-center text-sm py-2.5"
+                    >
+                      {plan.cta}
+                    </a>
+                  ) : (
+                    <Link
+                      href={plan.href}
+                      className={`btn w-full text-center text-sm py-2.5 ${
+                        plan.highlighted
+                          ? 'btn-primary shadow-teal-sm hover:shadow-teal-md transition-shadow'
+                          : 'btn-secondary'
+                      }`}
+                    >
+                      {plan.cta}
+                    </Link>
+                  )}
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
       </Section>

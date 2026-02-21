@@ -5,10 +5,8 @@ import { usePathname } from 'next/navigation';
 import {
   BarChart3,
   Network,
-  TestTube2,
   Users,
   Shield,
-  Bell,
   FileText,
   Settings,
   CreditCard,
@@ -33,7 +31,6 @@ const NAV_SECTIONS: { section: string; items: NavItem[] }[] = [
     items: [
       { label: 'Market Sizing', href: '/market-sizing', icon: BarChart3 },
       { label: 'Competitive Landscape', href: '/competitive', icon: Network },
-      { label: 'Pipeline Intelligence', href: '/pipeline', icon: TestTube2 },
     ],
   },
   {
@@ -41,7 +38,6 @@ const NAV_SECTIONS: { section: string; items: NavItem[] }[] = [
     items: [
       { label: 'Partner Discovery', href: '/partners', icon: Users, pro: true },
       { label: 'Regulatory Intel', href: '/regulatory', icon: Shield, pro: true },
-      { label: 'Deal Alerts', href: '/alerts', icon: Bell, pro: true },
     ],
   },
   {
@@ -133,6 +129,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                       href={item.href}
                       onClick={onClose}
                       className={cn('sidebar-nav-item', active && 'active')}
+                      aria-current={active ? 'page' : undefined}
                     >
                       <Icon />
                       <span className="flex-1">{item.label}</span>
@@ -167,6 +164,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   href={item.href}
                   onClick={onClose}
                   className={cn('sidebar-nav-item', active && 'active')}
+                  aria-current={active ? 'page' : undefined}
                 >
                   <Icon />
                   <span className="flex-1">{item.label}</span>
@@ -187,7 +185,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
               {plan === 'free'
-                ? 'Unlock partner discovery, regulatory intel, deal alerts, and export capabilities.'
+                ? 'Unlock partner discovery, regulatory intel, and export capabilities.'
                 : `Add ${PLAN_DISPLAY.team.name} features: ${PLAN_DISPLAY.team.tagline}`}
             </p>
             <Link

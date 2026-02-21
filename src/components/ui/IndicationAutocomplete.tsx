@@ -237,7 +237,10 @@ export function IndicationAutocomplete({
     return (
       <button
         key={ind.name}
+        id={`indication-option-${i}`}
         type="button"
+        role="option"
+        aria-selected={i === activeIndex}
         data-autocomplete-item
         onMouseDown={() => select(ind.name)}
         onMouseEnter={() => setActiveIndex(i)}
@@ -256,14 +259,24 @@ export function IndicationAutocomplete({
     );
   }
 
+  const listboxId = 'indication-listbox';
+  const isOpen = showResults || showSuggestions || showNoResults;
+
   return (
     <div ref={containerRef} className="relative">
-      {label && <label className="input-label">{label}</label>}
+      {label && <label htmlFor="indication-input" className="input-label">{label}</label>}
       <div className="relative mt-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" aria-hidden="true" />
         <input
           ref={inputRef}
+          id="indication-input"
           type="text"
+          role="combobox"
+          aria-expanded={isOpen}
+          aria-haspopup="listbox"
+          aria-owns={isOpen ? listboxId : undefined}
+          aria-autocomplete="list"
+          aria-activedescendant={activeIndex >= 0 ? `indication-option-${activeIndex}` : undefined}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -291,6 +304,9 @@ export function IndicationAutocomplete({
       {showResults && (
         <div
           ref={listRef}
+          id={listboxId}
+          role="listbox"
+          aria-label="Indication suggestions"
           className="absolute z-50 w-full mt-1 bg-navy-800 border border-navy-700 rounded-md shadow-elevated max-h-72 overflow-y-auto"
         >
           {results.map((ind, i) => renderItem(ind, i, true))}
@@ -301,6 +317,9 @@ export function IndicationAutocomplete({
       {showSuggestions && (recentIndications.length > 0 || popularIndications.length > 0) && (
         <div
           ref={listRef}
+          id={listboxId}
+          role="listbox"
+          aria-label="Suggested indications"
           className="absolute z-50 w-full mt-1 bg-navy-800 border border-navy-700 rounded-md shadow-elevated max-h-80 overflow-y-auto"
         >
           {recentIndications.length > 0 && (
@@ -338,7 +357,7 @@ export function IndicationAutocomplete({
         </div>
       )}
 
-      {error && <p className="text-xs text-signal-red mt-1">{error}</p>}
+      {error && <p id="indication-error" role="alert" className="text-xs text-signal-red mt-1">{error}</p>}
     </div>
   );
 }

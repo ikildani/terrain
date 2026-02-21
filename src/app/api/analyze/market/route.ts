@@ -68,6 +68,7 @@ const RequestSchema = z.object({
   product_category: z.string().min(1, 'product_category is required.'),
   save: z.boolean().optional(),
   report_title: z.string().optional(),
+  demo: z.boolean().optional(),
 });
 
 // ────────────────────────────────────────────────────────────
@@ -95,35 +96,74 @@ function isCDx(category: string): boolean {
 // POST /api/analyze/market
 // ────────────────────────────────────────────────────────────
 
+// ────────────────────────────────────────────────────────────
+// DEMO RATE LIMITING (in-memory, resets on cold start)
+// ────────────────────────────────────────────────────────────
+
+const demoRequests = new Map<string, number>();
+
+function isDemoRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const lastRequest = demoRequests.get(ip);
+  if (lastRequest && now - lastRequest < 60_000) return true; // 1 per minute per IP
+  demoRequests.set(ip, now);
+  // Clean old entries every 100 requests
+  if (demoRequests.size > 500) {
+    demoRequests.forEach((time, key) => {
+      if (now - time > 300_000) demoRequests.delete(key);
+    });
+  }
+  return false;
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // ── Auth ──────────────────────────────────────────────────
-    const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required.' } satisfies ApiResponse<never>,
-        { status: 401 },
-      );
-    }
-
-    // ── Usage limit check ─────────────────────────────────────
-    const usage = await checkUsage(user.id, 'market_sizing');
-
-    if (!usage.allowed) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Monthly limit reached (${usage.limit} analyses on ${usage.plan} plan). Upgrade to Pro for unlimited access.`,
-          usage: { feature: usage.feature, monthly_count: usage.monthlyCount, limit: usage.limit, remaining: 0 },
-        } satisfies ApiResponse<never> & { usage: unknown },
-        { status: 403 },
-      );
-    }
-
-    // ── Parse body ──────────────────────────────────────────
+    // ── Check for demo mode (unauthenticated) ─────────────────
     const body = await request.json();
+    const isDemo = body.demo === true;
+
+    let user: { id: string } | null = null;
+
+    if (isDemo) {
+      // Rate limit demo requests by IP
+      const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+      if (isDemoRateLimited(ip)) {
+        return NextResponse.json(
+          { success: false, error: 'Demo rate limit reached. Sign up for unlimited access.' } satisfies ApiResponse<never>,
+          { status: 429 },
+        );
+      }
+    } else {
+      // ── Auth ──────────────────────────────────────────────────
+      const supabase = createClient();
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !authUser) {
+        return NextResponse.json(
+          { success: false, error: 'Authentication required.' } satisfies ApiResponse<never>,
+          { status: 401 },
+        );
+      }
+      user = authUser;
+    }
+
+    // ── Usage limit check (skip for demo) ──────────────────────
+    let usage: { monthlyCount: number; limit: number; remaining: number; allowed: boolean; feature: string; plan: string } = { monthlyCount: 0, limit: 1, remaining: 1, allowed: true, feature: 'market_sizing', plan: 'demo' };
+
+    if (!isDemo && user) {
+      usage = await checkUsage(user.id, 'market_sizing');
+
+      if (!usage.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Monthly limit reached (${usage.limit} analyses on ${usage.plan} plan). Upgrade to Pro for unlimited access.`,
+            usage: { feature: usage.feature, monthly_count: usage.monthlyCount, limit: usage.limit, remaining: 0 },
+          } satisfies ApiResponse<never> & { usage: unknown },
+          { status: 403 },
+        );
+      }
+    }
 
     // ── Validate with Zod ───────────────────────────────────
     const parsed = RequestSchema.safeParse(body);
@@ -181,9 +221,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ── Record usage ────────────────────────────────────────
-    const indication = input.indication || input.drug_indication || input.procedure_or_condition || '';
-    await recordUsage(user.id, 'market_sizing', indication, { product_category });
+    // ── Record usage (skip for demo) ─────────────────────────
+    if (!isDemo && user) {
+      const indication = input.indication || input.drug_indication || input.procedure_or_condition || '';
+      await recordUsage(user.id, 'market_sizing', indication, { product_category });
+    }
 
     // ── Success ─────────────────────────────────────────────
     return NextResponse.json(
