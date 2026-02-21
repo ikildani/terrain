@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import type { Report } from '@/types';
 import { apiGet, apiPost, apiDelete, apiClient } from '@/lib/utils/api';
 
@@ -42,6 +43,10 @@ export function useReports() {
       queryClient.setQueryData<Report[]>(REPORTS_KEY, (old) =>
         old ? [newReport, ...old] : [newReport]
       );
+      toast.success('Report saved');
+    },
+    onError: () => {
+      toast.error('Failed to save report');
     },
   });
 
@@ -55,6 +60,10 @@ export function useReports() {
       queryClient.setQueryData<Report[]>(REPORTS_KEY, (old) =>
         old ? old.filter((r) => r.id !== deletedId) : []
       );
+      toast.success('Report deleted');
+    },
+    onError: () => {
+      toast.error('Failed to delete report');
     },
   });
 
@@ -73,6 +82,10 @@ export function useReports() {
       queryClient.setQueryData<Report[]>(REPORTS_KEY, (old) =>
         old ? old.map((r) => (r.id === updated.id ? updated : r)) : []
       );
+      toast.success(updated.is_starred ? 'Report starred' : 'Star removed');
+    },
+    onError: () => {
+      toast.error('Failed to update report');
     },
   });
 

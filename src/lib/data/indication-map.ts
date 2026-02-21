@@ -99,7 +99,7 @@ export const INDICATION_DATA: IndicationData[] = [
 
   {
     name: 'Triple Negative Breast Cancer',
-    synonyms: ['TNBC', 'triple negative breast cancer'],
+    synonyms: ['TNBC', 'triple negative breast cancer', 'breast cancer'],
     icd10_codes: ['C50.01', 'C50.02', 'C50.11', 'C50.12'],
     therapy_area: 'oncology',
     us_prevalence: 42000,
@@ -865,7 +865,7 @@ export const INDICATION_DATA: IndicationData[] = [
 
   {
     name: 'HER2-Positive Breast Cancer',
-    synonyms: ['HER2+ breast cancer', 'HER2-positive BC', 'ERBB2+ breast cancer', 'HER2-amplified breast cancer'],
+    synonyms: ['HER2+ breast cancer', 'HER2-positive BC', 'ERBB2+ breast cancer', 'HER2-amplified breast cancer', 'HR+ breast cancer', 'HR-positive breast cancer', 'hormone receptor positive breast cancer'],
     icd10_codes: ['C50.01', 'C50.11', 'C50.21', 'C50.31', 'C50.41', 'C50.91'],
     therapy_area: 'oncology',
     us_prevalence: 85000,

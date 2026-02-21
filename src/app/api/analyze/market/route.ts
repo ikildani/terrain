@@ -8,6 +8,8 @@ import {
   calculateDeviceMarketSizing,
   calculateCDxMarketSizing,
 } from '@/lib/analytics/device-market-sizing';
+import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { logger, withTiming, logApiRequest, logApiResponse } from '@/lib/logger';
 import type { ApiResponse } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -117,6 +119,7 @@ function isDemoRateLimited(ip: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  const routeStart = performance.now();
   try {
     // ── Check for demo mode (unauthenticated) ─────────────────
     const body = await request.json();
@@ -145,7 +148,19 @@ export async function POST(request: NextRequest) {
         );
       }
       user = authUser;
+
+      // ── Rate limit authenticated users ────────────────────────
+      const rl = rateLimit(`market:${authUser.id}`, RATE_LIMITS.analysis_pro);
+      if (!rl.success) {
+        logApiResponse({ route: '/api/analyze/market', status: 429, durationMs: Math.round(performance.now() - routeStart), userId: authUser.id });
+        return NextResponse.json(
+          { success: false, error: 'Rate limit exceeded. Try again later.' } satisfies ApiResponse<never>,
+          { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } },
+        );
+      }
     }
+
+    logApiRequest({ route: '/api/analyze/market', method: 'POST', userId: user?.id, isDemo });
 
     // ── Usage limit check (skip for demo) ──────────────────────
     let usage: { monthlyCount: number; limit: number; remaining: number; allowed: boolean; feature: string; plan: string } = { monthlyCount: 0, limit: 1, remaining: 1, allowed: true, feature: 'market_sizing', plan: 'demo' };
@@ -204,13 +219,17 @@ export async function POST(request: NextRequest) {
 
     // ── Route to the correct engine ─────────────────────────
     let result: unknown;
+    const indication = input.indication || input.drug_indication || input.procedure_or_condition || '';
 
     if (isPharma(product_category)) {
-      result = await calculateMarketSizing(input as Parameters<typeof calculateMarketSizing>[0]);
+      const { result: r } = await withTiming('market_sizing_pharma', () => calculateMarketSizing(input as Parameters<typeof calculateMarketSizing>[0]), { indication });
+      result = r;
     } else if (isDevice(product_category)) {
-      result = await calculateDeviceMarketSizing(input as Parameters<typeof calculateDeviceMarketSizing>[0]);
+      const { result: r } = await withTiming('market_sizing_device', () => calculateDeviceMarketSizing(input as Parameters<typeof calculateDeviceMarketSizing>[0]), { indication });
+      result = r;
     } else if (isCDx(product_category)) {
-      result = await calculateCDxMarketSizing(input as Parameters<typeof calculateCDxMarketSizing>[0]);
+      const { result: r } = await withTiming('market_sizing_cdx', () => calculateCDxMarketSizing(input as Parameters<typeof calculateCDxMarketSizing>[0]), { indication });
+      result = r;
     } else {
       return NextResponse.json(
         {
@@ -223,11 +242,11 @@ export async function POST(request: NextRequest) {
 
     // ── Record usage (skip for demo) ─────────────────────────
     if (!isDemo && user) {
-      const indication = input.indication || input.drug_indication || input.procedure_or_condition || '';
       await recordUsage(user.id, 'market_sizing', indication, { product_category });
     }
 
     // ── Success ─────────────────────────────────────────────
+    logApiResponse({ route: '/api/analyze/market', status: 200, durationMs: Math.round(performance.now() - routeStart), userId: user?.id, product_category, indication });
     return NextResponse.json(
       {
         success: true,
@@ -244,6 +263,8 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : 'Market analysis failed.';
+    logger.error('market_analysis_error', { error: message, stack: error instanceof Error ? error.stack : undefined });
+    logApiResponse({ route: '/api/analyze/market', status: 500, durationMs: Math.round(performance.now() - routeStart) });
     return NextResponse.json(
       { success: false, error: message } satisfies ApiResponse<never>,
       { status: 500 },

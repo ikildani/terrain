@@ -10,7 +10,6 @@ export const PLAN_LIMITS = {
     export_pdf: false,
     export_csv: false,
     team_sharing: false,
-    early_pipeline: false,
   },
   pro: {
     market_sizing: -1,
@@ -21,7 +20,6 @@ export const PLAN_LIMITS = {
     export_pdf: true,
     export_csv: true,
     team_sharing: false,
-    early_pipeline: true,
   },
   team: {
     market_sizing: -1,
@@ -32,7 +30,6 @@ export const PLAN_LIMITS = {
     export_pdf: true,
     export_csv: true,
     team_sharing: true,
-    early_pipeline: true,
     api_access: true,
     seats: 5,
   },

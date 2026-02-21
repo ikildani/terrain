@@ -343,17 +343,17 @@ export default function CompetitiveLandscapeReport({
       <div className="flex items-center justify-end gap-3">
         <SaveReportButton
           reportData={{
-            title: `Competitive Landscape — ${data.summary.crowding_label}`,
+            title: `Competitive Landscape — ${data.summary.indication}`,
             report_type: 'competitive',
-            indication: data.summary.crowding_label,
-            inputs: { indication: data.summary.crowding_label, mechanism: mechanism ?? '' },
+            indication: data.summary.indication,
+            inputs: { indication: data.summary.indication, mechanism: mechanism ?? '' },
             outputs: data as unknown as Record<string, unknown>,
           }}
         />
         <ExportButton
           format="pdf"
           targetRef={reportRef}
-          reportTitle={`Competitive Landscape — ${data.summary.crowding_label}`}
+          reportTitle={`Competitive Landscape — ${data.summary.indication}`}
           filename={`competitive-landscape-${Date.now()}`}
         />
         <ExportButton

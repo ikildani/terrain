@@ -780,11 +780,36 @@ export async function analyzeCompetitiveLandscape(
   // Pull all competitors from the static database that match
   // this indication. Uses fuzzy matching on indication name.
   const competitorRecords = getCompetitorsForIndication(indication.name);
+
+  // ── Handle 0-competitor case: return empty landscape with white-space ──
   if (competitorRecords.length === 0) {
-    throw new Error(
-      `No competitive data available for "${indication.name}". ` +
-      `Try a more common indication. The competitive database is expanding regularly.`
-    );
+    const whiteSpace = [
+      `No approved or pipeline competitors identified for ${indication.name} — potential first-mover opportunity.`,
+      `Consider novel mechanisms targeting ${indication.therapy_area} pathways.`,
+      `Validate unmet need through epidemiology data (US prevalence: ${indication.us_prevalence?.toLocaleString() ?? 'N/A'}).`,
+    ];
+    const summary: LandscapeSummary = {
+      indication: indication.name,
+      mechanism: input.mechanism,
+      crowding_score: 1,
+      crowding_label: 'Low',
+      differentiation_opportunity: `${indication.name} has no identified competitors in our database. This represents a significant white-space opportunity for first-mover advantage, though it may also indicate challenging biology or limited commercial viability. Conduct thorough diligence on prior failures in this space.`,
+      white_space: whiteSpace,
+      key_insight: `No competitive assets currently tracked for ${indication.name}. This could represent an untapped therapeutic area or one where prior attempts have failed. The absence of competitors suggests either a significant first-mover opportunity or underlying development challenges that warrant investigation.`,
+    };
+    return {
+      summary,
+      approved_products: [],
+      late_stage_pipeline: [],
+      mid_stage_pipeline: [],
+      early_pipeline: [],
+      comparison_matrix: [],
+      data_sources: [
+        { name: 'Terrain Competitive Database', type: 'proprietary', last_updated: new Date().toISOString().split('T')[0] },
+        { name: 'ClinicalTrials.gov', type: 'public', last_updated: new Date().toISOString().split('T')[0] },
+      ],
+      generated_at: new Date().toISOString(),
+    };
   }
 
   // ── Steps 3-8: Enrich and build Competitor objects ────────

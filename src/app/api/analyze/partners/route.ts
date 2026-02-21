@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { checkUsage, recordUsage } from '@/lib/usage';
 import { analyzePartners } from '@/lib/analytics/partners';
+import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { logger, withTiming, logApiRequest, logApiResponse } from '@/lib/logger';
 import type { ApiResponse, PartnerDiscoveryOutput } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -36,6 +38,7 @@ const RequestSchema = z.object({
 // ────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
+  const routeStart = performance.now();
   try {
     // ── Auth ──────────────────────────────────────────────────
     const supabase = createClient();
@@ -45,6 +48,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Authentication required.' } satisfies ApiResponse<never>,
         { status: 401 },
+      );
+    }
+
+    // ── Rate limit ──────────────────────────────────────────
+    const rl = rateLimit(`partners:${user.id}`, RATE_LIMITS.analysis_pro);
+    if (!rl.success) {
+      logApiResponse({ route: '/api/analyze/partners', status: 429, durationMs: Math.round(performance.now() - routeStart), userId: user.id });
+      return NextResponse.json(
+        { success: false, error: 'Rate limit exceeded. Try again later.' } satisfies ApiResponse<never>,
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } },
       );
     }
 
@@ -76,8 +89,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    logApiRequest({ route: '/api/analyze/partners', method: 'POST', userId: user.id, indication: parsed.data.input.indication });
+
     // ── Run partner matching engine ───────────────────────────
-    const result = await analyzePartners(parsed.data.input);
+    const { result } = await withTiming('partner_analysis', () => analyzePartners(parsed.data.input as Parameters<typeof analyzePartners>[0]), { indication: parsed.data.input.indication });
 
     // ── Record usage ──────────────────────────────────────────
     await recordUsage(user.id, 'partners', parsed.data.input.indication, {
@@ -88,6 +103,7 @@ export async function POST(request: NextRequest) {
     });
 
     // ── Success ───────────────────────────────────────────────
+    logApiResponse({ route: '/api/analyze/partners', status: 200, durationMs: Math.round(performance.now() - routeStart), userId: user.id, indication: parsed.data.input.indication });
     return NextResponse.json(
       {
         success: true,
@@ -104,6 +120,8 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : 'Partner analysis failed.';
+    logger.error('partner_analysis_error', { error: message, stack: error instanceof Error ? error.stack : undefined });
+    logApiResponse({ route: '/api/analyze/partners', status: 500, durationMs: Math.round(performance.now() - routeStart) });
     return NextResponse.json(
       { success: false, error: message } satisfies ApiResponse<never>,
       { status: 500 },

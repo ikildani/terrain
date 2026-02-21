@@ -1345,6 +1345,175 @@ export default function HomePage() {
         </div>
       </Section>
 
+      {/* ── PRODUCT PREVIEW ───────────────────────────────────── */}
+      <Section className="py-24 px-6 border-t border-navy-700/60">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-xs font-mono text-teal-500 tracking-widest uppercase mb-3">
+              See It In Action
+            </p>
+            <h2 className="font-display text-3xl sm:text-4xl text-white mb-4">
+              Institutional-grade intelligence, delivered instantly.
+            </h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">
+              Every analysis produces a comprehensive report with sourced data, exportable charts,
+              and presentation-ready formatting.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Dashboard mockup */}
+            <div className="card noise p-0 overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-navy-700/60 bg-navy-900/60">
+                <span className="w-2 h-2 rounded-full bg-red-400/60" />
+                <span className="w-2 h-2 rounded-full bg-amber-400/60" />
+                <span className="w-2 h-2 rounded-full bg-emerald-400/60" />
+                <span className="ml-2 text-[10px] font-mono text-slate-600">terrain — dashboard</span>
+              </div>
+              <div className="p-5">
+                {/* Top metrics row */}
+                <div className="grid grid-cols-4 gap-3 mb-5">
+                  {[
+                    { label: 'US TAM', val: '$24.8B', trend: '+12.3%', up: true },
+                    { label: 'US SAM', val: '$8.2B', trend: '+8.1%', up: true },
+                    { label: 'Peak Revenue', val: '$1.4B', trend: 'Base case', up: false },
+                    { label: 'Competitors', val: '14', trend: 'Crowding: 7/10', up: false },
+                  ].map((m) => (
+                    <div key={m.label} className="bg-navy-800/60 rounded-lg p-3 border border-navy-700/40">
+                      <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-1">{m.label}</div>
+                      <div className="font-mono text-sm text-white font-medium">{m.val}</div>
+                      <div className={`text-[9px] font-mono mt-0.5 ${m.up ? 'text-emerald-400' : 'text-slate-500'}`}>
+                        {m.trend}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Revenue projection bars */}
+                <div className="mb-5">
+                  <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">10-Year Revenue Projection ($M)</div>
+                  <div className="flex items-end gap-1 h-24">
+                    {[12, 28, 52, 85, 120, 140, 138, 130, 115, 95].map((h, i) => (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                        <div
+                          className="w-full rounded-sm bg-gradient-to-t from-teal-500/40 to-teal-400/60"
+                          style={{ height: `${(h / 140) * 100}%` }}
+                        />
+                        <span className="text-[7px] font-mono text-slate-700">{2027 + i}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Geography breakdown mini-table */}
+                <div>
+                  <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">Geography Breakdown</div>
+                  <div className="space-y-1">
+                    {[
+                      { geo: 'United States', tam: '$24.8B', share: '42%', w: '100%' },
+                      { geo: 'EU5', tam: '$18.2B', share: '31%', w: '73%' },
+                      { geo: 'Japan', tam: '$6.1B', share: '10%', w: '25%' },
+                      { geo: 'China', tam: '$7.4B', share: '13%', w: '30%' },
+                      { geo: 'Rest of World', tam: '$2.4B', share: '4%', w: '10%' },
+                    ].map((row) => (
+                      <div key={row.geo} className="flex items-center gap-3 text-[10px]">
+                        <span className="text-slate-400 w-20 shrink-0">{row.geo}</span>
+                        <div className="flex-1 h-1.5 bg-navy-700/60 rounded-full overflow-hidden">
+                          <div className="h-full bg-teal-500/50 rounded-full" style={{ width: row.w }} />
+                        </div>
+                        <span className="font-mono text-slate-300 w-12 text-right">{row.tam}</span>
+                        <span className="font-mono text-slate-600 w-8 text-right">{row.share}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Competitive landscape mockup */}
+            <div className="card noise p-0 overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-navy-700/60 bg-navy-900/60">
+                <span className="w-2 h-2 rounded-full bg-red-400/60" />
+                <span className="w-2 h-2 rounded-full bg-amber-400/60" />
+                <span className="w-2 h-2 rounded-full bg-emerald-400/60" />
+                <span className="ml-2 text-[10px] font-mono text-slate-600">terrain — competitive landscape</span>
+              </div>
+              <div className="p-5">
+                {/* Landscape header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="text-xs text-white font-medium">KRAS G12C · NSCLC Pipeline</div>
+                    <div className="text-[10px] text-slate-500">14 assets across 4 phases</div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[9px] font-mono text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">Crowding: 7/10</span>
+                  </div>
+                </div>
+
+                {/* Pipeline table */}
+                <div className="border border-navy-700/40 rounded-lg overflow-hidden mb-5">
+                  <div className="grid grid-cols-[1fr_80px_60px_70px] text-[9px] font-mono uppercase tracking-wider text-slate-600 bg-navy-800/40 px-3 py-2 border-b border-navy-700/40">
+                    <span>Company / Asset</span>
+                    <span>Phase</span>
+                    <span>MoA</span>
+                    <span className="text-right">Deal</span>
+                  </div>
+                  {[
+                    { company: 'Amgen', asset: 'Sotorasib', phase: 'Approved', moa: 'Covalent', deal: '$3.7B', color: 'text-emerald-400' },
+                    { company: 'Mirati (BMS)', asset: 'Adagrasib', phase: 'Approved', moa: 'Covalent', deal: '$5.8B', color: 'text-emerald-400' },
+                    { company: 'Revolution Med', asset: 'RMC-6236', phase: 'Phase 2', moa: 'Multi-RAS', deal: '—', color: 'text-teal-400' },
+                    { company: 'Eli Lilly', asset: 'LY3537982', phase: 'Phase 3', moa: 'Tri-complex', deal: '—', color: 'text-amber-400' },
+                    { company: 'Novartis', asset: 'JDQ443', phase: 'Phase 2', moa: 'Covalent', deal: '—', color: 'text-teal-400' },
+                    { company: 'Roche', asset: 'Divarasib', phase: 'Phase 3', moa: 'Covalent', deal: '—', color: 'text-amber-400' },
+                  ].map((row) => (
+                    <div key={row.asset} className="grid grid-cols-[1fr_80px_60px_70px] px-3 py-2 border-b border-navy-700/30 last:border-0 text-[10px]">
+                      <div>
+                        <span className="text-white">{row.company}</span>
+                        <span className="text-slate-500 ml-1">· {row.asset}</span>
+                      </div>
+                      <span className={`font-mono ${row.color}`}>{row.phase}</span>
+                      <span className="text-slate-400 font-mono">{row.moa}</span>
+                      <span className="text-right font-mono text-slate-300">{row.deal}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Partner match preview */}
+                <div>
+                  <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">Top Partner Matches</div>
+                  <div className="space-y-2">
+                    {[
+                      { name: 'Merck', score: 92, reason: 'Keytruda combo strategy, NSCLC focus' },
+                      { name: 'AstraZeneca', score: 88, reason: 'Tagrisso franchise, strong lung oncology' },
+                      { name: 'Roche', score: 85, reason: 'Tecentriq positioning, IO combinations' },
+                    ].map((p) => (
+                      <div key={p.name} className="flex items-center gap-3">
+                        <span className="text-xs text-white font-medium w-24">{p.name}</span>
+                        <div className="flex-1 h-1.5 bg-navy-700/60 rounded-full overflow-hidden">
+                          <div className="h-full bg-teal-500/60 rounded-full" style={{ width: `${p.score}%` }} />
+                        </div>
+                        <span className="font-mono text-[10px] text-teal-400 w-8">{p.score}</span>
+                        <span className="text-[9px] text-slate-500 hidden sm:inline">{p.reason}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <Link
+              href="/signup"
+              className="btn btn-primary text-sm px-8 py-3 inline-flex items-center gap-2"
+            >
+              See it with your indication
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </Section>
+
       {/* ── VALUE PROPS ─────────────────────────────────────── */}
       <Section className="py-24 px-6 border-t border-navy-700/60">
         <div className="max-w-7xl mx-auto">
@@ -1504,6 +1673,11 @@ export default function HomePage() {
                             Billed annually at ${plan.annualTotal.toLocaleString()}/yr
                           </p>
                         )}
+                        {plan.highlighted && (
+                          <p className="text-xs text-teal-400/70 mt-2 font-mono">
+                            14-day free trial · No credit card required
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1572,17 +1746,27 @@ export default function HomePage() {
             Your next deal starts with better data.
           </h2>
           <p className="text-slate-400 mb-10 max-w-xl mx-auto">
-            Biotech founders preparing for board meetings. BD executives
-            building term sheets. Investors validating opportunities.
-            They all start with Terrain.
+            Join biotech founders, BD executives, and life sciences investors
+            who use Terrain to move faster and negotiate smarter.
           </p>
-          <Link
-            href="/signup"
-            className="btn btn-primary text-base px-10 py-3.5 inline-flex items-center gap-2 shadow-teal-sm hover:shadow-teal-md transition-shadow"
-          >
-            Get started — it&apos;s free
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/signup"
+              className="btn btn-primary text-base px-10 py-3.5 inline-flex items-center gap-2 shadow-teal-sm hover:shadow-teal-md transition-shadow"
+            >
+              Create your free account
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/signup?plan=pro"
+              className="btn btn-secondary text-base px-8 py-3.5"
+            >
+              Start 14-day Pro trial
+            </Link>
+          </div>
+          <p className="text-xs text-slate-600 mt-4">
+            No credit card required · Set up in under 2 minutes
+          </p>
         </div>
       </Section>
 
@@ -1603,10 +1787,10 @@ export default function HomePage() {
             <div>
               <h4 className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-4">Product</h4>
               <ul className="space-y-2.5">
-                <li><Link href="/market-sizing" className="text-sm text-slate-500 hover:text-white transition-colors">Market Sizing</Link></li>
-                <li><Link href="/competitive" className="text-sm text-slate-500 hover:text-white transition-colors">Competitive Landscape</Link></li>
-                <li><Link href="/partners" className="text-sm text-slate-500 hover:text-white transition-colors">Partner Discovery</Link></li>
-                <li><Link href="/regulatory" className="text-sm text-slate-500 hover:text-white transition-colors">Regulatory Intelligence</Link></li>
+                <li><a href="#modules" className="text-sm text-slate-500 hover:text-white transition-colors">Market Sizing</a></li>
+                <li><a href="#modules" className="text-sm text-slate-500 hover:text-white transition-colors">Competitive Landscape</a></li>
+                <li><a href="#modules" className="text-sm text-slate-500 hover:text-white transition-colors">Partner Discovery</a></li>
+                <li><a href="#modules" className="text-sm text-slate-500 hover:text-white transition-colors">Regulatory Intelligence</a></li>
               </ul>
             </div>
 

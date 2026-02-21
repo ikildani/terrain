@@ -47,10 +47,8 @@ export interface UserContext {
 export interface UsageContext {
   market_sizing: { count: number; limit: number };
   competitive: { count: number; limit: number };
-  pipeline: { count: number; limit: number };
   partners: { count: number; limit: number };
   regulatory: { count: number; limit: number };
-  alerts_active: { count: number; limit: number };
 }
 
 // ────────────────────────────────────────────────────────────
@@ -252,53 +250,6 @@ export interface ComparisonAttribute {
 }
 
 // ────────────────────────────────────────────────────────────
-// PIPELINE INTELLIGENCE
-// ────────────────────────────────────────────────────────────
-
-export interface PipelineSearchInput {
-  indication?: string;
-  mechanism?: string;
-  molecular_target?: string;
-  phase?: ClinicalPhase[];
-  company?: string;
-  geography?: string[];
-  status?: ('Recruiting' | 'Active, not recruiting' | 'Completed' | 'Not yet recruiting')[];
-  start_date_from?: string;
-  start_date_to?: string;
-  has_deal?: boolean;
-  sponsor_type?: 'industry' | 'academic' | 'all';
-}
-
-export interface PipelineAsset {
-  nct_id: string;
-  title: string;
-  sponsor: string;
-  collaborators?: string[];
-  phase: ClinicalPhase;
-  status: string;
-  condition: string;
-  intervention: string;
-  mechanism?: string;
-  target?: string;
-  primary_outcome?: string;
-  enrollment: number;
-  start_date: string;
-  estimated_completion?: string;
-  primary_completion?: string;
-  locations: string[];
-  has_results: boolean;
-  results_url?: string;
-  deal?: {
-    partner: string;
-    deal_type: string;
-    value?: string;
-    date?: string;
-  };
-  source: 'clinicaltrials.gov';
-  last_synced: string;
-}
-
-// ────────────────────────────────────────────────────────────
 // PARTNER DISCOVERY
 // ────────────────────────────────────────────────────────────
 
@@ -387,14 +338,16 @@ export interface PartnerDiscoveryOutput {
 
 export type RegulatoryAgency = 'FDA' | 'EMA' | 'PMDA' | 'NMPA';
 
-export type DesignationName = 
+export type DesignationName =
   | 'Breakthrough Therapy'
   | 'Fast Track'
   | 'Priority Review'
   | 'Accelerated Approval'
   | 'Orphan Drug'
   | 'Regenerative Medicine Advanced Therapy (RMAT)'
-  | 'Rare Pediatric Disease';
+  | 'Rare Pediatric Disease'
+  | 'PRIME (Priority Medicines)'
+  | 'SAKIGAKE Designation';
 
 export interface RegulatoryInput {
   indication: string;
@@ -470,53 +423,10 @@ export interface RegulatoryOutput {
 }
 
 // ────────────────────────────────────────────────────────────
-// ALERTS
-// ────────────────────────────────────────────────────────────
-
-export type AlertType = 
-  | 'competitor_filing'
-  | 'competitor_data'
-  | 'partner_deal'
-  | 'fda_action'
-  | 'market_shift'
-  | 'trial_update';
-
-export type AlertFrequency = 'realtime' | 'daily' | 'weekly';
-
-export type SignalType = 'opportunity' | 'threat' | 'neutral';
-
-export interface Alert {
-  id: string;
-  user_id: string;
-  alert_type: AlertType;
-  label: string;
-  indication?: string;
-  company?: string;
-  filters: Record<string, unknown>;
-  is_active: boolean;
-  frequency: AlertFrequency;
-  last_triggered?: string;
-  created_at: string;
-}
-
-export interface AlertEvent {
-  id: string;
-  alert_id: string;
-  title: string;
-  summary: string;
-  source?: string;
-  source_url?: string;
-  signal_type: SignalType;
-  metadata: Record<string, unknown>;
-  is_read: boolean;
-  created_at: string;
-}
-
-// ────────────────────────────────────────────────────────────
 // REPORTS
 // ────────────────────────────────────────────────────────────
 
-export type ReportType = 'market_sizing' | 'competitive' | 'pipeline' | 'full';
+export type ReportType = 'market_sizing' | 'competitive' | 'regulatory' | 'partners' | 'full';
 
 export interface Report {
   id: string;

@@ -3,7 +3,10 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Crosshair, Loader2 } from 'lucide-react';
+import { useMemo } from 'react';
+import { Crosshair, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { IndicationAutocomplete } from '@/components/ui/IndicationAutocomplete';
+import { getCoveredIndications } from '@/lib/data/competitor-database';
 
 const competitiveFormSchema = z.object({
   indication: z.string().min(1, 'Indication is required'),
@@ -21,6 +24,8 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<CompetitiveFormData>({
     resolver: zodResolver(competitiveFormSchema),
@@ -29,6 +34,10 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
       mechanism: '',
     },
   });
+
+  const indicationValue = watch('indication');
+  const coveredIndications = useMemo(() => getCoveredIndications(), []);
+  const hasCoverage = indicationValue.length > 0 && coveredIndications.has(indicationValue);
 
   const handleFormSubmit = (data: CompetitiveFormData) => {
     onSubmit({
@@ -42,18 +51,25 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
         {/* Indication */}
         <div>
-          <label htmlFor="indication" className="input-label">
-            Indication
-          </label>
-          <input
-            id="indication"
-            type="text"
-            className="input"
+          <IndicationAutocomplete
+            value={indicationValue}
+            onChange={(val) => setValue('indication', val, { shouldValidate: true })}
+            error={errors.indication?.message}
+            label="Indication"
             placeholder="e.g., Non-Small Cell Lung Cancer"
-            {...register('indication')}
           />
-          {errors.indication && (
-            <p className="mt-1.5 text-xs text-signal-red">{errors.indication.message}</p>
+          {indicationValue.length > 2 && (
+            hasCoverage ? (
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <CheckCircle2 className="h-3 w-3 text-signal-green" />
+                <span className="text-[11px] text-signal-green">Competitive data available</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <AlertTriangle className="h-3 w-3 text-signal-amber" />
+                <span className="text-[11px] text-signal-amber">Limited competitive data — white-space analysis will be generated</span>
+              </div>
+            )
           )}
         </div>
 

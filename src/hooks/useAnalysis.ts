@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { apiPost } from '@/lib/utils/api';
 
 interface AnalysisOptions<TInput, TOutput> {
@@ -16,7 +17,16 @@ export function useAnalysis<TInput, TOutput>({ endpoint, onSuccess }: AnalysisOp
       throw new Error(res.error ?? 'Analysis failed');
     },
     onSuccess: (result) => {
+      toast.success('Analysis complete');
       onSuccess?.(result.data, result.input);
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : 'Analysis failed';
+      if (message.includes('limit') || message.includes('usage')) {
+        toast.error('Usage limit reached — upgrade to continue');
+      } else {
+        toast.error(message);
+      }
     },
   });
 

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { BarChart3 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import MarketSizingForm from '@/components/market-sizing/MarketSizingForm';
@@ -41,39 +43,39 @@ function EmptyState() {
 }
 
 export default function MarketSizingPage() {
-  const [results, setResults] = useState<MarketSizingOutput | null>(null);
   const [formInput, setFormInput] = useState<MarketSizingInput | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(productCategory: string, formData: Record<string, unknown>) {
-    setIsLoading(true);
-    setError(null);
-    setResults(null);
-
-    try {
+  const mutation = useMutation({
+    mutationFn: async ({ productCategory, formData }: { productCategory: string; formData: Record<string, unknown> }) => {
       const response = await fetch('/api/analyze/market', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          product_category: productCategory,
-          input: formData,
-        }),
+        body: JSON.stringify({ product_category: productCategory, input: formData }),
       });
-
       const json = await response.json();
-
-      if (!json.success) {
-        throw new Error(json.error || 'Analysis failed');
+      if (!json.success) throw new Error(json.error || 'Analysis failed');
+      return json.data as MarketSizingOutput;
+    },
+    onSuccess: () => {
+      toast.success('Market analysis complete');
+    },
+    onError: (err) => {
+      const msg = err instanceof Error ? err.message : 'Analysis failed';
+      if (msg.includes('limit') || msg.includes('usage')) {
+        toast.error('Usage limit reached — upgrade to continue');
+      } else {
+        toast.error(msg);
       }
+    },
+  });
 
-      setResults(json.data);
-      setFormInput(formData as unknown as MarketSizingInput);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Analysis failed');
-    } finally {
-      setIsLoading(false);
-    }
+  const results = mutation.data ?? null;
+  const isLoading = mutation.isPending;
+  const error = mutation.error ? (mutation.error as Error).message : null;
+
+  function handleSubmit(productCategory: string, formData: Record<string, unknown>) {
+    setFormInput(formData as unknown as MarketSizingInput);
+    mutation.mutate({ productCategory, formData });
   }
 
   return (

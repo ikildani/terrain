@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { Crosshair } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import CompetitiveForm from '@/components/competitive/CompetitiveForm';
@@ -40,41 +42,35 @@ function EmptyState() {
 }
 
 export default function CompetitivePage() {
-  const [results, setResults] = useState<CompetitiveLandscapeOutput | null>(null);
   const [mechanism, setMechanism] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(formData: { indication: string; mechanism?: string }) {
-    setIsLoading(true);
-    setError(null);
-    setResults(null);
-
-    try {
+  const mutation = useMutation({
+    mutationFn: async (formData: { indication: string; mechanism?: string }) => {
       const response = await fetch('/api/analyze/competitive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          input: {
-            indication: formData.indication,
-            mechanism: formData.mechanism,
-          },
-        }),
+        body: JSON.stringify({ input: { indication: formData.indication, mechanism: formData.mechanism } }),
       });
-
       const json = await response.json();
+      if (!json.success) throw new Error(json.error || 'Analysis failed');
+      return json.data as CompetitiveLandscapeOutput;
+    },
+    onSuccess: () => {
+      toast.success('Competitive analysis complete');
+    },
+    onError: (err) => {
+      const msg = err instanceof Error ? err.message : 'Analysis failed';
+      toast.error(msg.includes('limit') ? 'Usage limit reached — upgrade to continue' : msg);
+    },
+  });
 
-      if (!json.success) {
-        throw new Error(json.error || 'Analysis failed');
-      }
+  const results = mutation.data ?? null;
+  const isLoading = mutation.isPending;
+  const error = mutation.error ? (mutation.error as Error).message : null;
 
-      setResults(json.data);
-      setMechanism(formData.mechanism);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Analysis failed');
-    } finally {
-      setIsLoading(false);
-    }
+  function handleSubmit(formData: { indication: string; mechanism?: string }) {
+    setMechanism(formData.mechanism);
+    mutation.mutate(formData);
   }
 
   return (

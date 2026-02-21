@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { checkUsage, recordUsage } from '@/lib/usage';
 import { analyzeCompetitiveLandscape } from '@/lib/analytics/competitive';
+import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { logger, withTiming, logApiRequest, logApiResponse } from '@/lib/logger';
 import type { ApiResponse, CompetitiveLandscapeOutput } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -24,6 +26,7 @@ const RequestSchema = z.object({
 // ────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
+  const routeStart = performance.now();
   try {
     // ── Auth ──────────────────────────────────────────────────
     const supabase = createClient();
@@ -33,6 +36,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Authentication required.' } satisfies ApiResponse<never>,
         { status: 401 },
+      );
+    }
+
+    // ── Rate limit ──────────────────────────────────────────
+    const rl = rateLimit(`competitive:${user.id}`, RATE_LIMITS.analysis_pro);
+    if (!rl.success) {
+      logApiResponse({ route: '/api/analyze/competitive', status: 429, durationMs: Math.round(performance.now() - routeStart), userId: user.id });
+      return NextResponse.json(
+        { success: false, error: 'Rate limit exceeded. Try again later.' } satisfies ApiResponse<never>,
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } },
       );
     }
 
@@ -64,8 +77,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    logApiRequest({ route: '/api/analyze/competitive', method: 'POST', userId: user.id, indication: parsed.data.input.indication });
+
     // ── Run competitive landscape analysis ──────────────────
-    const result = await analyzeCompetitiveLandscape(parsed.data.input);
+    const { result } = await withTiming('competitive_analysis', () => analyzeCompetitiveLandscape(parsed.data.input), { indication: parsed.data.input.indication });
 
     // ── Record usage ────────────────────────────────────────
     await recordUsage(user.id, 'competitive', parsed.data.input.indication, {
@@ -73,6 +88,7 @@ export async function POST(request: NextRequest) {
     });
 
     // ── Success ─────────────────────────────────────────────
+    logApiResponse({ route: '/api/analyze/competitive', status: 200, durationMs: Math.round(performance.now() - routeStart), userId: user.id, indication: parsed.data.input.indication });
     return NextResponse.json(
       {
         success: true,
@@ -89,6 +105,8 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : 'Competitive analysis failed.';
+    logger.error('competitive_analysis_error', { error: message, stack: error instanceof Error ? error.stack : undefined });
+    logApiResponse({ route: '/api/analyze/competitive', status: 500, durationMs: Math.round(performance.now() - routeStart) });
     return NextResponse.json(
       { success: false, error: message } satisfies ApiResponse<never>,
       { status: 500 },

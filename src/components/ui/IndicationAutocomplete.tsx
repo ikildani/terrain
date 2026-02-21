@@ -273,10 +273,11 @@ export function IndicationAutocomplete({
           type="text"
           role="combobox"
           aria-expanded={isOpen}
+          aria-controls={listboxId}
           aria-haspopup="listbox"
-          aria-owns={isOpen ? listboxId : undefined}
           aria-autocomplete="list"
           aria-activedescendant={activeIndex >= 0 ? `indication-option-${activeIndex}` : undefined}
+          aria-describedby={error ? 'indication-error' : undefined}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -358,6 +359,11 @@ export function IndicationAutocomplete({
       )}
 
       {error && <p id="indication-error" role="alert" className="text-xs text-signal-red mt-1">{error}</p>}
+      {/* Screen reader announcement for results count */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {showResults && `${results.length} suggestion${results.length === 1 ? '' : 's'} available`}
+        {showNoResults && 'No matching indications found'}
+      </div>
     </div>
   );
 }

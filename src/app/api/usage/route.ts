@@ -6,7 +6,8 @@ export async function GET() {
     data: {
       market_sizing: { used: 0, limit: 3 },
       competitive: { used: 0, limit: 1 },
-      pipeline: { used: 0, limit: 5 },
+      partners: { used: 0, limit: 0 },
+      regulatory: { used: 0, limit: 0 },
       reports_saved: { used: 0, limit: 3 },
     },
   });
