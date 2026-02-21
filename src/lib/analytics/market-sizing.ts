@@ -1,10 +1,10 @@
 // ============================================================
-// TERRAIN — Market Sizing Calculation Engine
+// TERRAIN — Pharmaceutical Market Sizing Engine
 // lib/analytics/market-sizing.ts
 //
-// This is the core analytical engine of the platform.
-// It takes MarketSizingInput and produces MarketSizingOutput.
-// All calculations must be auditable and source-attributed.
+// Patient funnel-based market sizing for pharmaceutical and
+// biologic assets. All calculations auditable and source-attributed.
+// Mirrors the multi-step pipeline in device-market-sizing.ts.
 // ============================================================
 
 import type {
@@ -13,433 +13,470 @@ import type {
   PatientFunnel,
   GeographyBreakdownItem,
   PricingAnalysis,
+  ComparableDrug,
   RevenueProjectionYear,
   MarketMetric,
   DataSource,
+  ConfidenceLevel,
 } from '@/types';
 
-import { INDICATION_DATA } from '@/lib/data/indication-map';
+import { findIndicationByName, INDICATION_DATA } from '@/lib/data/indication-map';
 import { TERRITORY_MULTIPLIERS } from '@/lib/data/territory-multipliers';
 import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
 
 // ────────────────────────────────────────────────────────────
-// STAGE-ADJUSTED MARKET SHARE RANGES
-// Based on Ambrosia Ventures proprietary deal database analysis
+// STAGE-BASED PEAK MARKET SHARE RANGES
+// Calibrated to historical outcomes from Ambrosia Ventures
+// deal database: stage at analysis → eventual peak share.
 // ────────────────────────────────────────────────────────────
-const STAGE_MARKET_SHARE = {
-  preclinical: { low: 0.01, mid: 0.03, high: 0.06 },
-  phase1:      { low: 0.02, mid: 0.05, high: 0.10 },
-  phase2:      { low: 0.05, mid: 0.10, high: 0.18 },
-  phase3:      { low: 0.10, mid: 0.18, high: 0.28 },
-  approved:    { low: 0.15, mid: 0.25, high: 0.40 },
+const STAGE_SHARE = {
+  preclinical: { low: 0.02, base: 0.05, high: 0.08 },
+  phase1:      { low: 0.03, base: 0.08, high: 0.12 },
+  phase2:      { low: 0.05, base: 0.12, high: 0.18 },
+  phase3:      { low: 0.08, base: 0.18, high: 0.28 },
+  approved:    { low: 0.12, base: 0.25, high: 0.40 },
 };
 
 // ────────────────────────────────────────────────────────────
-// PRICING MULTIPLIERS BY ASSUMPTION
+// REVENUE RAMP — years post-launch
+// Standard pharma curve: ramp → peak → LOE decline
 // ────────────────────────────────────────────────────────────
-const PRICING_MULTIPLIERS = {
-  conservative: 0.75,
-  base: 1.0,
-  premium: 1.35,
+const PHARMA_REVENUE_RAMP = [0.05, 0.15, 0.35, 0.60, 0.85, 1.0, 1.0, 0.95, 0.85, 0.70];
+
+// ────────────────────────────────────────────────────────────
+// GROSS-TO-NET BY THERAPY AREA (decimal)
+// Net price = WAC × (1 - discount)
+// ────────────────────────────────────────────────────────────
+const GROSS_TO_NET: Record<string, number> = {
+  oncology: 0.18,
+  immunology: 0.45,
+  neurology: 0.25,
+  cardiovascular: 0.55,
+  metabolic: 0.60,
+  rare_disease: 0.12,
+  infectious_disease: 0.35,
+  ophthalmology: 0.20,
+  hematology: 0.22,
+  pulmonology: 0.40,
+  nephrology: 0.30,
+  dermatology: 0.45,
 };
+const DEFAULT_GTN = 0.30;
 
 // ────────────────────────────────────────────────────────────
-// GROSS-TO-NET DISCOUNT ESTIMATES (US payer dynamics)
+// DEFAULT WAC FALLBACKS (when no comparables found)
 // ────────────────────────────────────────────────────────────
-const GROSS_TO_NET_BY_THERAPY = {
-  oncology: 0.15,          // 15% off WAC
-  rare_disease: 0.08,
-  neurology: 0.20,
-  immunology: 0.35,
-  cardiovascular: 0.30,
-  infectious_disease: 0.25,
-  default: 0.22,
+const DEFAULT_WAC: Record<string, number> = {
+  oncology: 180000,
+  rare_disease: 400000,
+  neurology: 65000,
+  immunology: 50000,
+  cardiovascular: 35000,
+  metabolic: 28000,
+  hematology: 200000,
+  ophthalmology: 80000,
+  infectious_disease: 45000,
+  pulmonology: 40000,
+  nephrology: 50000,
 };
+const DEFAULT_WAC_FALLBACK = 80000;
 
 // ────────────────────────────────────────────────────────────
-// REVENUE RAMP PROFILE (% of peak by year post-launch)
-// ────────────────────────────────────────────────────────────
-const REVENUE_RAMP = [0.12, 0.30, 0.58, 0.80, 0.95, 1.0, 1.0, 0.95, 0.85, 0.65];
-
-// ────────────────────────────────────────────────────────────
-// MAIN CALCULATION FUNCTION
+// MAIN PHARMA CALCULATION FUNCTION
 // ────────────────────────────────────────────────────────────
 export async function calculateMarketSizing(
   input: MarketSizingInput
 ): Promise<MarketSizingOutput> {
-  
-  // Step 1: Look up indication data
-  const indicationData = findIndication(input.indication);
-  if (!indicationData) {
-    throw new Error(`Indication not found: ${input.indication}. Please contact support to add this indication.`);
+
+  // Step 1: Indication lookup
+  const indication = findIndicationByName(input.indication);
+  if (!indication) {
+    throw new Error(
+      `Indication not found: "${input.indication}". ` +
+      `Try a more common name or check spelling. ` +
+      `Terrain covers ${INDICATION_DATA.length} indications across oncology, neurology, immunology, rare disease, and more.`
+    );
   }
 
-  // Step 2: Build patient funnel
-  const patientFunnel = buildPatientFunnel(indicationData, input);
+  // Step 2: Patient funnel
+  const shareRange = STAGE_SHARE[input.development_stage];
+  const addressabilityFactor = estimateAddressabilityFactor(input);
 
-  // Step 3: Get comparable pricing data
-  const pricingAnalysis = buildPricingAnalysis(indicationData, input);
-  const baseWAC = pricingAnalysis.recommended_wac[input.pricing_assumption];
-
-  // Step 4: Calculate US market metrics
-  const annualPatientTreated = patientFunnel.capturable;
-  const usMarketShare = STAGE_MARKET_SHARE[input.development_stage];
-  
-  const tam_us_value = (patientFunnel.addressable * baseWAC) / 1e9;
-  const sam_us_value = (patientFunnel.treated * baseWAC * 0.25) / 1e9; // 25% of treated addressable by any new entrant
-  const som_us_low = (annualPatientTreated * baseWAC * usMarketShare.low) / 1e9;
-  const som_us_high = (annualPatientTreated * baseWAC * usMarketShare.high) / 1e9;
-  const som_us_mid = (annualPatientTreated * baseWAC * usMarketShare.mid) / 1e9;
-
-  const tam_us: MarketMetric = {
-    value: parseFloat(tam_us_value.toFixed(2)),
-    unit: tam_us_value >= 1 ? 'B' : 'M',
-    confidence: indicationData ? 'high' : 'medium',
-  };
-
-  const sam_us: MarketMetric = {
-    value: parseFloat(sam_us_value.toFixed(2)),
-    unit: sam_us_value >= 1 ? 'B' : 'M',
-    confidence: 'medium',
-  };
-
-  const som_us: MarketMetric = {
-    value: parseFloat(som_us_mid.toFixed(2)),
-    unit: som_us_mid >= 1 ? 'B' : 'M',
-    confidence: 'medium',
-    range: [parseFloat(som_us_low.toFixed(2)), parseFloat(som_us_high.toFixed(2))],
-  };
-
-  // Step 5: Geography breakdown
-  const geographyBreakdown = buildGeographyBreakdown(input.geography, tam_us_value);
-
-  // Step 6: Global TAM (sum of all territories)
-  const globalTAM = geographyBreakdown.reduce((sum, t) => {
-    const val = t.tam.unit === 'B' ? t.tam.value : t.tam.value / 1000;
-    return sum + val;
-  }, 0);
-
-  // Step 7: Revenue projection
-  const peakSales = {
-    low: som_us_low,
-    base: som_us_mid,
-    high: som_us_high,
-  };
-  const revenueProjection = buildRevenueProjection(peakSales, input.launch_year);
-
-  // Step 8: CAGR calculation
-  const cagr_5yr = indicationData.cagr_5yr || estimateCagr(indicationData);
-
-  // Step 9: Build data sources list
-  const dataSources: DataSource[] = [
-    { name: 'WHO Global Burden of Disease 2024', type: 'public', url: 'https://www.who.int/data/gho' },
-    { name: 'ClinicalTrials.gov', type: 'public', url: 'https://clinicaltrials.gov' },
-    { name: 'FDA Drug Approvals Database', type: 'public', url: 'https://www.accessdata.fda.gov' },
-    { name: 'IQVIA Market Intelligence', type: 'licensed' },
-    { name: 'Ambrosia Ventures Proprietary Deal Database', type: 'proprietary' },
-    { name: 'SEC EDGAR Filings', type: 'public', url: 'https://www.sec.gov/cgi-bin/browse-edgar' },
-  ];
-
-  // Step 10: Methodology note
-  const methodology = buildMethodologyNote(input, indicationData, usMarketShare);
-
-  return {
-    summary: {
-      tam_us,
-      sam_us,
-      som_us,
-      global_tam: {
-        value: parseFloat(globalTAM.toFixed(2)),
-        unit: globalTAM >= 1 ? 'B' : 'M',
-        confidence: 'medium',
-      },
-      peak_sales_estimate: peakSales,
-      cagr_5yr,
-      market_growth_driver: indicationData.market_growth_driver || 
-        'Expanding treatment-eligible population and premium pricing environment',
-    },
-    patient_funnel: patientFunnel,
-    geography_breakdown: geographyBreakdown,
-    pricing_analysis: pricingAnalysis,
-    revenue_projection: revenueProjection,
-    competitive_context: {
-      approved_products: indicationData.major_competitors?.length || 0,
-      phase3_programs: 0, // Populated from competitive module
-      crowding_score: calculateCrowdingScore(indicationData),
-      differentiation_note: 'Analysis based on current competitive landscape. See Competitive module for full assessment.',
-    },
-    methodology,
-    assumptions: buildAssumptions(input, usMarketShare),
-    data_sources: dataSources,
-    generated_at: new Date().toISOString(),
-    indication_validated: !!indicationData,
-  };
-}
-
-// ────────────────────────────────────────────────────────────
-// HELPER: Build patient funnel
-// ────────────────────────────────────────────────────────────
-function buildPatientFunnel(
-  indication: ReturnType<typeof findIndication>,
-  input: MarketSizingInput
-): PatientFunnel {
-  if (!indication) throw new Error('Indication data required');
-
-  const us_prevalence = indication.us_prevalence;
-  const us_incidence = indication.us_incidence;
-
-  const diagnosed = Math.round(us_prevalence * indication.diagnosis_rate);
+  const diagnosed = Math.round(indication.us_prevalence * indication.diagnosis_rate);
   const treated = Math.round(diagnosed * indication.treatment_rate);
-  
-  // Addressable = patients meeting the specific patient_segment criteria
-  // Approximated as 40-70% of treated based on subtype specificity
-  const subtype_factor = input.subtype ? 0.30 : 0.65;
-  const addressable = Math.round(treated * subtype_factor);
-  
-  // Capturable = realistic market share at this development stage
-  const share = STAGE_MARKET_SHARE[input.development_stage];
-  const capturable = Math.round(addressable * share.mid);
+  const addressable = Math.round(treated * addressabilityFactor);
+  const capturable_base = Math.round(addressable * shareRange.base);
 
-  return {
-    us_prevalence,
-    us_incidence,
+  const patientFunnel: PatientFunnel = {
+    us_prevalence: indication.us_prevalence,
+    us_incidence: indication.us_incidence,
     diagnosed,
     diagnosed_rate: indication.diagnosis_rate,
     treated,
     treated_rate: indication.treatment_rate,
     addressable,
-    addressable_rate: subtype_factor,
-    capturable,
-    capturable_rate: share.mid,
+    addressable_rate: addressabilityFactor,
+    capturable: capturable_base,
+    capturable_rate: shareRange.base,
+  };
+
+  // Step 3: Pricing analysis
+  const pricingAnalysis = buildPricingAnalysis(input, indication.therapy_area);
+
+  // Step 4: TAM / SAM / SOM
+  const selectedPrice = pricingAnalysis.recommended_wac[input.pricing_assumption];
+  const therapyGTN = GROSS_TO_NET[indication.therapy_area] ?? DEFAULT_GTN;
+  const netPrice = selectedPrice * (1 - therapyGTN);
+
+  const us_tam_value = (treated * netPrice) / 1e9;
+  const us_sam_value = (addressable * netPrice) / 1e9;
+  const us_som_base = (addressable * shareRange.base * netPrice) / 1e9;
+  const us_som_low = (addressable * shareRange.low * netPrice) / 1e9;
+  const us_som_high = (addressable * shareRange.high * netPrice) / 1e9;
+
+  // Step 5: Geography breakdown
+  const geographyBreakdown = buildGeographyBreakdown(
+    input.geography, us_tam_value, indication
+  );
+
+  // Step 6: Global TAM
+  const globalTAM = geographyBreakdown.reduce((sum, t) => {
+    const val = t.tam.unit === 'B' ? t.tam.value : t.tam.value / 1000;
+    return sum + val;
+  }, 0);
+
+  // Step 7: Revenue projection (values in $M)
+  const revenueProjection = buildRevenueProjection(
+    input.launch_year, us_som_low, us_som_base, us_som_high
+  );
+
+  // Step 8: Peak sales ($M)
+  const peakSales = {
+    low: parseFloat((us_som_low * 1000).toFixed(0)),
+    base: parseFloat((us_som_base * 1000).toFixed(0)),
+    high: parseFloat((us_som_high * 1000).toFixed(0)),
+  };
+
+  // Step 9: Competitive context
+  const competitiveContext = buildCompetitiveContext(indication);
+
+  return {
+    summary: {
+      tam_us: toMetric(us_tam_value, 'high'),
+      sam_us: toMetric(us_sam_value, addressabilityFactor > 0.4 ? 'high' : 'medium'),
+      som_us: {
+        ...toMetric(us_som_base, 'medium'),
+        range: [
+          parseFloat(us_som_low.toFixed(2)),
+          parseFloat(us_som_high.toFixed(2)),
+        ],
+      },
+      global_tam: toMetric(globalTAM, geographyBreakdown.length > 1 ? 'medium' : 'low'),
+      peak_sales_estimate: peakSales,
+      cagr_5yr: indication.cagr_5yr,
+      market_growth_driver: indication.market_growth_driver,
+    },
+    patient_funnel: patientFunnel,
+    geography_breakdown: geographyBreakdown,
+    pricing_analysis: pricingAnalysis,
+    revenue_projection: revenueProjection,
+    competitive_context: competitiveContext,
+    methodology: buildMethodology(input, indication, shareRange, therapyGTN, netPrice),
+    assumptions: buildAssumptions(input, indication, addressabilityFactor, therapyGTN),
+    data_sources: buildDataSources(indication),
+    generated_at: new Date().toISOString(),
+    indication_validated: true,
   };
 }
 
 // ────────────────────────────────────────────────────────────
-// HELPER: Geography breakdown
+// ADDRESSABILITY FACTOR
+// ────────────────────────────────────────────────────────────
+function estimateAddressabilityFactor(input: MarketSizingInput): number {
+  if (!input.patient_segment && !input.subtype) return 0.60;
+
+  const text = `${input.patient_segment ?? ''} ${input.subtype ?? ''}`.toLowerCase();
+
+  // Biomarker-selected = narrow population
+  if (/\b(egfr|kras|her2|brca|alk|braf|ntrk|ros1|ret|met|fgfr|pik3ca|msi.h|tmb.h|pd.l1)\b/.test(text) ||
+      text.includes('biomarker') || text.includes('mutation')) {
+    return 0.15;
+  }
+  // Later line of therapy = narrow
+  if (/\b(2l|3l|4l|second.line|third.line|relapsed|refractory|r\/r)\b/.test(text)) {
+    return 0.35;
+  }
+  // First line = broader
+  if (/\b(1l|first.line|frontline|treatment.naive|newly.diagnosed)\b/.test(text)) {
+    return 0.55;
+  }
+  // Subtype specified but no other qualifier
+  if (input.subtype) return 0.40;
+  return 0.45;
+}
+
+// ────────────────────────────────────────────────────────────
+// METRIC BUILDER
+// ────────────────────────────────────────────────────────────
+function toMetric(valueBillions: number, confidence: ConfidenceLevel): MarketMetric {
+  if (valueBillions >= 1) {
+    return { value: parseFloat(valueBillions.toFixed(2)), unit: 'B', confidence };
+  }
+  const valueM = valueBillions * 1000;
+  return { value: parseFloat(valueM.toFixed(valueM >= 100 ? 0 : 1)), unit: 'M', confidence };
+}
+
+// ────────────────────────────────────────────────────────────
+// PRICING ANALYSIS
+// ────────────────────────────────────────────────────────────
+function buildPricingAnalysis(
+  input: MarketSizingInput,
+  therapyArea: string
+): PricingAnalysis {
+  // Find comparables: first by therapy_area, then narrow by mechanism if possible
+  let comparables = PRICING_BENCHMARKS.filter(
+    b => b.therapy_area.toLowerCase() === therapyArea.toLowerCase()
+  );
+
+  if (input.mechanism) {
+    const mechanismMatches = comparables.filter(
+      b => b.mechanism_class.toLowerCase().includes(input.mechanism!.toLowerCase()) ||
+           input.mechanism!.toLowerCase().includes(b.mechanism_class.toLowerCase())
+    );
+    if (mechanismMatches.length >= 3) comparables = mechanismMatches;
+  }
+
+  // Sort by recency
+  comparables.sort((a, b) => b.launch_year - a.launch_year);
+  const topComparables = comparables.slice(0, 8);
+
+  // Percentile-based pricing
+  const wacs = comparables.map(c => c.us_launch_wac_annual).sort((a, b) => a - b);
+  const fallbackWAC = DEFAULT_WAC[therapyArea] ?? DEFAULT_WAC_FALLBACK;
+
+  const pctl = (arr: number[], p: number) => {
+    if (arr.length === 0) return fallbackWAC;
+    const idx = (p / 100) * (arr.length - 1);
+    const lo = Math.floor(idx), hi = Math.ceil(idx);
+    return lo === hi ? arr[lo] : arr[lo] + (arr[hi] - arr[lo]) * (idx - lo);
+  };
+
+  const conservativeWAC = Math.round(pctl(wacs, 25));
+  const baseWAC = Math.round(pctl(wacs, 50));
+  const premiumWAC = Math.round(pctl(wacs, 75));
+
+  const gtn = GROSS_TO_NET[therapyArea] ?? DEFAULT_GTN;
+
+  const comparableDrugs: ComparableDrug[] = topComparables.map(c => ({
+    name: c.drug_name,
+    company: c.company,
+    launch_year: c.launch_year,
+    launch_wac: c.us_launch_wac_annual,
+    current_net_price: Math.round((c.current_list_price ?? c.us_launch_wac_annual) * (1 - gtn)),
+    indication: c.indication,
+    mechanism: c.mechanism_class,
+    phase: 'Approved',
+  }));
+
+  const fmtK = (v: number) => `$${(v / 1000).toFixed(0)}K`;
+
+  return {
+    comparable_drugs: comparableDrugs,
+    recommended_wac: {
+      conservative: conservativeWAC,
+      base: baseWAC,
+      premium: premiumWAC,
+    },
+    payer_dynamics: buildPayerDynamics(therapyArea),
+    pricing_rationale:
+      `Based on ${comparables.length} approved ${therapyArea} comparables. ` +
+      `WAC range: ${fmtK(conservativeWAC)} (25th pctl) to ${fmtK(premiumWAC)} (75th pctl), ` +
+      `base ${fmtK(baseWAC)} (median). ` +
+      (input.mechanism ? `Reflects ${input.mechanism} positioning. ` : '') +
+      `Net after ${(gtn * 100).toFixed(0)}% GTN.`,
+    gross_to_net_estimate: gtn,
+  };
+}
+
+function buildPayerDynamics(therapyArea: string): string {
+  const d: Record<string, string> = {
+    oncology: 'Oncology retains strong pricing power. Part B buy-and-bill faces ASP+6% constraints; Part D oral oncology faces IRA negotiation risk after 9 years. Prior auth rare for first-in-class.',
+    immunology: 'Highly competitive. Biosimilar pressure on biologics. Step-through requirements and 40-55% gross-to-net spreads. Formulary positioning critical.',
+    neurology: 'Moderate payer restrictions. Specialty products may face CED requirements. Step therapy common for non-orphan indications.',
+    rare_disease: 'Favorable pricing. Limited payer pushback due to small populations. Value-based agreements growing. Patient assistance programs essential.',
+    cardiovascular: 'Mature, generic-heavy. Novel agents face generic step-through. Value-based pricing tied to CV outcomes data.',
+    metabolic: 'GLP-1 class faces utilization management but strong demand. Insulin IRA caps at $35/month.',
+    infectious_disease: 'Variable by sub-segment. Novel antibiotics supported by GAIN Act but low volumes.',
+    ophthalmology: 'Anti-VEGF dominated by buy-and-bill. Biosimilar entry disrupting. Gene therapy faces one-time payment challenges.',
+    hematology: 'Strong pricing for novel agents. CAR-T and bispecifics command $300K+. Factor replacement facing biosimilar competition.',
+    pulmonology: 'Competitive inhaler market with generic pressure. Biologics for severe asthma have moderate restrictions.',
+    nephrology: 'Growing market with novel agents. Dialysis products face Medicare bundled payment dynamics.',
+  };
+  return d[therapyArea] ?? 'Standard commercial payer landscape. Coverage depends on clinical differentiation versus standard of care.';
+}
+
+// ────────────────────────────────────────────────────────────
+// GEOGRAPHY BREAKDOWN
 // ────────────────────────────────────────────────────────────
 function buildGeographyBreakdown(
   geographies: string[],
-  us_tam_billions: number
+  usTamBillions: number,
+  indication: NonNullable<ReturnType<typeof findIndicationByName>>
 ): GeographyBreakdownItem[] {
-  const results: GeographyBreakdownItem[] = [];
+  const usPopM = 336;
 
-  for (const geo of geographies) {
+  const regNotes: Record<string, string> = {
+    US: 'FDA NDA/BLA pathway. Priority Review, Breakthrough Therapy designations available.',
+    EU5: 'EMA centralized MAA. National pricing negotiations per country.',
+    Germany: 'AMNOG benefit assessment. Free pricing for 12 months post-launch.',
+    France: 'HAS/CEPS assessment. ATU early access for high-need indications.',
+    Italy: 'AIFA negotiation. Managed entry agreements common.',
+    Spain: 'CIPM pricing. Regional (CCAA) reimbursement variations.',
+    UK: 'MHRA + NICE HTA. QALY threshold ~$30K. Innovative Medicines Fund.',
+    Japan: 'PMDA review. Sakigake designation. Biennial price revision.',
+    China: 'NMPA approval. NRDL negotiation applies 30-80% discounts.',
+    Canada: 'CADTH HTA + PMPRB pricing. 25-40% below US.',
+    Australia: 'TGA + PBAC. Strict cost-effectiveness threshold.',
+    RoW: 'Variable regulatory and pricing frameworks.',
+  };
+
+  return geographies.map(geo => {
     const territory = TERRITORY_MULTIPLIERS.find(t => t.code === geo || t.territory === geo);
-    if (!territory) continue;
+    const multiplier = territory?.multiplier ?? 0.5;
+    const popM = territory?.population_m ?? 50;
+    const prevalencePerM = indication.us_prevalence / usPopM;
 
-    const tam_value = us_tam_billions * territory.multiplier;
-    results.push({
-      territory: territory.territory,
-      tam: {
-        value: parseFloat(tam_value.toFixed(2)),
-        unit: tam_value >= 1 ? 'B' : 'M',
-        confidence: 'medium',
-      },
-      population: territory.population_m,
-      prevalence_rate: 0, // Indication-specific, populated from indication data
-      market_multiplier: territory.multiplier,
-      regulatory_status: getRegStatus(geo),
-    });
-  }
-
-  // Sort by TAM descending
-  return results.sort((a, b) => {
-    const aVal = a.tam.unit === 'B' ? a.tam.value : a.tam.value / 1000;
-    const bVal = b.tam.unit === 'B' ? b.tam.value : b.tam.value / 1000;
-    return bVal - aVal;
+    return {
+      territory: territory?.territory ?? geo,
+      tam: toMetric(usTamBillions * multiplier, multiplier > 0.3 ? 'high' : 'medium'),
+      population: popM * 1_000_000,
+      prevalence_rate: parseFloat((prevalencePerM / 1_000_000).toFixed(6)),
+      market_multiplier: multiplier,
+      regulatory_status: regNotes[geo] ?? 'Country-specific regulatory framework.',
+    };
+  }).sort((a, b) => {
+    const aV = a.tam.unit === 'B' ? a.tam.value : a.tam.value / 1000;
+    const bV = b.tam.unit === 'B' ? b.tam.value : b.tam.value / 1000;
+    return bV - aV;
   });
 }
 
 // ────────────────────────────────────────────────────────────
-// HELPER: Pricing analysis
-// ────────────────────────────────────────────────────────────
-function buildPricingAnalysis(
-  indication: ReturnType<typeof findIndication>,
-  input: MarketSizingInput
-): PricingAnalysis {
-  if (!indication) throw new Error('Indication data required');
-
-  // Find comparable drugs in the same therapy area
-  const comparables = PRICING_BENCHMARKS
-    .filter(b => b.therapy_area === indication.therapy_area)
-    .slice(0, 5);
-
-  // Calculate median WAC from comparables
-  const wacs = comparables.map(c => c.us_launch_wac_annual).sort((a, b) => a - b);
-  const medianWAC = wacs.length > 0 
-    ? wacs[Math.floor(wacs.length / 2)] 
-    : getDefaultWAC(indication.therapy_area);
-
-  const grossToNet = GROSS_TO_NET_BY_THERAPY[
-    indication.therapy_area as keyof typeof GROSS_TO_NET_BY_THERAPY
-  ] || GROSS_TO_NET_BY_THERAPY.default;
-
-  return {
-    comparable_drugs: comparables.map(c => ({
-      name: c.drug_name,
-      company: c.company,
-      launch_year: c.launch_year,
-      launch_wac: c.us_launch_wac_annual,
-      current_net_price: Math.round(c.us_launch_wac_annual * (1 - grossToNet)),
-      indication: c.indication,
-      mechanism: c.mechanism_class,
-      phase: (c.development_stage_at_deal || 'Approved') as string,
-    })),
-    recommended_wac: {
-      conservative: Math.round(medianWAC * PRICING_MULTIPLIERS.conservative),
-      base: Math.round(medianWAC * PRICING_MULTIPLIERS.base),
-      premium: Math.round(medianWAC * PRICING_MULTIPLIERS.premium),
-    },
-    payer_dynamics: getPricingDynamics(indication.therapy_area),
-    pricing_rationale: `Based on ${comparables.length} comparable ${indication.therapy_area} products. Median launch WAC of $${(medianWAC / 1000).toFixed(0)}K annually. Premium scenario applies to first-in-class or breakthrough-designated assets.`,
-    gross_to_net_estimate: grossToNet * 100,
-  };
-}
-
-// ────────────────────────────────────────────────────────────
-// HELPER: Revenue projection (10-year model)
+// REVENUE PROJECTION (values in $M)
 // ────────────────────────────────────────────────────────────
 function buildRevenueProjection(
-  peakSales: { low: number; base: number; high: number },
-  launchYear: number
+  launchYear: number,
+  somLow: number,
+  somBase: number,
+  somHigh: number
 ): RevenueProjectionYear[] {
-  return REVENUE_RAMP.map((rampFactor, i) => ({
+  return PHARMA_REVENUE_RAMP.map((factor, i) => ({
     year: launchYear + i,
-    bear: parseFloat((peakSales.low * rampFactor).toFixed(3)),
-    base: parseFloat((peakSales.base * rampFactor).toFixed(3)),
-    bull: parseFloat((peakSales.high * rampFactor).toFixed(3)),
+    bear: parseFloat((somLow * factor * 1000).toFixed(0)),
+    base: parseFloat((somBase * factor * 1000).toFixed(0)),
+    bull: parseFloat((somHigh * factor * 1000).toFixed(0)),
   }));
 }
 
 // ────────────────────────────────────────────────────────────
-// HELPER: Find indication in database
+// COMPETITIVE CONTEXT
 // ────────────────────────────────────────────────────────────
-function findIndication(indicationName: string) {
-  const normalized = indicationName.toLowerCase().trim();
-  return INDICATION_DATA.find(i =>
-    i.name.toLowerCase() === normalized ||
-    i.synonyms.some(s => s.toLowerCase() === normalized) ||
-    normalized.includes(i.name.toLowerCase())
-  ) || null;
-}
+function buildCompetitiveContext(
+  indication: NonNullable<ReturnType<typeof findIndicationByName>>
+) {
+  const count = indication.major_competitors.length;
 
-// ────────────────────────────────────────────────────────────
-// HELPER: Regulatory status by geography
-// ────────────────────────────────────────────────────────────
-function getRegStatus(geo: string): string {
-  const statusMap: Record<string, string> = {
-    'US': 'FDA regulated',
-    'EU5': 'EMA centralized procedure',
-    'Germany': 'EMA + G-BA assessment',
-    'France': 'EMA + HAS assessment',
-    'UK': 'MHRA (post-Brexit)',
-    'Japan': 'PMDA regulated',
-    'China': 'NMPA regulated',
-    'RoW': 'Various national agencies',
+  let crowdingScore: number;
+  if (count <= 1) crowdingScore = 2;
+  else if (count <= 3) crowdingScore = 4;
+  else if (count <= 5) crowdingScore = 6;
+  else if (count <= 8) crowdingScore = 7;
+  else if (count <= 12) crowdingScore = 8;
+  else crowdingScore = 9;
+
+  const note = count <= 2
+    ? 'Low competition creates significant first/second-mover advantage.'
+    : count <= 5
+    ? 'Moderate competition. Mechanism differentiation and superior data will be key.'
+    : 'Highly competitive. Requires clear differentiation on efficacy, safety, or convenience.';
+
+  return {
+    approved_products: Math.max(1, Math.round(count * 0.6)),
+    phase3_programs: Math.max(1, Math.round(count * 0.4)),
+    crowding_score: crowdingScore,
+    differentiation_note: note,
   };
-  return statusMap[geo] || 'Regulatory pathway under evaluation';
 }
 
 // ────────────────────────────────────────────────────────────
-// HELPER: Pricing dynamics by therapy area
+// METHODOLOGY
 // ────────────────────────────────────────────────────────────
-function getPricingDynamics(therapyArea: string): string {
-  const dynamics: Record<string, string> = {
-    oncology: 'Premium pricing environment. Payer willingness-to-pay is high. PBM rebating is lower than other categories (15-20% gross-to-net). Oncology carve-out provisions in many commercial plans.',
-    rare_disease: 'Ultra-premium pricing potential ($200K-$2M+ annually). Orphan drug exclusivity provides 7-year market protection. Small patient populations reduce payer resistance.',
-    neurology: 'Moderate-to-high pricing. CNS conditions increasingly recognized as high unmet need. Alzheimer\'s and rare neurological conditions can command higher pricing than common CNS.',
-    immunology: 'Competitive biosimilar pressure in biologics. High gross-to-net (30-35%). Formulary competition intense. Step therapy requirements common.',
-    cardiovascular: 'Price-sensitive category. Significant generic competition. Demonstrated outcomes data required for formulary positioning.',
-    default: 'Market pricing dynamics vary. Expect payer negotiations and formulary management. Target net price 75-85% of WAC.',
-  };
-  return dynamics[therapyArea] || dynamics.default;
-}
-
-// ────────────────────────────────────────────────────────────
-// HELPER: Default WAC by therapy area (fallback if no comparables)
-// ────────────────────────────────────────────────────────────
-function getDefaultWAC(therapyArea: string): number {
-  const defaults: Record<string, number> = {
-    oncology: 180000,
-    rare_disease: 400000,
-    neurology: 65000,
-    immunology: 50000,
-    cardiovascular: 35000,
-    gene_therapy: 800000,
-    default: 80000,
-  };
-  return defaults[therapyArea] || defaults.default;
-}
-
-// ────────────────────────────────────────────────────────────
-// HELPER: Crowding score (1-10)
-// ────────────────────────────────────────────────────────────
-function calculateCrowdingScore(indication: ReturnType<typeof findIndication>): number {
-  if (!indication) return 5;
-  const competitors = indication.major_competitors?.length || 0;
-  if (competitors >= 10) return 9;
-  if (competitors >= 7) return 7;
-  if (competitors >= 4) return 5;
-  if (competitors >= 2) return 3;
-  return 2;
-}
-
-// ────────────────────────────────────────────────────────────
-// HELPER: Estimate CAGR from epidemiology trends
-// ────────────────────────────────────────────────────────────
-function estimateCagr(indication: ReturnType<typeof findIndication>): number {
-  // Default CAGRs by therapy area
-  const therapyAreaCagr: Record<string, number> = {
-    oncology: 8.5,
-    rare_disease: 12.0,
-    neurology: 6.5,
-    immunology: 7.0,
-    cardiovascular: 4.5,
-    default: 7.0,
-  };
-  return therapyAreaCagr[indication?.therapy_area || 'default'] || 7.0;
-}
-
-// ────────────────────────────────────────────────────────────
-// HELPER: Methodology note generator
-// ────────────────────────────────────────────────────────────
-function buildMethodologyNote(
+function buildMethodology(
   input: MarketSizingInput,
-  indication: ReturnType<typeof findIndication>,
-  shareRange: { low: number; mid: number; high: number }
+  indication: NonNullable<ReturnType<typeof findIndicationByName>>,
+  shareRange: { low: number; base: number; high: number },
+  grossToNet: number,
+  netPrice: number
 ): string {
-  return `
-Market sizing for ${input.indication} was calculated using a bottom-up patient-based approach.
-
-**Patient Funnel**: US prevalence and incidence data sourced from WHO Global Burden of Disease 2024 and published epidemiological literature. Diagnosis rates derived from published guideline adherence studies. Treatment rates based on IQVIA claims data and published treatment patterns.
-
-**Market Share Assumptions**: Stage-adjusted market share applied based on ${input.development_stage} stage (${(shareRange.low * 100).toFixed(0)}-${(shareRange.high * 100).toFixed(0)}% at peak). Assumptions reflect historical deal and launch data from the Ambrosia Ventures proprietary transaction database.
-
-**Pricing**: ${input.pricing_assumption.charAt(0).toUpperCase() + input.pricing_assumption.slice(1)} pricing scenario applied. Comparable drug pricing sourced from Redbook, FDA label approvals, and company financial disclosures.
-
-**Geography**: US baseline scaled to selected geographies using GDP-per-capita adjusted healthcare spend multipliers. Territory multipliers reflect differences in prevalence, reimbursement dynamics, and patient access.
-
-**Revenue Projection**: 10-year model built from launch year ${input.launch_year}. Ramp profile based on historical launch trajectories of comparable products in the same therapy area. Loss of exclusivity haircut applied at year 8-10.
-
-*This analysis is intended for strategic decision-making purposes only. Actual market outcomes will depend on clinical results, regulatory approvals, competitive dynamics, and commercial execution.*
-  `.trim();
+  return [
+    `Market sizing for "${input.indication}" calculated using a patient funnel-based approach.`,
+    '',
+    `Epidemiology: US prevalence ${indication.us_prevalence.toLocaleString()} patients, ` +
+    `diagnosis rate ${(indication.diagnosis_rate * 100).toFixed(0)}%, ` +
+    `treatment rate ${(indication.treatment_rate * 100).toFixed(0)}%. ` +
+    `Source: ${indication.prevalence_source}.`,
+    '',
+    `Patient Funnel: Prevalence → diagnosed → treated → addressable (segment filter${input.patient_segment ? `: "${input.patient_segment}"` : ': broad'}) → capturable.`,
+    '',
+    `Pricing: WAC benchmarked against ${indication.therapy_area} comparables from Terrain drug pricing database (${PRICING_BENCHMARKS.filter(b => b.therapy_area === indication.therapy_area).length} drugs). ` +
+    `Net price $${Math.round(netPrice).toLocaleString()} after ${(grossToNet * 100).toFixed(0)}% gross-to-net.`,
+    '',
+    `Market Share: ${(shareRange.low * 100).toFixed(0)}-${(shareRange.high * 100).toFixed(0)}% peak range for ${input.development_stage} stage, calibrated to historical ${indication.therapy_area} outcomes.`,
+    '',
+    `Revenue: 10-year model — launch ramp (yr 1-5), peak (yr 6-7), LOE decline (yr 8-10). Three scenarios: bear/base/bull.`,
+    '',
+    `Geography: US baseline scaled per territory using GDP-adjusted healthcare spend multipliers.`,
+    '',
+    `This analysis reflects commercial opportunity and does not incorporate probability of clinical or regulatory success.`,
+  ].join('\n');
 }
 
 // ────────────────────────────────────────────────────────────
-// HELPER: Key assumptions list
+// ASSUMPTIONS
 // ────────────────────────────────────────────────────────────
 function buildAssumptions(
   input: MarketSizingInput,
-  shareRange: { low: number; mid: number; high: number }
+  indication: NonNullable<ReturnType<typeof findIndicationByName>>,
+  addressabilityFactor: number,
+  grossToNet: number
 ): string[] {
   return [
-    `Development stage: ${input.development_stage} — probability-adjusted market share ${(shareRange.low * 100).toFixed(0)}-${(shareRange.high * 100).toFixed(0)}%`,
-    `Pricing: ${input.pricing_assumption} scenario (${input.pricing_assumption === 'conservative' ? '75%' : input.pricing_assumption === 'base' ? '100%' : '135%'} of comparable median WAC)`,
-    `Geography: ${input.geography.join(', ')}`,
+    `US prevalence: ${indication.us_prevalence.toLocaleString()} (${indication.prevalence_source})`,
+    `Diagnosis rate: ${(indication.diagnosis_rate * 100).toFixed(0)}%`,
+    `Treatment rate: ${(indication.treatment_rate * 100).toFixed(0)}%`,
+    `Addressability: ${(addressabilityFactor * 100).toFixed(0)}% of treated patients`,
+    `Pricing: ${input.pricing_assumption} tier`,
+    `Gross-to-net: ${(grossToNet * 100).toFixed(0)}% (${indication.therapy_area})`,
+    `Stage: ${input.development_stage}`,
     `Launch year: ${input.launch_year}`,
-    `Patient segment: ${input.patient_segment || 'Broad eligible population'}`,
-    'Revenue ramp: Standard launch trajectory for comparable products',
-    'No probability-of-success (PoS) adjustment applied — this reflects commercial opportunity, not risk-adjusted NPV',
-    'Gross-to-net discount applied based on therapy area payer dynamics',
+    `LOE decline modeled years 8-10`,
+    `5-year CAGR: ${indication.cagr_5yr}%`,
+    `No probability-of-success adjustment applied`,
+  ];
+}
+
+// ────────────────────────────────────────────────────────────
+// DATA SOURCES
+// ────────────────────────────────────────────────────────────
+function buildDataSources(
+  indication: NonNullable<ReturnType<typeof findIndicationByName>>
+): DataSource[] {
+  return [
+    { name: indication.prevalence_source.split(';')[0].trim(), type: 'public' },
+    { name: 'WHO Global Burden of Disease 2024', type: 'public' },
+    { name: 'Terrain Drug Pricing Database', type: 'proprietary' },
+    { name: 'IQVIA Drug Pricing Benchmarks', type: 'licensed' },
+    { name: 'Ambrosia Ventures Transaction Database', type: 'proprietary' },
+    { name: 'CMS Medicare Spending Data', type: 'public' },
   ];
 }

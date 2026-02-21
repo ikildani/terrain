@@ -548,7 +548,7 @@ export interface IndicationData {
   treatment_rate: number;                 // % of diagnosed who receive treatment
   cagr_5yr: number;                       // Market CAGR estimate
   major_competitors: string[];
-  last_updated: string;
+  last_updated?: string;
 }
 
 export interface TerritoryMultiplier {
