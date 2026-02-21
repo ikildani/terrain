@@ -67,7 +67,7 @@ export default function MarketSizingReport({ data, input }: MarketSizingReportPr
   const { summary } = data;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in" data-report-content>
       {/* Summary Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard

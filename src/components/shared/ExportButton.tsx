@@ -10,6 +10,12 @@ interface ExportButtonProps {
   data?: Record<string, unknown>[];
   filename?: string;
   className?: string;
+  /** The DOM element to capture for PDF export. If omitted, captures the report section. */
+  targetRef?: React.RefObject<HTMLElement | null>;
+  /** Report title for the PDF header. */
+  reportTitle?: string;
+  /** Report subtitle for the PDF header. */
+  reportSubtitle?: string;
 }
 
 const formatLabels = { pdf: 'PDF', csv: 'CSV' };
@@ -42,7 +48,15 @@ function exportCSV(data: Record<string, unknown>[], filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export function ExportButton({ format, data, filename = 'terrain-export', className }: ExportButtonProps) {
+export function ExportButton({
+  format,
+  data,
+  filename = 'terrain-export',
+  className,
+  targetRef,
+  reportTitle,
+  reportSubtitle,
+}: ExportButtonProps) {
   const { isPro, isTeam } = useSubscription();
   const canExport = isPro || isTeam;
   const [isExporting, setIsExporting] = useState(false);
@@ -53,10 +67,22 @@ export function ExportButton({ format, data, filename = 'terrain-export', classN
       if (format === 'csv' && data) {
         exportCSV(data, filename);
       } else if (format === 'pdf') {
-        window.print();
+        // Try to use the proper PDF generator
+        const target = targetRef?.current || document.querySelector('[data-report-content]');
+        if (target) {
+          const { exportToPdf } = await import('@/lib/export-pdf');
+          await exportToPdf(target as HTMLElement, {
+            title: reportTitle || 'Market Intelligence Report',
+            subtitle: reportSubtitle,
+            filename,
+          });
+        } else {
+          // Fallback to print
+          window.print();
+        }
       }
     } finally {
-      setTimeout(() => setIsExporting(false), 500);
+      setTimeout(() => setIsExporting(false), 800);
     }
   }
 
@@ -81,7 +107,7 @@ export function ExportButton({ format, data, filename = 'terrain-export', classN
       ) : (
         <Download className="w-3.5 h-3.5" />
       )}
-      Export {formatLabels[format]}
+      {isExporting ? 'Generating...' : `Export ${formatLabels[format]}`}
     </button>
   );
 }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   BarChart3,
   Network,
@@ -682,43 +682,59 @@ export default function HomePage() {
         </div>
 
         {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-navy-700/60 bg-navy-950/95 backdrop-blur-xl">
-            <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-4">
-              {[
-                { href: '#modules', label: 'Modules' },
-                { href: '#demo', label: 'Demo' },
-                { href: '#pricing', label: 'Pricing' },
-                { href: '#faq', label: 'FAQ' },
-              ].map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm text-slate-300 hover:text-white transition-colors py-1"
-                  onClick={() => setMobileMenuOpen(false)}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="md:hidden border-t border-navy-700/60 bg-navy-950/95 backdrop-blur-xl overflow-hidden"
+            >
+              <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1">
+                {[
+                  { href: '#modules', label: 'Modules' },
+                  { href: '#demo', label: 'Demo' },
+                  { href: '#pricing', label: 'Pricing' },
+                  { href: '#faq', label: 'FAQ' },
+                ].map((link, i) => (
+                  <motion.a
+                    key={link.href}
+                    href={link.href}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 * i, duration: 0.2 }}
+                    className="text-sm text-slate-300 hover:text-white transition-colors py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </motion.a>
+                ))}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="border-t border-navy-700/40 pt-4 mt-2 flex flex-col gap-3"
                 >
-                  {link.label}
-                </a>
-              ))}
-              <div className="border-t border-navy-700/40 pt-4 mt-1 flex flex-col gap-3">
-                <Link
-                  href="/login"
-                  className="text-sm text-slate-300 hover:text-white transition-colors py-1"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href="/signup"
-                  className="btn btn-primary text-sm py-2.5 text-center"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Get Started
-                </Link>
+                  <Link
+                    href="/login"
+                    className="text-sm text-slate-300 hover:text-white transition-colors py-1"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="btn btn-primary text-sm py-2.5 text-center"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Get Started
+                  </Link>
+                </motion.div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* ── HERO ────────────────────────────────────────────── */}
