@@ -1,17 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { Report } from '@/types';
-import { reportsStore } from '@/lib/reports-store';
+import { createClient } from '@/lib/supabase/server';
+import { z } from 'zod';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(
-  _request: NextRequest,
-  context: RouteContext
-) {
-  const { id } = await context.params;
-  const report = reportsStore.get(id);
+const patchSchema = z.object({
+  title: z.string().min(1).optional(),
+  is_starred: z.boolean().optional(),
+  status: z.enum(['draft', 'final']).optional(),
+  tags: z.array(z.string()).optional(),
+});
 
-  if (!report) {
+export async function GET(_request: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
+    );
+  }
+
+  const { data: report, error } = await supabase
+    .from('reports')
+    .select('*')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single();
+
+  if (error || !report) {
     return NextResponse.json(
       { success: false, error: 'Report not found.' },
       { status: 404 }
@@ -21,62 +43,79 @@ export async function GET(
   return NextResponse.json({ success: true, data: report });
 }
 
-export async function DELETE(
-  _request: NextRequest,
-  context: RouteContext
-) {
+export async function DELETE(_request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const report = reportsStore.get(id);
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  if (!report) {
+  if (authError || !user) {
     return NextResponse.json(
-      { success: false, error: 'Report not found.' },
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
+    );
+  }
+
+  const { error } = await supabase
+    .from('reports')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id);
+
+  if (error) {
+    return NextResponse.json(
+      { success: false, error: 'Report not found or already deleted.' },
       { status: 404 }
     );
   }
 
-  reportsStore.delete(id);
-
   return NextResponse.json({ success: true });
 }
 
-export async function PATCH(
-  request: NextRequest,
-  context: RouteContext
-) {
+export async function PATCH(request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const report = reportsStore.get(id);
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  if (!report) {
+  if (authError || !user) {
     return NextResponse.json(
-      { success: false, error: 'Report not found.' },
-      { status: 404 }
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
     );
   }
 
   try {
     const body = await request.json();
-    const { title, is_starred, status, tags } = body as Partial<
-      Pick<Report, 'title' | 'is_starred' | 'status' | 'tags'>
-    >;
+    const parsed = patchSchema.safeParse(body);
 
-    // Apply only the fields that were provided
-    if (title !== undefined) report.title = title;
-    if (is_starred !== undefined) report.is_starred = is_starred;
-    if (status !== undefined) {
-      const validStatuses: Report['status'][] = ['draft', 'final'];
-      if (!validStatuses.includes(status)) {
-        return NextResponse.json(
-          { success: false, error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` },
-          { status: 400 }
-        );
-      }
-      report.status = status;
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, error: 'Validation failed.' },
+        { status: 400 }
+      );
     }
-    if (tags !== undefined) report.tags = tags;
 
-    report.updated_at = new Date().toISOString();
-    reportsStore.set(id, report);
+    const updates = { ...parsed.data, updated_at: new Date().toISOString() };
+
+    const { data: report, error } = await supabase
+      .from('reports')
+      .update(updates)
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+
+    if (error || !report) {
+      return NextResponse.json(
+        { success: false, error: 'Report not found.' },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({ success: true, data: report });
   } catch {

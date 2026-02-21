@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils/cn";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
+import { IndicationAutocomplete } from "@/components/ui/IndicationAutocomplete";
 import { ProductTypeSelector } from "@/components/shared/ProductTypeSelector";
 import type { ProductCategory } from "@/types/devices-diagnostics";
 
@@ -442,10 +443,10 @@ function PharmaForm({
 
   return (
     <form onSubmit={doSubmit} className="space-y-5">
-      <Input
+      <IndicationAutocomplete
         label="Indication"
-        {...register("indication")}
-        placeholder="e.g., Non-Small Cell Lung Cancer"
+        value={watch("indication")}
+        onChange={(v) => setValue("indication", v, { shouldValidate: true })}
         error={errors.indication?.message}
       />
 

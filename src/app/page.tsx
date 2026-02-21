@@ -24,6 +24,9 @@ import {
   Building2,
   Briefcase,
   PieChart,
+  Menu,
+  X,
+  Bell,
 } from 'lucide-react';
 
 // ────────────────────────────────────────────────────────────
@@ -62,6 +65,22 @@ const MODULES = [
       'FDA/EMA/PMDA pathway analysis, designation eligibility, device classification, and timeline benchmarking.',
     metric: 'FDA + EMA + PMDA',
     href: '/regulatory',
+  },
+  {
+    name: 'Pipeline Intelligence',
+    icon: LineChart,
+    description:
+      'Search ClinicalTrials.gov in real time. Filter by phase, mechanism, company, and geography. Export deal-ready pipeline tables.',
+    metric: 'Live ClinicalTrials.gov',
+    href: '/pipeline',
+  },
+  {
+    name: 'Deal Alerts',
+    icon: Bell,
+    description:
+      'Monitor competitor filings, partner deal activity, FDA actions, and market shifts. Daily digest or near-real-time for Team plan.',
+    metric: 'Pro + Team',
+    href: '/alerts',
   },
 ];
 
@@ -607,6 +626,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function HomePage() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -644,15 +664,61 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="text-sm text-slate-300 hover:text-white transition-colors"
+              className="hidden sm:inline text-sm text-slate-300 hover:text-white transition-colors"
             >
               Sign in
             </Link>
-            <Link href="/signup" className="btn btn-primary text-sm px-4 py-2">
+            <Link href="/signup" className="hidden sm:inline btn btn-primary text-sm px-4 py-2">
               Get Started
             </Link>
+            <button
+              className="md:hidden p-2 text-slate-400 hover:text-white transition-colors"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-navy-700/60 bg-navy-950/95 backdrop-blur-xl">
+            <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-4">
+              {[
+                { href: '#modules', label: 'Modules' },
+                { href: '#demo', label: 'Demo' },
+                { href: '#pricing', label: 'Pricing' },
+                { href: '#faq', label: 'FAQ' },
+              ].map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-slate-300 hover:text-white transition-colors py-1"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </a>
+              ))}
+              <div className="border-t border-navy-700/40 pt-4 mt-1 flex flex-col gap-3">
+                <Link
+                  href="/login"
+                  className="text-sm text-slate-300 hover:text-white transition-colors py-1"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/signup"
+                  className="btn btn-primary text-sm py-2.5 text-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Get Started
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ── HERO ────────────────────────────────────────────── */}
@@ -825,6 +891,20 @@ export default function HomePage() {
         </div>
       </Section>
 
+      {/* ── SOCIAL PROOF ────────────────────────────────────── */}
+      <section className="py-10 px-6 border-t border-navy-700/40">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-[10px] font-mono text-slate-600 uppercase tracking-[0.2em] mb-6">
+            Trusted by life sciences professionals at
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 opacity-40">
+            {['Series A Biotech', 'BD Teams', 'Life Sciences VC', 'CRO Partners'].map((name) => (
+              <span key={name} className="text-sm font-mono text-slate-400">{name}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── MODULES ─────────────────────────────────────────── */}
       <Section id="modules" className="py-24 px-6 border-t border-navy-700/60">
         <div className="max-w-7xl mx-auto">
@@ -833,7 +913,7 @@ export default function HomePage() {
               Intelligence Modules
             </p>
             <h2 className="font-display text-3xl sm:text-4xl text-white mb-4">
-              Four modules. One platform.
+              Six modules. One platform.
             </h2>
             <p className="text-slate-400 max-w-2xl mx-auto">
               Every module answers the questions that precede licensing
@@ -842,7 +922,7 @@ export default function HomePage() {
           </div>
 
           <motion.div
-            className="grid md:grid-cols-2 gap-5 max-w-4xl mx-auto"
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto"
             variants={stagger}
             initial="hidden"
             whileInView="visible"
@@ -1246,8 +1326,8 @@ export default function HomePage() {
               &copy; {new Date().getFullYear()} Ambrosia Ventures LLC. All rights reserved.
             </p>
             <div className="flex items-center gap-6 text-xs text-slate-600">
-              <span>Privacy Policy</span>
-              <span>Terms of Service</span>
+              <Link href="/privacy" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-slate-400 transition-colors">Terms of Service</Link>
             </div>
           </div>
         </div>

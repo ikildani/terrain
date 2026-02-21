@@ -1,56 +1,96 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { Report, ReportType } from '@/types';
-import { reportsStore } from '@/lib/reports-store';
+import { createClient } from '@/lib/supabase/server';
+import { z } from 'zod';
+
+const createReportSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  report_type: z.enum(['market_sizing', 'competitive', 'pipeline', 'full']),
+  indication: z.string().min(1, 'Indication is required'),
+  inputs: z.record(z.unknown()).optional(),
+  outputs: z.record(z.unknown()).optional(),
+  tags: z.array(z.string()).optional(),
+});
 
 export async function GET() {
-  const reports = Array.from(reportsStore.values());
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
+    );
+  }
+
+  const { data: reports, error } = await supabase
+    .from('reports')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch reports.' },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({ success: true, data: reports });
 }
 
 export async function POST(request: NextRequest) {
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { success: false, error: 'Authentication required.' },
+      { status: 401 }
+    );
+  }
+
   try {
     const body = await request.json();
-    const { title, report_type, indication, inputs, outputs, tags } = body as {
-      title?: string;
-      report_type?: ReportType;
-      indication?: string;
-      inputs?: any;
-      outputs?: any;
-      tags?: string[];
-    };
+    const parsed = createReportSchema.safeParse(body);
 
-    if (!title || !report_type || !indication) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields: title, report_type, indication.' },
+        { success: false, error: 'Validation failed.' },
         { status: 400 }
       );
     }
 
-    const validTypes: ReportType[] = ['market_sizing', 'competitive', 'pipeline', 'full'];
-    if (!validTypes.includes(report_type)) {
+    const { title, report_type, indication, inputs, outputs, tags } =
+      parsed.data;
+
+    const { data: report, error } = await supabase
+      .from('reports')
+      .insert({
+        user_id: user.id,
+        title,
+        report_type,
+        indication,
+        inputs: inputs ?? {},
+        outputs: outputs ?? {},
+        tags: tags ?? [],
+        status: 'draft',
+        is_starred: false,
+      })
+      .select()
+      .single();
+
+    if (error) {
       return NextResponse.json(
-        { success: false, error: `Invalid report_type. Must be one of: ${validTypes.join(', ')}` },
-        { status: 400 }
+        { success: false, error: 'Failed to save report.' },
+        { status: 500 }
       );
     }
-
-    const now = new Date().toISOString();
-    const report: Report = {
-      id: crypto.randomUUID(),
-      user_id: 'demo-user',
-      title,
-      report_type,
-      indication,
-      inputs: inputs ?? null,
-      outputs: outputs ?? null,
-      status: 'draft',
-      is_starred: false,
-      tags: tags ?? [],
-      created_at: now,
-      updated_at: now,
-    };
-
-    reportsStore.set(report.id, report);
 
     return NextResponse.json({ success: true, data: report }, { status: 201 });
   } catch {
