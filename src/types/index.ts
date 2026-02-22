@@ -261,7 +261,7 @@ export interface PartnerDiscoveryInput {
   geography_rights: GeographyCode[];
   deal_types: ('licensing' | 'co-development' | 'acquisition' | 'co-promotion')[];
   exclude_companies?: string[];
-  minimum_match_score?: number;           // Default: 40
+  minimum_match_score?: number;           // Default: 25
 }
 
 export interface PartnerDeal {
@@ -278,12 +278,11 @@ export interface PartnerDeal {
 }
 
 export interface PartnerScoreBreakdown {
-  therapeutic_alignment: number;          // 0-100: existing presence in indication
-  pipeline_gap: number;                   // 0-100: asset fills a gap in their portfolio
-  deal_history: number;                   // 0-100: track record at this stage
-  financial_capacity: number;             // 0-100: can they afford expected terms
-  geography_fit: number;                  // 0-100: rights geographies match footprint
-  strategic_priority: number;             // 0-100: stated strategic focus
+  therapeutic_alignment: number;          // 0-25: existing presence in indication
+  pipeline_gap: number;                   // 0-25: asset fills a gap in their portfolio
+  deal_history: number;                   // 0-20: track record at this stage
+  financial_capacity: number;             // 0-15: can they afford expected terms
+  geography_fit: number;                  // 0-15: rights geographies match footprint
 }
 
 export interface PartnerMatch {

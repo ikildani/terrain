@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { stripe } from '@/lib/stripe';
+import { logger } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 
 export async function POST() {
   try {
@@ -42,7 +44,11 @@ export async function POST() {
       data: { url: portalSession.url },
     });
   } catch (err) {
-    console.error('[stripe/portal]', err);
+    logger.error('stripe_portal_error', {
+      error: err instanceof Error ? err.message : 'Unknown error',
+      stack: err instanceof Error ? err.stack : undefined,
+    });
+    captureApiError(err, { route: '/api/stripe/portal' });
     return NextResponse.json(
       { success: false, error: 'Failed to create billing portal session.' },
       { status: 500 }

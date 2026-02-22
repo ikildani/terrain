@@ -258,7 +258,7 @@ export async function POST(request: NextRequest) {
           remaining: usage.remaining === -1 ? -1 : Math.max(0, usage.remaining - 1),
         },
       } satisfies ApiResponse<typeof result> & { usage: unknown },
-      { status: 200 },
+      { status: 200, headers: { 'Cache-Control': 'private, no-store' } },
     );
   } catch (error: unknown) {
     const message =

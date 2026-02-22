@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { stripe } from '@/lib/stripe';
 import { STRIPE_PRICES } from '@/lib/subscription';
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 
 const checkoutSchema = z.object({
   plan: z.enum(['pro', 'team']),
@@ -77,7 +79,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: { url: session.url } });
   } catch (err) {
-    console.error('[stripe/checkout]', err);
+    logger.error('stripe_checkout_error', {
+      error: err instanceof Error ? err.message : 'Unknown error',
+      stack: err instanceof Error ? err.stack : undefined,
+    });
+    captureApiError(err, { route: '/api/stripe/checkout' });
     return NextResponse.json(
       { success: false, error: 'Failed to create checkout session.' },
       { status: 500 }

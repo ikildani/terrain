@@ -21,7 +21,7 @@ const RequestSchema = z.object({
       errorMap: () => ({ message: 'Valid development stage is required.' }),
     }),
     geography_rights: z
-      .array(z.string())
+      .array(z.enum(['US', 'EU5', 'Germany', 'France', 'Italy', 'Spain', 'UK', 'Japan', 'China', 'Canada', 'Australia', 'RoW', 'Global']))
       .min(1, 'At least one geography is required.'),
     deal_types: z
       .array(z.enum(['licensing', 'co-development', 'acquisition', 'co-promotion']))
@@ -29,8 +29,6 @@ const RequestSchema = z.object({
     exclude_companies: z.array(z.string()).optional(),
     minimum_match_score: z.number().min(0).max(100).optional(),
   }),
-  save: z.boolean().optional(),
-  report_title: z.string().optional(),
 });
 
 // ────────────────────────────────────────────────────────────
@@ -115,7 +113,7 @@ export async function POST(request: NextRequest) {
           remaining: usage.remaining === -1 ? -1 : Math.max(0, usage.remaining - 1),
         },
       } satisfies ApiResponse<PartnerDiscoveryOutput> & { usage: unknown },
-      { status: 200 },
+      { status: 200, headers: { 'Cache-Control': 'private, no-store' } },
     );
   } catch (error: unknown) {
     const message =

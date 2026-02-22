@@ -32,7 +32,108 @@ import {
   type PharmaPartnerProfile,
 } from '@/lib/data/partner-database';
 
+import {
+  DEVICE_PARTNER_DATABASE_FULL as RAW_DEVICE_PARTNERS,
+  type DevicePartnerProfile,
+} from '@/lib/data/device-partner-database';
+
 import { findIndicationByName } from '@/lib/data/indication-map';
+
+// ────────────────────────────────────────────────────────────
+// DEVICE → PHARMA PROFILE NORMALIZATION
+// Converts DevicePartnerProfile to PharmaPartnerProfile shape
+// so both databases can be scored by the same functions.
+// ────────────────────────────────────────────────────────────
+
+/** Infer geography footprint from HQ location for device partners */
+function inferDeviceGeography(hq: string): string[] {
+  const h = hq.toLowerCase();
+  // Major medtech companies are almost always global
+  // Base: US, EU5, Japan. Add China for larger companies. Add regional for HQ-based.
+  const geos = ['US', 'EU5', 'Japan', 'China'];
+  if (h.includes('uk') || h.includes('london') || h.includes('england')) geos.push('UK');
+  if (h.includes('canada') || h.includes('toronto') || h.includes('montreal')) geos.push('Canada');
+  if (h.includes('australia') || h.includes('sydney') || h.includes('melbourne')) geos.push('Australia');
+  if (h.includes('germany') || h.includes('munich') || h.includes('berlin') || h.includes('erlangen')) geos.push('Germany');
+  if (h.includes('france') || h.includes('paris') || h.includes('lyon')) geos.push('France');
+  if (h.includes('italy') || h.includes('milan') || h.includes('rome')) geos.push('Italy');
+  if (h.includes('spain') || h.includes('madrid') || h.includes('barcelona')) geos.push('Spain');
+  return geos;
+}
+
+/** Map device regulatory stage terms to pharma DevelopmentStage equivalents */
+function mapDeviceStage(stage: string): string {
+  const map: Record<string, string> = {
+    cleared_approved: 'approved',
+    submission_pending: 'phase3',
+    pivotal_ongoing: 'phase3',
+    pivotal_design: 'phase2',
+    feasibility: 'phase1',
+    concept: 'preclinical',
+    ide_approved: 'phase2',
+    '510k_cleared': 'approved',
+    pma_approved: 'approved',
+  };
+  return map[stage] || stage;
+}
+
+function normalizeDevicePartner(dp: DevicePartnerProfile): PharmaPartnerProfile {
+  // Map device company_type → pharma company_type
+  const typeMap: Record<string, PharmaPartnerProfile['company_type']> = {
+    large_medtech: 'big_pharma',
+    mid_medtech: 'mid_pharma',
+    diagnostics: 'specialty_pharma',
+    specialty_medtech: 'specialty_pharma',
+    digital_health: 'biotech',
+  };
+
+  // Parse recent acquisitions into deal-like records
+  const recentDeals = dp.recent_acquisitions.map((acq) => {
+    const valueMatch = acq.match(/\$([0-9.]+)([BM])/i);
+    let totalValueM = 0;
+    if (valueMatch) {
+      totalValueM = valueMatch[2].toUpperCase() === 'B'
+        ? parseFloat(valueMatch[1]) * 1000
+        : parseFloat(valueMatch[1]);
+    }
+    const yearMatch = acq.match(/(\d{4})/);
+    const year = yearMatch ? parseInt(yearMatch[1], 10) : 2023;
+    const partnerMatch = acq.match(/^([^(]+)/);
+    const partner = partnerMatch ? partnerMatch[1].trim() : 'Unknown';
+
+    return {
+      partner,
+      asset: partner,
+      indication: dp.primary_therapeutic_areas[0] || 'medical devices',
+      deal_type: 'acquisition',
+      upfront_m: totalValueM,
+      total_value_m: totalValueM,
+      year,
+    };
+  });
+
+  return {
+    company: dp.company,
+    company_type: typeMap[dp.company_type] || 'specialty_pharma',
+    headquarters: dp.hq,
+    market_cap_b: dp.market_cap_b ?? 5,
+    revenue_b: dp.revenue_b ?? 1,
+    // Estimate R&D spend as ~10% of revenue for large medtech, ~15% for mid/specialty
+    rd_spend_b: (dp.revenue_b ?? 1) * (dp.company_type === 'large_medtech' ? 0.10 : 0.15),
+    therapeutic_areas: dp.primary_therapeutic_areas,
+    pipeline_focus: [...dp.active_bd_interests, ...dp.key_divisions],
+    strategic_priorities: dp.active_bd_interests,
+    preferred_deal_stages: dp.preferred_stage.map(mapDeviceStage),
+    bd_activity: 'active' as const,
+    geography_footprint: inferDeviceGeography(dp.hq),
+    recent_deals: recentDeals,
+    deal_size_range: dp.deal_size_range,
+    source: dp.source,
+  };
+}
+
+const NORMALIZED_DEVICE_PARTNERS: PharmaPartnerProfile[] =
+  RAW_DEVICE_PARTNERS.map(normalizeDevicePartner);
 
 // ────────────────────────────────────────────────────────────
 // THERAPY AREA MAPPING
@@ -148,6 +249,22 @@ const MECHANISM_KEYWORDS: Record<string, string[]> = {
 // Maps user deal type preferences to partner deal history
 // ────────────────────────────────────────────────────────────
 
+// Known short indication/mechanism abbreviations that should NOT be filtered out
+const KNOWN_ABBREVIATIONS = new Set([
+  'aml', 'cll', 'sma', 'itp', 'mds', 'cml', 'all', 'nhl', 'rcc', 'hcc',
+  'gbm', 'ipf', 'tnbc', 'dlbcl', 'nsclc', 'sclc', 'adc', 'her2', 'egfr',
+  'kras', 'alk', 'ret', 'met', 'btk', 'jak', 'pah', 'ckd', 'ibd', 'sle',
+  'mdd', 'als', 'cns', 'dmd', 'pku', 'hiv', 'hbv', 'hcv', 'rsv', 'gist',
+  'nash', 'mash', 'amd', 'pfa', 'tka', 'tavr', 'dbs', 'drg', 'ivd', 'cdx',
+]);
+
+/** Tokenize indication/mechanism text, keeping known abbreviations */
+function tokenize(text: string): string[] {
+  return text.toLowerCase().split(/\s+/).filter(
+    (t) => t.length > 3 || KNOWN_ABBREVIATIONS.has(t)
+  );
+}
+
 function matchesDealType(partnerDealType: string, userDealTypes: string[]): boolean {
   const normalized = partnerDealType.toLowerCase();
   return userDealTypes.some((udt) => {
@@ -228,7 +345,7 @@ function scoreTherapeuticAlignment(
 
   // Indication keyword match in pipeline focus (up to 8 pts)
   const indicationLower = indication.toLowerCase();
-  const indicationTokens = indicationLower.split(/\s+/).filter((t) => t.length > 3);
+  const indicationTokens = tokenize(indicationLower);
   const focusMatch = partnerFocus.some((f) =>
     indicationTokens.some((t) => f.includes(t))
   );
@@ -260,7 +377,7 @@ function scorePipelineGap(
   let score = 0;
   const priorities = partner.strategic_priorities.map((p) => p.toLowerCase());
   const indicationLower = indication.toLowerCase();
-  const indicationTokens = indicationLower.split(/\s+/).filter((t) => t.length > 3);
+  const indicationTokens = tokenize(indicationLower);
 
   // Strategic priority match (up to 15 pts)
   const priorityMatch = priorities.some((p) =>
@@ -313,7 +430,7 @@ function scoreDealHistory(
   const relevantDeals = deals.filter((d) => {
     const dealInd = d.indication.toLowerCase();
     return userTherapyAreas.some((ua) => dealInd.includes(ua)) ||
-      indicationLower.split(/\s+/).filter(t => t.length > 3).some((t) => dealInd.includes(t));
+      tokenize(indicationLower).some((t) => dealInd.includes(t));
   });
   score += Math.min(6, relevantDeals.length * 2);
 
@@ -324,7 +441,7 @@ function scoreDealHistory(
   if (hasMatchingDealType) score += 4;
 
   // Recent activity bonus — deals in last 2 years (up to 4 pts)
-  const recentDeals = deals.filter((d) => d.year >= 2023);
+  const recentDeals = deals.filter((d) => d.year >= new Date().getFullYear() - 2);
   score += Math.min(4, recentDeals.length * 2);
 
   return Math.min(20, score);
@@ -464,9 +581,13 @@ function generateRationale(
   ].sort((a, b) => b.score - a.score);
 
   const topDimension = dimensions[0];
+  // Scale descriptor to actual score vs max for that dimension
+  const dimMaxes: Record<string, number> = { therapeutic_alignment: 25, pipeline_gap: 25, deal_history: 20, geography_fit: 15, financial_capacity: 15 };
+  const topRatio = topDimension.score / (dimMaxes[topDimension.key] || 25);
+  const descriptor = topRatio >= 0.7 ? 'strong' : topRatio >= 0.4 ? 'notable' : 'relevant';
 
   parts.push(
-    `${partner.company} is a ${companyType} with strong ${topDimension.label} for this opportunity.`
+    `${partner.company} is a ${companyType} with ${descriptor} ${topDimension.label} for this opportunity.`
   );
 
   // Therapeutic presence
@@ -477,9 +598,9 @@ function generateRationale(
 
   // Deal activity
   if (scores.deal_history >= 12) {
-    const recentCount = partner.recent_deals.filter((d) => d.year >= 2023).length;
+    const recentCount = partner.recent_deals.filter((d) => d.year >= new Date().getFullYear() - 2).length;
     if (recentCount > 0) {
-      parts.push(`Completed ${recentCount} relevant deal${recentCount > 1 ? 's' : ''} since 2023.`);
+      parts.push(`Completed ${recentCount} relevant deal${recentCount > 1 ? 's' : ''} in the last 2 years.`);
     }
   }
 
@@ -487,7 +608,7 @@ function generateRationale(
   if (scores.pipeline_gap >= 15) {
     const relevantPriority = partner.strategic_priorities.find((p) => {
       const pLower = p.toLowerCase();
-      return indication.toLowerCase().split(/\s+/).some((t) => t.length > 3 && pLower.includes(t));
+      return tokenize(indication).some((t) => pLower.includes(t));
     });
     if (relevantPriority) {
       parts.push(`Strategic priority: "${relevantPriority}".`);
@@ -524,14 +645,14 @@ function generateWatchSignals(
 
   // Recent large deal capacity
   const largeRecent = partner.recent_deals.filter(
-    (d) => d.year >= 2023 && d.total_value_m >= 1000
+    (d) => d.year >= new Date().getFullYear() - 2 && d.total_value_m >= 1000
   );
   if (largeRecent.length > 0) {
     signals.push(`Recently closed ${largeRecent.length} deal(s) >$1B — demonstrated capacity for significant transactions`);
   }
 
   // Strategic priority alignment
-  const indicationTokens = indication.toLowerCase().split(/\s+/).filter((t) => t.length > 3);
+  const indicationTokens = tokenize(indication);
   const matchingPriority = partner.strategic_priorities.find((p) =>
     indicationTokens.some((t) => p.toLowerCase().includes(t))
   );
@@ -563,7 +684,7 @@ function formatCompanyType(
     case 'specialty_pharma': return 'Specialty Pharma';
     case 'biotech': return 'Biotech';
     case 'generics': return 'Specialty Pharma';
-    default: return 'Biotech';
+    default: return 'Specialty Pharma';
   }
 }
 
@@ -601,6 +722,18 @@ function formatDealTermsBenchmark(
   };
 }
 
+function inferDealStage(deal: PharmaPartnerProfile['recent_deals'][0]): DevelopmentStage {
+  const type = deal.deal_type.toLowerCase();
+  // Acquisitions of marketed products are typically approved-stage
+  if (type.includes('acqui') || type.includes('merger')) return 'approved';
+  // Infer from deal value: very large deals tend to be later-stage
+  if (deal.total_value_m >= 5000) return 'approved';
+  if (deal.total_value_m >= 2000) return 'phase3';
+  if (deal.total_value_m >= 500) return 'phase2';
+  if (deal.total_value_m >= 100) return 'phase1';
+  return 'preclinical';
+}
+
 function convertToPartnerDeal(
   deal: PharmaPartnerProfile['recent_deals'][0],
   partnerCompany: string,
@@ -609,7 +742,7 @@ function convertToPartnerDeal(
     partner_company: partnerCompany,
     licensed_to: deal.partner,
     indication: deal.indication,
-    development_stage: 'phase2' as DevelopmentStage, // default
+    development_stage: inferDealStage(deal),
     deal_type: deal.deal_type,
     upfront_usd: deal.upfront_m * 1_000_000,
     total_value_usd: deal.total_value_m * 1_000_000,
@@ -638,9 +771,15 @@ export async function analyzePartners(
   // Infer therapy areas from indication + mechanism
   const userTherapyAreas = inferTherapyAreas(indication, mechanism);
 
+  // Merge pharma + device partner databases
+  const allPartners: PharmaPartnerProfile[] = [
+    ...PHARMA_PARTNER_DATABASE,
+    ...NORMALIZED_DEVICE_PARTNERS,
+  ];
+
   // Filter excluded companies
   const excludeSet = new Set(exclude_companies.map((c) => c.toLowerCase()));
-  const candidates = PHARMA_PARTNER_DATABASE.filter(
+  const candidates = allPartners.filter(
     (p) => !excludeSet.has(p.company.toLowerCase())
   );
 
@@ -666,7 +805,6 @@ export async function analyzePartners(
       deal_history,
       financial_capacity,
       geography_fit,
-      strategic_priority: pipeline_gap, // strategic priority is captured within pipeline_gap
     };
 
     return { partner, total, breakdown };
@@ -689,7 +827,7 @@ export async function analyzePartners(
       .filter((d) => {
         const dealInd = d.indication.toLowerCase();
         return userTherapyAreas.some((ua) => dealInd.includes(ua)) ||
-          indicationLower.split(/\s+/).filter(t => t.length > 3).some((t) => dealInd.includes(t));
+          tokenize(indicationLower).some((t) => dealInd.includes(t));
       })
       .slice(0, 3)
       .map((d) => convertToPartnerDeal(d, partner.company));
@@ -718,8 +856,8 @@ export async function analyzePartners(
     };
   });
 
-  // Compute deal benchmarks from all relevant deals across the database
-  const allRelevantDeals = PHARMA_PARTNER_DATABASE.flatMap((p) =>
+  // Compute deal benchmarks from all relevant deals across both databases
+  const allRelevantDeals = allPartners.flatMap((p) =>
     p.recent_deals.filter((d) => {
       const dealInd = d.indication.toLowerCase();
       return userTherapyAreas.some((ua) => dealInd.includes(ua));
@@ -748,7 +886,7 @@ export async function analyzePartners(
 
   const dataSources: DataSource[] = [
     { name: 'SEC EDGAR Filings', type: 'public', url: 'https://www.sec.gov/edgar/searchedgar/companysearch' },
-    { name: 'Company Annual Reports & 10-K Filings (2020-2025)', type: 'public' },
+    { name: `Company Annual Reports & 10-K Filings (2020-${new Date().getFullYear()})`, type: 'public' },
     { name: 'BioCentury Deal Database', type: 'licensed' },
     { name: 'Evaluate Pharma', type: 'licensed' },
     { name: 'ClinicalTrials.gov Pipeline Data', type: 'public', url: 'https://clinicaltrials.gov' },
