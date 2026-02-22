@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { useUser } from '@/hooks/useUser';
+import { useProfile } from '@/hooks/useProfile';
 import { createClient } from '@/lib/supabase/client';
+import { toast } from 'sonner';
 import { Save, Check } from 'lucide-react';
 
 const ROLE_OPTIONS = [
@@ -36,6 +38,7 @@ const THERAPY_AREAS = [
 
 export default function SettingsPage() {
   const { user } = useUser();
+  const { refresh: refreshProfile } = useProfile();
   const [fullName, setFullName] = useState('');
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('');
@@ -71,9 +74,13 @@ export default function SettingsPage() {
     if (!user) return;
     setSaving(true);
     const supabase = createClient();
-    if (!supabase) return;
+    if (!supabase) {
+      toast.error('Unable to connect to database.');
+      setSaving(false);
+      return;
+    }
 
-    await supabase
+    const { error } = await supabase
       .from('profiles')
       .update({
         full_name: fullName,
@@ -85,7 +92,15 @@ export default function SettingsPage() {
       .eq('id', user.id);
 
     setSaving(false);
+
+    if (error) {
+      toast.error('Failed to save profile: ' + error.message);
+      return;
+    }
+
+    refreshProfile();
     setSaved(true);
+    toast.success('Profile saved');
     setTimeout(() => setSaved(false), 2000);
   }
 

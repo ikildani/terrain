@@ -2,10 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Search,
-  User,
   ChevronRight,
   Settings,
   CreditCard,
@@ -14,7 +13,9 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useUser } from '@/hooks/useUser';
+import { useProfile } from '@/hooks/useProfile';
 import { useSubscription } from '@/hooks/useSubscription';
+import { createClient } from '@/lib/supabase/client';
 import { PLAN_DISPLAY } from '@/lib/subscription';
 
 const SEGMENT_LABELS: Record<string, string> = {
@@ -35,10 +36,20 @@ interface TopbarProps {
 
 export function Topbar({ onMenuToggle }: TopbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useUser();
+  const { fullName, initials } = useProfile();
   const { plan } = useSubscription();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+    router.push('/login');
+  }
 
   const segments = pathname.split('/').filter(Boolean);
   const breadcrumbs = segments.map((seg, i) => ({
@@ -60,7 +71,6 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
   }, [dropdownOpen]);
 
   const planDisplay = PLAN_DISPLAY[plan];
-  const initials = user ? 'U' : 'T';
 
   return (
     <header className="topbar">
@@ -122,7 +132,7 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
           <div className="absolute right-0 top-full mt-2 w-56 bg-navy-800 border border-navy-700 rounded-lg shadow-elevated py-1 z-50">
             <div className="px-4 py-3 border-b border-navy-700">
               <p className="text-sm text-slate-200 font-medium">
-                {user ? 'User' : 'Guest'}
+                {fullName || user?.email || 'Guest'}
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
                 {plan === 'free' ? 'Free Plan' : `${planDisplay.name} Plan`}
@@ -148,6 +158,7 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
             </div>
             <div className="border-t border-navy-700 py-1">
               <button
+                onClick={handleSignOut}
                 className="flex items-center gap-3 px-4 py-2 text-sm text-slate-500 hover:text-red-400 hover:bg-navy-700 transition-colors w-full text-left"
               >
                 <LogOut className="w-4 h-4" />

@@ -80,10 +80,14 @@ export async function recordUsage(
 ) {
   const supabase = createClient();
 
-  await supabase.from('usage_events').insert({
+  const { error } = await supabase.from('usage_events').insert({
     user_id: userId,
     feature,
     indication,
     metadata: metadata ?? {},
   });
+
+  if (error) {
+    console.error('[usage] Failed to record usage:', error.message, { userId, feature });
+  }
 }

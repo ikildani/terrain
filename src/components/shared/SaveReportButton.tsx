@@ -43,10 +43,12 @@ export function SaveReportButton({
         setSaved(true);
         setFeedback('Report saved');
       } else {
-        setFeedback('Save coming soon');
+        const json = await res.json().catch(() => null);
+        const msg = json?.error || `Save failed (${res.status})`;
+        setFeedback(msg);
       }
     } catch {
-      setFeedback('Save coming soon');
+      setFeedback('Network error — try again');
     } finally {
       setIsLoading(false);
       setTimeout(() => setFeedback(null), 3000);

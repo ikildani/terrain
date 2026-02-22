@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { PLAN_LIMITS } from '@/lib/subscription';
@@ -53,15 +54,17 @@ function getGreeting() {
 
 export default function DashboardPage() {
   const { plan } = useSubscription();
+  const { fullName } = useProfile();
   const limits = PLAN_LIMITS[plan];
   const { reports, isLoading: reportsLoading } = useReports();
   const { analysesThisMonth, totalReports } = useDashboardStats();
   const recentReports = reports.slice(0, 5);
+  const firstName = fullName?.split(' ')[0];
 
   return (
     <>
       <PageHeader
-        title={`${getGreeting()}. Your market is moving.`}
+        title={`${getGreeting()}${firstName ? `, ${firstName}` : ''}. Your market is moving.`}
         subtitle="Start a new analysis or continue where you left off."
       />
 
