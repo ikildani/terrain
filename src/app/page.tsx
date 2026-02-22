@@ -690,6 +690,7 @@ function TryItYourself() {
             onChange={(e) => setIndication(e.target.value)}
             placeholder="e.g., Non-Small Cell Lung Cancer"
             className="input w-full"
+            disabled={loading}
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleAnalyze();
             }}
@@ -700,7 +701,8 @@ function TryItYourself() {
                 key={s}
                 type="button"
                 onClick={() => setIndication(s)}
-                className="text-[10px] font-mono text-slate-500 hover:text-teal-400 px-2 py-1 rounded border border-navy-700 hover:border-teal-500/30 transition-colors"
+                disabled={loading}
+                className="text-[10px] font-mono text-slate-500 hover:text-teal-400 px-2 py-1 rounded border border-navy-700 hover:border-teal-500/30 transition-colors disabled:opacity-40 disabled:pointer-events-none"
               >
                 {s}
               </button>
@@ -719,7 +721,8 @@ function TryItYourself() {
                 key={s.value}
                 type="button"
                 onClick={() => setStage(s.value)}
-                className={`px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
+                disabled={loading}
+                className={`px-3 py-1.5 rounded text-xs font-medium border transition-colors disabled:opacity-40 disabled:pointer-events-none ${
                   stage === s.value
                     ? 'bg-teal-500/10 border-teal-500/30 text-teal-400'
                     : 'bg-navy-800 border-navy-700 text-slate-400 hover:border-navy-600'
@@ -750,53 +753,61 @@ function TryItYourself() {
           )}
         </button>
 
+        {/* Loading skeleton */}
+        <AnimatePresence mode="wait">
+          {loading && <DemoResultsSkeleton />}
+        </AnimatePresence>
+
         {/* Error */}
-        {error && (
+        {error && !loading && (
           <div className="mt-4 p-3 rounded bg-red-500/10 border border-red-500/20 text-sm text-red-400">
             {error}
           </div>
         )}
 
         {/* Results */}
-        {result && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="mt-6 pt-6 border-t border-navy-700/60"
-          >
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-              {[
-                { label: 'US TAM', val: tamUs ? `$${tamUs.value}${tamUs.unit}` : '—' },
-                { label: 'US SAM', val: samUs ? `$${samUs.value}${samUs.unit}` : '—' },
-                { label: 'Peak Revenue', val: somUs ? `$${somUs.value}${somUs.unit}` : '—' },
-                { label: '5-yr CAGR', val: cagr != null ? `+${cagr.toFixed(1)}%` : '—' },
-              ].map((m) => (
-                <div key={m.label}>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
-                    {m.label}
+        <AnimatePresence mode="wait">
+          {result && !loading && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.4 }}
+              className="mt-6 pt-6 border-t border-navy-700/60"
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                {[
+                  { label: 'US TAM', val: tamUs ? `$${tamUs.value}${tamUs.unit}` : '—' },
+                  { label: 'US SAM', val: samUs ? `$${samUs.value}${samUs.unit}` : '—' },
+                  { label: 'Peak Revenue', val: somUs ? `$${somUs.value}${somUs.unit}` : '—' },
+                  { label: '5-yr CAGR', val: cagr != null ? `+${cagr.toFixed(1)}%` : '—' },
+                ].map((m) => (
+                  <div key={m.label}>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
+                      {m.label}
+                    </div>
+                    <div className="font-mono text-lg text-white font-medium">
+                      {m.val}
+                    </div>
                   </div>
-                  <div className="font-mono text-lg text-white font-medium">
-                    {m.val}
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
-            <div className="p-4 rounded-lg bg-teal-500/5 border border-teal-500/20 text-center">
-              <p className="text-sm text-slate-300 mb-3">
-                Sign up to see the full report — patient funnel, geography breakdown, competitive density, and partner matching.
-              </p>
-              <Link
-                href="/signup"
-                className="btn btn-primary text-sm px-6 py-2 inline-flex items-center gap-2"
-              >
-                Create free account
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </motion.div>
-        )}
+              <div className="p-4 rounded-lg bg-teal-500/5 border border-teal-500/20 text-center">
+                <p className="text-sm text-slate-300 mb-3">
+                  Sign up to see the full report — patient funnel, geography breakdown, competitive density, and partner matching.
+                </p>
+                <Link
+                  href="/signup"
+                  className="btn btn-primary text-sm px-6 py-2 inline-flex items-center gap-2"
+                >
+                  Create free account
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -931,6 +942,455 @@ function PartnerBarsPreview() {
         ))}
       </div>
     </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// DATA: MODULE SHOWCASE PREVIEWS
+// ────────────────────────────────────────────────────────────
+
+const PARTNER_PREVIEW_DATA = [
+  {
+    rank: 1, company: 'Merck', matchScore: 92,
+    scores: [
+      { label: 'Therapeutic', value: 95 }, { label: 'Pipeline Gap', value: 88 },
+      { label: 'Deal History', value: 90 }, { label: 'Financial', value: 94 },
+      { label: 'Geo Fit', value: 85 }, { label: 'Strategic', value: 96 },
+    ],
+    deal: 'Prometheus Bio — $10.8B (2023)',
+    terms: '$150M–$400M upfront · $800M–$1.5B milestones · 15–20% royalty',
+  },
+  {
+    rank: 2, company: 'AstraZeneca', matchScore: 88,
+    scores: [
+      { label: 'Therapeutic', value: 92 }, { label: 'Pipeline Gap', value: 82 },
+      { label: 'Deal History', value: 90 }, { label: 'Financial', value: 88 },
+      { label: 'Geo Fit', value: 90 }, { label: 'Strategic', value: 86 },
+    ],
+    deal: 'Daiichi Sankyo ADC — $5.5B (2023)',
+    terms: '$100M–$300M upfront · $600M–$1.2B milestones · 12–18% royalty',
+  },
+  {
+    rank: 3, company: 'Roche', matchScore: 85,
+    scores: [
+      { label: 'Therapeutic', value: 88 }, { label: 'Pipeline Gap', value: 80 },
+      { label: 'Deal History', value: 86 }, { label: 'Financial', value: 90 },
+      { label: 'Geo Fit', value: 84 }, { label: 'Strategic', value: 82 },
+    ],
+    deal: 'Carmot Therapeutics — $2.7B (2023)',
+    terms: '$100M–$250M upfront · $500M–$1.0B milestones · 10–16% royalty',
+  },
+];
+
+const REGULATORY_PREVIEW = {
+  pathway: 'Standard BLA with Breakthrough Therapy Designation',
+  division: 'Division of Oncology 2 (CDER)',
+  timelines: [
+    { label: 'Optimistic', months: 42, pct: 62, color: 'bg-emerald-400/60' },
+    { label: 'Realistic', months: 54, pct: 79, color: 'bg-white/60' },
+    { label: 'Pessimistic', months: 68, pct: 100, color: 'bg-amber-400/60' },
+  ],
+  designations: [
+    { name: 'Breakthrough Therapy', status: 'Likely', color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20' },
+    { name: 'Fast Track', status: 'Likely', color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20' },
+    { name: 'Priority Review', status: 'Possible', color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/20' },
+    { name: 'Accelerated Approval', status: 'Possible', color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/20' },
+    { name: 'Orphan Drug', status: 'Unlikely', color: 'text-slate-500', bg: 'bg-slate-500/10 border-slate-500/20' },
+  ],
+  risks: [
+    { title: 'Competitive Filing', severity: 'High', color: 'border-red-400/60', badge: 'text-red-400 bg-red-400/10' },
+    { title: 'Clinical Endpoint', severity: 'Medium', color: 'border-amber-400/60', badge: 'text-amber-400 bg-amber-400/10' },
+    { title: 'Manufacturing', severity: 'Low', color: 'border-emerald-400/60', badge: 'text-emerald-400 bg-emerald-400/10' },
+  ],
+  comparables: [
+    { drug: 'Sotorasib', company: 'Amgen', months: 44, pathway: 'Accelerated', pathColor: 'text-emerald-400' },
+    { drug: 'Adagrasib', company: 'Mirati', months: 52, pathway: 'Standard BLA', pathColor: 'text-slate-400' },
+    { drug: 'Lumakras sNDA', company: 'Amgen', months: 38, pathway: 'Priority Review', pathColor: 'text-teal-400' },
+  ],
+};
+
+const STATUS_MESSAGES = [
+  'Fetching epidemiology data...',
+  'Computing patient funnel...',
+  'Sizing addressable market...',
+  'Generating report...',
+];
+
+// ────────────────────────────────────────────────────────────
+// WINDOW CHROME (reusable)
+// ────────────────────────────────────────────────────────────
+
+function WindowChrome({ title }: { title: string }) {
+  return (
+    <div className="flex items-center gap-2 px-4 py-2.5 border-b border-navy-700/60 bg-navy-900/60">
+      <span className="w-2 h-2 rounded-full bg-red-400/60" />
+      <span className="w-2 h-2 rounded-full bg-amber-400/60" />
+      <span className="w-2 h-2 rounded-full bg-emerald-400/60" />
+      <span className="ml-2 text-[10px] font-mono text-slate-600">terrain — {title}</span>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// COMPETITIVE LANDSCAPE PREVIEW
+// ────────────────────────────────────────────────────────────
+
+function CompetitiveLandscapePreview() {
+  return (
+    <div className="card noise p-0 overflow-hidden">
+      <WindowChrome title="competitive landscape" />
+      <div className="p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <div className="text-xs text-white font-medium">KRAS G12C · NSCLC Pipeline</div>
+            <div className="text-[10px] text-slate-500">14 assets across 4 phases</div>
+          </div>
+          <span className="text-[9px] font-mono text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">Crowding: 7/10</span>
+        </div>
+
+        <div className="border border-navy-700/40 rounded-lg overflow-hidden mb-5">
+          <div className="grid grid-cols-[1fr_80px_60px_70px] text-[9px] font-mono uppercase tracking-wider text-slate-600 bg-navy-800/40 px-3 py-2 border-b border-navy-700/40">
+            <span>Company / Asset</span>
+            <span>Phase</span>
+            <span>MoA</span>
+            <span className="text-right">Deal</span>
+          </div>
+          {[
+            { company: 'Amgen', asset: 'Sotorasib', phase: 'Approved', moa: 'Covalent', deal: '$3.7B', color: 'text-emerald-400' },
+            { company: 'Mirati (BMS)', asset: 'Adagrasib', phase: 'Approved', moa: 'Covalent', deal: '$5.8B', color: 'text-emerald-400' },
+            { company: 'Revolution Med', asset: 'RMC-6236', phase: 'Phase 2', moa: 'Multi-RAS', deal: '—', color: 'text-teal-400' },
+            { company: 'Eli Lilly', asset: 'LY3537982', phase: 'Phase 3', moa: 'Tri-complex', deal: '—', color: 'text-amber-400' },
+            { company: 'Novartis', asset: 'JDQ443', phase: 'Phase 2', moa: 'Covalent', deal: '—', color: 'text-teal-400' },
+            { company: 'Roche', asset: 'Divarasib', phase: 'Phase 3', moa: 'Covalent', deal: '—', color: 'text-amber-400' },
+          ].map((row) => (
+            <div key={row.asset} className="grid grid-cols-[1fr_80px_60px_70px] px-3 py-2 border-b border-navy-700/30 last:border-0 text-[10px]">
+              <div>
+                <span className="text-white">{row.company}</span>
+                <span className="text-slate-500 ml-1">· {row.asset}</span>
+              </div>
+              <span className={`font-mono ${row.color}`}>{row.phase}</span>
+              <span className="text-slate-400 font-mono">{row.moa}</span>
+              <span className="text-right font-mono text-slate-300">{row.deal}</span>
+            </div>
+          ))}
+        </div>
+
+        <PartnerBarsPreview />
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// PARTNER DISCOVERY PREVIEW
+// ────────────────────────────────────────────────────────────
+
+function PartnerDiscoveryPreview() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+
+  return (
+    <div ref={ref} className="card noise p-0 overflow-hidden">
+      <WindowChrome title="partner discovery" />
+      <div className="p-5">
+        {/* Summary metrics */}
+        <div className="grid grid-cols-4 gap-3 mb-5">
+          {[
+            { label: 'Partners Screened', val: '312', sub: 'Active BD groups' },
+            { label: 'Top Match', val: '92/100', sub: 'Merck' },
+            { label: 'Avg Score', val: '78', sub: 'Above threshold' },
+            { label: 'Median Upfront', val: '$200M', sub: 'Comparable deals' },
+          ].map((m, i) => (
+            <motion.div
+              key={m.label}
+              className="bg-navy-800/60 rounded-lg p-3 border border-navy-700/40"
+              initial={{ opacity: 0, y: 12 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+            >
+              <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-1">{m.label}</div>
+              <div className="font-mono text-sm text-white font-medium">{m.val}</div>
+              <div className="text-[9px] font-mono mt-0.5 text-slate-500">{m.sub}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Partner cards */}
+        <div className="space-y-3">
+          {PARTNER_PREVIEW_DATA.map((p, pi) => (
+            <motion.div
+              key={p.company}
+              className="bg-navy-800/40 rounded-lg p-4 border border-navy-700/40"
+              initial={{ opacity: 0, x: -12 }}
+              animate={inView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.4, delay: 0.3 + pi * 0.12 }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-6 h-6 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-[10px] font-mono text-teal-400 font-medium">
+                    {p.rank}
+                  </span>
+                  <span className="text-sm text-white font-medium">{p.company}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-16 h-1.5 bg-navy-700/60 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-teal-500/60 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={inView ? { width: `${p.matchScore}%` } : { width: 0 }}
+                      transition={{ duration: 0.7, delay: 0.5 + pi * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  </div>
+                  <span className="font-mono text-xs text-teal-400 font-medium">{p.matchScore}</span>
+                </div>
+              </div>
+
+              {/* Score breakdown — 6 tiny bars */}
+              <div className="grid grid-cols-6 gap-2 mb-3">
+                {p.scores.map((s, si) => (
+                  <div key={s.label}>
+                    <div className="text-[7px] text-slate-600 uppercase tracking-wider mb-1 truncate">{s.label}</div>
+                    <div className="h-1 bg-navy-700/60 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-teal-500/40 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={inView ? { width: `${s.value}%` } : { width: 0 }}
+                        transition={{ duration: 0.5, delay: 0.6 + pi * 0.12 + si * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Deal + terms */}
+              <div className="flex items-center gap-3 text-[9px]">
+                <span className="text-slate-500">Recent:</span>
+                <span className="text-slate-300 font-mono">{p.deal}</span>
+              </div>
+              <div className="text-[8px] text-slate-600 font-mono mt-1">{p.terms}</div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// REGULATORY PREVIEW
+// ────────────────────────────────────────────────────────────
+
+function RegulatoryPreview() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+
+  return (
+    <div ref={ref} className="card noise p-0 overflow-hidden">
+      <WindowChrome title="regulatory intelligence" />
+      <div className="p-5">
+        {/* Pathway card */}
+        <motion.div
+          className="bg-navy-800/60 rounded-lg p-4 border border-navy-700/40 mb-5"
+          initial={{ opacity: 0, y: 12 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="flex items-center gap-3 mb-1">
+            <Shield className="w-4 h-4 text-teal-400" />
+            <span className="text-sm text-white font-medium">{REGULATORY_PREVIEW.pathway}</span>
+          </div>
+          <div className="text-[10px] text-slate-500 ml-7">{REGULATORY_PREVIEW.division}</div>
+        </motion.div>
+
+        {/* Timeline bars */}
+        <div className="mb-5">
+          <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-3">Timeline to Approval</div>
+          <div className="space-y-2">
+            {REGULATORY_PREVIEW.timelines.map((t, i) => (
+              <div key={t.label} className="flex items-center gap-3">
+                <span className="text-[10px] text-slate-400 w-20">{t.label}</span>
+                <div className="flex-1 h-2 bg-navy-700/60 rounded-full overflow-hidden">
+                  <motion.div
+                    className={`h-full rounded-full ${t.color}`}
+                    initial={{ width: 0 }}
+                    animate={inView ? { width: `${t.pct}%` } : { width: 0 }}
+                    transition={{ duration: 0.7, delay: 0.3 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </div>
+                <span className="font-mono text-[10px] text-slate-300 w-12 text-right">{t.months} mo</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Designation badges */}
+        <div className="mb-5">
+          <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">Designation Eligibility</div>
+          <div className="flex flex-wrap gap-2">
+            {REGULATORY_PREVIEW.designations.map((d) => (
+              <span key={d.name} className={`text-[9px] font-mono px-2 py-1 rounded border ${d.bg} ${d.color}`}>
+                {d.name} · {d.status}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Risk cards */}
+        <div className="mb-5">
+          <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">Key Risks</div>
+          <div className="grid grid-cols-3 gap-2">
+            {REGULATORY_PREVIEW.risks.map((r) => (
+              <div key={r.title} className={`bg-navy-800/40 rounded-lg p-3 border-l-2 ${r.color}`}>
+                <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded ${r.badge}`}>{r.severity}</span>
+                <div className="text-[10px] text-white mt-1.5">{r.title}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Comparables mini-table */}
+        <div>
+          <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">Comparable Approvals</div>
+          <div className="border border-navy-700/40 rounded-lg overflow-hidden">
+            <div className="grid grid-cols-[1fr_80px_50px_90px] text-[8px] font-mono uppercase tracking-wider text-slate-600 bg-navy-800/40 px-3 py-1.5 border-b border-navy-700/40">
+              <span>Drug</span>
+              <span>Company</span>
+              <span className="text-right">Time</span>
+              <span className="text-right">Pathway</span>
+            </div>
+            {REGULATORY_PREVIEW.comparables.map((c) => (
+              <div key={c.drug} className="grid grid-cols-[1fr_80px_50px_90px] px-3 py-2 border-b border-navy-700/30 last:border-0 text-[10px]">
+                <span className="text-white">{c.drug}</span>
+                <span className="text-slate-400">{c.company}</span>
+                <span className="text-right font-mono text-slate-300">{c.months}mo</span>
+                <span className={`text-right font-mono ${c.pathColor}`}>{c.pathway}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// MODULE SHOWCASE (tabbed)
+// ────────────────────────────────────────────────────────────
+
+function ModuleShowcase() {
+  const [activeTab, setActiveTab] = useState(0);
+  const tabs = [
+    { label: 'Market Sizing', icon: BarChart3 },
+    { label: 'Competitive', icon: Network },
+    { label: 'Partners', icon: Users },
+    { label: 'Regulatory', icon: Shield },
+  ];
+
+  return (
+    <div>
+      <div className="flex border-b border-navy-700/60 mb-6 overflow-x-auto">
+        {tabs.map((tab, i) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.label}
+              onClick={() => setActiveTab(i)}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
+                i === activeTab
+                  ? 'text-teal-400 border-b-2 border-teal-500'
+                  : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {activeTab === 0 && <AnimatedDashboardPreview />}
+          {activeTab === 1 && <CompetitiveLandscapePreview />}
+          {activeTab === 2 && <PartnerDiscoveryPreview />}
+          {activeTab === 3 && <RegulatoryPreview />}
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// DEMO RESULTS SKELETON
+// ────────────────────────────────────────────────────────────
+
+function DemoResultsSkeleton() {
+  const [msgIdx, setMsgIdx] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMsgIdx((prev) => (prev + 1) % STATUS_MESSAGES.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.3 }}
+      className="mt-6 pt-6 border-t border-navy-700/60"
+    >
+      {/* Cycling status */}
+      <div className="flex items-center gap-2 mb-5">
+        <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={msgIdx}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="text-xs font-mono text-teal-400"
+          >
+            {STATUS_MESSAGES[msgIdx]}
+          </motion.span>
+        </AnimatePresence>
+      </div>
+
+      {/* Skeleton metrics */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        {['US TAM', 'US SAM', 'Peak Revenue', '5-yr CAGR'].map((label) => (
+          <div key={label}>
+            <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">{label}</div>
+            <div className="skeleton h-6 w-20 rounded" />
+          </div>
+        ))}
+      </div>
+
+      {/* Skeleton waterfall */}
+      <div className="mb-6">
+        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">TAM → SAM → SOM Waterfall</div>
+        <div className="flex items-end gap-1 h-12">
+          <div className="flex-1 skeleton rounded-sm" style={{ height: '100%' }} />
+          <div className="flex-1 skeleton rounded-sm" style={{ height: '60%' }} />
+          <div className="flex-1 skeleton rounded-sm" style={{ height: '25%' }} />
+        </div>
+      </div>
+
+      {/* Skeleton CTA */}
+      <div className="p-4 rounded-lg bg-navy-800/40 border border-navy-700/40">
+        <div className="skeleton h-4 w-3/4 mx-auto rounded mb-3" />
+        <div className="skeleton h-9 w-40 mx-auto rounded" />
+      </div>
+    </motion.div>
   );
 }
 
@@ -1504,63 +1964,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Dashboard mockup */}
-            <AnimatedDashboardPreview />
-
-            {/* Competitive landscape mockup */}
-            <div className="card noise p-0 overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-navy-700/60 bg-navy-900/60">
-                <span className="w-2 h-2 rounded-full bg-red-400/60" />
-                <span className="w-2 h-2 rounded-full bg-amber-400/60" />
-                <span className="w-2 h-2 rounded-full bg-emerald-400/60" />
-                <span className="ml-2 text-[10px] font-mono text-slate-600">terrain — competitive landscape</span>
-              </div>
-              <div className="p-5">
-                {/* Landscape header */}
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <div className="text-xs text-white font-medium">KRAS G12C · NSCLC Pipeline</div>
-                    <div className="text-[10px] text-slate-500">14 assets across 4 phases</div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[9px] font-mono text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">Crowding: 7/10</span>
-                  </div>
-                </div>
-
-                {/* Pipeline table */}
-                <div className="border border-navy-700/40 rounded-lg overflow-hidden mb-5">
-                  <div className="grid grid-cols-[1fr_80px_60px_70px] text-[9px] font-mono uppercase tracking-wider text-slate-600 bg-navy-800/40 px-3 py-2 border-b border-navy-700/40">
-                    <span>Company / Asset</span>
-                    <span>Phase</span>
-                    <span>MoA</span>
-                    <span className="text-right">Deal</span>
-                  </div>
-                  {[
-                    { company: 'Amgen', asset: 'Sotorasib', phase: 'Approved', moa: 'Covalent', deal: '$3.7B', color: 'text-emerald-400' },
-                    { company: 'Mirati (BMS)', asset: 'Adagrasib', phase: 'Approved', moa: 'Covalent', deal: '$5.8B', color: 'text-emerald-400' },
-                    { company: 'Revolution Med', asset: 'RMC-6236', phase: 'Phase 2', moa: 'Multi-RAS', deal: '—', color: 'text-teal-400' },
-                    { company: 'Eli Lilly', asset: 'LY3537982', phase: 'Phase 3', moa: 'Tri-complex', deal: '—', color: 'text-amber-400' },
-                    { company: 'Novartis', asset: 'JDQ443', phase: 'Phase 2', moa: 'Covalent', deal: '—', color: 'text-teal-400' },
-                    { company: 'Roche', asset: 'Divarasib', phase: 'Phase 3', moa: 'Covalent', deal: '—', color: 'text-amber-400' },
-                  ].map((row) => (
-                    <div key={row.asset} className="grid grid-cols-[1fr_80px_60px_70px] px-3 py-2 border-b border-navy-700/30 last:border-0 text-[10px]">
-                      <div>
-                        <span className="text-white">{row.company}</span>
-                        <span className="text-slate-500 ml-1">· {row.asset}</span>
-                      </div>
-                      <span className={`font-mono ${row.color}`}>{row.phase}</span>
-                      <span className="text-slate-400 font-mono">{row.moa}</span>
-                      <span className="text-right font-mono text-slate-300">{row.deal}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Partner match preview */}
-                <PartnerBarsPreview />
-              </div>
-            </div>
-          </div>
+          <ModuleShowcase />
 
           <div className="text-center mt-8">
             <Link

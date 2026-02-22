@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Rate limit ──────────────────────────────────────────
-    const rl = rateLimit(`partners:${user.id}`, RATE_LIMITS.analysis_pro);
+    const rl = await rateLimit(`partners:${user.id}`, RATE_LIMITS.analysis_pro);
     if (!rl.success) {
       logApiResponse({ route: '/api/analyze/partners', status: 429, durationMs: Math.round(performance.now() - routeStart), userId: user.id });
       return NextResponse.json(
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     logApiRequest({ route: '/api/analyze/partners', method: 'POST', userId: user.id, indication: parsed.data.input.indication });
 
     // ── Run partner matching engine ───────────────────────────
-    const { result } = await withTiming('partner_analysis', () => analyzePartners(parsed.data.input as Parameters<typeof analyzePartners>[0]), { indication: parsed.data.input.indication });
+    const { result } = await withTiming('partner_analysis', () => analyzePartners(parsed.data.input), { indication: parsed.data.input.indication });
 
     // ── Record usage ──────────────────────────────────────────
     await recordUsage(user.id, 'partners', parsed.data.input.indication, {

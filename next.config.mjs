@@ -29,8 +29,26 @@ const nextConfig = {
 };
 
 export default withSentryConfig(nextConfig, {
-  silent: true,
+  // Upload source maps for readable stack traces in Sentry
+  silent: !process.env.CI,
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
+
+  // Only upload source maps when auth token is available (CI/Vercel)
   disableSourceMapUpload: !process.env.SENTRY_AUTH_TOKEN,
+
+  // Hide source maps from users (uploaded to Sentry only)
+  hideSourceMaps: true,
+
+  // Automatically associate commits with releases
+  automaticVercelMonitors: true,
+
+  // Widen the upload scope to include all chunks
+  widenClientFileUpload: true,
+
+  // Route handler + middleware instrumentation
+  tunnelRoute: '/monitoring',
+
+  // Disable the Sentry telemetry logger in builds
+  disableLogger: true,
 });

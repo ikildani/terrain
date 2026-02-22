@@ -24,6 +24,17 @@ function formatDealValue(value: number): string {
   return '--';
 }
 
+function formatStage(stage: string): string {
+  const map: Record<string, string> = {
+    preclinical: 'Preclinical',
+    phase1: 'Phase 1',
+    phase2: 'Phase 2',
+    phase3: 'Phase 3',
+    approved: 'Approved',
+  };
+  return map[stage] || stage.charAt(0).toUpperCase() + stage.slice(1);
+}
+
 export default function PartnerDiscoveryReport({ data, input }: PartnerDiscoveryReportProps) {
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -36,11 +47,13 @@ export default function PartnerDiscoveryReport({ data, input }: PartnerDiscovery
       HQ: p.hq_location,
       'Market Cap': p.market_cap || '',
       'Match Score': p.match_score,
-      'Therapeutic Alignment': p.score_breakdown.therapeutic_alignment,
-      'Pipeline Gap': p.score_breakdown.pipeline_gap,
-      'Deal History': p.score_breakdown.deal_history,
-      'Geography Fit': p.score_breakdown.geography_fit,
-      'Financial Capacity': p.score_breakdown.financial_capacity,
+      'Therapeutic Alignment (/25)': p.score_breakdown.therapeutic_alignment,
+      'Pipeline Gap (/25)': p.score_breakdown.pipeline_gap,
+      'Deal History (/20)': p.score_breakdown.deal_history,
+      'Geography Fit (/15)': p.score_breakdown.geography_fit,
+      'Financial Capacity (/15)': p.score_breakdown.financial_capacity,
+      'BD Focus': p.bd_focus.join('; '),
+      'Watch Signals': p.watch_signals.join('; '),
       'Typical Upfront': p.deal_terms_benchmark.typical_upfront,
       'Typical Milestones': p.deal_terms_benchmark.typical_milestones,
       'Royalty Range': p.deal_terms_benchmark.typical_royalty_range,
@@ -110,7 +123,7 @@ export default function PartnerDiscoveryReport({ data, input }: PartnerDiscovery
         <div className="card">
           <div className="flex items-center gap-2 mb-3">
             <DollarSign className="w-4 h-4 text-teal-500" />
-            <h3 className="chart-title">Deal Benchmarks — {data.summary.development_stage.replace('phase', 'Phase ')} Stage</h3>
+            <h3 className="chart-title">Deal Benchmarks — {formatStage(data.summary.development_stage)} Stage</h3>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
@@ -140,7 +153,9 @@ export default function PartnerDiscoveryReport({ data, input }: PartnerDiscovery
       {/* Action Bar */}
       <div className="flex items-center justify-between">
         <h3 className="chart-title">
-          Top {data.ranked_partners.length} Partner Matches
+          {data.ranked_partners.length > 0
+            ? `Top ${data.ranked_partners.length} Partner Matches`
+            : 'No Partners Above Threshold'}
         </h3>
         <div className="flex items-center gap-2">
           <ExportButton
@@ -152,7 +167,7 @@ export default function PartnerDiscoveryReport({ data, input }: PartnerDiscovery
             format="pdf"
             targetRef={reportRef}
             reportTitle="Partner Discovery Report"
-            reportSubtitle={`${data.summary.indication} — ${data.summary.development_stage}`}
+            reportSubtitle={`${data.summary.indication} — ${formatStage(data.summary.development_stage)}`}
           />
           {reportData && <SaveReportButton reportData={reportData} />}
         </div>

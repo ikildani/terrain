@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Rate limit ──────────────────────────────────────────
-    const rl = rateLimit(`regulatory:${user.id}`, RATE_LIMITS.analysis_pro);
+    const rl = await rateLimit(`regulatory:${user.id}`, RATE_LIMITS.analysis_pro);
     if (!rl.success) {
       logApiResponse({ route: '/api/analyze/regulatory', status: 429, durationMs: Math.round(performance.now() - routeStart), userId: user.id });
       return NextResponse.json(

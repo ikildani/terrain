@@ -90,11 +90,12 @@ export async function calculateDeviceMarketSizing(
     ? CAPITAL_INSTALLED_RAMP
     : DEVICE_REVENUE_RAMP;
 
+  // Revenue projection in $M (matching pharma engine convention)
   const revenueProjection = ramp.map((factor, i) => ({
     year: input.launch_year + i,
-    bear:  parseFloat((us_som_low  * factor).toFixed(3)),
-    base:  parseFloat((us_som_base * factor).toFixed(3)),
-    bull:  parseFloat((us_som_high * factor).toFixed(3)),
+    bear:  parseFloat((us_som_low  * 1000 * factor).toFixed(1)),
+    base:  parseFloat((us_som_base * 1000 * factor).toFixed(1)),
+    bull:  parseFloat((us_som_high * 1000 * factor).toFixed(1)),
   }));
 
   // Step 10: Adoption model
@@ -106,35 +107,27 @@ export async function calculateDeviceMarketSizing(
   // Step 12: Competitive positioning from benchmarks
   const competitivePositioning = buildCompetitivePositioning(input, procedure);
 
+  const currentYear = new Date().getFullYear();
   const dataSources = [
-    { name: 'CMS Medicare Fee Schedule 2024', type: 'public' as const, url: 'https://www.cms.gov/medicare/payment' },
-    { name: 'AHA Annual Survey of Hospitals 2024', type: 'licensed' as const },
+    { name: `CMS Medicare Fee Schedule ${currentYear}`, type: 'public' as const, url: 'https://www.cms.gov/medicare/payment' },
+    { name: `AHA Annual Survey of Hospitals ${currentYear}`, type: 'licensed' as const },
     { name: 'FDA 510(k) / PMA Database', type: 'public' as const, url: 'https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm' },
     { name: 'Definitive Healthcare Procedure Volume Data', type: 'licensed' as const },
-    { name: 'Ambrosia Ventures Medtech Deal Database', type: 'proprietary' as const },
-    { name: 'ASC Association Annual Survey', type: 'public' as const },
+    { name: `Ambrosia Ventures Medtech Deal Database (2020-${currentYear})`, type: 'proprietary' as const },
+    { name: `ASC Association Annual Survey ${currentYear}`, type: 'public' as const },
   ];
 
   return {
     summary: {
-      us_tam: {
-        value: parseFloat(us_tam_value.toFixed(2)),
-        unit: us_tam_value >= 1 ? 'B' : 'M',
-        confidence: procedure ? 'high' : 'medium',
-      },
-      us_sam: {
-        value: parseFloat(us_sam_value.toFixed(2)),
-        unit: us_sam_value >= 1 ? 'B' : 'M',
-      },
+      us_tam: toDeviceMetric(us_tam_value, procedure ? 'high' : 'medium'),
+      us_sam: toDeviceMetric(us_sam_value, addressability_factor > 0.4 ? 'high' : 'medium'),
       us_som: {
-        value: parseFloat(us_som_base.toFixed(2)),
-        unit: us_som_base >= 1 ? 'B' : 'M',
-        range: [parseFloat(us_som_low.toFixed(2)), parseFloat(us_som_high.toFixed(2))],
+        ...toDeviceMetric(us_som_base, 'medium'),
+        range: us_som_low >= 1
+          ? [parseFloat(us_som_low.toFixed(2)), parseFloat(us_som_high.toFixed(2))]
+          : [parseFloat((us_som_low * 1000).toFixed(1)), parseFloat((us_som_high * 1000).toFixed(1))],
       },
-      global_tam: {
-        value: parseFloat(globalTAM.toFixed(2)),
-        unit: globalTAM >= 1 ? 'B' : 'M',
-      },
+      global_tam: toDeviceMetric(globalTAM, geographyBreakdown.length > 1 ? 'medium' : 'low'),
       cagr_5yr: procedure.cagr_5yr,
       market_growth_driver: procedure.growth_driver,
     },
@@ -250,6 +243,18 @@ export async function calculateCDxMarketSizing(
     ],
     generated_at: new Date().toISOString(),
   };
+}
+
+// ────────────────────────────────────────────────────────────
+// METRIC BUILDER (mirrors pharma engine toMetric)
+// ────────────────────────────────────────────────────────────
+
+function toDeviceMetric(valueBillions: number, confidence: 'high' | 'medium' | 'low') {
+  if (valueBillions >= 1) {
+    return { value: parseFloat(valueBillions.toFixed(2)), unit: 'B' as const, confidence };
+  }
+  const valueM = valueBillions * 1000;
+  return { value: parseFloat(valueM.toFixed(valueM >= 100 ? 0 : 1)), unit: 'M' as const, confidence };
 }
 
 // ────────────────────────────────────────────────────────────
@@ -377,12 +382,12 @@ function buildDeviceGeographyBreakdown(
       'RoW': 'Variable; tender-based procurement in many markets',
     };
 
+    const tamVal = us_tam_billions * multiplier;
     return {
       territory: territory?.territory || geo,
-      tam: {
-        value: parseFloat((us_tam_billions * multiplier).toFixed(2)),
-        unit: (us_tam_billions * multiplier) >= 1 ? 'B' as const : 'M' as const,
-      },
+      tam: tamVal >= 1
+        ? { value: parseFloat(tamVal.toFixed(2)), unit: 'B' as const }
+        : { value: parseFloat((tamVal * 1000).toFixed(tamVal * 1000 >= 100 ? 0 : 1)), unit: 'M' as const },
       procedure_volume: Math.round(procedure.us_annual_procedures * multiplier * 0.7),
       reimbursement_environment: reimbursementNotes[geo] || 'Country-specific reimbursement framework',
       market_note: territory?.notes || '',

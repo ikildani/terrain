@@ -14,6 +14,17 @@ function formatDealValue(value?: number): string {
   return `$${Math.round(millions)}M`;
 }
 
+function formatStage(stage: string): string {
+  const map: Record<string, string> = {
+    preclinical: 'Preclinical',
+    phase1: 'Phase 1',
+    phase2: 'Phase 2',
+    phase3: 'Phase 3',
+    approved: 'Approved',
+  };
+  return map[stage] || stage;
+}
+
 export default function DealHistoryTable({ deals, compact }: DealHistoryTableProps) {
   if (deals.length === 0) {
     return (
@@ -34,7 +45,7 @@ export default function DealHistoryTable({ deals, compact }: DealHistoryTablePro
                 {deal.licensed_to}
               </span>
               <span className="text-slate-500 text-[10px] truncate block">
-                {deal.indication} &middot; {deal.deal_type}
+                {deal.indication} &middot; {deal.deal_type} &middot; {formatStage(deal.development_stage)}
               </span>
             </div>
             <div className="text-right ml-3 shrink-0">
@@ -59,6 +70,7 @@ export default function DealHistoryTable({ deals, compact }: DealHistoryTablePro
             <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Partner</th>
             <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Indication</th>
             <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Type</th>
+            <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Stage</th>
             <th className="text-right py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Upfront</th>
             <th className="text-right py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Total Value</th>
             <th className="text-right py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Year</th>
@@ -70,6 +82,7 @@ export default function DealHistoryTable({ deals, compact }: DealHistoryTablePro
               <td className="py-2 px-2 text-slate-300">{deal.licensed_to}</td>
               <td className="py-2 px-2 text-slate-400 max-w-[160px] truncate">{deal.indication}</td>
               <td className="py-2 px-2 text-slate-400">{deal.deal_type}</td>
+              <td className="py-2 px-2 text-slate-400">{formatStage(deal.development_stage)}</td>
               <td className="py-2 px-2 text-right font-mono text-teal-400">{formatDealValue(deal.upfront_usd)}</td>
               <td className="py-2 px-2 text-right font-mono text-slate-300">{formatDealValue(deal.total_value_usd)}</td>
               <td className="py-2 px-2 text-right font-mono text-slate-500">{deal.date}</td>

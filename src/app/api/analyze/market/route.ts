@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
       user = authUser;
 
       // ── Rate limit authenticated users ────────────────────────
-      const rl = rateLimit(`market:${authUser.id}`, RATE_LIMITS.analysis_pro);
+      const rl = await rateLimit(`market:${authUser.id}`, RATE_LIMITS.analysis_pro);
       if (!rl.success) {
         logApiResponse({ route: '/api/analyze/market', status: 429, durationMs: Math.round(performance.now() - routeStart), userId: authUser.id });
         return NextResponse.json(

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Rate limit ──────────────────────────────────────────
-    const rl = rateLimit(`competitive:${user.id}`, RATE_LIMITS.analysis_pro);
+    const rl = await rateLimit(`competitive:${user.id}`, RATE_LIMITS.analysis_pro);
     if (!rl.success) {
       logApiResponse({ route: '/api/analyze/competitive', status: 429, durationMs: Math.round(performance.now() - routeStart), userId: user.id });
       return NextResponse.json(

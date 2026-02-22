@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 
 // ────────────────────────────────────────────────────────────
-// Integration tests for the in-memory sliding-window rate limiter.
+// Integration tests for the sliding-window rate limiter.
+// No UPSTASH env vars → uses in-memory fallback automatically.
 //
 // Uses vi.useFakeTimers() to control time progression and test
 // window expiry, cleanup, and multi-key isolation.
@@ -11,10 +12,6 @@ import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 describe('rateLimit()', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    // Reset the internal store between tests by advancing time far enough
-    // to trigger cleanup, then making a dummy call so cleanup runs.
-    // However, because the store is module-level, we need a fresh import.
-    // Instead, we use unique keys per test group to avoid cross-contamination.
   });
 
   afterEach(() => {
@@ -24,183 +21,164 @@ describe('rateLimit()', () => {
   const config = { limit: 3, windowMs: 60_000 }; // 3 requests per 60 seconds
 
   describe('allows requests within the limit', () => {
-    it('should succeed for the first request', () => {
-      const result = rateLimit('test-allow-first', config);
+    it('should succeed for the first request', async () => {
+      const result = await rateLimit('test-allow-first', config);
       expect(result.success).toBe(true);
       expect(result.remaining).toBe(2);
       expect(result.limit).toBe(3);
       expect(result.retryAfter).toBe(0);
     });
 
-    it('should succeed for requests up to the limit', () => {
+    it('should succeed for requests up to the limit', async () => {
       const key = 'test-allow-all';
-      const r1 = rateLimit(key, config);
+      const r1 = await rateLimit(key, config);
       expect(r1.success).toBe(true);
       expect(r1.remaining).toBe(2);
 
-      const r2 = rateLimit(key, config);
+      const r2 = await rateLimit(key, config);
       expect(r2.success).toBe(true);
       expect(r2.remaining).toBe(1);
 
-      const r3 = rateLimit(key, config);
+      const r3 = await rateLimit(key, config);
       expect(r3.success).toBe(true);
       expect(r3.remaining).toBe(0);
     });
   });
 
   describe('blocks requests exceeding the limit', () => {
-    it('should block the request after the limit is reached', () => {
+    it('should block the request after the limit is reached', async () => {
       const key = 'test-block-exceed';
-      // Exhaust the limit
-      rateLimit(key, config);
-      rateLimit(key, config);
-      rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
 
-      // 4th request should be blocked
-      const result = rateLimit(key, config);
+      const result = await rateLimit(key, config);
       expect(result.success).toBe(false);
       expect(result.remaining).toBe(0);
     });
 
-    it('should continue blocking subsequent requests', () => {
+    it('should continue blocking subsequent requests', async () => {
       const key = 'test-block-continued';
-      rateLimit(key, config);
-      rateLimit(key, config);
-      rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
 
-      const r4 = rateLimit(key, config);
-      const r5 = rateLimit(key, config);
+      const r4 = await rateLimit(key, config);
+      const r5 = await rateLimit(key, config);
       expect(r4.success).toBe(false);
       expect(r5.success).toBe(false);
     });
   });
 
   describe('returns correct remaining count', () => {
-    it('should decrement remaining with each successful request', () => {
+    it('should decrement remaining with each successful request', async () => {
       const key = 'test-remaining-count';
-      expect(rateLimit(key, config).remaining).toBe(2);
-      expect(rateLimit(key, config).remaining).toBe(1);
-      expect(rateLimit(key, config).remaining).toBe(0);
+      expect((await rateLimit(key, config)).remaining).toBe(2);
+      expect((await rateLimit(key, config)).remaining).toBe(1);
+      expect((await rateLimit(key, config)).remaining).toBe(0);
     });
 
-    it('should report 0 remaining when blocked', () => {
+    it('should report 0 remaining when blocked', async () => {
       const key = 'test-remaining-zero';
-      rateLimit(key, config);
-      rateLimit(key, config);
-      rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
 
-      const blocked = rateLimit(key, config);
+      const blocked = await rateLimit(key, config);
       expect(blocked.remaining).toBe(0);
     });
   });
 
   describe('returns correct retryAfter value when blocked', () => {
-    it('should return retryAfter in seconds when rate limited', () => {
+    it('should return retryAfter in seconds when rate limited', async () => {
       const key = 'test-retry-after';
-      rateLimit(key, config);
-      rateLimit(key, config);
-      rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
 
-      const blocked = rateLimit(key, config);
+      const blocked = await rateLimit(key, config);
       expect(blocked.success).toBe(false);
-      // retryAfter should be roughly the window duration in seconds
-      // since the oldest timestamp is very recent (same fake-time tick)
       expect(blocked.retryAfter).toBeGreaterThan(0);
-      expect(blocked.retryAfter).toBeLessThanOrEqual(60); // windowMs / 1000
+      expect(blocked.retryAfter).toBeLessThanOrEqual(60);
     });
 
-    it('should decrease retryAfter as time passes', () => {
+    it('should decrease retryAfter as time passes', async () => {
       const key = 'test-retry-decrease';
-      rateLimit(key, config);
-      rateLimit(key, config);
-      rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
 
-      // Advance 30 seconds
       vi.advanceTimersByTime(30_000);
 
-      const blocked = rateLimit(key, config);
+      const blocked = await rateLimit(key, config);
       expect(blocked.success).toBe(false);
-      // The oldest request is now 30s old in a 60s window, so retryAfter ~ 30
       expect(blocked.retryAfter).toBeLessThanOrEqual(30);
       expect(blocked.retryAfter).toBeGreaterThan(0);
     });
 
-    it('should return retryAfter of 0 for successful requests', () => {
-      const result = rateLimit('test-retry-zero-success', config);
+    it('should return retryAfter of 0 for successful requests', async () => {
+      const result = await rateLimit('test-retry-zero-success', config);
       expect(result.retryAfter).toBe(0);
     });
   });
 
   describe('resets after window expires', () => {
-    it('should allow requests again after the full window has elapsed', () => {
+    it('should allow requests again after the full window has elapsed', async () => {
       const key = 'test-window-reset';
-      rateLimit(key, config);
-      rateLimit(key, config);
-      rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
+      await rateLimit(key, config);
 
-      // Should be blocked
-      expect(rateLimit(key, config).success).toBe(false);
+      expect((await rateLimit(key, config)).success).toBe(false);
 
-      // Advance past the window
       vi.advanceTimersByTime(60_001);
 
-      // Should be allowed again
-      const result = rateLimit(key, config);
+      const result = await rateLimit(key, config);
       expect(result.success).toBe(true);
       expect(result.remaining).toBe(2);
     });
 
-    it('should partially reset as individual timestamps expire', () => {
+    it('should partially reset as individual timestamps expire', async () => {
       const key = 'test-partial-reset';
-      // Request at t=0
-      rateLimit(key, config);
+      await rateLimit(key, config);
 
-      // Advance 20s, request at t=20s
       vi.advanceTimersByTime(20_000);
-      rateLimit(key, config);
+      await rateLimit(key, config);
 
-      // Advance 20s, request at t=40s
       vi.advanceTimersByTime(20_000);
-      rateLimit(key, config);
+      await rateLimit(key, config);
 
-      // Now all 3 slots used: t=0, t=20s, t=40s
-      expect(rateLimit(key, config).success).toBe(false);
+      expect((await rateLimit(key, config)).success).toBe(false);
 
-      // Advance 21s more (total 61s from t=0), so the t=0 request expires
       vi.advanceTimersByTime(21_000);
 
-      const result = rateLimit(key, config);
+      const result = await rateLimit(key, config);
       expect(result.success).toBe(true);
-      // Two old timestamps remain (t=20 and t=40, both still within window)
-      // plus this new one, so remaining should be 0
       expect(result.remaining).toBe(0);
     });
   });
 
   describe('different keys do not interfere with each other', () => {
-    it('should track limits independently per key', () => {
+    it('should track limits independently per key', async () => {
       const keyA = 'test-isolation-a';
       const keyB = 'test-isolation-b';
       const singleConfig = { limit: 1, windowMs: 60_000 };
 
-      // Exhaust key A
-      rateLimit(keyA, singleConfig);
-      expect(rateLimit(keyA, singleConfig).success).toBe(false);
+      await rateLimit(keyA, singleConfig);
+      expect((await rateLimit(keyA, singleConfig)).success).toBe(false);
 
-      // Key B should still have capacity
-      const resultB = rateLimit(keyB, singleConfig);
+      const resultB = await rateLimit(keyB, singleConfig);
       expect(resultB.success).toBe(true);
     });
 
-    it('should not share remaining counts across keys', () => {
+    it('should not share remaining counts across keys', async () => {
       const keyC = 'test-isolation-c';
       const keyD = 'test-isolation-d';
 
-      rateLimit(keyC, config); // use 1 of 3 on keyC
-      rateLimit(keyC, config); // use 2 of 3 on keyC
+      await rateLimit(keyC, config);
+      await rateLimit(keyC, config);
 
-      // keyD should still have full capacity
-      expect(rateLimit(keyD, config).remaining).toBe(2);
+      expect((await rateLimit(keyD, config)).remaining).toBe(2);
     });
   });
 });

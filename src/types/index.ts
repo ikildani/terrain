@@ -62,9 +62,9 @@ export type DevelopmentStage =
   | 'phase3' 
   | 'approved';
 
-export type GeographyCode = 
-  | 'US' 
-  | 'EU5' 
+export type GeographyCode =
+  | 'US'
+  | 'EU5'
   | 'Germany'
   | 'France'
   | 'Italy'
@@ -74,7 +74,8 @@ export type GeographyCode =
   | 'China'
   | 'Canada'
   | 'Australia'
-  | 'RoW';
+  | 'RoW'
+  | 'Global';
 
 export type PricingAssumption = 'conservative' | 'base' | 'premium';
 

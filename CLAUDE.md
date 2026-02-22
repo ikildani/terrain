@@ -890,7 +890,7 @@ type AlertType =
 **Sections**:
 1. **Hero**: Full-width dark navy hero. Headline: "Market intelligence for life sciences deals." Subhead: "TAM analysis, competitive landscapes, and partner matching — in 90 seconds, not 3 weeks." CTA: "Start for free" + "See a sample report" (opens modal with pre-built report). Background: subtle animated particle field or grid pattern.
 
-2. **Social Proof Strip**: Logos of notable companies using the platform (when available) or "Built on data from ClinicalTrials.gov, FDA, SEC filings, and 10,000+ biopharma transactions."
+2. **Data Source Strip** (NOT a "trust strip" or "social proof" section): Show the data sources powering the platform: ClinicalTrials.gov, FDA/EMA, SEC EDGAR, WHO GBD, 10,000+ Transactions. **DO NOT** add fake company logos, placeholder names like "Series A Biotech" or "Top-20 Pharma BD", or any "Trusted by teams at" section. The platform has no external customers yet — never fabricate social proof.
 
 3. **Feature Showcase**: 6 module cards in a 3x2 grid. Each card has the module name, one-line description, and a miniature screenshot/preview. On hover: expand slightly with slight glow.
 
