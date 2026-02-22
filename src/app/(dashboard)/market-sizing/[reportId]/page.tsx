@@ -4,11 +4,48 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { PageHeader } from '@/components/layout/PageHeader';
 import MarketSizingReport from '@/components/market-sizing/MarketSizingReport';
+import DeviceMarketSizingReport from '@/components/market-sizing/DeviceMarketSizingReport';
+import CDxMarketSizingReport from '@/components/market-sizing/CDxMarketSizingReport';
 import { SkeletonCard, SkeletonMetric } from '@/components/ui/Skeleton';
 import { Button } from '@/components/ui/Button';
 import { apiGet } from '@/lib/utils/api';
 import { ArrowLeft, FileText } from 'lucide-react';
-import type { Report, MarketSizingOutput, MarketSizingInput } from '@/types';
+import type { Report, MarketSizingOutput, MarketSizingInput, DeviceMarketSizingOutput, CDxOutput, DeviceMarketSizingInput, CDxMarketSizingInput } from '@/types';
+
+function renderReportForCategory(report: Report) {
+  const inputs = report.inputs as Record<string, unknown> | null;
+  const category = (inputs?.product_category as string) || 'pharmaceutical';
+
+  if (category.startsWith('device') || category.startsWith('medical_device')) {
+    return (
+      <DeviceMarketSizingReport
+        data={report.outputs as unknown as DeviceMarketSizingOutput}
+        input={inputs as unknown as DeviceMarketSizingInput}
+      />
+    );
+  }
+
+  if (
+    category === 'companion_diagnostic' ||
+    category === 'cdx' ||
+    category === 'diagnostics_companion' ||
+    category === 'diagnostics_ivd'
+  ) {
+    return (
+      <CDxMarketSizingReport
+        data={report.outputs as unknown as CDxOutput}
+        input={inputs as unknown as CDxMarketSizingInput}
+      />
+    );
+  }
+
+  return (
+    <MarketSizingReport
+      data={report.outputs as unknown as MarketSizingOutput}
+      input={inputs as unknown as MarketSizingInput}
+    />
+  );
+}
 
 export default function MarketSizingReportPage({
   params,
@@ -62,7 +99,7 @@ export default function MarketSizingReportPage({
       )}
 
       {error && !isLoading && (
-        <div className="card p-12 text-center flex flex-col items-center">
+        <div className="card noise p-12 text-center flex flex-col items-center">
           <FileText className="w-12 h-12 text-navy-600 mb-4" />
           <h3 className="font-display text-lg text-slate-200 mb-2">
             Report Not Found
@@ -74,12 +111,7 @@ export default function MarketSizingReportPage({
         </div>
       )}
 
-      {!isLoading && report && report.outputs && (
-        <MarketSizingReport
-          data={report.outputs as unknown as MarketSizingOutput}
-          input={report.inputs as unknown as MarketSizingInput}
-        />
-      )}
+      {!isLoading && report && report.outputs && renderReportForCategory(report)}
     </>
   );
 }

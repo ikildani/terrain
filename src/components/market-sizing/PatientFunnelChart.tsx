@@ -12,6 +12,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { formatNumber, formatPercent } from '@/lib/utils/format';
+import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import type { PatientFunnel } from '@/types';
 
 interface PatientFunnelChartProps {
@@ -36,7 +37,7 @@ export default function PatientFunnelChart({ funnel }: PatientFunnelChartProps) 
   ];
 
   return (
-    <div className="chart-container">
+    <div className="chart-container noise">
       <div className="chart-title">Patient Population Funnel (US)</div>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data} margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>
@@ -92,6 +93,12 @@ export default function PatientFunnelChart({ funnel }: PatientFunnelChartProps) 
             </span>
           </div>
         ))}
+      </div>
+
+      {/* Source attribution */}
+      <div className="mt-4 pt-3 border-t border-navy-700 flex flex-wrap gap-3">
+        <DataSourceBadge source="WHO GBD" type="public" />
+        <DataSourceBadge source="Terrain Epidemiology" type="proprietary" />
       </div>
     </div>
   );

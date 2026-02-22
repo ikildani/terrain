@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { Report } from '@/types';
 import { apiGet, apiPost, apiDelete, apiClient } from '@/lib/utils/api';
+import { useUser } from './useUser';
 
 const REPORTS_KEY = ['reports'] as const;
 
@@ -15,6 +16,7 @@ async function fetchReports(): Promise<Report[]> {
 
 export function useReports() {
   const queryClient = useQueryClient();
+  const { user, isLoading: userLoading } = useUser();
 
   const {
     data: reports = [],
@@ -23,7 +25,10 @@ export function useReports() {
   } = useQuery({
     queryKey: REPORTS_KEY,
     queryFn: fetchReports,
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    enabled: !!user && !userLoading,
+    staleTime: 2 * 60 * 1000,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: true,
   });
 
   const saveMutation = useMutation({

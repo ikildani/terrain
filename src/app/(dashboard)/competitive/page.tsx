@@ -27,7 +27,7 @@ function ResultsSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="card p-12 text-center flex flex-col items-center">
+    <div className="card noise p-12 text-center flex flex-col items-center">
       <Crosshair className="w-12 h-12 text-navy-600 mb-4" />
       <h3 className="font-display text-lg text-white mb-2">
         Map Your Competitive Landscape
@@ -92,7 +92,7 @@ export default function CompetitivePage() {
         <div className="flex-1 min-w-0">
           {isLoading && <ResultsSkeleton />}
           {!isLoading && error && (
-            <div className="card p-8 text-center">
+            <div className="card noise p-8 text-center">
               <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
                 {error}
               </p>

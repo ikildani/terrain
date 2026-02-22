@@ -36,13 +36,13 @@ export default function SensitivityTable({
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="text-left text-[10px] text-slate-500 uppercase tracking-wider font-medium pb-2 pr-4">
+              <th className="text-left text-2xs text-slate-500 uppercase tracking-wider font-medium pb-2 pr-4">
                 Pricing \ Share
               </th>
               {SHARE_VARIANTS.map((sv) => (
                 <th
                   key={sv.label}
-                  className="text-center text-[10px] text-slate-500 uppercase tracking-wider font-medium pb-2 px-3"
+                  className="text-center text-2xs text-slate-500 uppercase tracking-wider font-medium pb-2 px-3"
                 >
                   {sv.label}
                 </th>

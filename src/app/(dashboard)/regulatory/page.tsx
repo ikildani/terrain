@@ -1,6 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import {
   Shield,
   Clock,
@@ -33,18 +36,20 @@ import type {
 } from '@/types';
 
 // ────────────────────────────────────────────────────────────
-// FORM TYPES
+// ZOD SCHEMA
 // ────────────────────────────────────────────────────────────
 
-interface RegulatoryFormData {
-  indication: string;
-  product_type: 'pharmaceutical' | 'biologic' | 'device' | 'diagnostic';
-  development_stage: DevelopmentStage;
-  mechanism: string;
-  geography: RegulatoryAgency[];
-  unmet_need: 'high' | 'medium' | 'low';
-  has_orphan_potential: boolean;
-}
+const regulatoryFormSchema = z.object({
+  indication: z.string().min(1, 'Indication is required'),
+  product_type: z.enum(['pharmaceutical', 'biologic', 'device', 'diagnostic']).default('pharmaceutical'),
+  development_stage: z.enum(['preclinical', 'phase1', 'phase2', 'phase3', 'approved']).default('phase2'),
+  mechanism: z.string().optional().default(''),
+  geography: z.array(z.enum(['FDA', 'EMA', 'PMDA', 'NMPA'])).min(1, 'Select at least one agency'),
+  unmet_need: z.enum(['high', 'medium', 'low']).default('high'),
+  has_orphan_potential: z.boolean().default(false),
+});
+
+type RegulatoryFormData = z.infer<typeof regulatoryFormSchema>;
 
 // ────────────────────────────────────────────────────────────
 // CONSTANTS
@@ -103,7 +108,7 @@ function ResultsSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="card p-12 text-center flex flex-col items-center">
+    <div className="card noise p-12 text-center flex flex-col items-center">
       <Shield className="w-12 h-12 text-navy-600 mb-4" />
       <h3 className="font-display text-lg text-white mb-2">
         Analyze Your Regulatory Strategy
@@ -128,51 +133,53 @@ function RegulatoryForm({
   onSubmit: (data: RegulatoryFormData) => void;
   isLoading: boolean;
 }) {
-  const [form, setForm] = useState<RegulatoryFormData>({
-    indication: '',
-    product_type: 'pharmaceutical',
-    development_stage: 'phase2',
-    mechanism: '',
-    geography: ['FDA'],
-    unmet_need: 'high',
-    has_orphan_potential: false,
+  const {
+    setValue,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegulatoryFormData>({
+    resolver: zodResolver(regulatoryFormSchema),
+    defaultValues: {
+      indication: '',
+      product_type: 'pharmaceutical',
+      development_stage: 'phase2',
+      mechanism: '',
+      geography: ['FDA'],
+      unmet_need: 'high',
+      has_orphan_potential: false,
+    },
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const productType = watch('product_type');
+  const devStage = watch('development_stage');
+  const geography = watch('geography');
+  const unmetNeed = watch('unmet_need');
+  const orphanPotential = watch('has_orphan_potential');
 
-  function validate(): boolean {
-    const errs: Record<string, string> = {};
-    if (!form.indication.trim()) errs.indication = 'Indication is required';
-    if (form.geography.length === 0) errs.geography = 'Select at least one agency';
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  }
+  const toggleGeography = useCallback(
+    (agency: RegulatoryAgency) => {
+      const next = geography.includes(agency)
+        ? geography.filter((g) => g !== agency)
+        : [...geography, agency];
+      setValue('geography', next, { shouldValidate: true });
+    },
+    [geography, setValue],
+  );
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (validate()) {
-      onSubmit(form);
-    }
-  }
-
-  function toggleGeography(agency: RegulatoryAgency) {
-    setForm((prev) => ({
-      ...prev,
-      geography: prev.geography.includes(agency)
-        ? prev.geography.filter((g) => g !== agency)
-        : [...prev.geography, agency],
-    }));
-  }
+  const doSubmit = handleSubmit((data) => {
+    onSubmit(data);
+  });
 
   return (
-    <div className="card">
-      <form onSubmit={handleSubmit} className="space-y-5">
+    <div className="card noise">
+      <form onSubmit={doSubmit} className="space-y-5">
         {/* Indication */}
         <IndicationAutocomplete
           label="Indication"
-          value={form.indication}
-          onChange={(val) => setForm((prev) => ({ ...prev, indication: val }))}
-          error={errors.indication}
+          value={watch('indication')}
+          onChange={(val) => setValue('indication', val, { shouldValidate: true })}
+          error={errors.indication?.message}
           placeholder="e.g., Non-Small Cell Lung Cancer"
         />
 
@@ -184,10 +191,10 @@ function RegulatoryForm({
               <button
                 key={pt.value}
                 type="button"
-                onClick={() => setForm((prev) => ({ ...prev, product_type: pt.value }))}
+                onClick={() => setValue('product_type', pt.value)}
                 className={cn(
                   'px-3 py-1.5 rounded-md text-xs font-medium transition-all border',
-                  form.product_type === pt.value
+                  productType === pt.value
                     ? 'bg-teal-500/15 text-teal-400 border-teal-500/30'
                     : 'bg-navy-800 text-slate-400 border-navy-700 hover:border-slate-500',
                 )}
@@ -206,10 +213,10 @@ function RegulatoryForm({
               <button
                 key={s.value}
                 type="button"
-                onClick={() => setForm((prev) => ({ ...prev, development_stage: s.value }))}
+                onClick={() => setValue('development_stage', s.value)}
                 className={cn(
                   'px-3 py-1.5 rounded-md text-xs font-medium transition-all border',
-                  form.development_stage === s.value
+                  devStage === s.value
                     ? 'bg-teal-500/15 text-teal-400 border-teal-500/30'
                     : 'bg-navy-800 text-slate-400 border-navy-700 hover:border-slate-500',
                 )}
@@ -230,8 +237,8 @@ function RegulatoryForm({
             type="text"
             className="input"
             placeholder="e.g., PD-1 inhibitor, KRAS G12C"
-            value={form.mechanism}
-            onChange={(e) => setForm((prev) => ({ ...prev, mechanism: e.target.value }))}
+            value={watch('mechanism') || ''}
+            onChange={(e) => setValue('mechanism', e.target.value)}
           />
         </div>
 
@@ -246,18 +253,18 @@ function RegulatoryForm({
                 onClick={() => toggleGeography(geo.value)}
                 className={cn(
                   'px-3 py-1.5 rounded-md text-xs font-medium transition-all border flex items-center gap-1.5',
-                  form.geography.includes(geo.value)
+                  geography.includes(geo.value)
                     ? 'bg-teal-500/15 text-teal-400 border-teal-500/30'
                     : 'bg-navy-800 text-slate-400 border-navy-700 hover:border-slate-500',
                 )}
               >
-                <span className="font-mono text-[10px] opacity-60">{geo.flag}</span>
+                <span className="font-mono text-2xs opacity-60">{geo.flag}</span>
                 {geo.label}
               </button>
             ))}
           </div>
-          {errors.geography && (
-            <p className="mt-1.5 text-xs text-signal-red">{errors.geography}</p>
+          {errors.geography?.message && (
+            <p className="mt-1.5 text-xs text-signal-red">{errors.geography.message}</p>
           )}
         </div>
 
@@ -270,7 +277,7 @@ function RegulatoryForm({
                 key={opt.value}
                 className={cn(
                   'flex items-start gap-3 p-2.5 rounded-md cursor-pointer border transition-all',
-                  form.unmet_need === opt.value
+                  unmetNeed === opt.value
                     ? 'bg-teal-500/10 border-teal-500/30'
                     : 'bg-navy-800/50 border-transparent hover:border-navy-700',
                 )}
@@ -279,8 +286,8 @@ function RegulatoryForm({
                   type="radio"
                   name="unmet_need"
                   value={opt.value}
-                  checked={form.unmet_need === opt.value}
-                  onChange={() => setForm((prev) => ({ ...prev, unmet_need: opt.value }))}
+                  checked={unmetNeed === opt.value}
+                  onChange={() => setValue('unmet_need', opt.value)}
                   className="mt-0.5 accent-teal-500"
                 />
                 <div>
@@ -297,17 +304,15 @@ function RegulatoryForm({
           <label
             className={cn(
               'flex items-center gap-3 p-3 rounded-md cursor-pointer border transition-all',
-              form.has_orphan_potential
+              orphanPotential
                 ? 'bg-teal-500/10 border-teal-500/30'
                 : 'bg-navy-800/50 border-transparent hover:border-navy-700',
             )}
           >
             <input
               type="checkbox"
-              checked={form.has_orphan_potential}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, has_orphan_potential: e.target.checked }))
-              }
+              checked={orphanPotential}
+              onChange={(e) => setValue('has_orphan_potential', e.target.checked)}
               className="accent-teal-500"
             />
             <div>
@@ -367,7 +372,7 @@ function PathwayCard({
       >
         <div className="flex items-center gap-3">
           {isPrimary && (
-            <span className="badge badge-teal text-[10px]">Recommended</span>
+            <span className="badge badge-teal text-2xs">Recommended</span>
           )}
           <h4 className="text-sm font-medium text-white">{pathway.name}</h4>
           <span className="metric text-xs text-slate-400">
@@ -456,7 +461,7 @@ function DesignationCard({ designation }: { designation: DesignationOpportunity 
           <h4 className="text-sm font-medium text-white">{designation.designation}</h4>
         </div>
         <div className="flex items-center gap-2">
-          <span className={cn('badge text-[10px]', badgeClass)}>{eligibilityLabel}</span>
+          <span className={cn('badge text-2xs', badgeClass)}>{eligibilityLabel}</span>
           {expanded ? (
             <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
           ) : (
@@ -547,7 +552,7 @@ function TimelineBar({ data }: { data: RegulatoryOutput['timeline_estimate'] }) 
   if (data.approval_estimate) milestones.push({ label: 'Approval Estimate', date: data.approval_estimate });
 
   return (
-    <div className="chart-container">
+    <div className="chart-container noise">
       <h3 className="chart-title">Timeline to Approval</h3>
 
       {/* Summary metrics */}
@@ -653,7 +658,7 @@ function ComparableApprovalsTable({ approvals }: { approvals: ComparableApproval
   if (approvals.length === 0) return null;
 
   return (
-    <div className="chart-container overflow-hidden">
+    <div className="chart-container noise overflow-hidden">
       <h3 className="chart-title">Comparable Approval Precedents</h3>
       <div className="overflow-x-auto">
         <table className="data-table">
@@ -677,7 +682,7 @@ function ComparableApprovalsTable({ approvals }: { approvals: ComparableApproval
                 <td className="text-xs max-w-[160px] truncate">{a.indication}</td>
                 <td>
                   <span className={cn(
-                    'text-[10px] font-mono px-1.5 py-0.5 rounded',
+                    'text-2xs font-mono px-1.5 py-0.5 rounded',
                     a.accelerated ? 'bg-signal-green/10 text-signal-green' : 'bg-navy-700 text-slate-400',
                   )}>
                     {a.pathway}
@@ -717,7 +722,7 @@ function RiskSection({ risks }: { risks: RegulatoryRisk[] }) {
   if (risks.length === 0) return null;
 
   return (
-    <div className="chart-container">
+    <div className="chart-container noise">
       <h3 className="chart-title">Key Regulatory Risks</h3>
       <div className="space-y-3">
         {risks.map((risk, i) => (
@@ -747,7 +752,7 @@ function RiskSection({ risks }: { risks: RegulatoryRisk[] }) {
                 <div className="flex items-center gap-2 mb-1">
                   <span
                     className={cn(
-                      'badge text-[10px]',
+                      'badge text-2xs',
                       risk.severity === 'high'
                         ? 'badge-red'
                         : risk.severity === 'medium'
@@ -782,7 +787,7 @@ function MethodologySection({ data }: { data: RegulatoryOutput }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="chart-container">
+    <div className="chart-container noise">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
@@ -874,7 +879,7 @@ function RegulatoryResults({ data }: { data: RegulatoryOutput }) {
     <div className="space-y-4 animate-fade-in">
       {/* Summary stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="stat-card">
+        <div className="stat-card noise">
           <p className="label mb-1">Primary Pathway</p>
           <p className="text-sm font-medium text-white leading-tight">
             {data.recommended_pathway.primary.name}
@@ -883,7 +888,7 @@ function RegulatoryResults({ data }: { data: RegulatoryOutput }) {
             {data.recommended_pathway.primary.typical_review_months}mo review
           </p>
         </div>
-        <div className="stat-card">
+        <div className="stat-card noise">
           <p className="label mb-1">Realistic Timeline</p>
           <p className="metric text-xl text-white">
             {data.timeline_estimate.total_to_approval.realistic}
@@ -891,7 +896,7 @@ function RegulatoryResults({ data }: { data: RegulatoryOutput }) {
           </p>
           <p className="text-xs text-slate-500 mt-1">from current stage to approval</p>
         </div>
-        <div className="stat-card">
+        <div className="stat-card noise">
           <p className="label mb-1">Designations Available</p>
           <p className="metric text-xl text-white">
             {data.designation_opportunities.filter((d) => d.eligibility === 'likely').length}
@@ -904,7 +909,7 @@ function RegulatoryResults({ data }: { data: RegulatoryOutput }) {
       </div>
 
       {/* Recommended Pathway */}
-      <div className="chart-container">
+      <div className="chart-container noise">
         <h3 className="chart-title">Recommended Regulatory Pathway</h3>
         <div className="space-y-3">
           <PathwayCard pathway={data.recommended_pathway.primary} isPrimary={true} />
@@ -918,7 +923,7 @@ function RegulatoryResults({ data }: { data: RegulatoryOutput }) {
       <TimelineBar data={data.timeline_estimate} />
 
       {/* Designation Opportunities */}
-      <div className="chart-container">
+      <div className="chart-container noise">
         <h3 className="chart-title">Designation Opportunities</h3>
         <div className="space-y-3">
           {data.designation_opportunities
@@ -1000,7 +1005,7 @@ export default function RegulatoryPage() {
         <div className="flex-1 min-w-0">
           {isLoading && <ResultsSkeleton />}
           {!isLoading && error && (
-            <div className="card p-8 text-center">
+            <div className="card noise p-8 text-center">
               <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
                 {error}
               </p>

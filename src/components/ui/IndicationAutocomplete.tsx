@@ -252,7 +252,7 @@ export function IndicationAutocomplete({
         <span className="text-sm truncate">
           {highlight ? <HighlightMatch text={ind.name} query={query} /> : ind.name}
         </span>
-        <span className="text-[10px] font-mono text-slate-500 ml-2 shrink-0 uppercase tracking-wider">
+        <span className="text-2xs font-mono text-slate-500 ml-2 shrink-0 uppercase tracking-wider">
           {ind.therapy_area}
         </span>
       </button>
@@ -327,7 +327,7 @@ export function IndicationAutocomplete({
             <>
               <div className="px-3 py-2 flex items-center gap-1.5 border-b border-navy-700/60">
                 <Clock className="w-3 h-3 text-slate-600" />
-                <span className="text-[10px] font-mono text-slate-600 uppercase tracking-wider">
+                <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">
                   Recently Used
                 </span>
               </div>
@@ -336,7 +336,7 @@ export function IndicationAutocomplete({
           )}
           <div className="px-3 py-2 flex items-center gap-1.5 border-b border-navy-700/60">
             <TrendingUp className="w-3 h-3 text-slate-600" />
-            <span className="text-[10px] font-mono text-slate-600 uppercase tracking-wider">
+            <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">
               Popular
             </span>
           </div>
@@ -352,7 +352,7 @@ export function IndicationAutocomplete({
           <p className="text-xs text-slate-500 mb-1">
             No matching indications found for &ldquo;{query}&rdquo;
           </p>
-          <p className="text-[10px] text-slate-600">
+          <p className="text-2xs text-slate-600">
             Try a different spelling or use a common abbreviation (e.g., NSCLC, NASH, AML)
           </p>
         </div>

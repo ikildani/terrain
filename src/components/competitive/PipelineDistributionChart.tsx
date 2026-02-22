@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import type { Competitor, ClinicalPhase } from '@/types';
 
-interface MarketShareChartProps {
+interface PipelineDistributionChartProps {
   competitors: Competitor[];
 }
 
@@ -83,7 +83,7 @@ function ChartTooltip({
   );
 }
 
-export default function MarketShareChart({ competitors }: MarketShareChartProps) {
+export default function PipelineDistributionChart({ competitors }: PipelineDistributionChartProps) {
   const phaseData = useMemo<PhaseDistItem[]>(() => {
     const counts: Record<string, number> = {};
     competitors.forEach((c) => {
@@ -119,14 +119,14 @@ export default function MarketShareChart({ competitors }: MarketShareChartProps)
 
   if (competitors.length === 0) {
     return (
-      <div className="card p-8 text-center">
+      <div className="card noise p-8 text-center">
         <p className="text-slate-500 text-sm">No competitor data available.</p>
       </div>
     );
   }
 
   return (
-    <div className="card">
+    <div className="card noise">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Phase Distribution */}
         <div>

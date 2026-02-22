@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useMemo, useRef } from 'react';
-import { AlertCircle, TrendingUp, Sparkles, Database, TableProperties, Clock } from 'lucide-react';
+import { Sparkles, Database, TableProperties, Clock, ShieldAlert, Lightbulb, Target } from 'lucide-react';
 import type { CompetitiveLandscapeOutput, Competitor } from '@/types';
+import { cn } from '@/lib/utils/cn';
 import LandscapeMap from './LandscapeMap';
 import PipelineTable from './PipelineTable';
-import MarketShareChart from './MarketShareChart';
+import PipelineDistributionChart from './PipelineDistributionChart';
+import CompanyConcentrationChart from './CompanyConcentrationChart';
 import CompetitorCard from './CompetitorCard';
 import { SaveReportButton } from '@/components/shared/SaveReportButton';
 import { ExportButton } from '@/components/shared/ExportButton';
@@ -97,25 +99,35 @@ export default function CompetitiveLandscapeReport({
   ];
 
   const activeCompetitors = useMemo<Competitor[]>(() => {
+    let list: Competitor[];
     switch (activeTab) {
       case 'approved':
-        return data.approved_products;
+        list = data.approved_products;
+        break;
       case 'phase3':
-        return data.late_stage_pipeline;
+        list = data.late_stage_pipeline;
+        break;
       case 'phase2':
-        return data.mid_stage_pipeline;
+        list = data.mid_stage_pipeline;
+        break;
       case 'early':
-        return data.early_pipeline;
+        list = data.early_pipeline;
+        break;
       default:
-        return [];
+        list = [];
     }
-  }, [activeTab, data]);
+    if (moaFilter.trim()) {
+      const term = moaFilter.toLowerCase();
+      list = list.filter((c) => c.mechanism.toLowerCase().includes(term));
+    }
+    return list;
+  }, [activeTab, data, moaFilter]);
 
   return (
     <div className="space-y-6" ref={reportRef} data-report-content>
       {/* ─── 1. Summary Metrics Row ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="stat-card">
+        <div className="stat-card noise">
           <p className="label mb-1">Crowding Score</p>
           <p className={`font-mono text-2xl font-medium ${getCrowdingColor(data.summary.crowding_score)}`}>
             {data.summary.crowding_score}
@@ -124,7 +136,7 @@ export default function CompetitiveLandscapeReport({
           <p className="text-[11px] text-slate-500 mt-0.5">{data.summary.crowding_label}</p>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card noise">
           <p className="label mb-1">Total Competitors</p>
           <p className="font-mono text-2xl font-medium text-slate-100">
             {allCompetitors.length}
@@ -132,7 +144,7 @@ export default function CompetitiveLandscapeReport({
           <p className="text-[11px] text-slate-500 mt-0.5">All phases</p>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card noise">
           <p className="label mb-1">Approved Products</p>
           <p className="font-mono text-2xl font-medium text-signal-green">
             {data.approved_products.length}
@@ -140,7 +152,7 @@ export default function CompetitiveLandscapeReport({
           <p className="text-[11px] text-slate-500 mt-0.5">On market</p>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card noise">
           <p className="label mb-1">Phase 3 Programs</p>
           <p className="font-mono text-2xl font-medium text-teal-400">
             {data.late_stage_pipeline.length}
@@ -164,46 +176,92 @@ export default function CompetitiveLandscapeReport({
         <span className="text-[9px] text-slate-600 font-mono">Source: Terrain Competitive Database</span>
       </div>
 
-      {/* ─── 2. Key Insight ─── */}
+      {/* ─── 2. Executive Summary ─── */}
       <div className="card noise">
-        <div className="flex items-start gap-3">
-          <Sparkles className="h-4 w-4 text-teal-500 mt-0.5 flex-shrink-0" />
-          <div>
-            <h3 className="text-sm font-medium text-slate-100 mb-1.5">Key Insight</h3>
+        <h3 className="chart-title mb-4">Executive Summary</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Top Threat */}
+          {topCompetitors.length > 0 && (
+            <div className="bg-navy-800/60 rounded-lg px-4 py-3 border border-navy-700/40">
+              <div className="flex items-center gap-1.5 mb-2">
+                <ShieldAlert className="h-3.5 w-3.5 text-signal-red" />
+                <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">
+                  Top Threat
+                </span>
+              </div>
+              <p className="text-sm text-slate-100 font-medium">
+                {topCompetitors[0].company} &mdash; {topCompetitors[0].asset_name}
+              </p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {topCompetitors[0].phase} &middot; Diff. Score{' '}
+                <span className="font-mono text-teal-400">{topCompetitors[0].differentiation_score}</span>
+                {' '}&middot; Evidence{' '}
+                <span className="font-mono text-teal-400">{topCompetitors[0].evidence_strength}</span>
+              </p>
+            </div>
+          )}
+
+          {/* Key Opportunity */}
+          {data.summary.white_space.length > 0 && (
+            <div className="bg-navy-800/60 rounded-lg px-4 py-3 border border-teal-500/10">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Target className="h-3.5 w-3.5 text-teal-500" />
+                <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">
+                  Key Opportunity
+                </span>
+              </div>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                {data.summary.white_space[0]}
+              </p>
+            </div>
+          )}
+
+          {/* Key Insight */}
+          <div className="bg-navy-800/60 rounded-lg px-4 py-3 border border-navy-700/40">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Sparkles className="h-3.5 w-3.5 text-teal-500" />
+              <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">
+                Key Insight
+              </span>
+            </div>
             <p className="text-sm text-slate-300 leading-relaxed">
               {data.summary.key_insight}
             </p>
-            {data.summary.differentiation_opportunity && (
-              <div className="mt-3 pt-3 border-t border-navy-700/50">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <TrendingUp className="h-3.5 w-3.5 text-signal-green" />
-                  <span className="text-[10px] uppercase tracking-wider text-slate-500">
-                    Differentiation Opportunity
-                  </span>
-                </div>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  {data.summary.differentiation_opportunity}
-                </p>
-              </div>
-            )}
           </div>
-        </div>
-      </div>
 
-      {/* ─── 3. White Space ─── */}
-      {data.summary.white_space.length > 0 && (
-        <div className="card noise">
-          <h3 className="chart-title mb-3">White Space Opportunities</h3>
-          <ul className="space-y-2">
-            {data.summary.white_space.map((item, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-signal-green flex-shrink-0" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
+          {/* Differentiation Opportunity */}
+          {data.summary.differentiation_opportunity && (
+            <div className="bg-navy-800/60 rounded-lg px-4 py-3 border border-navy-700/40">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Lightbulb className="h-3.5 w-3.5 text-signal-amber" />
+                <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">
+                  Differentiation Opportunity
+                </span>
+              </div>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                {data.summary.differentiation_opportunity}
+              </p>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Additional white space items */}
+        {data.summary.white_space.length > 1 && (
+          <div className="mt-4 pt-4 border-t border-navy-700/30">
+            <p className="text-2xs uppercase tracking-wider text-slate-500 font-medium mb-2">
+              Additional White Space
+            </p>
+            <ul className="space-y-1.5">
+              {data.summary.white_space.slice(1).map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs text-slate-400">
+                  <span className="mt-1 w-1.5 h-1.5 rounded-full bg-signal-green flex-shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
 
       {/* ─── 4. Filter Controls ─── */}
       <div className="flex flex-wrap items-center gap-3">
@@ -227,7 +285,7 @@ export default function CompetitiveLandscapeReport({
           className="input py-1.5 px-3 text-xs bg-navy-800 border-navy-700 w-48"
         />
         {(phaseFilter !== 'all' || moaFilter) && (
-          <span className="text-[10px] text-slate-500 font-mono">
+          <span className="text-2xs text-slate-500 font-mono">
             {allCompetitors.length} of {allCompetitorsRaw.length} shown
           </span>
         )}
@@ -261,90 +319,13 @@ export default function CompetitiveLandscapeReport({
           ))}
         </div>
 
-        {/* Inner table (no card wrapper — we're already inside a card) */}
-        {activeCompetitors.length > 0 ? (
-          <div className="overflow-x-auto -mx-5 px-5">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Company</th>
-                  <th>Asset</th>
-                  <th>Phase</th>
-                  <th>MoA</th>
-                  <th>Endpoint</th>
-                  <th>Key Data</th>
-                  <th>Partner</th>
-                  <th className="numeric">Deal Value</th>
-                  <th className="numeric">Diff.</th>
-                  <th className="numeric">Evidence</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activeCompetitors.map((c) => {
-                  const diffColorClass =
-                    c.differentiation_score >= 7
-                      ? 'text-teal-400'
-                      : c.differentiation_score >= 4
-                        ? 'text-signal-amber'
-                        : 'text-signal-red';
-                  const evidColorClass =
-                    c.evidence_strength >= 7
-                      ? 'text-teal-400'
-                      : c.evidence_strength >= 4
-                        ? 'text-signal-amber'
-                        : 'text-signal-red';
-
-                  const phaseClassMap: Record<string, string> = {
-                    Approved: 'phase-approved',
-                    'Phase 3': 'phase-3',
-                    'Phase 2/3': 'phase-2',
-                    'Phase 2': 'phase-2',
-                    'Phase 1/2': 'phase-1',
-                    'Phase 1': 'phase-1',
-                    Preclinical: 'phase-preclinical',
-                  };
-
-                  return (
-                    <tr key={c.id}>
-                      <td className="text-slate-100 font-medium whitespace-nowrap">{c.company}</td>
-                      <td className="text-teal-400 whitespace-nowrap">{c.asset_name}</td>
-                      <td>
-                        <span className={`phase-badge ${phaseClassMap[c.phase] ?? 'phase-preclinical'}`}>
-                          {c.phase}
-                        </span>
-                      </td>
-                      <td className="max-w-[160px] truncate">{c.mechanism}</td>
-                      <td className="max-w-[160px] truncate text-slate-400">
-                        {c.primary_endpoint || '\u2014'}
-                      </td>
-                      <td className="max-w-[200px] truncate text-slate-400">
-                        {c.key_data || '\u2014'}
-                      </td>
-                      <td className="text-slate-400 whitespace-nowrap">{c.partner || '\u2014'}</td>
-                      <td className="numeric font-mono text-xs">
-                        {c.partnership_deal_value || '\u2014'}
-                      </td>
-                      <td className={`numeric font-mono text-xs ${diffColorClass}`}>
-                        {c.differentiation_score}
-                      </td>
-                      <td className={`numeric font-mono text-xs ${evidColorClass}`}>
-                        {c.evidence_strength}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="py-10 text-center">
-            <p className="text-slate-500 text-sm">No competitors in this category</p>
-          </div>
-        )}
+        {/* Sortable pipeline table with click-to-expand */}
+        <PipelineTable competitors={activeCompetitors} noCard />
       </div>
 
-      {/* ─── 6. Market Share / Distribution Charts ─── */}
-      <MarketShareChart competitors={allCompetitors} />
+      {/* ─── 6. Pipeline Distribution + Company Concentration ─── */}
+      <PipelineDistributionChart competitors={allCompetitors} />
+      <CompanyConcentrationChart competitors={allCompetitors} />
 
       {/* ─── 7. Top 5 Competitors ─── */}
       <div>
@@ -383,11 +364,23 @@ export default function CompetitiveLandscapeReport({
                     <td className="sticky left-0 bg-navy-900 z-10 text-slate-100 font-medium whitespace-nowrap">
                       {row.attribute}
                     </td>
-                    {matrixColumns.map((col) => (
-                      <td key={col} className="text-slate-400 text-xs max-w-[180px] truncate">
-                        {row.competitors[col] ?? '\u2014'}
-                      </td>
-                    ))}
+                    {matrixColumns.map((col) => {
+                      const val = row.competitors[col];
+                      const isScoreRow = row.attribute === 'Differentiation' || row.attribute === 'Evidence Strength';
+                      const numVal = typeof val === 'number' ? val : null;
+                      const scoreClass = isScoreRow && numVal !== null
+                        ? numVal >= 7
+                          ? 'text-teal-400 font-mono'
+                          : numVal >= 4
+                            ? 'text-signal-amber font-mono'
+                            : 'text-signal-red font-mono'
+                        : 'text-slate-400';
+                      return (
+                        <td key={col} className={cn('text-xs max-w-[180px] truncate', scoreClass)}>
+                          {val ?? '\u2014'}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
               </tbody>
@@ -422,10 +415,10 @@ export default function CompetitiveLandscapeReport({
 
       {/* ─── 10. Data Sources Footer ─── */}
       {data.data_sources.length > 0 && (
-        <div className="card">
+        <div className="card noise">
           <div className="flex items-center gap-2 mb-2">
             <Database className="h-3.5 w-3.5 text-slate-500" />
-            <h3 className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">
+            <h3 className="text-2xs uppercase tracking-wider text-slate-500 font-medium">
               Data Sources
             </h3>
           </div>
@@ -447,13 +440,13 @@ export default function CompetitiveLandscapeReport({
                     source.name
                   )}
                 </span>
-                <span className="text-slate-600 text-[10px] font-mono">
+                <span className="text-slate-600 text-2xs font-mono">
                   {source.last_updated}
                 </span>
               </div>
             ))}
           </div>
-          <p className="text-[10px] text-slate-600 mt-2 font-mono">
+          <p className="text-2xs text-slate-600 mt-2 font-mono">
             Generated {data.generated_at}
           </p>
         </div>

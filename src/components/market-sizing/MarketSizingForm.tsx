@@ -22,6 +22,8 @@ import {
   SPECIALTY_SUGGESTIONS,
   BIOMARKER_SUGGESTIONS,
   POPULAR_BIOMARKERS,
+  SUBTYPE_SUGGESTIONS,
+  POPULAR_SUBTYPES,
 } from "@/lib/data/suggestion-lists";
 
 // ────────────────────────────────────────────────────────────
@@ -139,7 +141,7 @@ const deviceSchema = z.object({
   procedure_or_condition: z.string().min(1, "Procedure or condition is required"),
   device_category: z.string().default("cardiovascular"),
   target_setting: z.array(z.string()).min(1, "Select at least one setting"),
-  physician_specialty: z.string().optional(),
+  physician_specialty: z.array(z.string()).optional(),
   development_stage: z.string().default("clinical_trial"),
   pricing_model: z.string().default("per_procedure"),
   unit_ase: z.coerce.number().min(0, "Unit ASE is required"),
@@ -372,7 +374,7 @@ export default function MarketSizingForm({ onSubmit, isLoading }: MarketSizingFo
   const formMode = getFormMode(productCategory);
 
   return (
-    <div className="card space-y-6">
+    <div className="card noise space-y-6">
       <ProductTypeSelector value={productCategory} onChange={setProductCategory} />
 
       <SectionDivider />
@@ -462,9 +464,13 @@ function PharmaForm({
         error={errors.indication?.message}
       />
 
-      <Input
+      <FuzzyAutocomplete
         label="Subtype / Specifics"
-        {...register("subtype")}
+        value={watch("subtype") || ""}
+        onChange={(v) => setValue("subtype", v)}
+        items={SUBTYPE_SUGGESTIONS}
+        popularItems={POPULAR_SUBTYPES}
+        storageKey="terrain:recent-subtypes"
         placeholder="e.g., EGFR+ Stage III/IV"
       />
 
@@ -561,7 +567,7 @@ function DeviceForm({
       procedure_or_condition: "",
       device_category: "cardiovascular",
       target_setting: [] as string[],
-      physician_specialty: "",
+      physician_specialty: [] as string[],
       development_stage: "clinical_trial",
       pricing_model: "per_procedure",
       unit_ase: undefined as unknown as number,
@@ -634,8 +640,8 @@ function DeviceForm({
 
       <FuzzyAutocomplete
         label="Physician Specialty"
-        value={watch("physician_specialty") || ""}
-        onChange={(v) => setValue("physician_specialty", v)}
+        value={(watch("physician_specialty") as string[] | undefined)?.[0] || ""}
+        onChange={(v) => setValue("physician_specialty", v ? [v] : [])}
         items={SPECIALTY_SUGGESTIONS}
         storageKey="terrain:recent-specialties"
         placeholder="e.g., Orthopedic surgeon"

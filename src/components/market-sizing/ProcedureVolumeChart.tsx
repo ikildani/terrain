@@ -63,7 +63,7 @@ export default function ProcedureVolumeChart({
   ];
 
   return (
-    <div className="chart-container">
+    <div className="chart-container noise">
       <div className="flex items-center justify-between mb-4">
         <div className="chart-title !mb-0">Device Procedure Volume Funnel</div>
         <span className="badge badge-teal">

@@ -403,6 +403,13 @@ body {
 .phase-1 { background: rgba(148, 163, 184, 0.15); color: #94A3B8; }
 .phase-preclinical { background: rgba(100, 116, 139, 0.12); color: #64748B; }
 
+/* Device & CDx regulatory badges */
+.badge-510k { background: rgba(96, 165, 250, 0.12); color: #60A5FA; border: 1px solid rgba(96,165,250,0.2); }
+.badge-pma { background: rgba(251, 191, 36, 0.12); color: #FBBF24; border: 1px solid rgba(251,191,36,0.2); }
+.badge-de-novo { background: rgba(167, 139, 250, 0.12); color: #A78BFA; border: 1px solid rgba(167,139,250,0.2); }
+.badge-cdx { background: rgba(0, 201, 167, 0.12); color: #00C9A7; border: 1px solid rgba(0,201,167,0.2); }
+.badge-breakthrough-device { background: rgba(52, 211, 153, 0.12); color: #34D399; border: 1px solid rgba(52,211,153,0.2); }
+
 /* ============================================
    TABLE STYLES
    ============================================ */
@@ -757,33 +764,236 @@ body {
 }
 
 /* ============================================
-   PRINT STYLES (for PDF export)
+   PRINT STYLES — Goldman Sachs quality output
    ============================================ */
 
 @media print {
+  /* ── Page setup ──────────────────────────── */
+  @page {
+    size: letter;
+    margin: 0.75in 0.6in;
+  }
+
+  @page :first {
+    margin-top: 0.5in;
+  }
+
+  /* ── Hide chrome & interactive elements ──── */
   .sidebar,
   .topbar,
   .btn,
-  .upgrade-gate-overlay {
+  .upgrade-gate-overlay,
+  .sidebar-upgrade-card,
+  .skip-to-content,
+  .recharts-tooltip-wrapper,
+  button:not([data-print-visible]),
+  [role="dialog"],
+  [data-no-print] {
     display: none !important;
   }
 
+  /* ── Layout reset ────────────────────────── */
   .dashboard-layout {
-    margin-left: 0;
+    margin-left: 0 !important;
+  }
+
+  .page-content {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* ── Base typography for paper ───────────── */
+  html {
+    font-size: 11pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   body {
-    background: white;
-    color: black;
+    background: white !important;
+    color: #1a1a1a !important;
+    font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.5;
   }
 
-  .card, .chart-container {
-    border: 1px solid #ddd;
+  /* Force all text dark for readability */
+  * {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
+  }
+
+  /* Restore signal colors for data clarity */
+  .text-teal-500, .text-teal-400,
+  .confidence-high { color: #008a74 !important; }
+  .text-signal-green { color: #15803d !important; }
+  .text-signal-red { color: #b91c1c !important; }
+  .text-signal-amber { color: #a16207 !important; }
+
+  /* Metric values stay prominent */
+  .metric {
+    color: #000 !important;
+    font-weight: 600;
+  }
+
+  /* Labels stay muted */
+  .label {
+    color: #6b7280 !important;
+    font-size: 9pt;
+  }
+
+  /* Display headings */
+  .font-display, .page-title {
+    color: #000 !important;
+    font-family: 'DM Serif Display', Georgia, serif;
+  }
+
+  /* Mono font for data */
+  .font-mono, .metric {
+    font-family: 'DM Mono', 'Courier New', monospace;
+  }
+
+  /* ── Cards & Surfaces ────────────────────── */
+  .card,
+  .card-elevated,
+  .stat-card,
+  .chart-container {
+    background: white !important;
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Remove noise texture overlay for print */
+  .noise::after {
+    display: none !important;
+  }
+
+  .card:hover,
+  .stat-card:hover::before {
+    border-color: #d1d5db !important;
+    box-shadow: none !important;
+  }
+
+  /* ── Data Tables — institutional style ───── */
+  .data-table {
+    font-size: 9pt;
+    width: 100%;
+    border-collapse: collapse;
+    break-inside: auto;
+  }
+
+  .data-table thead tr {
+    border-bottom: 2px solid #000 !important;
+  }
+
+  .data-table thead th {
+    color: #000 !important;
+    font-size: 8pt;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-bottom: 2px solid #000 !important;
+    background: #f9fafb !important;
+  }
+
+  .data-table tbody tr {
+    border-bottom: 1px solid #e5e7eb !important;
+    page-break-inside: avoid;
     break-inside: avoid;
   }
 
   .data-table tbody tr:hover {
-    background: transparent;
+    background: transparent !important;
+  }
+
+  .data-table tbody tr:nth-child(even) {
+    background: #f9fafb !important;
+  }
+
+  .data-table tbody td {
+    color: #374151 !important;
+    padding: 5px 10px;
+    font-size: 9pt;
+  }
+
+  .data-table tbody td.numeric {
+    color: #000 !important;
+  }
+
+  /* ── Charts & Graphs ─────────────────────── */
+  .chart-container {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .recharts-surface {
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  .recharts-text {
+    fill: #374151 !important;
+  }
+
+  .recharts-cartesian-grid-horizontal line,
+  .recharts-cartesian-grid-vertical line {
+    stroke: #e5e7eb !important;
+  }
+
+  /* ── Badges ──────────────────────────────── */
+  .badge, .phase-badge, .badge-pro,
+  .badge-teal, .badge-green, .badge-amber, .badge-red, .badge-slate,
+  .badge-510k, .badge-pma, .badge-de-novo, .badge-cdx {
+    border: 1px solid #9ca3af !important;
+    background: #f3f4f6 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ── Page breaks ─────────────────────────── */
+  h2, h3 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  [data-report-content] > * {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  [data-page-break] {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  .grid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* ── Links ───────────────────────────────── */
+  a[href] {
+    text-decoration: none !important;
+  }
+
+  a[href^="/"]::after {
+    content: none !important;
+  }
+
+  /* ── Overflow & truncation ───────────────── */
+  .page-content, [data-report-content] {
+    max-width: 7in !important;
+    overflow: hidden;
+  }
+
+  .truncate {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+  }
+
+  ::-webkit-scrollbar {
+    display: none !important;
   }
 }
 

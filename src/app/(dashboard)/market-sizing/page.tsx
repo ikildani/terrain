@@ -7,8 +7,29 @@ import { BarChart3 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import MarketSizingForm from '@/components/market-sizing/MarketSizingForm';
 import MarketSizingReport from '@/components/market-sizing/MarketSizingReport';
+import DeviceMarketSizingReport from '@/components/market-sizing/DeviceMarketSizingReport';
+import CDxMarketSizingReport from '@/components/market-sizing/CDxMarketSizingReport';
 import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
-import type { MarketSizingOutput, MarketSizingInput } from '@/types';
+import type { MarketSizingOutput, MarketSizingInput, DeviceMarketSizingOutput, CDxOutput, DeviceMarketSizingInput, CDxMarketSizingInput } from '@/types';
+
+type MarketSizingResult = MarketSizingOutput | DeviceMarketSizingOutput | CDxOutput;
+
+function isPharma(category: string): boolean {
+  return category === 'pharmaceutical' || category.startsWith('pharma');
+}
+
+function isDevice(category: string): boolean {
+  return category.startsWith('device') || category.startsWith('medical_device');
+}
+
+function isCDx(category: string): boolean {
+  return (
+    category === 'companion_diagnostic' ||
+    category === 'cdx' ||
+    category === 'diagnostics_companion' ||
+    category === 'diagnostics_ivd'
+  );
+}
 
 function ResultsSkeleton() {
   return (
@@ -28,13 +49,13 @@ function ResultsSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="card p-12 text-center flex flex-col items-center">
+    <div className="card noise p-12 text-center flex flex-col items-center">
       <BarChart3 className="w-12 h-12 text-navy-600 mb-4" />
       <h3 className="font-display text-lg text-white mb-2">
         Run Your First Analysis
       </h3>
       <p className="text-sm text-slate-500 max-w-md">
-        Select an indication and configure your parameters to generate an
+        Select a product category and configure your parameters to generate an
         investor-grade market assessment with TAM, SAM, SOM, patient funnel,
         geography breakdown, and 10-year revenue projections.
       </p>
@@ -43,18 +64,19 @@ function EmptyState() {
 }
 
 export default function MarketSizingPage() {
-  const [formInput, setFormInput] = useState<MarketSizingInput | null>(null);
+  const [formInput, setFormInput] = useState<Record<string, unknown> | null>(null);
+  const [productCategory, setProductCategory] = useState<string>('pharmaceutical');
 
   const mutation = useMutation({
-    mutationFn: async ({ productCategory, formData }: { productCategory: string; formData: Record<string, unknown> }) => {
+    mutationFn: async ({ productCategory: pc, formData }: { productCategory: string; formData: Record<string, unknown> }) => {
       const response = await fetch('/api/analyze/market', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_category: productCategory, input: formData }),
+        body: JSON.stringify({ product_category: pc, input: formData }),
       });
       const json = await response.json();
       if (!json.success) throw new Error(json.error || 'Analysis failed');
-      return json.data as MarketSizingOutput;
+      return json.data as MarketSizingResult;
     },
     onSuccess: () => {
       toast.success('Market analysis complete');
@@ -73,9 +95,42 @@ export default function MarketSizingPage() {
   const isLoading = mutation.isPending;
   const error = mutation.error ? (mutation.error as Error).message : null;
 
-  function handleSubmit(productCategory: string, formData: Record<string, unknown>) {
-    setFormInput(formData as unknown as MarketSizingInput);
-    mutation.mutate({ productCategory, formData });
+  function handleSubmit(pc: string, formData: Record<string, unknown>) {
+    setProductCategory(pc);
+    // Inject product_category into input so device engine can use it
+    const enrichedData = { ...formData, product_category: pc };
+    setFormInput(enrichedData);
+    mutation.mutate({ productCategory: pc, formData: enrichedData });
+  }
+
+  function renderReport() {
+    if (!results || !formInput) return null;
+
+    if (isDevice(productCategory)) {
+      return (
+        <DeviceMarketSizingReport
+          data={results as DeviceMarketSizingOutput}
+          input={formInput as unknown as DeviceMarketSizingInput}
+        />
+      );
+    }
+
+    if (isCDx(productCategory)) {
+      return (
+        <CDxMarketSizingReport
+          data={results as CDxOutput}
+          input={formInput as unknown as CDxMarketSizingInput}
+        />
+      );
+    }
+
+    // Default: pharmaceutical
+    return (
+      <MarketSizingReport
+        data={results as MarketSizingOutput}
+        input={formInput as unknown as MarketSizingInput}
+      />
+    );
   }
 
   return (
@@ -97,16 +152,14 @@ export default function MarketSizingPage() {
         <div className="flex-1 min-w-0">
           {isLoading && <ResultsSkeleton />}
           {!isLoading && error && (
-            <div className="card p-8 text-center">
+            <div className="card noise p-8 text-center">
               <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
                 {error}
               </p>
             </div>
           )}
           {!isLoading && !error && !results && <EmptyState />}
-          {!isLoading && !error && results && formInput && (
-            <MarketSizingReport data={results} input={formInput} />
-          )}
+          {!isLoading && !error && results && formInput && renderReport()}
         </div>
       </div>
     </>

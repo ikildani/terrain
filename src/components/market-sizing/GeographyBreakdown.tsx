@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { formatMetric, formatNumber, formatPercent } from '@/lib/utils/format';
+import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import type { GeographyBreakdownItem } from '@/types';
 
 interface GeographyBreakdownProps {
@@ -23,7 +24,7 @@ export default function GeographyBreakdown({ data }: GeographyBreakdownProps) {
   }));
 
   return (
-    <div className="chart-container">
+    <div className="chart-container noise">
       <div className="chart-title">Geography Breakdown</div>
 
       {/* Bar chart */}
@@ -89,6 +90,13 @@ export default function GeographyBreakdown({ data }: GeographyBreakdownProps) {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Source attribution */}
+      <div className="mt-4 pt-3 border-t border-navy-700 flex flex-wrap gap-3">
+        <DataSourceBadge source="Terrain Analysis" type="proprietary" />
+        <DataSourceBadge source="WHO GBD" type="public" />
+        <DataSourceBadge source="Industry Benchmarks" type="licensed" />
       </div>
     </div>
   );

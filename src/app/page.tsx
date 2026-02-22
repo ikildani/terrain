@@ -515,7 +515,7 @@ function LiveDemo() {
             { label: '5-yr CAGR', value: demo.cagr },
           ].map((m) => (
             <div key={m.label}>
-              <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
                 {m.label}
               </div>
               <div className="font-mono text-xl text-white font-medium">
@@ -527,25 +527,25 @@ function LiveDemo() {
 
         {/* Visual bar */}
         <div className="mb-6">
-          <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">
+          <div className="text-2xs text-slate-500 uppercase tracking-wider mb-2">
             TAM → SAM → SOM Waterfall
           </div>
           <div className="flex items-end gap-1 h-12">
             <div className="flex-1 bg-teal-500/20 rounded-sm h-full relative">
               <div className="absolute inset-x-0 bottom-0 bg-teal-500/40 rounded-sm" style={{ height: '100%' }} />
-              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-mono text-teal-300">
+              <span className="absolute inset-0 flex items-center justify-center text-2xs font-mono text-teal-300">
                 TAM {demo.tam}
               </span>
             </div>
             <div className="flex-1 bg-teal-500/20 rounded-sm relative" style={{ height: '60%' }}>
               <div className="absolute inset-x-0 bottom-0 bg-teal-500/30 rounded-sm" style={{ height: '100%' }} />
-              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-mono text-teal-300">
+              <span className="absolute inset-0 flex items-center justify-center text-2xs font-mono text-teal-300">
                 SAM {demo.sam}
               </span>
             </div>
             <div className="flex-1 bg-teal-500/20 rounded-sm relative" style={{ height: '25%' }}>
               <div className="absolute inset-x-0 bottom-0 bg-teal-500/60 rounded-sm" style={{ height: '100%' }} />
-              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-mono text-white">
+              <span className="absolute inset-0 flex items-center justify-center text-2xs font-mono text-white">
                 SOM {demo.som}
               </span>
             </div>
@@ -555,7 +555,7 @@ function LiveDemo() {
         {/* Bottom metrics */}
         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-navy-700/60">
           <div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
+            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
               Competitive Density
             </div>
             <div className="flex items-center gap-2">
@@ -575,14 +575,14 @@ function LiveDemo() {
             </div>
           </div>
           <div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
+            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
               Top Partner Match
             </div>
             <div className="flex items-center gap-2">
               <span className="font-mono text-sm text-white">
                 {demo.partner}
               </span>
-              <span className="badge-teal text-[10px] px-1.5 py-0.5">
+              <span className="badge-teal text-2xs px-1.5 py-0.5">
                 {demo.partnerScore}/100
               </span>
             </div>
@@ -702,7 +702,7 @@ function TryItYourself() {
                 type="button"
                 onClick={() => setIndication(s)}
                 disabled={loading}
-                className="text-[10px] font-mono text-slate-500 hover:text-teal-400 px-2 py-1 rounded border border-navy-700 hover:border-teal-500/30 transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                className="text-2xs font-mono text-slate-500 hover:text-teal-400 px-2 py-1 rounded border border-navy-700 hover:border-teal-500/30 transition-colors disabled:opacity-40 disabled:pointer-events-none"
               >
                 {s}
               </button>
@@ -783,7 +783,7 @@ function TryItYourself() {
                   { label: '5-yr CAGR', val: cagr != null ? `+${cagr.toFixed(1)}%` : '—' },
                 ].map((m) => (
                   <div key={m.label}>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
+                    <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
                       {m.label}
                     </div>
                     <div className="font-mono text-lg text-white font-medium">
@@ -836,7 +836,7 @@ function AnimatedDashboardPreview() {
         <span className="w-2 h-2 rounded-full bg-red-400/60" />
         <span className="w-2 h-2 rounded-full bg-amber-400/60" />
         <span className="w-2 h-2 rounded-full bg-emerald-400/60" />
-        <span className="ml-2 text-[10px] font-mono text-slate-600">terrain — dashboard</span>
+        <span className="ml-2 text-2xs font-mono text-slate-600">terrain — dashboard</span>
       </div>
       <div className="p-5">
         {/* Top metrics row */}
@@ -886,7 +886,7 @@ function AnimatedDashboardPreview() {
           <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">Geography Breakdown</div>
           <div className="space-y-1">
             {GEO_ROWS.map((row, i) => (
-              <div key={row.geo} className="flex items-center gap-3 text-[10px]">
+              <div key={row.geo} className="flex items-center gap-3 text-2xs">
                 <span className="text-slate-400 w-20 shrink-0">{row.geo}</span>
                 <div className="flex-1 h-1.5 bg-navy-700/60 rounded-full overflow-hidden">
                   <motion.div
@@ -936,7 +936,7 @@ function PartnerBarsPreview() {
                 transition={{ duration: 0.7, delay: 0.3 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
               />
             </div>
-            <span className="font-mono text-[10px] text-teal-400 w-8">{p.score}</span>
+            <span className="font-mono text-2xs text-teal-400 w-8">{p.score}</span>
             <span className="text-[9px] text-slate-500 hidden sm:inline">{p.reason}</span>
           </div>
         ))}
@@ -1026,7 +1026,7 @@ function WindowChrome({ title }: { title: string }) {
       <span className="w-2 h-2 rounded-full bg-red-400/60" />
       <span className="w-2 h-2 rounded-full bg-amber-400/60" />
       <span className="w-2 h-2 rounded-full bg-emerald-400/60" />
-      <span className="ml-2 text-[10px] font-mono text-slate-600">terrain — {title}</span>
+      <span className="ml-2 text-2xs font-mono text-slate-600">terrain — {title}</span>
     </div>
   );
 }
@@ -1043,7 +1043,7 @@ function CompetitiveLandscapePreview() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <div className="text-xs text-white font-medium">KRAS G12C · NSCLC Pipeline</div>
-            <div className="text-[10px] text-slate-500">14 assets across 4 phases</div>
+            <div className="text-2xs text-slate-500">14 assets across 4 phases</div>
           </div>
           <span className="text-[9px] font-mono text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">Crowding: 7/10</span>
         </div>
@@ -1063,7 +1063,7 @@ function CompetitiveLandscapePreview() {
             { company: 'Novartis', asset: 'JDQ443', phase: 'Phase 2', moa: 'Covalent', deal: '—', color: 'text-teal-400' },
             { company: 'Roche', asset: 'Divarasib', phase: 'Phase 3', moa: 'Covalent', deal: '—', color: 'text-amber-400' },
           ].map((row) => (
-            <div key={row.asset} className="grid grid-cols-[1fr_80px_60px_70px] px-3 py-2 border-b border-navy-700/30 last:border-0 text-[10px]">
+            <div key={row.asset} className="grid grid-cols-[1fr_80px_60px_70px] px-3 py-2 border-b border-navy-700/30 last:border-0 text-2xs">
               <div>
                 <span className="text-white">{row.company}</span>
                 <span className="text-slate-500 ml-1">· {row.asset}</span>
@@ -1127,7 +1127,7 @@ function PartnerDiscoveryPreview() {
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-[10px] font-mono text-teal-400 font-medium">
+                  <span className="w-6 h-6 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-2xs font-mono text-teal-400 font-medium">
                     {p.rank}
                   </span>
                   <span className="text-sm text-white font-medium">{p.company}</span>
@@ -1199,7 +1199,7 @@ function RegulatoryPreview() {
             <Shield className="w-4 h-4 text-teal-400" />
             <span className="text-sm text-white font-medium">{REGULATORY_PREVIEW.pathway}</span>
           </div>
-          <div className="text-[10px] text-slate-500 ml-7">{REGULATORY_PREVIEW.division}</div>
+          <div className="text-2xs text-slate-500 ml-7">{REGULATORY_PREVIEW.division}</div>
         </motion.div>
 
         {/* Timeline bars */}
@@ -1208,7 +1208,7 @@ function RegulatoryPreview() {
           <div className="space-y-2">
             {REGULATORY_PREVIEW.timelines.map((t, i) => (
               <div key={t.label} className="flex items-center gap-3">
-                <span className="text-[10px] text-slate-400 w-20">{t.label}</span>
+                <span className="text-2xs text-slate-400 w-20">{t.label}</span>
                 <div className="flex-1 h-2 bg-navy-700/60 rounded-full overflow-hidden">
                   <motion.div
                     className={`h-full rounded-full ${t.color}`}
@@ -1217,7 +1217,7 @@ function RegulatoryPreview() {
                     transition={{ duration: 0.7, delay: 0.3 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
                   />
                 </div>
-                <span className="font-mono text-[10px] text-slate-300 w-12 text-right">{t.months} mo</span>
+                <span className="font-mono text-2xs text-slate-300 w-12 text-right">{t.months} mo</span>
               </div>
             ))}
           </div>
@@ -1242,7 +1242,7 @@ function RegulatoryPreview() {
             {REGULATORY_PREVIEW.risks.map((r) => (
               <div key={r.title} className={`bg-navy-800/40 rounded-lg p-3 border-l-2 ${r.color}`}>
                 <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded ${r.badge}`}>{r.severity}</span>
-                <div className="text-[10px] text-white mt-1.5">{r.title}</div>
+                <div className="text-2xs text-white mt-1.5">{r.title}</div>
               </div>
             ))}
           </div>
@@ -1259,7 +1259,7 @@ function RegulatoryPreview() {
               <span className="text-right">Pathway</span>
             </div>
             {REGULATORY_PREVIEW.comparables.map((c) => (
-              <div key={c.drug} className="grid grid-cols-[1fr_80px_50px_90px] px-3 py-2 border-b border-navy-700/30 last:border-0 text-[10px]">
+              <div key={c.drug} className="grid grid-cols-[1fr_80px_50px_90px] px-3 py-2 border-b border-navy-700/30 last:border-0 text-2xs">
                 <span className="text-white">{c.drug}</span>
                 <span className="text-slate-400">{c.company}</span>
                 <span className="text-right font-mono text-slate-300">{c.months}mo</span>
@@ -1369,7 +1369,7 @@ function DemoResultsSkeleton() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {['US TAM', 'US SAM', 'Peak Revenue', '5-yr CAGR'].map((label) => (
           <div key={label}>
-            <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">{label}</div>
+            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">{label}</div>
             <div className="skeleton h-6 w-20 rounded" />
           </div>
         ))}
@@ -1377,7 +1377,7 @@ function DemoResultsSkeleton() {
 
       {/* Skeleton waterfall */}
       <div className="mb-6">
-        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">TAM → SAM → SOM Waterfall</div>
+        <div className="text-2xs text-slate-500 uppercase tracking-wider mb-2">TAM → SAM → SOM Waterfall</div>
         <div className="flex items-end gap-1 h-12">
           <div className="flex-1 skeleton rounded-sm" style={{ height: '100%' }} />
           <div className="flex-1 skeleton rounded-sm" style={{ height: '60%' }} />
@@ -2063,7 +2063,7 @@ export default function HomePage() {
                 }`}
               >
                 Annual
-                <span className="text-[10px] font-mono text-teal-400 bg-teal-500/10 px-1.5 py-0.5 rounded">
+                <span className="text-2xs font-mono text-teal-400 bg-teal-500/10 px-1.5 py-0.5 rounded">
                   Save ~17%
                 </span>
               </button>
@@ -2101,7 +2101,7 @@ export default function HomePage() {
                 >
                   {plan.highlighted && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <span className="badge-teal text-[10px] px-3 py-1">
+                      <span className="badge-teal text-2xs px-3 py-1">
                         Most Popular
                       </span>
                     </div>

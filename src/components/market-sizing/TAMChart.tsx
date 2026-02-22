@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { cn } from '@/lib/utils/cn';
 import { formatMetric } from '@/lib/utils/format';
+import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 
 const COLORS = {
   teal: '#00C9A7',
@@ -55,7 +56,7 @@ export default function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
   ];
 
   return (
-    <div className="chart-container">
+    <div className="chart-container noise">
       {/* Global TAM stat displayed above chart when provided */}
       {globalTam && (
         <div className="flex items-center gap-3 mb-4 pb-4 border-b border-navy-700">
@@ -169,6 +170,12 @@ export default function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
           </span>
         </div>
       )}
+
+      {/* Source attribution */}
+      <div className="mt-4 pt-3 border-t border-navy-700 flex flex-wrap gap-3">
+        <DataSourceBadge source="Terrain Analysis" type="proprietary" />
+        <DataSourceBadge source="Industry Benchmarks" type="licensed" />
+      </div>
     </div>
   );
 }

@@ -32,7 +32,7 @@ export default function PricingComparableTable({
   );
 
   return (
-    <div className="chart-container">
+    <div className="chart-container noise">
       <div className="label mb-2">Competitive Landscape</div>
       <div className="chart-title">Pricing Comparables</div>
 

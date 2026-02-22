@@ -1,22 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Loader2, Users } from 'lucide-react';
 import { IndicationAutocomplete } from '@/components/ui/IndicationAutocomplete';
 import { cn } from '@/lib/utils/cn';
 import type { DevelopmentStage } from '@/types';
 
 // ────────────────────────────────────────────────────────────
-// TYPES
+// ZOD SCHEMA
 // ────────────────────────────────────────────────────────────
 
-export interface PartnerFormData {
-  indication: string;
-  mechanism?: string;
-  development_stage: DevelopmentStage;
-  geography_rights: string[];
-  deal_types: ('licensing' | 'co-development' | 'acquisition' | 'co-promotion')[];
-}
+const DEAL_TYPE_VALUES = ['licensing', 'co-development', 'acquisition', 'co-promotion'] as const;
+
+const partnerSearchSchema = z.object({
+  indication: z.string().min(1, 'Indication is required'),
+  mechanism: z.string().optional(),
+  development_stage: z.enum(['preclinical', 'phase1', 'phase2', 'phase3', 'approved']).default('phase2'),
+  geography_rights: z.array(z.string()).min(1, 'Select at least one geography'),
+  deal_types: z.array(z.enum(DEAL_TYPE_VALUES)).min(1, 'Select at least one deal type'),
+});
+
+export type PartnerFormData = z.infer<typeof partnerSearchSchema>;
 
 interface PartnerSearchFormProps {
   onSubmit: (data: PartnerFormData) => void;
@@ -45,7 +52,7 @@ const GEOGRAPHIES = [
   { value: 'Global', label: 'Global (all territories)' },
 ];
 
-const DEAL_TYPES: { value: 'licensing' | 'co-development' | 'acquisition' | 'co-promotion'; label: string }[] = [
+const DEAL_TYPES: { value: typeof DEAL_TYPE_VALUES[number]; label: string }[] = [
   { value: 'licensing', label: 'Licensing' },
   { value: 'co-development', label: 'Co-Development' },
   { value: 'acquisition', label: 'Acquisition' },
@@ -57,66 +64,67 @@ const DEAL_TYPES: { value: 'licensing' | 'co-development' | 'acquisition' | 'co-
 // ────────────────────────────────────────────────────────────
 
 export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearchFormProps) {
-  const [indication, setIndication] = useState('');
-  const [mechanism, setMechanism] = useState('');
-  const [stage, setStage] = useState<DevelopmentStage>('phase2');
-  const [geos, setGeos] = useState<string[]>(['US']);
-  const [dealTypes, setDealTypes] = useState<('licensing' | 'co-development' | 'acquisition' | 'co-promotion')[]>(['licensing']);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const {
+    setValue,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PartnerFormData>({
+    resolver: zodResolver(partnerSearchSchema),
+    defaultValues: {
+      indication: '',
+      mechanism: '',
+      development_stage: 'phase2',
+      geography_rights: ['US'],
+      deal_types: ['licensing'],
+    },
+  });
 
-  function toggleGeo(value: string) {
-    // If Global is toggled on, clear others; if specific toggled, remove Global
-    if (value === 'Global') {
-      setGeos((prev) => prev.includes('Global') ? ['US'] : ['Global']);
-    } else {
-      setGeos((prev) => {
-        const filtered = prev.filter((g) => g !== 'Global');
-        return filtered.includes(value)
+  const geos = watch('geography_rights');
+  const stage = watch('development_stage');
+  const dealTypes = watch('deal_types');
+
+  const toggleGeo = useCallback(
+    (value: string) => {
+      if (value === 'Global') {
+        const next = geos.includes('Global') ? ['US'] : ['Global'];
+        setValue('geography_rights', next, { shouldValidate: true });
+      } else {
+        const filtered = geos.filter((g) => g !== 'Global');
+        const next = filtered.includes(value)
           ? filtered.filter((g) => g !== value)
           : [...filtered, value];
-      });
-    }
-  }
+        setValue('geography_rights', next, { shouldValidate: true });
+      }
+    },
+    [geos, setValue],
+  );
 
-  function toggleDealType(value: typeof dealTypes[number]) {
-    setDealTypes((prev) =>
-      prev.includes(value)
-        ? prev.filter((dt) => dt !== value)
-        : [...prev, value]
-    );
-  }
+  const toggleDealType = useCallback(
+    (value: typeof DEAL_TYPE_VALUES[number]) => {
+      const next = dealTypes.includes(value)
+        ? dealTypes.filter((dt) => dt !== value)
+        : [...dealTypes, value];
+      setValue('deal_types', next as typeof DEAL_TYPE_VALUES[number][], { shouldValidate: true });
+    },
+    [dealTypes, setValue],
+  );
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    const newErrors: Record<string, string> = {};
-    if (!indication.trim()) newErrors.indication = 'Indication is required';
-    if (geos.length === 0) newErrors.geos = 'Select at least one geography';
-    if (dealTypes.length === 0) newErrors.dealTypes = 'Select at least one deal type';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setErrors({});
+  const doSubmit = handleSubmit((data) => {
     onSubmit({
-      indication: indication.trim(),
-      mechanism: mechanism.trim() || undefined,
-      development_stage: stage,
-      geography_rights: geos,
-      deal_types: dealTypes,
+      ...data,
+      mechanism: data.mechanism || undefined,
     });
-  }
+  });
 
   return (
-    <div className="card">
-      <form onSubmit={handleSubmit} className="space-y-5">
+    <div className="card noise">
+      <form onSubmit={doSubmit} className="space-y-5">
         {/* Indication */}
         <IndicationAutocomplete
-          value={indication}
-          onChange={setIndication}
-          error={errors.indication}
+          value={watch('indication')}
+          onChange={(v) => setValue('indication', v, { shouldValidate: true })}
+          error={errors.indication?.message}
           label="Indication"
           placeholder="e.g., Non-Small Cell Lung Cancer"
         />
@@ -131,10 +139,10 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
             type="text"
             className="input"
             placeholder="e.g., KRAS G12C inhibitor, ADC, bispecific"
-            value={mechanism}
-            onChange={(e) => setMechanism(e.target.value)}
+            value={watch('mechanism') || ''}
+            onChange={(e) => setValue('mechanism', e.target.value)}
           />
-          <p className="text-[10px] text-slate-600 mt-1">Optional. Improves matching precision.</p>
+          <p className="text-2xs text-slate-600 mt-1">Optional. Improves matching precision.</p>
         </div>
 
         {/* Development Stage */}
@@ -145,7 +153,7 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
               <button
                 key={s.value}
                 type="button"
-                onClick={() => setStage(s.value)}
+                onClick={() => setValue('development_stage', s.value)}
                 className={cn(
                   'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
                   stage === s.value
@@ -162,7 +170,9 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
         {/* Geography Rights */}
         <div>
           <label className="input-label">Geography Rights Offered</label>
-          {errors.geos && <p className="text-xs text-signal-red mt-0.5">{errors.geos}</p>}
+          {errors.geography_rights?.message && (
+            <p className="text-xs text-signal-red mt-0.5">{errors.geography_rights.message}</p>
+          )}
           <div className="space-y-1.5 mt-1.5">
             {GEOGRAPHIES.map((geo) => (
               <label
@@ -194,7 +204,9 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
         {/* Deal Type */}
         <div>
           <label className="input-label">Deal Type</label>
-          {errors.dealTypes && <p className="text-xs text-signal-red mt-0.5">{errors.dealTypes}</p>}
+          {errors.deal_types?.message && (
+            <p className="text-xs text-signal-red mt-0.5">{errors.deal_types.message}</p>
+          )}
           <div className="flex flex-wrap gap-2 mt-1.5">
             {DEAL_TYPES.map((dt) => (
               <button

@@ -9,7 +9,7 @@ export const NEUROLOGY_COMPETITORS: CompetitorRecord[] = [
     generic_name: 'AMX0035',
     company: 'Amylyx Pharmaceuticals',
     indication: 'Amyotrophic Lateral Sclerosis',
-    indication_specifics: 'Treatment of ALS to slow functional decline; combination of sodium phenylbutyrate and taurursodiol targeting ER stress and mitochondrial dysfunction',
+    indication_specifics: 'Treatment of ALS to slow functional decline; combination of sodium phenylbutyrate and taurursodiol targeting ER stress and mitochondrial dysfunction (voluntarily withdrawn from market 2024 after PHOENIX Phase 3 trial failure)',
     mechanism: 'Dual mechanism combining ER stress inhibitor (sodium phenylbutyrate) and mitochondrial modulator (taurursodiol) to reduce neuronal death',
     mechanism_category: 'neuroprotective_combination',
     molecular_target: 'Endoplasmic reticulum stress pathway / mitochondrial permeability transition pore',
@@ -99,6 +99,7 @@ export const NEUROLOGY_COMPETITORS: CompetitorRecord[] = [
   // ─────────────────────────────────────────────────────────────────────────────
   {
     asset_name: 'Tilavonemab',
+    generic_name: 'tilavonemab',
     company: 'AbbVie',
     indication: 'Progressive Supranuclear Palsy',
     indication_specifics: 'Anti-tau monoclonal antibody targeting extracellular tau aggregates in progressive supranuclear palsy',
@@ -128,6 +129,7 @@ export const NEUROLOGY_COMPETITORS: CompetitorRecord[] = [
   },
   {
     asset_name: 'Zagotenemab',
+    generic_name: 'zagotenemab',
     company: 'Eli Lilly',
     indication: 'Progressive Supranuclear Palsy',
     indication_specifics: 'Anti-tau antibody targeting aggregated tau in progressive supranuclear palsy',
@@ -157,6 +159,7 @@ export const NEUROLOGY_COMPETITORS: CompetitorRecord[] = [
   },
   {
     asset_name: 'Bepranemab',
+    generic_name: 'bepranemab',
     company: 'UCB',
     indication: 'Progressive Supranuclear Palsy',
     indication_specifics: 'Anti-tau antibody targeting the central domain of tau protein to prevent aggregation and spreading',
@@ -446,7 +449,7 @@ export const NEUROLOGY_COMPETITORS: CompetitorRecord[] = [
     molecular_target: 'Neonatal Fc receptor (FcRn)',
     phase: 'Phase 3',
     primary_endpoint: 'CIDP relapse or INCAT score worsening during treatment withdrawal period',
-    key_data: 'ADHERE Phase 3 trial (NCT04281472): Evaluating efgartigimod SC (Vyvgart Hytrulo) in CIDP. Positive topline results reported with statistically significant reduction in relapse risk vs placebo. Potential to displace IVIG as standard of care.',
+    key_data: 'ADHERE Phase 3 trial (NCT04281472): Evaluating efgartigimod SC (Vyvgart Hytrulo) in CIDP. Positive topline results reported with statistically significant reduction in relapse risk vs placebo. Potential to displace IVIG as standard of care. Phase 3 as of Jan 2025; verify current approval status.',
     line_of_therapy: 'First-line or second-line',
     first_in_class: false,
     orphan_drug: false,

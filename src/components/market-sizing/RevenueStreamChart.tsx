@@ -38,7 +38,7 @@ export default function RevenueStreamChart({ streams }: RevenueStreamChartProps)
   const totalRevenue = streams.reduce((sum, s) => sum + s.gross_revenue_m, 0);
 
   return (
-    <div className="chart-container">
+    <div className="chart-container noise">
       <div className="chart-title">Revenue Streams Breakdown</div>
 
       <ResponsiveContainer width="100%" height={120}>

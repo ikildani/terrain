@@ -108,13 +108,13 @@ export default function PartnerMatchScore({ score, breakdown, compact }: Partner
       {/* Score Breakdown Bars */}
       <div className="space-y-2">
         {DIMENSIONS.map((dim) => {
-          const value = breakdown[dim.key];
+          const value = breakdown[dim.key] ?? 0;
           const pct = (value / dim.max) * 100;
           return (
             <div key={dim.key}>
               <div className="flex items-center justify-between mb-0.5">
-                <span className="text-[10px] text-slate-500 uppercase tracking-wider">{dim.label}</span>
-                <span className="text-[10px] font-mono text-slate-400">{value}/{dim.max}</span>
+                <span className="text-2xs text-slate-500 uppercase tracking-wider">{dim.label}</span>
+                <span className="text-2xs font-mono text-slate-400">{value}/{dim.max}</span>
               </div>
               <div className="h-1.5 bg-navy-700 rounded-full overflow-hidden">
                 <div

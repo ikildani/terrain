@@ -32,9 +32,10 @@ const SEGMENT_LABELS: Record<string, string> = {
 
 interface TopbarProps {
   onMenuToggle: () => void;
+  onSearchClick?: () => void;
 }
 
-export function Topbar({ onMenuToggle }: TopbarProps) {
+export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useUser();
@@ -104,16 +105,27 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
         ))}
       </nav>
 
-      {/* Search */}
-      <div className="relative max-w-xs hidden md:block">
+      {/* Search — mobile icon */}
+      <button
+        onClick={onSearchClick}
+        className="md:hidden p-1.5 rounded-md hover:bg-navy-800 transition-colors"
+        aria-label="Open search (⌘K)"
+      >
+        <Search className="w-4.5 h-4.5 text-slate-400" />
+      </button>
+
+      {/* Search — desktop bar */}
+      <button
+        onClick={onSearchClick}
+        aria-label="Open command palette (⌘K)"
+        className="relative max-w-xs hidden md:flex items-center gap-2 pl-9 pr-3 py-1.5 text-sm text-slate-500 bg-navy-800 border border-transparent hover:border-navy-600 rounded-md w-64 transition-colors cursor-pointer"
+      >
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-        <input
-          type="text"
-          placeholder="Search (coming soon)"
-          disabled
-          className="input pl-9 py-1.5 text-sm bg-navy-800 border-transparent w-64 cursor-not-allowed opacity-50"
-        />
-      </div>
+        <span>Search pages & reports...</span>
+        <kbd className="ml-auto text-2xs font-mono text-slate-600 bg-navy-900 border border-navy-700 px-1.5 py-0.5 rounded">
+          ⌘K
+        </kbd>
+      </button>
 
       {/* User dropdown */}
       <div className="relative ml-3" ref={dropdownRef}>

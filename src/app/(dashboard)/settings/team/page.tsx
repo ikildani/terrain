@@ -18,7 +18,7 @@ export default function TeamPage() {
           subtitle="Manage team members and permissions."
           badge="Team"
         />
-        <div className="card p-12 text-center max-w-lg mx-auto">
+        <div className="card noise p-12 text-center max-w-lg mx-auto">
           <div className="w-12 h-12 rounded-full bg-amber-400/10 flex items-center justify-center mx-auto mb-4">
             <Users className="w-6 h-6 text-amber-400" />
           </div>
@@ -67,7 +67,7 @@ export default function TeamPage() {
 
       <div className="space-y-6 max-w-2xl">
         {/* Current Members */}
-        <div className="card overflow-hidden">
+        <div className="card noise overflow-hidden">
           <div className="px-5 py-3 border-b border-navy-700">
             <h3 className="text-xs font-mono text-slate-400 uppercase tracking-wider">
               Members (1/5)
@@ -85,10 +85,10 @@ export default function TeamPage() {
                 </div>
                 <div>
                   <p className="text-sm text-white">{user?.email ?? 'You'}</p>
-                  <p className="text-[10px] text-slate-500">Owner</p>
+                  <p className="text-2xs text-slate-500">Owner</p>
                 </div>
               </div>
-              <span className="badge-teal text-[10px] px-2 py-0.5">
+              <span className="badge-teal text-2xs px-2 py-0.5">
                 <Shield className="w-2.5 h-2.5 inline mr-1" />
                 Admin
               </span>
@@ -97,7 +97,7 @@ export default function TeamPage() {
         </div>
 
         {/* Invite */}
-        <div className="card p-6">
+        <div className="card noise p-6">
           <div className="flex items-start gap-3">
             <Mail className="w-5 h-5 text-slate-500 mt-0.5 shrink-0" />
             <div>

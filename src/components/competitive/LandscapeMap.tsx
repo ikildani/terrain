@@ -66,11 +66,11 @@ function CustomTooltip({
       <p className="text-slate-400 mb-1">{data.mechanism}</p>
       <div className="flex gap-4 mt-2 pt-2 border-t border-navy-700">
         <div>
-          <span className="text-slate-500 text-[10px] uppercase tracking-wider">Diff.</span>
+          <span className="text-slate-500 text-2xs uppercase tracking-wider">Diff.</span>
           <span className="font-mono text-slate-100 ml-1.5">{data.x}</span>
         </div>
         <div>
-          <span className="text-slate-500 text-[10px] uppercase tracking-wider">Evidence</span>
+          <span className="text-slate-500 text-2xs uppercase tracking-wider">Evidence</span>
           <span className="font-mono text-slate-100 ml-1.5">{data.y}</span>
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
 
   if (competitors.length === 0) {
     return (
-      <div className="card p-8 text-center">
+      <div className="card noise p-8 text-center">
         <p className="text-slate-500 text-sm">No competitors to map.</p>
       </div>
     );
@@ -206,29 +206,29 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
       {/* Quadrant labels */}
       <div className="grid grid-cols-2 gap-px mt-2">
         <div className="text-left pl-12">
-          <span className="text-[10px] text-slate-500 uppercase tracking-wider">Validated Commodity</span>
+          <span className="text-2xs text-slate-500 uppercase tracking-wider">Validated Commodity</span>
           <span className="block text-[9px] text-slate-600 normal-case tracking-normal">Strong evidence, low differentiation</span>
         </div>
         <div className="text-right pr-4">
-          <span className="text-[10px] text-teal-500/70 uppercase tracking-wider">Best-in-Class</span>
+          <span className="text-2xs text-teal-500/70 uppercase tracking-wider">Best-in-Class</span>
           <span className="block text-[9px] text-slate-600 normal-case tracking-normal">Strong evidence, high differentiation</span>
         </div>
         <div className="text-left pl-12 mt-1">
-          <span className="text-[10px] text-slate-600 uppercase tracking-wider">Early / Undifferentiated</span>
+          <span className="text-2xs text-slate-600 uppercase tracking-wider">Early / Undifferentiated</span>
           <span className="block text-[9px] text-slate-600 normal-case tracking-normal">Limited evidence, low differentiation</span>
         </div>
         <div className="text-right pr-4 mt-1">
-          <span className="text-[10px] text-signal-amber/70 uppercase tracking-wider">High-Risk / High-Reward</span>
+          <span className="text-2xs text-signal-amber/70 uppercase tracking-wider">High-Risk / High-Reward</span>
           <span className="block text-[9px] text-slate-600 normal-case tracking-normal">Limited evidence, high differentiation</span>
         </div>
       </div>
 
       {/* Axis legend */}
       <div className="flex items-center justify-center gap-6 mt-3 pt-3 border-t border-navy-700/30">
-        <div className="text-[10px] text-slate-500">
+        <div className="text-2xs text-slate-500">
           <span className="font-mono text-slate-400">X</span> Differentiation: <span className="text-slate-400">1</span> = me-too &rarr; <span className="text-slate-400">10</span> = first-in-class
         </div>
-        <div className="text-[10px] text-slate-500">
+        <div className="text-2xs text-slate-500">
           <span className="font-mono text-slate-400">Y</span> Evidence: <span className="text-slate-400">1</span> = preclinical &rarr; <span className="text-slate-400">10</span> = Phase 3 OS data
         </div>
       </div>

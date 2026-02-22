@@ -14,14 +14,14 @@ interface PartnerCardProps {
 function CompanyTypeBadge({ type }: { type: PartnerMatch['company_type'] }) {
   const styles: Record<string, string> = {
     'Big Pharma': 'bg-teal-500/10 text-teal-400 border-teal-500/20',
-    'Mid-Size Pharma': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    'Mid-Size Pharma': 'bg-slate-500/10 text-slate-300 border-slate-500/20',
     'Specialty Pharma': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    'Biotech': 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    'Biotech': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   };
 
   return (
     <span className={cn(
-      'inline-flex text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border',
+      'inline-flex text-2xs font-mono uppercase tracking-wider px-2 py-0.5 rounded border',
       styles[type] || 'bg-navy-700 text-slate-400 border-navy-600'
     )}>
       {type}
@@ -82,7 +82,7 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
           {partner.watch_signals.map((signal, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-1 text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/15 rounded px-2 py-0.5"
+              className="inline-flex items-center gap-1 text-2xs text-amber-400 bg-amber-500/10 border border-amber-500/15 rounded px-2 py-0.5"
             >
               <Zap className="w-2.5 h-2.5" />
               {signal}
@@ -94,19 +94,19 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
       {/* Deal Terms Benchmark (compact row) */}
       <div className="grid grid-cols-3 gap-2 mt-4 p-2.5 bg-navy-800/50 rounded-md">
         <div className="text-center">
-          <p className="text-[10px] text-slate-600 uppercase tracking-wider">Typical Upfront</p>
+          <p className="text-2xs text-slate-600 uppercase tracking-wider">Typical Upfront</p>
           <p className="font-mono text-xs text-teal-400 mt-0.5">
             {partner.deal_terms_benchmark.typical_upfront}
           </p>
         </div>
         <div className="text-center border-x border-navy-700/50">
-          <p className="text-[10px] text-slate-600 uppercase tracking-wider">Milestones</p>
+          <p className="text-2xs text-slate-600 uppercase tracking-wider">Milestones</p>
           <p className="font-mono text-xs text-slate-300 mt-0.5">
             {partner.deal_terms_benchmark.typical_milestones}
           </p>
         </div>
         <div className="text-center">
-          <p className="text-[10px] text-slate-600 uppercase tracking-wider">Royalty</p>
+          <p className="text-2xs text-slate-600 uppercase tracking-wider">Royalty</p>
           <p className="font-mono text-xs text-slate-300 mt-0.5">
             {partner.deal_terms_benchmark.typical_royalty_range}
           </p>
@@ -116,7 +116,7 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
       {/* Recent Deals (compact) */}
       {partner.recent_deals.length > 0 && (
         <div className="mt-3">
-          <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-1.5">
+          <p className="text-2xs text-slate-600 uppercase tracking-wider mb-1.5">
             Recent Relevant Deals
           </p>
           <DealHistoryTable deals={partner.recent_deals} compact />
@@ -147,7 +147,7 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
         <div className="mt-4 space-y-4 animate-fade-in">
           {/* Full Score Breakdown */}
           <div>
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">
+            <p className="text-2xs text-slate-500 uppercase tracking-wider mb-2">
               Why this score
             </p>
             <PartnerMatchScore
@@ -159,7 +159,7 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
           {/* BD Focus / Strategic Priorities */}
           {partner.bd_focus.length > 0 && (
             <div>
-              <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-1.5">
+              <p className="text-2xs text-slate-600 uppercase tracking-wider mb-1.5">
                 Strategic Priorities
               </p>
               <ul className="space-y-1">
@@ -176,7 +176,7 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
           {/* Full Deal History Table */}
           {partner.recent_deals.length > 0 && (
             <div>
-              <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-1.5">
+              <p className="text-2xs text-slate-600 uppercase tracking-wider mb-1.5">
                 Deal History (Detail)
               </p>
               <DealHistoryTable deals={partner.recent_deals} />

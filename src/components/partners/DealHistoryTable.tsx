@@ -44,7 +44,7 @@ export default function DealHistoryTable({ deals, compact }: DealHistoryTablePro
               <span className="text-slate-300 truncate block">
                 {deal.licensed_to}
               </span>
-              <span className="text-slate-500 text-[10px] truncate block">
+              <span className="text-slate-500 text-2xs truncate block">
                 {deal.indication} &middot; {deal.deal_type} &middot; {formatStage(deal.development_stage)}
               </span>
             </div>
@@ -52,7 +52,7 @@ export default function DealHistoryTable({ deals, compact }: DealHistoryTablePro
               <span className="font-mono text-teal-400 block">
                 {formatDealValue(deal.upfront_usd)}
               </span>
-              <span className="font-mono text-slate-500 text-[10px] block">
+              <span className="font-mono text-slate-500 text-2xs block">
                 / {formatDealValue(deal.total_value_usd)}
               </span>
             </div>
@@ -67,13 +67,13 @@ export default function DealHistoryTable({ deals, compact }: DealHistoryTablePro
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-navy-700">
-            <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Counterparty</th>
-            <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Indication</th>
-            <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Type</th>
-            <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Stage</th>
-            <th className="text-right py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Upfront</th>
-            <th className="text-right py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Total Value</th>
-            <th className="text-right py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Year</th>
+            <th className="text-left py-2 px-2 text-2xs font-mono text-slate-500 uppercase tracking-wider">Counterparty</th>
+            <th className="text-left py-2 px-2 text-2xs font-mono text-slate-500 uppercase tracking-wider">Indication</th>
+            <th className="text-left py-2 px-2 text-2xs font-mono text-slate-500 uppercase tracking-wider">Type</th>
+            <th className="text-left py-2 px-2 text-2xs font-mono text-slate-500 uppercase tracking-wider">Stage</th>
+            <th className="text-right py-2 px-2 text-2xs font-mono text-slate-500 uppercase tracking-wider">Upfront</th>
+            <th className="text-right py-2 px-2 text-2xs font-mono text-slate-500 uppercase tracking-wider">Total Value</th>
+            <th className="text-right py-2 px-2 text-2xs font-mono text-slate-500 uppercase tracking-wider">Year</th>
           </tr>
         </thead>
         <tbody>

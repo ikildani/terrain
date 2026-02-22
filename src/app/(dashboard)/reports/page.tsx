@@ -65,7 +65,7 @@ export default function ReportsPage() {
       )}
 
       {!isLoading && filtered.length === 0 && (
-        <div className="card p-12 text-center flex flex-col items-center">
+        <div className="card noise p-12 text-center flex flex-col items-center">
           <div className="w-16 h-16 rounded-2xl bg-teal-500/5 border border-teal-500/10 flex items-center justify-center mb-6">
             <FileText className="w-8 h-8 text-teal-500/40" />
           </div>
@@ -89,7 +89,7 @@ export default function ReportsPage() {
           {filtered.map(report => (
             <div
               key={report.id}
-              className="card p-4 flex items-center gap-4 hover:border-navy-600 transition-colors group"
+              className="card noise p-4 flex items-center gap-4 hover:border-navy-600 transition-colors group"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">

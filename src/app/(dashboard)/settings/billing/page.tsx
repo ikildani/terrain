@@ -43,10 +43,10 @@ function PlanCard({
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-medium text-white">{display.name}</h3>
           {isCurrent && (
-            <span className="badge-teal text-[10px] px-2 py-0.5">Current</span>
+            <span className="badge-teal text-2xs px-2 py-0.5">Current</span>
           )}
           {'badge' in display && !isCurrent && (
-            <span className="badge-amber text-[10px] px-2 py-0.5">
+            <span className="badge-amber text-2xs px-2 py-0.5">
               {display.badge}
             </span>
           )}
@@ -128,7 +128,7 @@ export default function BillingPage() {
       <div className="space-y-6 max-w-2xl">
         {/* Current Plan Status */}
         {cancelAtPeriodEnd && currentPeriodEnd && (
-          <div className="card p-4 border-amber-400/20 bg-amber-400/5">
+          <div className="card noise p-4 border-amber-400/20 bg-amber-400/5">
             <p className="text-xs text-amber-400">
               Your subscription will cancel at the end of the current period (
               {new Date(currentPeriodEnd).toLocaleDateString()}). You will
@@ -154,7 +154,7 @@ export default function BillingPage() {
         </div>
 
         {/* Usage This Month */}
-        <div className="card p-6">
+        <div className="card noise p-6">
           <h3 className="text-sm font-medium text-white mb-4">
             Usage This Month
           </h3>
@@ -177,7 +177,7 @@ export default function BillingPage() {
                     showValue={!isUnlimited}
                   />
                   {isUnlimited && (
-                    <span className="text-[10px] font-mono text-teal-500 mt-0.5 block">
+                    <span className="text-2xs font-mono text-teal-500 mt-0.5 block">
                       Unlimited
                     </span>
                   )}
@@ -189,7 +189,7 @@ export default function BillingPage() {
 
         {/* Pro Features */}
         {!isPro && (
-          <div className="card p-6 border-teal-500/20 bg-gradient-to-br from-teal-500/5 to-transparent">
+          <div className="card noise p-6 border-teal-500/20 bg-gradient-to-br from-teal-500/5 to-transparent">
             <div className="flex items-start gap-3">
               <Crown className="w-5 h-5 text-teal-400 mt-0.5 shrink-0" />
               <div>

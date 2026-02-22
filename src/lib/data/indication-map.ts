@@ -865,7 +865,7 @@ export const INDICATION_DATA: IndicationData[] = [
 
   {
     name: 'HER2-Positive Breast Cancer',
-    synonyms: ['HER2+ breast cancer', 'HER2-positive BC', 'ERBB2+ breast cancer', 'HER2-amplified breast cancer', 'HR+ breast cancer', 'HR-positive breast cancer', 'hormone receptor positive breast cancer'],
+    synonyms: ['HER2+ breast cancer', 'HER2-positive BC', 'ERBB2+ breast cancer', 'HER2-amplified breast cancer'],
     icd10_codes: ['C50.01', 'C50.11', 'C50.21', 'C50.31', 'C50.41', 'C50.91'],
     therapy_area: 'oncology',
     us_prevalence: 85000,
@@ -885,6 +885,30 @@ export const INDICATION_DATA: IndicationData[] = [
     ],
     market_growth_driver: 'Enhertu expanding across HER2-low, ADC class dominance, neoadjuvant optimization, brain metastasis penetration (tucatinib), HER2-low/ultralow paradigm',
     therapy_area_pricing_context: 'ADCs at $150K-$200K annually; targeted agents $80K-$150K. HER2-low expansion dramatically increases addressable population.',
+  },
+
+  {
+    name: 'HR+/HER2- Breast Cancer',
+    synonyms: ['HR+ breast cancer', 'HR-positive breast cancer', 'hormone receptor positive breast cancer', 'ER+ breast cancer', 'luminal breast cancer', 'HR+/HER2-negative breast cancer'],
+    icd10_codes: ['C50.01', 'C50.11', 'C50.21', 'C50.31', 'C50.41', 'C50.91'],
+    therapy_area: 'oncology',
+    us_prevalence: 600000,
+    us_incidence: 210000,
+    prevalence_source: 'American Cancer Society 2024; SEER Database; HR+/HER2- accounts for ~70% of all breast cancers',
+    diagnosis_rate: 0.95,
+    treatment_rate: 0.90,
+    cagr_5yr: 6.5,
+    major_competitors: [
+      'Ibrance (palbociclib, Pfizer) — CDK4/6 inhibitor (going generic)',
+      'Verzenio (abemaciclib, Eli Lilly) — CDK4/6 inhibitor',
+      'Kisqali (ribociclib, Novartis) — CDK4/6 inhibitor',
+      'Faslodex (fulvestrant, AstraZeneca) — ER degrader',
+      'Orserdu (elacestrant, Stemline) — oral SERD',
+      'ARV-471 (vepdegestrant, Arvinas/Pfizer) — PROTAC ER degrader',
+      'Capivasertib (AstraZeneca) — AKT inhibitor',
+    ],
+    market_growth_driver: 'CDK4/6 inhibitor market maturation with Ibrance LOE, oral SERD/PROTAC competition, adjuvant CDK4/6i expansion (monarchE), AKT/PI3K pathway targeting, ESR1 mutation-directed therapy',
+    therapy_area_pricing_context: 'CDK4/6 inhibitors at $150K-$180K annually; Ibrance generics expected to reduce class pricing. Novel SERDs/PROTACs at $120K-$200K. Chronic therapy with long treatment duration.',
   },
 
   {

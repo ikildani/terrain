@@ -394,7 +394,7 @@ export const ONCOLOGY_EXTRA_COMPETITORS: CompetitorRecord[] = [
     mechanism: 'Dual IDH1/IDH2 mutant enzyme inhibitor (brain-penetrant)',
     mechanism_category: 'idh_inhibitor',
     molecular_target: 'IDH1 / IDH2',
-    phase: 'Phase 3',
+    phase: 'Approved',
     primary_endpoint: 'PFS',
     key_data: 'INDIGO: PFS 27.7 vs 11.1 mo (HR 0.39, p<0.001); TTNI HR 0.26; FDA approved Aug 2024 for Grade 2 glioma',
     line_of_therapy: '1L',

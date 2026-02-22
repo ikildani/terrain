@@ -352,12 +352,12 @@ export function FuzzyAutocomplete({
           {/* Detail + inline category on search results */}
           <div className="flex items-center gap-2 mt-0.5">
             {item.detail && (
-              <span className="text-[10px] font-mono text-slate-500 truncate">
+              <span className="text-2xs font-mono text-slate-500 truncate">
                 {item.detail}
               </span>
             )}
             {item.category && highlight && groupedResults.length <= 1 && (
-              <span className="text-[10px] font-mono text-slate-600 shrink-0 uppercase tracking-wider">
+              <span className="text-2xs font-mono text-slate-600 shrink-0 uppercase tracking-wider">
                 {item.category}
               </span>
             )}
@@ -365,7 +365,7 @@ export function FuzzyAutocomplete({
         </div>
         {/* Category badge in suggestions mode */}
         {item.category && !highlight && (
-          <span className="text-[10px] font-mono text-slate-500 shrink-0 uppercase tracking-wider mt-0.5">
+          <span className="text-2xs font-mono text-slate-500 shrink-0 uppercase tracking-wider mt-0.5">
             {item.category}
           </span>
         )}
@@ -468,10 +468,10 @@ export function FuzzyAutocomplete({
           >
             {/* Header */}
             <div className="px-3 py-1.5 flex items-center justify-between border-b border-navy-700/60 sticky top-0 bg-navy-800/95 backdrop-blur-sm z-10">
-              <span className="text-[10px] font-mono text-slate-500">
+              <span className="text-2xs font-mono text-slate-500">
                 {results.length} of {items.length}
               </span>
-              <span className="text-[10px] font-mono text-slate-600 flex items-center gap-1.5">
+              <span className="text-2xs font-mono text-slate-600 flex items-center gap-1.5">
                 <ChevronsUpDown className="w-2.5 h-2.5" />
                 <span>navigate</span>
                 <span className="text-slate-700">·</span>
@@ -518,7 +518,7 @@ export function FuzzyAutocomplete({
           >
             <div className="px-3 py-4 text-center">
               <p className="text-xs text-slate-400">No suggestions for &ldquo;<span className="text-slate-300">{query}</span>&rdquo;</p>
-              <p className="text-[10px] text-slate-500 mt-1.5">Press <span className="text-[9px] font-mono border border-slate-600 rounded px-1 py-px text-slate-400">enter</span> to use as custom value</p>
+              <p className="text-2xs text-slate-500 mt-1.5">Press <span className="text-[9px] font-mono border border-slate-600 rounded px-1 py-px text-slate-400">enter</span> to use as custom value</p>
             </div>
           </motion.div>
         )}
@@ -559,7 +559,7 @@ export function FuzzyAutocomplete({
               <>
                 <div className="px-3 py-1.5 flex items-center gap-1.5 border-b border-navy-700/60">
                   <Clock className="w-3 h-3 text-slate-600" />
-                  <span className="text-[10px] font-mono text-slate-600 uppercase tracking-wider">Recent</span>
+                  <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">Recent</span>
                 </div>
                 {recentItems.map((item, i) => renderItem(item, i, false))}
               </>
@@ -568,7 +568,7 @@ export function FuzzyAutocomplete({
               <>
                 <div className="px-3 py-1.5 flex items-center gap-1.5 border-b border-navy-700/60">
                   <TrendingUp className="w-3 h-3 text-slate-600" />
-                  <span className="text-[10px] font-mono text-slate-600 uppercase tracking-wider">Popular</span>
+                  <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">Popular</span>
                 </div>
                 {popular
                   .filter((p) => !recentItems.some((r) => r.name === p.name))
@@ -577,10 +577,10 @@ export function FuzzyAutocomplete({
             )}
             {/* Footer hint */}
             <div className="px-3 py-1.5 border-t border-navy-700/60 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-600">
+              <span className="text-2xs font-mono text-slate-600">
                 {items.length} total suggestions
               </span>
-              <span className="text-[10px] font-mono text-slate-600 flex items-center gap-1.5">
+              <span className="text-2xs font-mono text-slate-600 flex items-center gap-1.5">
                 <ChevronsUpDown className="w-2.5 h-2.5" />
                 <span>navigate</span>
                 <span className="text-slate-700">·</span>

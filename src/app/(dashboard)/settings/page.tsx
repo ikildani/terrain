@@ -146,7 +146,7 @@ export default function SettingsPage() {
 
       <div className="space-y-6 max-w-2xl">
         {/* Profile */}
-        <div className="card p-6 space-y-5">
+        <div className="card noise p-6 space-y-5">
           <h3 className="text-sm font-medium text-white">Profile</h3>
 
           <Input
@@ -179,7 +179,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Therapy Areas */}
-        <div className="card p-6">
+        <div className="card noise p-6">
           <h3 className="text-sm font-medium text-white mb-1">Therapy Areas of Interest</h3>
           <p className="text-xs text-slate-500 mb-4">
             Select the areas relevant to your work. This helps personalize your dashboard.
@@ -206,7 +206,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Danger Zone */}
-        <div className="card p-6 border-signal-red/20">
+        <div className="card noise p-6 border-signal-red/20">
           <h3 className="text-sm font-medium text-signal-red mb-1">Danger Zone</h3>
           <p className="text-xs text-slate-500 mb-4">
             Permanently delete your account and all associated data.

@@ -49,7 +49,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
   };
 
   return (
-    <div className="card">
+    <div className="card noise">
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
         {/* Indication */}
         <div>

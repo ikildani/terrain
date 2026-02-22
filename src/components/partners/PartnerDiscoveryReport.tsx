@@ -73,44 +73,44 @@ export default function PartnerDiscoveryReport({ data, input }: PartnerDiscovery
     <div ref={reportRef} className="space-y-4 animate-fade-in">
       {/* Summary Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="stat-card">
+        <div className="stat-card noise">
           <div className="flex items-center gap-1.5 mb-2">
             <Users className="w-3.5 h-3.5 text-teal-500" />
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">Partners Screened</span>
+            <span className="text-2xs font-mono text-slate-500 uppercase tracking-wider">Partners Screened</span>
           </div>
           <p className="font-mono text-2xl text-white">{data.summary.total_screened}</p>
-          <p className="text-[10px] text-slate-500 mt-1">{data.summary.total_matched} matched threshold</p>
+          <p className="text-2xs text-slate-500 mt-1">{data.summary.total_matched} matched threshold</p>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card noise">
           <div className="flex items-center gap-1.5 mb-2">
             <Building2 className="w-3.5 h-3.5 text-teal-500" />
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">Top-Tier Matches</span>
+            <span className="text-2xs font-mono text-slate-500 uppercase tracking-wider">Top-Tier Matches</span>
           </div>
           <p className="font-mono text-2xl text-white">{data.summary.top_tier_count}</p>
-          <p className="text-[10px] text-slate-500 mt-1">Score {'>'}= 60/100</p>
+          <p className="text-2xs text-slate-500 mt-1">Score {'>'}= 60/100</p>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card noise">
           <div className="flex items-center gap-1.5 mb-2">
             <BarChart3 className="w-3.5 h-3.5 text-teal-500" />
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">Avg Match Score</span>
+            <span className="text-2xs font-mono text-slate-500 uppercase tracking-wider">Avg Match Score</span>
           </div>
           <p className="font-mono text-2xl text-white">{data.summary.avg_match_score}</p>
-          <p className="text-[10px] text-slate-500 mt-1">Across top {data.ranked_partners.length} results</p>
+          <p className="text-2xs text-slate-500 mt-1">Across top {data.ranked_partners.length} results</p>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card noise">
           <div className="flex items-center gap-1.5 mb-2">
             <DollarSign className="w-3.5 h-3.5 text-teal-500" />
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">Median Upfront</span>
+            <span className="text-2xs font-mono text-slate-500 uppercase tracking-wider">Median Upfront</span>
           </div>
           <p className="font-mono text-2xl text-white">
             {data.deal_benchmarks.median_upfront_m > 0
               ? formatDealValue(data.deal_benchmarks.median_upfront_m)
               : '--'}
           </p>
-          <p className="text-[10px] text-slate-500 mt-1">
+          <p className="text-2xs text-slate-500 mt-1">
             {data.deal_benchmarks.sample_size > 0
               ? `Based on ${data.deal_benchmarks.sample_size} comparable deals`
               : 'Insufficient deal data'}
@@ -120,30 +120,30 @@ export default function PartnerDiscoveryReport({ data, input }: PartnerDiscovery
 
       {/* Deal Benchmark Card */}
       {data.deal_benchmarks.sample_size > 0 && (
-        <div className="card">
+        <div className="card noise">
           <div className="flex items-center gap-2 mb-3">
             <DollarSign className="w-4 h-4 text-teal-500" />
             <h3 className="chart-title">Deal Benchmarks — {formatStage(data.summary.development_stage)} Stage</h3>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
-              <p className="text-[10px] text-slate-600 uppercase tracking-wider">Avg Upfront</p>
+              <p className="text-2xs text-slate-600 uppercase tracking-wider">Avg Upfront</p>
               <p className="font-mono text-sm text-teal-400 mt-1">{formatDealValue(data.deal_benchmarks.avg_upfront_m)}</p>
             </div>
             <div>
-              <p className="text-[10px] text-slate-600 uppercase tracking-wider">Median Upfront</p>
+              <p className="text-2xs text-slate-600 uppercase tracking-wider">Median Upfront</p>
               <p className="font-mono text-sm text-white mt-1">{formatDealValue(data.deal_benchmarks.median_upfront_m)}</p>
             </div>
             <div>
-              <p className="text-[10px] text-slate-600 uppercase tracking-wider">Avg Total Value</p>
+              <p className="text-2xs text-slate-600 uppercase tracking-wider">Avg Total Value</p>
               <p className="font-mono text-sm text-white mt-1">{formatDealValue(data.deal_benchmarks.avg_total_value_m)}</p>
             </div>
             <div>
-              <p className="text-[10px] text-slate-600 uppercase tracking-wider">Median Total Value</p>
+              <p className="text-2xs text-slate-600 uppercase tracking-wider">Median Total Value</p>
               <p className="font-mono text-sm text-white mt-1">{formatDealValue(data.deal_benchmarks.median_total_value_m)}</p>
             </div>
             <div>
-              <p className="text-[10px] text-slate-600 uppercase tracking-wider">Typical Royalty</p>
+              <p className="text-2xs text-slate-600 uppercase tracking-wider">Typical Royalty</p>
               <p className="font-mono text-sm text-white mt-1">{data.deal_benchmarks.typical_royalty_range}</p>
             </div>
           </div>
@@ -181,7 +181,7 @@ export default function PartnerDiscoveryReport({ data, input }: PartnerDiscovery
       </div>
 
       {/* Methodology */}
-      <details className="card group">
+      <details className="card noise group">
         <summary className="flex items-center gap-2 cursor-pointer text-sm text-slate-400 hover:text-slate-300">
           <FileText className="w-4 h-4 text-slate-500" />
           <span>Methodology & Data Sources</span>
@@ -189,7 +189,7 @@ export default function PartnerDiscoveryReport({ data, input }: PartnerDiscovery
         <div className="mt-4 space-y-3">
           <p className="text-xs text-slate-500 leading-relaxed">{data.methodology}</p>
           <div>
-            <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-2">Data Sources</p>
+            <p className="text-2xs text-slate-600 uppercase tracking-wider mb-2">Data Sources</p>
             <div className="space-y-1">
               {data.data_sources.map((source, i) => (
                 <div key={i} className="flex items-center gap-2 text-xs">

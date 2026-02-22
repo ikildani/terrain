@@ -40,7 +40,7 @@ function ResultsSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="card p-12 text-center flex flex-col items-center">
+    <div className="card noise p-12 text-center flex flex-col items-center">
       <Users className="w-12 h-12 text-navy-600 mb-4" />
       <h3 className="font-display text-lg text-white mb-2">
         Discover Your Ideal BD Partners
@@ -63,14 +63,14 @@ function PreviewContent() {
     <div className="space-y-4 pointer-events-none select-none">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {['Partners Screened', 'Top-Tier Matches', 'Avg Match Score', 'Median Upfront'].map((label, i) => (
-          <div key={i} className="stat-card">
-            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">{label}</p>
+          <div key={i} className="stat-card noise">
+            <p className="text-2xs font-mono text-slate-500 uppercase tracking-wider">{label}</p>
             <p className="font-mono text-2xl text-white mt-2">--</p>
           </div>
         ))}
       </div>
       {[1, 2, 3].map((rank) => (
-        <div key={rank} className="card">
+        <div key={rank} className="card noise">
           <div className="flex items-start gap-4">
             <div className="w-8 h-8 rounded-md bg-navy-700 flex items-center justify-center">
               <span className="font-mono text-sm text-slate-300">{rank}</span>
@@ -203,7 +203,7 @@ export default function PartnersPage() {
         <div className="flex-1 min-w-0">
           {isLoading && <ResultsSkeleton />}
           {!isLoading && error && (
-            <div className="card p-8 text-center">
+            <div className="card noise p-8 text-center">
               <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
                 {error}
               </p>

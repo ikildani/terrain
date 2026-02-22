@@ -1,3 +1,4 @@
+import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { cn } from '@/lib/utils/cn';
 import { Tooltip } from '@/components/ui/Tooltip';
 
@@ -11,6 +12,7 @@ interface StatCardProps {
   source?: string;
   range?: { low: string; high: string };
   className?: string;
+  sparklineData?: number[];
 }
 
 export function StatCard({
@@ -23,7 +25,9 @@ export function StatCard({
   source,
   range,
   className,
+  sparklineData,
 }: StatCardProps) {
+  const sparkId = `spark-${label.replace(/\s+/g, '')}`;
   return (
     <div className={cn('stat-card noise', className)}>
       <div className="flex items-center justify-between mb-1">
@@ -56,8 +60,34 @@ export function StatCard({
           </span>
         )}
       </div>
+      {sparklineData && sparklineData.length >= 2 && (
+        <div className="mt-1.5 -mx-1" style={{ height: 32 }}>
+          <ResponsiveContainer width="100%" height={32}>
+            <AreaChart
+              data={sparklineData.map((v, i) => ({ v, i }))}
+              margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id={sparkId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#00C9A7" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#00C9A7" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <Area
+                type="monotone"
+                dataKey="v"
+                stroke="#00C9A7"
+                strokeWidth={1.5}
+                fill={`url(#${sparkId})`}
+                dot={false}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
       {range && (
-        <p className="text-[10px] font-mono text-slate-500 mt-0.5">
+        <p className="text-2xs font-mono text-slate-500 mt-0.5">
           Range: {range.low} – {range.high}
         </p>
       )}

@@ -46,7 +46,7 @@ export function DataTable<T extends Record<string, unknown>>({
 
   if (data.length === 0) {
     return (
-      <div className="card p-12 text-center">
+      <div className="card noise p-12 text-center">
         <p className="text-slate-500 text-sm">{emptyMessage}</p>
       </div>
     );
