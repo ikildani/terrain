@@ -580,9 +580,11 @@ body {
 }
 
 .sidebar-nav-item.active {
-  background: rgba(0, 201, 167, 0.1);
+  background: rgba(0, 201, 167, 0.18);
   color: var(--teal-400);
   font-weight: 500;
+  border-left: 3px solid var(--teal-500);
+  padding-left: 5px;
 }
 
 .sidebar-nav-item.active svg {

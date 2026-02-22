@@ -9,8 +9,20 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { IndicationAutocomplete } from "@/components/ui/IndicationAutocomplete";
+import { FuzzyAutocomplete } from "@/components/ui/FuzzyAutocomplete";
 import { ProductTypeSelector } from "@/components/shared/ProductTypeSelector";
 import type { ProductCategory } from "@/types/devices-diagnostics";
+import {
+  MECHANISM_SUGGESTIONS,
+  POPULAR_MECHANISMS,
+  PATIENT_SEGMENT_SUGGESTIONS,
+  POPULAR_SEGMENTS,
+  PROCEDURE_SUGGESTIONS,
+  POPULAR_PROCEDURES,
+  SPECIALTY_SUGGESTIONS,
+  BIOMARKER_SUGGESTIONS,
+  POPULAR_BIOMARKERS,
+} from "@/lib/data/suggestion-lists";
 
 // ────────────────────────────────────────────────────────────
 // Constants
@@ -473,15 +485,23 @@ function PharmaForm({
         onChange={(v) => setValue("development_stage", v)}
       />
 
-      <Input
+      <FuzzyAutocomplete
         label="Mechanism of Action"
-        {...register("mechanism")}
+        value={watch("mechanism") || ""}
+        onChange={(v) => setValue("mechanism", v)}
+        items={MECHANISM_SUGGESTIONS}
+        popularItems={POPULAR_MECHANISMS}
+        storageKey="terrain:recent-mechanisms"
         placeholder="e.g., KRAS G12C inhibitor"
       />
 
-      <Input
+      <FuzzyAutocomplete
         label="Patient Segment"
-        {...register("patient_segment")}
+        value={watch("patient_segment") || ""}
+        onChange={(v) => setValue("patient_segment", v)}
+        items={PATIENT_SEGMENT_SUGGESTIONS}
+        popularItems={POPULAR_SEGMENTS}
+        storageKey="terrain:recent-segments"
         placeholder="e.g., 2L+ after platinum-based chemo"
       />
 
@@ -584,9 +604,13 @@ function DeviceForm({
 
   return (
     <form onSubmit={doSubmit} className="space-y-5">
-      <Input
+      <FuzzyAutocomplete
         label="Procedure or Condition"
-        {...register("procedure_or_condition")}
+        value={watch("procedure_or_condition")}
+        onChange={(v) => setValue("procedure_or_condition", v, { shouldValidate: true })}
+        items={PROCEDURE_SUGGESTIONS}
+        popularItems={POPULAR_PROCEDURES}
+        storageKey="terrain:recent-procedures"
         placeholder="e.g., Total knee replacement"
         error={errors.procedure_or_condition?.message}
       />
@@ -608,9 +632,12 @@ function DeviceForm({
         error={errors.target_setting?.message}
       />
 
-      <Input
+      <FuzzyAutocomplete
         label="Physician Specialty"
-        {...register("physician_specialty")}
+        value={watch("physician_specialty") || ""}
+        onChange={(v) => setValue("physician_specialty", v)}
+        items={SPECIALTY_SUGGESTIONS}
+        storageKey="terrain:recent-specialties"
         placeholder="e.g., Orthopedic surgeon"
       />
 
@@ -759,16 +786,21 @@ function CdxForm({
 
   return (
     <form onSubmit={doSubmit} className="space-y-5">
-      <Input
+      <IndicationAutocomplete
         label="Drug Indication"
-        {...register("drug_indication")}
+        value={watch("drug_indication")}
+        onChange={(v) => setValue("drug_indication", v, { shouldValidate: true })}
         placeholder="e.g., NSCLC EGFR+"
         error={errors.drug_indication?.message}
       />
 
-      <Input
+      <FuzzyAutocomplete
         label="Biomarker"
-        {...register("biomarker")}
+        value={watch("biomarker")}
+        onChange={(v) => setValue("biomarker", v, { shouldValidate: true })}
+        items={BIOMARKER_SUGGESTIONS}
+        popularItems={POPULAR_BIOMARKERS}
+        storageKey="terrain:recent-biomarkers"
         placeholder="e.g., EGFR exon 19/21 deletion"
         error={errors.biomarker?.message}
       />

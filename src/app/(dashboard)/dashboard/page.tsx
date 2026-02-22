@@ -11,12 +11,15 @@ import {
   Shield,
   FileText,
   ArrowRight,
+  Lock,
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { PLAN_LIMITS } from '@/lib/subscription';
+import { INDICATION_DATA } from '@/lib/data/indication-map';
+import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
 
 const quickActions = [
   {
@@ -53,7 +56,7 @@ function getGreeting() {
 }
 
 export default function DashboardPage() {
-  const { plan } = useSubscription();
+  const { plan, isPro } = useSubscription();
   const { fullName } = useProfile();
   const limits = PLAN_LIMITS[plan];
   const { reports, isLoading: reportsLoading } = useReports();
@@ -69,15 +72,26 @@ export default function DashboardPage() {
       />
 
       {/* Quick Actions */}
+      <h2 className="label mb-3">Quick Actions</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {quickActions.map((action) => {
           const Icon = action.icon;
+          const isProFeature = action.href === '/partners' || action.href === '/regulatory';
+          const isLocked = isProFeature && !isPro;
           return (
             <Link
               key={action.href}
               href={action.href}
-              className="card group hover:border-teal-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-teal-sm"
+              className="card noise group hover:border-teal-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-teal-sm relative"
             >
+              {isLocked && (
+                <div className="absolute top-3 right-3">
+                  <span className="badge-pro text-[8px] px-1.5 py-0.5 flex items-center gap-0.5">
+                    <Lock className="w-2 h-2" />
+                    PRO
+                  </span>
+                </div>
+              )}
               <Icon className="w-5 h-5 text-teal-500 mb-3" />
               <h3 className="text-sm font-semibold text-white mb-1 group-hover:text-teal-400 transition-colors">
                 {action.label}
@@ -89,37 +103,41 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Stats Row */}
+      {/* Platform Overview */}
+      <h2 className="label mb-3">Platform Overview</h2>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
           label="Analyses Run"
           value={String(analysesThisMonth)}
           subvalue="This month"
+          source="Usage Tracking"
         />
         <StatCard
           label="Reports Saved"
           value={String(totalReports)}
           subvalue="Total"
+          source="Reports Database"
         />
         <StatCard
           label="Indications Covered"
-          value="152"
+          value={String(INDICATION_DATA.length)}
           subvalue="In database"
           source="Terrain Curated Dataset"
         />
         <StatCard
           label="Pricing Benchmarks"
-          value="150+"
+          value={String(PRICING_BENCHMARKS.length)}
           subvalue="Drug reference points"
           source="Public Filings & Industry Data"
         />
       </div>
 
-      {/* Usage Meters + Recent Reports */}
+      {/* Activity */}
+      <h2 className="label mb-3">Activity</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Usage meters */}
         {plan === 'free' && (
-          <div className="card">
+          <div className="card noise">
             <h3 className="label mb-4">Usage This Month</h3>
             <div className="space-y-4">
               <Progress
@@ -151,7 +169,7 @@ export default function DashboardPage() {
         )}
 
         {/* Recent Reports */}
-        <div className={plan === 'free' ? 'lg:col-span-2 card' : 'lg:col-span-3 card'}>
+        <div className={plan === 'free' ? 'lg:col-span-2 card noise' : 'lg:col-span-3 card noise'}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="label">Recent Reports</h3>
             {recentReports.length > 0 && (

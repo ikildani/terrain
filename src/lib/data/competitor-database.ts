@@ -10,6 +10,16 @@
 
 import type { ClinicalPhase } from '@/types';
 
+// Modular competitor data by therapy area
+import { ONCOLOGY_EXTRA_COMPETITORS } from './competitor-data-oncology-2';
+import { NEUROLOGY_COMPETITORS } from './competitor-data-neurology';
+import { RARE_DISEASE_COMPETITORS } from './competitor-data-rare-disease';
+import { IMMUNOLOGY_COMPETITORS } from './competitor-data-immunology';
+import { CARDIO_METABOLIC_COMPETITORS } from './competitor-data-cardio-metabolic';
+import { SPECIALTY_COMPETITORS_1 } from './competitor-data-specialty-1';
+import { SPECIALTY_COMPETITORS_2 } from './competitor-data-specialty-2';
+import { ADDITIONAL_COMPETITORS } from './competitor-data-additional';
+
 // ────────────────────────────────────────────────────────────
 // COMPETITOR RECORD TYPE
 // ────────────────────────────────────────────────────────────
@@ -42,7 +52,7 @@ export interface CompetitorRecord {
 // COMPETITOR DATA
 // ────────────────────────────────────────────────────────────
 
-export const COMPETITOR_DATABASE: CompetitorRecord[] = [
+const BASE_COMPETITORS: CompetitorRecord[] = [
 
   // ══════════════════════════════════════════════════════════
   // NON-SMALL CELL LUNG CANCER (NSCLC)
@@ -3167,6 +3177,22 @@ export const COMPETITOR_DATABASE: CompetitorRecord[] = [
     source: 'FDA label; PROfound trial; AstraZeneca 2024',
     last_updated: '2025-01-15',
   },
+];
+
+// ────────────────────────────────────────────────────────────
+// MERGED DATABASE (all therapy areas)
+// ────────────────────────────────────────────────────────────
+
+export const COMPETITOR_DATABASE: CompetitorRecord[] = [
+  ...BASE_COMPETITORS,
+  ...ONCOLOGY_EXTRA_COMPETITORS,
+  ...NEUROLOGY_COMPETITORS,
+  ...RARE_DISEASE_COMPETITORS,
+  ...IMMUNOLOGY_COMPETITORS,
+  ...CARDIO_METABOLIC_COMPETITORS,
+  ...SPECIALTY_COMPETITORS_1,
+  ...SPECIALTY_COMPETITORS_2,
+  ...ADDITIONAL_COMPETITORS,
 ];
 
 // ────────────────────────────────────────────────────────────

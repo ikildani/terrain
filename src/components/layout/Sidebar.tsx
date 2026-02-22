@@ -15,6 +15,7 @@ import {
   X,
   LayoutDashboard,
   ExternalLink,
+  Lock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -29,15 +30,10 @@ interface NavItem {
 
 const NAV_SECTIONS: { section: string; items: NavItem[] }[] = [
   {
-    section: 'Intelligence',
+    section: 'Modules',
     items: [
       { label: 'Market Sizing', href: '/market-sizing', icon: BarChart3 },
       { label: 'Competitive Landscape', href: '/competitive', icon: Network },
-    ],
-  },
-  {
-    section: 'Deal Tools',
-    items: [
       { label: 'Partner Discovery', href: '/partners', icon: Users, pro: true },
       { label: 'Regulatory Intel', href: '/regulatory', icon: Shield, pro: true },
     ],
@@ -147,7 +143,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                       <Icon />
                       <span className="flex-1">{item.label}</span>
                       {item.pro && !isPro && (
-                        <span className="badge-pro text-[9px] px-1.5 py-0.5">
+                        <span className="badge-pro text-[9px] px-1.5 py-0.5 flex items-center gap-1">
+                          <Lock className="w-2.5 h-2.5" />
                           PRO
                         </span>
                       )}
@@ -187,14 +184,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
         </nav>
 
-        {/* Back to site */}
-        <Link
-          href="/"
+        {/* Ambrosia Ventures */}
+        <a
+          href="https://ambrosiaventures.co"
+          target="_blank"
+          rel="noopener noreferrer"
           className="flex items-center gap-2 px-4 py-2 text-xs text-slate-500 hover:text-slate-300 transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5" />
-          Back to site
-        </Link>
+          ambrosiaventures.co
+        </a>
 
         {/* Upgrade card — hidden for team plan */}
         {plan !== 'team' && (

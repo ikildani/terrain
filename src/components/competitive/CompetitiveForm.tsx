@@ -6,7 +6,9 @@ import { z } from 'zod';
 import { useMemo } from 'react';
 import { Crosshair, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { IndicationAutocomplete } from '@/components/ui/IndicationAutocomplete';
+import { FuzzyAutocomplete } from '@/components/ui/FuzzyAutocomplete';
 import { getCoveredIndications } from '@/lib/data/competitor-database';
+import { MECHANISM_SUGGESTIONS, POPULAR_MECHANISMS } from '@/lib/data/suggestion-lists';
 
 const competitiveFormSchema = z.object({
   indication: z.string().min(1, 'Indication is required'),
@@ -74,18 +76,15 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
         </div>
 
         {/* Mechanism of Action */}
-        <div>
-          <label htmlFor="mechanism" className="input-label">
-            Mechanism of Action (Optional)
-          </label>
-          <input
-            id="mechanism"
-            type="text"
-            className="input"
-            placeholder="e.g., PD-1 inhibitor, ADC"
-            {...register('mechanism')}
-          />
-        </div>
+        <FuzzyAutocomplete
+          label="Mechanism of Action (Optional)"
+          value={watch('mechanism') || ''}
+          onChange={(v) => setValue('mechanism', v)}
+          items={MECHANISM_SUGGESTIONS}
+          popularItems={POPULAR_MECHANISMS}
+          storageKey="terrain:recent-mechanisms"
+          placeholder="e.g., PD-1 inhibitor, ADC"
+        />
 
         {/* Submit */}
         <button
