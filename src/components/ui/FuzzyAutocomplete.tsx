@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils/cn';
-import { Search, Clock, TrendingUp, X, CornerDownLeft, ChevronsUpDown } from 'lucide-react';
+import { Search, Clock, TrendingUp, X, CornerDownLeft, ChevronsUpDown, Check, Type } from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────
 export interface SuggestionItem {
@@ -222,6 +222,7 @@ export function FuzzyAutocomplete({
 
   const showSuggestions = open && query.length < 2;
   const showResults = open && query.length >= 2 && results.length > 0;
+  const showEmptyHint = showSuggestions && recentItems.length === 0 && popular.length === 0;
 
   // All selectable items for keyboard nav (flat list across groups)
   const allItems = useMemo(() => {
@@ -313,7 +314,14 @@ export function FuzzyAutocomplete({
     return flat + itemIdx;
   }
 
+  // Check if item name matches the current committed value
+  const isSelected = useCallback(
+    (name: string) => value.length > 0 && name.toLowerCase() === value.toLowerCase(),
+    [value]
+  );
+
   function renderItem(item: SuggestionItem, flatIdx: number, highlight: boolean) {
+    const selected = isSelected(item.name);
     return (
       <button
         key={`${item.name}-${flatIdx}`}
@@ -325,22 +333,37 @@ export function FuzzyAutocomplete({
         onMouseDown={() => select(item.name)}
         onMouseEnter={() => setActiveIndex(flatIdx)}
         className={cn(
-          'w-full px-3 py-2 flex items-start gap-2 text-left transition-colors duration-75',
+          'w-full px-3 py-2.5 flex items-start gap-2 text-left transition-colors duration-75',
           flatIdx === activeIndex
             ? 'bg-teal-500/10 text-white'
-            : 'text-slate-300 hover:bg-navy-700/70'
+            : selected
+              ? 'bg-teal-500/5 text-white'
+              : 'text-slate-300 hover:bg-navy-700/70'
         )}
       >
+        {/* Selected checkmark */}
+        {selected && (
+          <Check className="w-3 h-3 text-teal-500 shrink-0 mt-0.5" />
+        )}
         <div className="flex-1 min-w-0">
           <div className="text-sm truncate leading-snug">
             {highlight ? <HighlightMatch text={item.name} query={query} /> : item.name}
           </div>
-          {item.detail && (
-            <div className="text-[10px] font-mono text-slate-500 mt-0.5 truncate">
-              {item.detail}
-            </div>
-          )}
+          {/* Detail + inline category on search results */}
+          <div className="flex items-center gap-2 mt-0.5">
+            {item.detail && (
+              <span className="text-[10px] font-mono text-slate-500 truncate">
+                {item.detail}
+              </span>
+            )}
+            {item.category && highlight && groupedResults.length <= 1 && (
+              <span className="text-[10px] font-mono text-slate-600 shrink-0 uppercase tracking-wider">
+                {item.category}
+              </span>
+            )}
+          </div>
         </div>
+        {/* Category badge in suggestions mode */}
         {item.category && !highlight && (
           <span className="text-[10px] font-mono text-slate-500 shrink-0 uppercase tracking-wider mt-0.5">
             {item.category}
@@ -351,7 +374,7 @@ export function FuzzyAutocomplete({
   }
 
   const listboxId = `${instanceId}-listbox`;
-  const isOpen = showResults || noResults || (showSuggestions && allItems.length > 0);
+  const isOpen = showResults || noResults || showEmptyHint || (showSuggestions && allItems.length > 0);
   const hasValue = query.length > 0;
 
   return (
@@ -366,13 +389,21 @@ export function FuzzyAutocomplete({
           aria-hidden="true"
         />
 
-        {/* Ghost text layer */}
-        {ghostText && open && (
-          <div className="absolute inset-0 flex items-center pointer-events-none pl-9 pr-9">
-            <span className="text-sm text-transparent">{query}</span>
-            <span className="text-sm text-slate-600">{ghostText}</span>
-          </div>
-        )}
+        {/* Ghost text layer — fades in/out */}
+        <AnimatePresence>
+          {ghostText && open && (
+            <motion.div
+              className="absolute inset-0 flex items-center pointer-events-none pl-9 pr-9"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
+            >
+              <span className="text-sm text-transparent">{query}</span>
+              <span className="text-sm text-slate-600">{ghostText}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <input
           ref={inputRef}
@@ -488,6 +519,24 @@ export function FuzzyAutocomplete({
             <div className="px-3 py-4 text-center">
               <p className="text-xs text-slate-400">No suggestions for &ldquo;<span className="text-slate-300">{query}</span>&rdquo;</p>
               <p className="text-[10px] text-slate-500 mt-1.5">Press <span className="text-[9px] font-mono border border-slate-600 rounded px-1 py-px text-slate-400">enter</span> to use as custom value</p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── Empty focus hint (no recent, no popular) ── */}
+        {showEmptyHint && (
+          <motion.div
+            id={listboxId}
+            className="absolute z-50 w-full mt-1 bg-navy-800 border border-navy-700 rounded-lg shadow-elevated"
+            variants={dropdownVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.15, ease: [0.2, 0, 0, 1] }}
+          >
+            <div className="px-3 py-3 flex items-center gap-2 text-center justify-center">
+              <Type className="w-3 h-3 text-slate-600" />
+              <span className="text-[11px] text-slate-500">Start typing to search {items.length} suggestions</span>
             </div>
           </motion.div>
         )}
