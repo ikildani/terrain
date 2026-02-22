@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
-import { formatMetric, formatCurrency, formatPercent } from '@/lib/utils/format';
+import { formatMetric, formatCompact, formatCurrency, formatPercent } from '@/lib/utils/format';
 import { StatCard } from '@/components/shared/StatCard';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import { ConfidentialFooter } from '@/components/shared/ConfidentialFooter';
@@ -13,6 +13,7 @@ import TAMChart from './TAMChart';
 import PatientFunnelChart from './PatientFunnelChart';
 import GeographyBreakdown from './GeographyBreakdown';
 import MarketGrowthChart from './MarketGrowthChart';
+import SensitivityTable from './SensitivityTable';
 import type { MarketSizingOutput, MarketSizingInput } from '@/types';
 
 interface MarketSizingReportProps {
@@ -68,6 +69,40 @@ export default function MarketSizingReport({ data, input }: MarketSizingReportPr
 
   return (
     <div className="space-y-6 animate-fade-in" data-report-content>
+      {/* Executive Summary */}
+      <div className="card noise">
+        <h3 className="chart-title">Executive Summary</h3>
+        <p className="text-xs text-slate-400 leading-relaxed">
+          The <span className="text-white font-medium">{input.indication}</span> market
+          {input.subtype ? ` (${input.subtype})` : ''} represents a US total addressable market of{' '}
+          <span className="metric text-teal-400">
+            {formatMetric(summary.tam_us.value, summary.tam_us.unit)}
+          </span>
+          , with a serviceable addressable market of{' '}
+          <span className="metric text-white">
+            {formatMetric(summary.sam_us.value, summary.sam_us.unit)}
+          </span>{' '}
+          and a serviceable obtainable market of{' '}
+          <span className="metric text-white">
+            {formatMetric(summary.som_us.value, summary.som_us.unit)}
+          </span>
+          {summary.som_us.range
+            ? ` (range: ${formatMetric(summary.som_us.range[0], summary.som_us.unit)}–${formatMetric(summary.som_us.range[1], summary.som_us.unit)})`
+            : ''}
+          . The market is growing at{' '}
+          <span className="metric text-white">{summary.cagr_5yr}%</span> CAGR over the next five
+          years. Peak sales are estimated at{' '}
+          <span className="metric text-white">
+            {formatCompact(summary.peak_sales_estimate.base)}
+          </span>{' '}
+          (base case), with a range of {formatCompact(summary.peak_sales_estimate.low)} to{' '}
+          {formatCompact(summary.peak_sales_estimate.high)}.
+          {data.patient_funnel.addressable > 0 &&
+            ` Approximately ${data.patient_funnel.addressable.toLocaleString()} addressable patients
+            in the US form the basis of this analysis.`}
+        </p>
+      </div>
+
       {/* Summary Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
@@ -75,27 +110,33 @@ export default function MarketSizingReport({ data, input }: MarketSizingReportPr
           value={formatMetric(summary.tam_us.value, summary.tam_us.unit)}
           confidence={summary.tam_us.confidence}
           source="Terrain Analysis"
+          range={summary.tam_us.range ? {
+            low: formatMetric(summary.tam_us.range[0], summary.tam_us.unit),
+            high: formatMetric(summary.tam_us.range[1], summary.tam_us.unit),
+          } : undefined}
         />
         <StatCard
           label="US SAM"
           value={formatMetric(summary.sam_us.value, summary.sam_us.unit)}
           confidence={summary.sam_us.confidence}
+          source="Terrain Analysis"
         />
         <StatCard
           label="US SOM"
           value={formatMetric(summary.som_us.value, summary.som_us.unit)}
           confidence={summary.som_us.confidence}
-          subvalue={
-            summary.som_us.range
-              ? `Range: ${formatMetric(summary.som_us.range[0], 'B')} – ${formatMetric(summary.som_us.range[1], 'B')}`
-              : undefined
-          }
+          source="Terrain Analysis"
+          range={summary.som_us.range ? {
+            low: formatMetric(summary.som_us.range[0], summary.som_us.unit),
+            high: formatMetric(summary.som_us.range[1], summary.som_us.unit),
+          } : undefined}
         />
         <StatCard
           label="Global TAM"
           value={formatMetric(summary.global_tam.value, summary.global_tam.unit)}
           trend={`${summary.cagr_5yr}% CAGR`}
           trendDirection="up"
+          source="Terrain Analysis + Territory Multipliers"
         />
       </div>
 
@@ -118,9 +159,18 @@ export default function MarketSizingReport({ data, input }: MarketSizingReportPr
         />
       )}
 
+      {/* Sensitivity Analysis */}
+      {data.patient_funnel.addressable > 0 && (
+        <SensitivityTable
+          addressablePatients={data.patient_funnel.addressable}
+          netPrice={data.pricing_analysis.recommended_wac.base * (1 - (data.pricing_analysis.gross_to_net_estimate || 0.3))}
+          baseSharePct={data.patient_funnel.capturable_rate / 100}
+        />
+      )}
+
       {/* Pricing Comparables */}
       {data.pricing_analysis.comparable_drugs.length > 0 && (
-        <div className="chart-container">
+        <div className="chart-container noise">
           <div className="chart-title">Pricing Comparables</div>
           <div className="overflow-x-auto">
             <table className="data-table">
@@ -165,7 +215,7 @@ export default function MarketSizingReport({ data, input }: MarketSizingReportPr
       )}
 
       {/* Methodology */}
-      <div className="chart-container">
+      <div className="chart-container noise">
         <button
           onClick={() => setMethodologyOpen(!methodologyOpen)}
           className="flex items-center justify-between w-full"

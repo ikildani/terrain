@@ -67,7 +67,7 @@ export default function DealHistoryTable({ deals, compact }: DealHistoryTablePro
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-navy-700">
-            <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Partner</th>
+            <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Counterparty</th>
             <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Indication</th>
             <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Type</th>
             <th className="text-left py-2 px-2 text-[10px] font-mono text-slate-500 uppercase tracking-wider">Stage</th>

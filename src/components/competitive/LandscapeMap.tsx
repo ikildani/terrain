@@ -110,7 +110,7 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
   }
 
   return (
-    <div className="card">
+    <div className="card noise">
       <h3 className="chart-title">Competitive Landscape Map</h3>
 
       {/* Legend */}
@@ -125,6 +125,9 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
           </div>
         ))}
       </div>
+      <p className="text-[9px] text-slate-600 mb-3">
+        Differentiation: mechanism novelty, first-in-class status, orphan designation. Evidence: clinical phase, endpoint maturity, data quality. Bubble size scales with combined score.
+      </p>
 
       <ResponsiveContainer width="100%" height={400}>
         <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 10 }}>
@@ -190,7 +193,7 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
               <Cell
                 key={entry.id}
                 fill={getFillColor(entry)}
-                r={6}
+                r={Math.max(4, Math.min(12, (entry.x + entry.y) / 2))}
                 stroke={getFillColor(entry)}
                 strokeWidth={1}
                 fillOpacity={0.85}

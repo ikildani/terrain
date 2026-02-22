@@ -354,7 +354,7 @@ function PathwayCard({
   return (
     <div
       className={cn(
-        'border rounded-lg p-4 transition-all',
+        'border rounded-lg p-4 transition-all noise',
         isPrimary
           ? 'bg-teal-900/20 border-teal-500/30'
           : 'bg-navy-900 border-navy-700 hover:border-navy-600',
@@ -396,6 +396,11 @@ function PathwayCard({
                   </li>
                 ))}
               </ul>
+              {pathway.requirements.length > 6 && (
+                <p className="text-[11px] text-slate-500 mt-1.5 pl-4">
+                  +{pathway.requirements.length - 6} more requirements
+                </p>
+              )}
             </div>
           )}
 
@@ -440,7 +445,7 @@ function DesignationCard({ designation }: { designation: DesignationOpportunity 
         : 'Unlikely';
 
   return (
-    <div className="border border-navy-700 rounded-lg p-4 bg-navy-900 hover:border-navy-600 transition-all">
+    <div className="border border-navy-700 rounded-lg p-4 bg-navy-900 hover:border-navy-600 transition-all noise">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}

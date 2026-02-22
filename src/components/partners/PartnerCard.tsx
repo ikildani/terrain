@@ -33,7 +33,7 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="card hover:border-navy-600 transition-colors">
+    <div className="card noise hover:border-navy-600 transition-colors">
       {/* Header Row */}
       <div className="flex items-start gap-4">
         {/* Rank Badge */}
@@ -147,8 +147,8 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
         <div className="mt-4 space-y-4 animate-fade-in">
           {/* Full Score Breakdown */}
           <div>
-            <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-2">
-              Score Breakdown
+            <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">
+              Why this score
             </p>
             <PartnerMatchScore
               score={partner.match_score}

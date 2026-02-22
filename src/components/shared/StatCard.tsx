@@ -9,6 +9,7 @@ interface StatCardProps {
   trendDirection?: 'up' | 'down' | 'flat';
   confidence?: 'high' | 'medium' | 'low';
   source?: string;
+  range?: { low: string; high: string };
   className?: string;
 }
 
@@ -20,10 +21,11 @@ export function StatCard({
   trendDirection,
   confidence,
   source,
+  range,
   className,
 }: StatCardProps) {
   return (
-    <div className={cn('stat-card', className)}>
+    <div className={cn('stat-card noise', className)}>
       <div className="flex items-center justify-between mb-1">
         <span className="label">{label}</span>
         {confidence && (
@@ -54,6 +56,11 @@ export function StatCard({
           </span>
         )}
       </div>
+      {range && (
+        <p className="text-[10px] font-mono text-slate-500 mt-0.5">
+          Range: {range.low} – {range.high}
+        </p>
+      )}
       {subvalue && <p className="text-xs text-slate-500 mt-1">{subvalue}</p>}
       {source && (
         <div className="mt-2 pt-2 border-t border-navy-700">

@@ -10,10 +10,11 @@ interface PartnerMatchScoreProps {
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 70) return 'text-signal-green';
-  if (score >= 50) return 'text-teal-400';
-  if (score >= 35) return 'text-signal-amber';
-  return 'text-slate-400';
+  if (score >= 80) return 'text-signal-green';
+  if (score >= 65) return 'text-teal-400';
+  if (score >= 50) return 'text-signal-amber';
+  if (score >= 35) return 'text-slate-400';
+  return 'text-slate-500';
 }
 
 function getBarColor(score: number, max: number): string {
@@ -99,7 +100,7 @@ export default function PartnerMatchScore({ score, breakdown, compact }: Partner
         <div>
           <p className="text-xs text-slate-400">Match Score</p>
           <p className={cn('text-sm font-medium', getScoreColor(score))}>
-            {score >= 70 ? 'Excellent' : score >= 50 ? 'Strong' : score >= 35 ? 'Moderate' : 'Low'}
+            {score >= 80 ? 'Excellent' : score >= 65 ? 'Strong' : score >= 50 ? 'Good' : score >= 35 ? 'Moderate' : 'Low'}
           </p>
         </div>
       </div>

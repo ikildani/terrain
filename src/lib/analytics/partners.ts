@@ -337,9 +337,10 @@ function scoreTherapeuticAlignment(
   const partnerAreas = partner.therapeutic_areas.map((a) => a.toLowerCase().replace(/\s+/g, '_'));
   const partnerFocus = partner.pipeline_focus.map((f) => f.toLowerCase());
 
-  // Direct therapy area match (up to 12 pts)
+  // Direct therapy area match (up to 12 pts) — normalized exact-match
+  const normalize = (a: string) => a.toLowerCase().replace(/[\s\-]+/g, '_').replace(/[^a-z0-9_]/g, '');
   const areaOverlap = userTherapyAreas.filter((ua) =>
-    partnerAreas.some((pa) => pa.includes(ua) || ua.includes(pa))
+    partnerAreas.some((pa) => normalize(pa) === normalize(ua))
   );
   score += Math.min(12, areaOverlap.length * 6);
 
@@ -596,11 +597,19 @@ function generateRationale(
     parts.push(`Active in ${relevantAreas} with pipeline investments aligned to ${indication}.`);
   }
 
-  // Deal activity
+  // Deal activity with concrete data
   if (scores.deal_history >= 12) {
-    const recentCount = partner.recent_deals.filter((d) => d.year >= new Date().getFullYear() - 2).length;
-    if (recentCount > 0) {
-      parts.push(`Completed ${recentCount} relevant deal${recentCount > 1 ? 's' : ''} in the last 2 years.`);
+    const recentDeals = partner.recent_deals.filter((d) => d.year >= new Date().getFullYear() - 2);
+    if (recentDeals.length > 0) {
+      const totalValue = recentDeals.reduce((sum, d) => sum + (d.total_value_m || 0), 0);
+      const valueStr = totalValue >= 1000
+        ? `~$${(totalValue / 1000).toFixed(1)}B`
+        : totalValue > 0
+          ? `~$${Math.round(totalValue)}M`
+          : '';
+      parts.push(
+        `${recentDeals.length} deal${recentDeals.length > 1 ? 's' : ''} in related therapeutic areas in the last 2 years${valueStr ? ` totaling ${valueStr} in aggregate value` : ''}.`
+      );
     }
   }
 

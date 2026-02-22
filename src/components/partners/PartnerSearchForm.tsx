@@ -67,7 +67,7 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
   function toggleGeo(value: string) {
     // If Global is toggled on, clear others; if specific toggled, remove Global
     if (value === 'Global') {
-      setGeos((prev) => prev.includes('Global') ? [] : ['Global']);
+      setGeos((prev) => prev.includes('Global') ? ['US'] : ['Global']);
     } else {
       setGeos((prev) => {
         const filtered = prev.filter((g) => g !== 'Global');

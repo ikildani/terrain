@@ -109,8 +109,9 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
         <input
           type="text"
-          placeholder="Search indications, companies..."
-          className="input pl-9 py-1.5 text-sm bg-navy-800 border-transparent focus:border-teal-500 w-64"
+          placeholder="Search (coming soon)"
+          disabled
+          className="input pl-9 py-1.5 text-sm bg-navy-800 border-transparent w-64 cursor-not-allowed opacity-50"
         />
       </div>
 

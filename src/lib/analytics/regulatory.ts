@@ -184,6 +184,14 @@ function scorePathway(
     score += 20;
   }
 
+  // Penalize BLA for small molecules (not biologics)
+  if (
+    input.product_type === 'pharmaceutical' &&
+    pathway.pathway.includes('BLA')
+  ) {
+    score -= 20;
+  }
+
   // Standard NDA is baseline for pharma
   if (
     input.product_type === 'pharmaceutical' &&
@@ -286,6 +294,31 @@ function buildPathwayRationale(
 }
 
 // ────────────────────────────────────────────────────────────
+// INDICATION-SPECIFIC TIMELINE MODIFIERS
+// ────────────────────────────────────────────────────────────
+
+const THERAPY_AREA_TIMELINE_MODIFIERS: Record<string, { optimistic: number; realistic: number; pessimistic: number }> = {
+  oncology: { optimistic: -6, realistic: -3, pessimistic: 0 },
+  neurology: { optimistic: 6, realistic: 12, pessimistic: 18 },
+  rare_disease: { optimistic: -3, realistic: 0, pessimistic: 12 },
+  cardiovascular: { optimistic: 6, realistic: 6, pessimistic: 12 },
+};
+
+function getTherapyAreaTimelineModifier(indication: string): { optimistic: number; realistic: number; pessimistic: number } {
+  const text = indication.toLowerCase();
+  if (/cancer|carcinoma|lymphoma|leukemia|melanoma|sarcoma|glioma|myeloma|tumor|nsclc|sclc|hcc|rcc/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.oncology;
+  }
+  if (/alzheimer|parkinson|als|amyotrophic|multiple sclerosis|epilepsy|huntington|neuropath|dementia/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.neurology;
+  }
+  if (/heart failure|atrial fibrillation|hypertension|atherosclerosis|cardiovascular|myocardial|coronary/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.cardiovascular;
+  }
+  return { optimistic: 0, realistic: 0, pessimistic: 0 };
+}
+
+// ────────────────────────────────────────────────────────────
 // TIMELINE ESTIMATION
 // ────────────────────────────────────────────────────────────
 
@@ -323,6 +356,12 @@ function estimateTimeline(
     // But enrollment can be slow for rare diseases
     pessimisticAdj += 6;
   }
+
+  // Indication-specific timeline modifiers
+  const indicationMod = getTherapyAreaTimelineModifier(input.indication);
+  optimisticAdj += indicationMod.optimistic;
+  realisticAdj += indicationMod.realistic;
+  pessimisticAdj += indicationMod.pessimistic;
 
   // Add review time
   const reviewMonths = primaryPathway.typical_review_months;
@@ -614,9 +653,9 @@ function assessEligibility(
   }
 
   let eligibility: 'likely' | 'possible' | 'unlikely';
-  if (score >= 60) {
+  if (score >= 70) {
     eligibility = 'likely';
-  } else if (score >= 30) {
+  } else if (score >= 40) {
     eligibility = 'possible';
   } else {
     eligibility = 'unlikely';

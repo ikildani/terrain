@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef } from 'react';
-import { AlertCircle, TrendingUp, Sparkles, Database, TableProperties } from 'lucide-react';
+import { AlertCircle, TrendingUp, Sparkles, Database, TableProperties, Clock } from 'lucide-react';
 import type { CompetitiveLandscapeOutput, Competitor } from '@/types';
 import LandscapeMap from './LandscapeMap';
 import PipelineTable from './PipelineTable';
@@ -34,9 +34,11 @@ export default function CompetitiveLandscapeReport({
   mechanism,
 }: CompetitiveLandscapeReportProps) {
   const [activeTab, setActiveTab] = useState<TabId>('approved');
+  const [phaseFilter, setPhaseFilter] = useState<string>('all');
+  const [moaFilter, setMoaFilter] = useState<string>('');
   const reportRef = useRef<HTMLDivElement>(null);
 
-  const allCompetitors = useMemo<Competitor[]>(() => {
+  const allCompetitorsRaw = useMemo<Competitor[]>(() => {
     return [
       ...data.approved_products,
       ...data.late_stage_pipeline,
@@ -44,6 +46,18 @@ export default function CompetitiveLandscapeReport({
       ...data.early_pipeline,
     ];
   }, [data]);
+
+  const allCompetitors = useMemo<Competitor[]>(() => {
+    let filtered = allCompetitorsRaw;
+    if (phaseFilter !== 'all') {
+      filtered = filtered.filter((c) => c.phase === phaseFilter);
+    }
+    if (moaFilter.trim()) {
+      const term = moaFilter.toLowerCase();
+      filtered = filtered.filter((c) => c.mechanism.toLowerCase().includes(term));
+    }
+    return filtered;
+  }, [allCompetitorsRaw, phaseFilter, moaFilter]);
 
   const topCompetitors = useMemo<Competitor[]>(() => {
     return [...allCompetitors]
@@ -135,8 +149,23 @@ export default function CompetitiveLandscapeReport({
         </div>
       </div>
 
+      {/* Timestamp */}
+      <div className="flex items-center gap-2 text-xs text-slate-500">
+        <Clock className="w-3.5 h-3.5" />
+        <span className="font-mono">
+          Generated {new Date(data.generated_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </span>
+        <span className="text-[9px] text-slate-600 font-mono">Source: Terrain Competitive Database</span>
+      </div>
+
       {/* ─── 2. Key Insight ─── */}
-      <div className="card">
+      <div className="card noise">
         <div className="flex items-start gap-3">
           <Sparkles className="h-4 w-4 text-teal-500 mt-0.5 flex-shrink-0" />
           <div>
@@ -163,7 +192,7 @@ export default function CompetitiveLandscapeReport({
 
       {/* ─── 3. White Space ─── */}
       {data.summary.white_space.length > 0 && (
-        <div className="card">
+        <div className="card noise">
           <h3 className="chart-title mb-3">White Space Opportunities</h3>
           <ul className="space-y-2">
             {data.summary.white_space.map((item, i) => (
@@ -176,11 +205,39 @@ export default function CompetitiveLandscapeReport({
         </div>
       )}
 
-      {/* ─── 4. Landscape Map ─── */}
+      {/* ─── 4. Filter Controls ─── */}
+      <div className="flex flex-wrap items-center gap-3">
+        <select
+          value={phaseFilter}
+          onChange={(e) => setPhaseFilter(e.target.value)}
+          className="input py-1.5 px-3 text-xs bg-navy-800 border-navy-700 w-auto"
+        >
+          <option value="all">All Phases</option>
+          <option value="Approved">Approved</option>
+          <option value="Phase 3">Phase 3</option>
+          <option value="Phase 2">Phase 2</option>
+          <option value="Phase 1">Phase 1</option>
+          <option value="Preclinical">Preclinical</option>
+        </select>
+        <input
+          type="text"
+          placeholder="Filter by mechanism..."
+          value={moaFilter}
+          onChange={(e) => setMoaFilter(e.target.value)}
+          className="input py-1.5 px-3 text-xs bg-navy-800 border-navy-700 w-48"
+        />
+        {(phaseFilter !== 'all' || moaFilter) && (
+          <span className="text-[10px] text-slate-500 font-mono">
+            {allCompetitors.length} of {allCompetitorsRaw.length} shown
+          </span>
+        )}
+      </div>
+
+      {/* ─── 5. Landscape Map ─── */}
       <LandscapeMap competitors={allCompetitors} highlightMechanism={mechanism} />
 
       {/* ─── 5. Tabbed Pipeline Section ─── */}
-      <div className="card">
+      <div className="card noise">
         <div className="flex items-center gap-1 border-b border-navy-700/50 -mx-5 px-5 mb-5">
           {tabs.map((tab) => (
             <button
@@ -305,7 +362,7 @@ export default function CompetitiveLandscapeReport({
 
       {/* ─── 8. Comparison Matrix ─── */}
       {data.comparison_matrix && data.comparison_matrix.length > 0 && matrixColumns.length > 0 && (
-        <div className="card">
+        <div className="card noise">
           <div className="flex items-center gap-2 mb-4">
             <TableProperties className="h-4 w-4 text-teal-500" />
             <h3 className="chart-title">Head-to-Head Comparison</h3>
