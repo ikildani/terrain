@@ -13,6 +13,8 @@ import {
   UsersRound,
   Sparkles,
   X,
+  LayoutDashboard,
+  ExternalLink,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -108,6 +110,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         <nav className="sidebar-nav">
+          {/* Dashboard home */}
+          <Link
+            href="/dashboard"
+            onClick={onClose}
+            className={cn('sidebar-nav-item', pathname === '/dashboard' && 'active')}
+            aria-current={pathname === '/dashboard' ? 'page' : undefined}
+          >
+            <LayoutDashboard />
+            <span className="flex-1">Dashboard</span>
+          </Link>
+
           {NAV_SECTIONS.map((section) => {
             const hasActive = sectionHasActive(section.items);
             return (
@@ -173,6 +186,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             })}
           </div>
         </nav>
+
+        {/* Back to site */}
+        <Link
+          href="/"
+          className="flex items-center gap-2 px-4 py-2 text-xs text-slate-500 hover:text-slate-300 transition-colors"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          Back to site
+        </Link>
 
         {/* Upgrade card — hidden for team plan */}
         {plan !== 'team' && (
