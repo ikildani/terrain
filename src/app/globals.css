@@ -256,10 +256,14 @@ body {
   padding: 8px 16px;
   cursor: pointer;
   border: none;
-  transition: all 0.15s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
   text-decoration: none;
   white-space: nowrap;
   letter-spacing: 0.01em;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .btn:disabled {
@@ -859,4 +863,94 @@ body {
 
 .skip-to-content:focus {
   top: 0;
+}
+
+/* ============================================
+   NAV LINK HOVER UNDERLINES
+   ============================================ */
+
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--teal-500);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.25s ease;
+}
+
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* ============================================
+   MODULE CARD ENHANCEMENTS
+   ============================================ */
+
+/* Left accent bar on module cards */
+.module-card {
+  border-left: 3px solid transparent;
+  transition: border-color 0.2s ease, border-left-color 0.3s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.module-card:hover {
+  border-left-color: var(--teal-500);
+}
+
+/* Icon glow on hover */
+.module-card:hover .module-icon {
+  box-shadow: 0 0 20px rgba(0, 201, 167, 0.2);
+}
+
+/* ============================================
+   FAQ ACCORDION POLISH
+   ============================================ */
+
+.faq-item-open {
+  background: rgba(13, 27, 46, 0.3);
+  border-left: 2px solid var(--teal-500);
+  padding-left: 16px;
+  margin-left: -18px;
+  margin-right: -2px;
+}
+
+/* ============================================
+   TERMINAL CURSOR
+   ============================================ */
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.terminal-cursor {
+  animation: blink-cursor 1.2s ease-in-out infinite;
+  color: var(--teal-500);
+  text-shadow: 0 0 8px rgba(0, 201, 167, 0.5);
+}
+
+/* ============================================
+   PRO CARD ACCENT BAR
+   ============================================ */
+
+.pro-card-accent {
+  position: relative;
+  overflow: hidden;
+}
+
+.pro-card-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(0,201,167,0), var(--teal-500), rgba(0,201,167,0));
 }

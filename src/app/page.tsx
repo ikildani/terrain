@@ -466,6 +466,7 @@ function TerminalPreview() {
           transition={{ duration: 0.5, delay: 2.2 }}
         >
           Generated in 4.2s · 6 data sources · High confidence
+          <span className="terminal-cursor ml-1">▊</span>
         </motion.div>
       </div>
     </div>
@@ -802,6 +803,138 @@ function TryItYourself() {
 }
 
 // ────────────────────────────────────────────────────────────
+// ANIMATED DASHBOARD PREVIEW
+// ────────────────────────────────────────────────────────────
+
+const REVENUE_BARS = [12, 28, 52, 85, 120, 140, 138, 130, 115, 95];
+const GEO_ROWS = [
+  { geo: 'United States', tam: '$24.8B', share: '42%', w: 100 },
+  { geo: 'EU5', tam: '$18.2B', share: '31%', w: 73 },
+  { geo: 'Japan', tam: '$6.1B', share: '10%', w: 25 },
+  { geo: 'China', tam: '$7.4B', share: '13%', w: 30 },
+  { geo: 'Rest of World', tam: '$2.4B', share: '4%', w: 10 },
+];
+
+function AnimatedDashboardPreview() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+
+  return (
+    <div ref={ref} className="card noise p-0 overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-navy-700/60 bg-navy-900/60">
+        <span className="w-2 h-2 rounded-full bg-red-400/60" />
+        <span className="w-2 h-2 rounded-full bg-amber-400/60" />
+        <span className="w-2 h-2 rounded-full bg-emerald-400/60" />
+        <span className="ml-2 text-[10px] font-mono text-slate-600">terrain — dashboard</span>
+      </div>
+      <div className="p-5">
+        {/* Top metrics row */}
+        <div className="grid grid-cols-4 gap-3 mb-5">
+          {[
+            { label: 'US TAM', val: '$24.8B', trend: '+12.3%', up: true },
+            { label: 'US SAM', val: '$8.2B', trend: '+8.1%', up: true },
+            { label: 'Peak Revenue', val: '$1.4B', trend: 'Base case', up: false },
+            { label: 'Competitors', val: '14', trend: 'Crowding: 7/10', up: false },
+          ].map((m, i) => (
+            <motion.div
+              key={m.label}
+              className="bg-navy-800/60 rounded-lg p-3 border border-navy-700/40"
+              initial={{ opacity: 0, y: 12 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+            >
+              <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-1">{m.label}</div>
+              <div className="font-mono text-sm text-white font-medium">{m.val}</div>
+              <div className={`text-[9px] font-mono mt-0.5 ${m.up ? 'text-emerald-400' : 'text-slate-500'}`}>
+                {m.trend}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Revenue projection bars — animated */}
+        <div className="mb-5">
+          <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">10-Year Revenue Projection ($M)</div>
+          <div className="flex items-end gap-1 h-24">
+            {REVENUE_BARS.map((h, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                <motion.div
+                  className="w-full rounded-sm bg-gradient-to-t from-teal-500/40 to-teal-400/60"
+                  initial={{ height: 0 }}
+                  animate={inView ? { height: `${(h / 140) * 100}%` } : { height: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                />
+                <span className="text-[7px] font-mono text-slate-700">{2027 + i}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Geography breakdown — animated bars */}
+        <div>
+          <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">Geography Breakdown</div>
+          <div className="space-y-1">
+            {GEO_ROWS.map((row, i) => (
+              <div key={row.geo} className="flex items-center gap-3 text-[10px]">
+                <span className="text-slate-400 w-20 shrink-0">{row.geo}</span>
+                <div className="flex-1 h-1.5 bg-navy-700/60 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-teal-500/50 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={inView ? { width: `${row.w}%` } : { width: 0 }}
+                    transition={{ duration: 0.7, delay: 0.8 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </div>
+                <span className="font-mono text-slate-300 w-12 text-right">{row.tam}</span>
+                <span className="font-mono text-slate-600 w-8 text-right">{row.share}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// PARTNER BARS PREVIEW (animated)
+// ────────────────────────────────────────────────────────────
+
+const PARTNER_DATA = [
+  { name: 'Merck', score: 92, reason: 'Keytruda combo strategy, NSCLC focus' },
+  { name: 'AstraZeneca', score: 88, reason: 'Tagrisso franchise, strong lung oncology' },
+  { name: 'Roche', score: 85, reason: 'Tecentriq positioning, IO combinations' },
+];
+
+function PartnerBarsPreview() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+
+  return (
+    <div ref={ref}>
+      <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">Top Partner Matches</div>
+      <div className="space-y-2">
+        {PARTNER_DATA.map((p, i) => (
+          <div key={p.name} className="flex items-center gap-3">
+            <span className="text-xs text-white font-medium w-24">{p.name}</span>
+            <div className="flex-1 h-1.5 bg-navy-700/60 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-teal-500/60 rounded-full"
+                initial={{ width: 0 }}
+                animate={inView ? { width: `${p.score}%` } : { width: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </div>
+            <span className="font-mono text-[10px] text-teal-400 w-8">{p.score}</span>
+            <span className="text-[9px] text-slate-500 hidden sm:inline">{p.reason}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
 // FAQ ITEM
 // ────────────────────────────────────────────────────────────
 
@@ -809,17 +942,23 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border-b border-navy-700/60">
+    <div
+      className={`border-b border-navy-700/60 transition-all duration-200 ${
+        open ? 'faq-item-open' : ''
+      }`}
+    >
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-5 text-left group"
       >
-        <span className="text-sm text-white font-medium pr-4 group-hover:text-teal-400 transition-colors">
+        <span className={`text-sm font-medium pr-4 transition-colors ${
+          open ? 'text-teal-400' : 'text-white group-hover:text-teal-400'
+        }`}>
           {q}
         </span>
         <ChevronDown
-          className={`w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200 ${
-            open ? 'rotate-180' : ''
+          className={`w-4 h-4 shrink-0 transition-transform duration-200 ${
+            open ? 'rotate-180 text-teal-500' : 'text-slate-500'
           }`}
         />
       </button>
@@ -863,20 +1002,24 @@ export default function HomePage() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="font-display text-xl text-white tracking-tight">
+          <Link href="/" className="flex items-center gap-3 group">
+            <span className="font-display text-xl text-white tracking-tight group-hover:text-teal-400 transition-colors">
               Terrain
             </span>
-            <span className="hidden sm:inline font-mono text-[10px] text-teal-500 tracking-widest uppercase mt-0.5">
-              by Ambrosia Ventures
+            <span className="hidden sm:block w-px h-5 bg-navy-700/80" />
+            <span className="text-[9px] sm:text-[11px] text-slate-500 group-hover:text-slate-400 transition-colors leading-tight">
+              Powered by{' '}
+              <span className="text-slate-400 group-hover:text-teal-400 transition-colors font-medium">
+                Ambrosia Ventures
+              </span>
             </span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8 text-sm text-slate-400">
-            <a href="#modules" className="hover:text-white transition-colors">Modules</a>
-            <a href="#demo" className="hover:text-white transition-colors">Demo</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+            <a href="#modules" className="nav-link hover:text-white transition-colors">Modules</a>
+            <a href="#demo" className="nav-link hover:text-white transition-colors">Demo</a>
+            <a href="#pricing" className="nav-link hover:text-white transition-colors">Pricing</a>
+            <a href="#faq" className="nav-link hover:text-white transition-colors">FAQ</a>
           </div>
 
           <div className="flex items-center gap-3">
@@ -1185,9 +1328,9 @@ export default function HomePage() {
                   variants={fadeUp}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                  className="card noise p-6 group hover:border-teal-500/30 hover:shadow-card-hover transition-all relative cursor-pointer"
+                  className="card module-card noise p-6 group hover:border-teal-500/30 hover:shadow-card-hover transition-all relative cursor-pointer"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-teal-500/10 border border-teal-500/10 flex items-center justify-center mb-4 group-hover:bg-teal-500/15 group-hover:border-teal-500/20 transition-colors">
+                  <div className="module-icon w-10 h-10 rounded-lg bg-teal-500/10 border border-teal-500/10 flex items-center justify-center mb-4 group-hover:bg-teal-500/15 group-hover:border-teal-500/20 transition-all">
                     <Icon className="w-5 h-5 text-teal-400" />
                   </div>
                   <h3 className="font-display text-lg text-white mb-2">
@@ -1363,72 +1506,7 @@ export default function HomePage() {
 
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Dashboard mockup */}
-            <div className="card noise p-0 overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-navy-700/60 bg-navy-900/60">
-                <span className="w-2 h-2 rounded-full bg-red-400/60" />
-                <span className="w-2 h-2 rounded-full bg-amber-400/60" />
-                <span className="w-2 h-2 rounded-full bg-emerald-400/60" />
-                <span className="ml-2 text-[10px] font-mono text-slate-600">terrain — dashboard</span>
-              </div>
-              <div className="p-5">
-                {/* Top metrics row */}
-                <div className="grid grid-cols-4 gap-3 mb-5">
-                  {[
-                    { label: 'US TAM', val: '$24.8B', trend: '+12.3%', up: true },
-                    { label: 'US SAM', val: '$8.2B', trend: '+8.1%', up: true },
-                    { label: 'Peak Revenue', val: '$1.4B', trend: 'Base case', up: false },
-                    { label: 'Competitors', val: '14', trend: 'Crowding: 7/10', up: false },
-                  ].map((m) => (
-                    <div key={m.label} className="bg-navy-800/60 rounded-lg p-3 border border-navy-700/40">
-                      <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-1">{m.label}</div>
-                      <div className="font-mono text-sm text-white font-medium">{m.val}</div>
-                      <div className={`text-[9px] font-mono mt-0.5 ${m.up ? 'text-emerald-400' : 'text-slate-500'}`}>
-                        {m.trend}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Revenue projection bars */}
-                <div className="mb-5">
-                  <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">10-Year Revenue Projection ($M)</div>
-                  <div className="flex items-end gap-1 h-24">
-                    {[12, 28, 52, 85, 120, 140, 138, 130, 115, 95].map((h, i) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                        <div
-                          className="w-full rounded-sm bg-gradient-to-t from-teal-500/40 to-teal-400/60"
-                          style={{ height: `${(h / 140) * 100}%` }}
-                        />
-                        <span className="text-[7px] font-mono text-slate-700">{2027 + i}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Geography breakdown mini-table */}
-                <div>
-                  <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">Geography Breakdown</div>
-                  <div className="space-y-1">
-                    {[
-                      { geo: 'United States', tam: '$24.8B', share: '42%', w: '100%' },
-                      { geo: 'EU5', tam: '$18.2B', share: '31%', w: '73%' },
-                      { geo: 'Japan', tam: '$6.1B', share: '10%', w: '25%' },
-                      { geo: 'China', tam: '$7.4B', share: '13%', w: '30%' },
-                      { geo: 'Rest of World', tam: '$2.4B', share: '4%', w: '10%' },
-                    ].map((row) => (
-                      <div key={row.geo} className="flex items-center gap-3 text-[10px]">
-                        <span className="text-slate-400 w-20 shrink-0">{row.geo}</span>
-                        <div className="flex-1 h-1.5 bg-navy-700/60 rounded-full overflow-hidden">
-                          <div className="h-full bg-teal-500/50 rounded-full" style={{ width: row.w }} />
-                        </div>
-                        <span className="font-mono text-slate-300 w-12 text-right">{row.tam}</span>
-                        <span className="font-mono text-slate-600 w-8 text-right">{row.share}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <AnimatedDashboardPreview />
 
             {/* Competitive landscape mockup */}
             <div className="card noise p-0 overflow-hidden">
@@ -1479,25 +1557,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Partner match preview */}
-                <div>
-                  <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">Top Partner Matches</div>
-                  <div className="space-y-2">
-                    {[
-                      { name: 'Merck', score: 92, reason: 'Keytruda combo strategy, NSCLC focus' },
-                      { name: 'AstraZeneca', score: 88, reason: 'Tagrisso franchise, strong lung oncology' },
-                      { name: 'Roche', score: 85, reason: 'Tecentriq positioning, IO combinations' },
-                    ].map((p) => (
-                      <div key={p.name} className="flex items-center gap-3">
-                        <span className="text-xs text-white font-medium w-24">{p.name}</span>
-                        <div className="flex-1 h-1.5 bg-navy-700/60 rounded-full overflow-hidden">
-                          <div className="h-full bg-teal-500/60 rounded-full" style={{ width: `${p.score}%` }} />
-                        </div>
-                        <span className="font-mono text-[10px] text-teal-400 w-8">{p.score}</span>
-                        <span className="text-[9px] text-slate-500 hidden sm:inline">{p.reason}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <PartnerBarsPreview />
               </div>
             </div>
           </div>
@@ -1629,7 +1689,7 @@ export default function HomePage() {
                   whileHover={{ y: -4, transition: { duration: 0.2 } }}
                   className={`card noise p-6 relative flex flex-col ${
                     plan.highlighted
-                      ? 'border-teal-500/40 ring-1 ring-teal-500/20 shadow-teal-sm'
+                      ? 'border-teal-500/40 ring-1 ring-teal-500/20 shadow-teal-sm pro-card-accent'
                       : isEnterprise
                         ? 'border-slate-600/40'
                         : ''
@@ -1658,21 +1718,31 @@ export default function HomePage() {
                       </div>
                     ) : (
                       <div>
-                        <div className="flex items-baseline gap-1">
-                          <span className="font-mono text-4xl text-white font-medium">
-                            ${displayPrice}
-                          </span>
-                          {plan.period && (
-                            <span className="text-sm text-slate-500">
-                              {plan.period}
-                            </span>
-                          )}
-                        </div>
-                        {billingPeriod === 'annual' && plan.annualTotal && (
-                          <p className="text-xs text-slate-500 mt-1">
-                            Billed annually at ${plan.annualTotal.toLocaleString()}/yr
-                          </p>
-                        )}
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={`${plan.name}-${billingPeriod}`}
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 8 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <div className="flex items-baseline gap-1">
+                              <span className="font-mono text-4xl text-white font-medium">
+                                ${displayPrice}
+                              </span>
+                              {plan.period && (
+                                <span className="text-sm text-slate-500">
+                                  {plan.period}
+                                </span>
+                              )}
+                            </div>
+                            {billingPeriod === 'annual' && plan.annualTotal && (
+                              <p className="text-xs text-slate-500 mt-1">
+                                Billed annually at ${plan.annualTotal.toLocaleString()}/yr
+                              </p>
+                            )}
+                          </motion.div>
+                        </AnimatePresence>
                         {plan.highlighted && (
                           <p className="text-xs text-teal-400/70 mt-2 font-mono">
                             14-day free trial · No credit card required
