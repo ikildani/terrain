@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,6 +24,7 @@ import {
   POPULAR_BIOMARKERS,
   SUBTYPE_SUGGESTIONS,
   POPULAR_SUBTYPES,
+  BIOMARKER_PREVALENCE,
 } from "@/lib/data/suggestion-lists";
 
 // ────────────────────────────────────────────────────────────
@@ -68,17 +69,54 @@ const PRICING_OPTIONS = [
   { value: "premium", label: "Premium" },
 ] as const;
 
-const DEVICE_CATEGORY_OPTIONS = [
-  { value: "cardiovascular", label: "Cardiovascular" },
-  { value: "orthopedic", label: "Orthopedic" },
-  { value: "neurology", label: "Neurology" },
-  { value: "diabetes_metabolic", label: "Diabetes / Metabolic" },
-  { value: "oncology_surgical", label: "Oncology — Surgical" },
-  { value: "wound_care", label: "Wound Care" },
-  { value: "ophthalmology", label: "Ophthalmology" },
-  { value: "endoscopy_gi", label: "Endoscopy / GI" },
-  { value: "general_surgery", label: "General Surgery" },
-  { value: "ivd_oncology", label: "IVD — Oncology" },
+const DEVICE_CATEGORY_GROUPS = [
+  {
+    label: "Surgical",
+    options: [
+      { value: "cardiovascular", label: "Cardiovascular" },
+      { value: "orthopedic", label: "Orthopedic" },
+      { value: "neurology", label: "Neurology" },
+      { value: "general_surgery", label: "General Surgery" },
+      { value: "vascular", label: "Vascular" },
+      { value: "ent", label: "ENT" },
+      { value: "urology", label: "Urology" },
+      { value: "ophthalmology", label: "Ophthalmology" },
+    ],
+  },
+  {
+    label: "Oncology",
+    options: [
+      { value: "oncology_surgical", label: "Oncology — Surgical" },
+      { value: "oncology_radiation", label: "Oncology — Radiation Therapy" },
+    ],
+  },
+  {
+    label: "Metabolic / Monitoring",
+    options: [
+      { value: "diabetes_metabolic", label: "Diabetes / Metabolic" },
+      { value: "respiratory", label: "Respiratory" },
+      { value: "renal_dialysis", label: "Renal / Dialysis" },
+    ],
+  },
+  {
+    label: "Diagnostics (IVD)",
+    options: [
+      { value: "ivd_oncology", label: "IVD — Oncology" },
+      { value: "ivd_infectious", label: "IVD — Infectious Disease" },
+      { value: "ivd_cardiology", label: "IVD — Cardiology" },
+      { value: "ivd_genetics", label: "IVD — Genetics / Genomics" },
+    ],
+  },
+  {
+    label: "Other Specialties",
+    options: [
+      { value: "wound_care", label: "Wound Care" },
+      { value: "endoscopy_gi", label: "Endoscopy / GI" },
+      { value: "dental", label: "Dental" },
+      { value: "dermatology", label: "Dermatology" },
+      { value: "imaging_radiology", label: "Imaging / Radiology" },
+    ],
+  },
 ];
 
 const DEVICE_SETTINGS = [
@@ -122,6 +160,12 @@ const CDX_STAGE_OPTIONS = [
   { value: "approved", label: "Approved" },
 ];
 
+const CDX_TEST_SETTINGS = [
+  { value: "pathology_lab", label: "Pathology Lab (Hospital)" },
+  { value: "central_lab", label: "Central / Reference Lab" },
+  { value: "point_of_care", label: "Point of Care (Near-patient)" },
+] as const;
+
 // ────────────────────────────────────────────────────────────
 // Zod Schemas
 // ────────────────────────────────────────────────────────────
@@ -158,6 +202,7 @@ const cdxSchema = z.object({
   biomarker: z.string().min(1, "Biomarker is required"),
   biomarker_prevalence_pct: z.coerce.number().min(1).max(100),
   test_type: z.string().default("NGS_panel"),
+  test_setting: z.array(z.string()).min(1, "Select at least one test setting"),
   test_ase: z.coerce.number().min(0, "Test ASE is required"),
   drug_development_stage: z.string().default("phase2"),
   cdx_development_stage: z.string().default("clinical_validation"),
@@ -623,7 +668,7 @@ function DeviceForm({
 
       <Select
         label="Device Category"
-        options={DEVICE_CATEGORY_OPTIONS}
+        groups={DEVICE_CATEGORY_GROUPS}
         {...register("device_category")}
         error={errors.device_category?.message}
       />
@@ -765,6 +810,7 @@ function CdxForm({
       biomarker: "",
       biomarker_prevalence_pct: undefined as unknown as number,
       test_type: "NGS_panel",
+      test_setting: ["pathology_lab"] as string[],
       test_ase: undefined as unknown as number,
       drug_development_stage: "phase2",
       cdx_development_stage: "clinical_validation",
@@ -774,7 +820,24 @@ function CdxForm({
   });
 
   const geography = watch("geography");
+  const testSetting = watch("test_setting");
   const drugStage = watch("drug_development_stage");
+  const biomarker = watch("biomarker");
+  const prevalence = watch("biomarker_prevalence_pct");
+
+  // Auto-fill biomarker prevalence when a known biomarker is selected
+  const prevBiomarkerRef = useRef(biomarker);
+  useEffect(() => {
+    if (biomarker && biomarker !== prevBiomarkerRef.current) {
+      prevBiomarkerRef.current = biomarker;
+      const match = BIOMARKER_PREVALENCE[biomarker];
+      if (match && (!prevalence || prevalence === 0)) {
+        setValue("biomarker_prevalence_pct", match.prevalence_pct);
+      }
+    }
+  }, [biomarker, prevalence, setValue]);
+
+  const autoFilledContext = biomarker && BIOMARKER_PREVALENCE[biomarker]?.context;
 
   const toggleGeo = useCallback(
     (code: string) => {
@@ -784,6 +847,16 @@ function CdxForm({
       setValue("geography", next, { shouldValidate: true });
     },
     [geography, setValue]
+  );
+
+  const toggleTestSetting = useCallback(
+    (value: string) => {
+      const next = testSetting.includes(value)
+        ? testSetting.filter((s) => s !== value)
+        : [...testSetting, value];
+      setValue("test_setting", next, { shouldValidate: true });
+    },
+    [testSetting, setValue]
   );
 
   const doSubmit = handleSubmit((data) => {
@@ -811,16 +884,23 @@ function CdxForm({
         error={errors.biomarker?.message}
       />
 
-      <Input
-        label="Biomarker Prevalence (%)"
-        type="number"
-        {...register("biomarker_prevalence_pct")}
-        min={1}
-        max={100}
-        step={1}
-        placeholder="1-100"
-        error={errors.biomarker_prevalence_pct?.message}
-      />
+      <div>
+        <Input
+          label="Biomarker Prevalence (%)"
+          type="number"
+          {...register("biomarker_prevalence_pct")}
+          min={1}
+          max={100}
+          step={1}
+          placeholder="1-100"
+          error={errors.biomarker_prevalence_pct?.message}
+        />
+        {autoFilledContext && prevalence && (
+          <p className="text-2xs text-teal-500/70 mt-1">
+            Auto-filled from {autoFilledContext}. Adjust as needed.
+          </p>
+        )}
+      </div>
 
       <SectionDivider />
 
@@ -828,6 +908,14 @@ function CdxForm({
         label="Test Type"
         options={TEST_TYPE_OPTIONS}
         {...register("test_type")}
+      />
+
+      <MultiCheckboxGrid
+        label="Test Setting"
+        options={CDX_TEST_SETTINGS}
+        selected={testSetting}
+        onToggle={toggleTestSetting}
+        error={errors.test_setting?.message}
       />
 
       <Input

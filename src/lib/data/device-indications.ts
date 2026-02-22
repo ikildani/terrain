@@ -922,6 +922,388 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     last_updated: '2025-01-15',
   },
 
+  // ──────────────────────────────────────────
+  // RESPIRATORY (ADDITIONAL)
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Pulmonary Function Testing (PFT/Spirometry)',
+    cpt_codes: ['94010', '94060'],
+    annual_us_procedures: 14000000,
+    procedure_growth_rate: 3.0,
+    applicable_indications: ['Chronic Obstructive Pulmonary Disease', 'Asthma', 'Interstitial Lung Disease', 'Pulmonary Fibrosis'],
+    applicable_device_categories: ['device_monitoring'],
+    current_standard_of_care: 'Office-based spirometry systems (Vyaire/CareFusion, ndd Medical, NuvoAir); hospital PFT labs with full body plethysmography',
+    new_device_eligible_procedures: 3000000,
+    adoption_curve: 'moderate',
+    site_of_care: 'office',
+    physician_specialty: ['Pulmonology', 'Internal Medicine'],
+    source: 'CMS Claims Data 2024; ATS/ERS Spirometry Standards',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'CPAP/BiPAP Initiation (Obstructive Sleep Apnea)',
+    cpt_codes: ['94660', 'E0601'],
+    annual_us_procedures: 1500000,
+    procedure_growth_rate: 6.0,
+    applicable_indications: ['Obstructive Sleep Apnea', 'Central Sleep Apnea', 'Obesity Hypoventilation Syndrome', 'Chronic Respiratory Failure'],
+    applicable_device_categories: ['device_monitoring'],
+    current_standard_of_care: 'CPAP/BiPAP devices (ResMed AirSense 11, Philips DreamStation 2); home sleep testing + auto-titrating PAP',
+    new_device_eligible_procedures: 500000,
+    adoption_curve: 'rapid',
+    site_of_care: 'home',
+    physician_specialty: ['Pulmonology', 'Sleep Medicine'],
+    source: 'AASM 2024; CMS DMEPOS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Thoracentesis',
+    cpt_codes: ['32554', '32555'],
+    annual_us_procedures: 173000,
+    procedure_growth_rate: 2.0,
+    applicable_indications: ['Pleural Effusion', 'Malignant Pleural Effusion', 'Congestive Heart Failure', 'Pneumonia with Parapneumonic Effusion'],
+    applicable_device_categories: ['device_surgical'],
+    current_standard_of_care: 'Ultrasound-guided needle aspiration (BD, Teleflex); indwelling pleural catheters (BD PleurX, Rocket Medical) for recurrent effusions',
+    new_device_eligible_procedures: 40000,
+    adoption_curve: 'slow',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Pulmonology', 'Internal Medicine'],
+    source: 'CMS Claims Data 2024; NIS Database',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // WOUND CARE
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Negative Pressure Wound Therapy (NPWT)',
+    cpt_codes: ['97605', '97606'],
+    annual_us_procedures: 1200000,
+    procedure_growth_rate: 5.0,
+    applicable_indications: ['Chronic Non-Healing Wound', 'Diabetic Foot Ulcer', 'Surgical Site Infection', 'Pressure Ulcer'],
+    applicable_device_categories: ['device_surgical'],
+    current_standard_of_care: 'VAC Therapy (3M/KCI), PICO (Smith+Nephew), Prevena (3M/KCI) for incision management; portable single-use NPWT devices emerging',
+    new_device_eligible_procedures: 400000,
+    adoption_curve: 'moderate',
+    site_of_care: 'home',
+    physician_specialty: ['General Surgery', 'Wound Care'],
+    source: 'Wound Care Market Reports 2024; CMS DMEPOS Claims',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Skin Substitute / Graft Application',
+    cpt_codes: ['15271', '15275'],
+    annual_us_procedures: 500000,
+    procedure_growth_rate: 8.0,
+    applicable_indications: ['Diabetic Foot Ulcer', 'Venous Leg Ulcer', 'Chronic Non-Healing Wound', 'Burns'],
+    applicable_device_categories: ['device_implantable'],
+    current_standard_of_care: 'Cellular/tissue-based products (Organogenesis Apligraf, Smith+Nephew GRAFIX, MiMedx EpiFix); synthetic skin substitutes (Integra)',
+    new_device_eligible_procedures: 200000,
+    adoption_curve: 'rapid',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Dermatology', 'General Surgery', 'Podiatry'],
+    source: 'CMS Claims Data 2024; Alliance of Wound Care Stakeholders',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Hyperbaric Oxygen Therapy (HBOT)',
+    cpt_codes: ['99183'],
+    annual_us_procedures: 120000,
+    procedure_growth_rate: 4.0,
+    applicable_indications: ['Diabetic Foot Ulcer', 'Chronic Refractory Osteomyelitis', 'Radiation Tissue Damage', 'Non-Healing Wound'],
+    applicable_device_categories: ['device_capital_equipment'],
+    current_standard_of_care: 'Monoplace/multiplace hyperbaric chambers (Sechrist, ETC, Perry Baromedical); hospital-based wound care programs',
+    new_device_eligible_procedures: 40000,
+    adoption_curve: 'slow',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Wound Care', 'Undersea Medicine'],
+    source: 'UHMS 2024; CMS NCD 20.29',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // RENAL / DIALYSIS
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Hemodialysis (Chronic In-Center)',
+    cpt_codes: ['90935', '90937'],
+    annual_us_procedures: 27000000,
+    procedure_growth_rate: 3.0,
+    applicable_indications: ['End-Stage Renal Disease', 'Chronic Kidney Disease Stage 5', 'Acute Kidney Injury', 'Hyperkalemia Refractory to Medical Therapy'],
+    applicable_device_categories: ['device_capital_equipment'],
+    current_standard_of_care: 'Hemodialysis machines (Fresenius 5008S, Baxter/NxStage, B. Braun Dialog+); dialyzers (Fresenius FX, Baxter Revaclear)',
+    new_device_eligible_procedures: 5000000,
+    adoption_curve: 'slow',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Nephrology'],
+    source: 'USRDS Annual Data Report 2024; CMS ESRD Program Data',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Peritoneal Dialysis (PD) Catheter Placement',
+    cpt_codes: ['49421'],
+    annual_us_procedures: 65000,
+    procedure_growth_rate: 7.0,
+    applicable_indications: ['End-Stage Renal Disease', 'Chronic Kidney Disease Stage 5', 'ESRD with Home Dialysis Preference', 'Pediatric ESRD'],
+    applicable_device_categories: ['device_implantable'],
+    current_standard_of_care: 'Tenckhoff catheters (Medline, Medtronic); laparoscopic PD catheter insertion; Baxter HomeChoice/Amia PD cyclers',
+    new_device_eligible_procedures: 30000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Nephrology', 'General Surgery'],
+    source: 'USRDS Annual Data Report 2024; CMS ESRD Quality Incentive Program',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Continuous Renal Replacement Therapy (CRRT)',
+    cpt_codes: ['90945', '90947'],
+    annual_us_procedures: 200000,
+    procedure_growth_rate: 4.0,
+    applicable_indications: ['Acute Kidney Injury', 'Sepsis with Renal Failure', 'Multiorgan Failure', 'Hemodynamically Unstable Renal Failure'],
+    applicable_device_categories: ['device_capital_equipment'],
+    current_standard_of_care: 'CRRT machines (Baxter PrisMax, Fresenius multiFiltrate, B. Braun Diapact); hemofiltration/hemodialfiltration circuits',
+    new_device_eligible_procedures: 60000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Nephrology', 'Critical Care Medicine'],
+    source: 'USRDS 2024; SCCM Critical Care Data',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // DENTAL (ADDITIONAL)
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Clear Aligner Treatment (Orthodontic)',
+    cpt_codes: ['D8040'],
+    annual_us_procedures: 2500000,
+    procedure_growth_rate: 9.0,
+    applicable_indications: ['Malocclusion', 'Dental Crowding', 'Open Bite', 'Crossbite'],
+    applicable_device_categories: ['device_surgical'],
+    current_standard_of_care: 'Clear aligners (Align Technology Invisalign, Henry Schein Spark, 3M Clarity, SmileDirectClub); traditional bracket orthodontics declining in adults',
+    new_device_eligible_procedures: 800000,
+    adoption_curve: 'rapid',
+    site_of_care: 'office',
+    physician_specialty: ['Orthodontics', 'General Dentistry'],
+    source: 'AAO 2024; Align Technology Annual Report; Grand View Research Orthodontics Market',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Root Canal (Endodontic) Treatment',
+    cpt_codes: ['D3310', 'D3320', 'D3330'],
+    annual_us_procedures: 15000000,
+    procedure_growth_rate: 1.0,
+    applicable_indications: ['Irreversible Pulpitis', 'Dental Abscess', 'Tooth Necrosis', 'Periapical Pathology'],
+    applicable_device_categories: ['device_surgical'],
+    current_standard_of_care: 'Rotary NiTi endodontic files (Dentsply ProTaper, Kerr WaveOne); electronic apex locators; obturation systems (Calamus, GuttaCore)',
+    new_device_eligible_procedures: 2000000,
+    adoption_curve: 'slow',
+    site_of_care: 'office',
+    physician_specialty: ['Endodontics', 'General Dentistry'],
+    source: 'ADA Health Policy Institute 2024; AAE Annual Survey',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // IMAGING / RADIOLOGY
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'CT Scan (Diagnostic)',
+    cpt_codes: ['74177', '71260'],
+    annual_us_procedures: 80000000,
+    procedure_growth_rate: 3.0,
+    applicable_indications: ['Pulmonary Embolism', 'Trauma Evaluation', 'Cancer Staging', 'Abdominal Pain Evaluation'],
+    applicable_device_categories: ['device_capital_equipment'],
+    current_standard_of_care: 'Multi-detector CT scanners (Siemens SOMATOM, GE Revolution, Canon Aquilion, Philips Incisive); photon-counting CT emerging',
+    new_device_eligible_procedures: 15000000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Radiology'],
+    source: 'IMV Medical Information Division 2024; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'MRI (Diagnostic)',
+    cpt_codes: ['70553', '73721'],
+    annual_us_procedures: 40000000,
+    procedure_growth_rate: 4.0,
+    applicable_indications: ['Brain Tumor Evaluation', 'Musculoskeletal Injury', 'Multiple Sclerosis', 'Stroke Workup'],
+    applicable_device_categories: ['device_capital_equipment'],
+    current_standard_of_care: 'MRI systems (Siemens MAGNETOM, GE SIGNA, Philips Ingenia, Canon Vantage); 1.5T and 3T dominant; 7T emerging for research',
+    new_device_eligible_procedures: 8000000,
+    adoption_curve: 'moderate',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Radiology'],
+    source: 'IMV Medical Information Division 2024; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'PET/CT Scan (Oncology Staging)',
+    cpt_codes: ['78816'],
+    annual_us_procedures: 2500000,
+    procedure_growth_rate: 7.0,
+    applicable_indications: ['Lung Cancer Staging', 'Lymphoma Staging', 'Head and Neck Cancer Staging', 'Melanoma Staging'],
+    applicable_device_categories: ['device_capital_equipment', 'diagnostics_imaging'],
+    current_standard_of_care: 'PET/CT systems (Siemens Biograph, GE Discovery MI, Philips Vereos); FDG-PET dominant; PSMA-PET for prostate emerging',
+    new_device_eligible_procedures: 800000,
+    adoption_curve: 'moderate',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Radiology', 'Nuclear Medicine'],
+    source: 'SNMMI 2024; IMV Medical PET/CT Market Report; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // DIGITAL HEALTH / SaMD
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Remote Patient Monitoring (RPM) Enrollment',
+    cpt_codes: ['99453', '99454', '99457'],
+    annual_us_procedures: 26000000,
+    procedure_growth_rate: 15.0,
+    applicable_indications: ['Hypertension', 'Congestive Heart Failure', 'Type 2 Diabetes', 'Chronic Obstructive Pulmonary Disease'],
+    applicable_device_categories: ['device_monitoring', 'device_digital_health'],
+    current_standard_of_care: 'RPM platforms (Livongo/Teladoc, Biobeat, Withings, Current Health/Best Buy Health); connected blood pressure cuffs, scales, pulse oximeters',
+    new_device_eligible_procedures: 10000000,
+    adoption_curve: 'rapid',
+    site_of_care: 'home',
+    physician_specialty: ['Internal Medicine', 'Cardiology', 'Endocrinology'],
+    source: 'CMS Telehealth Data 2024; AMA Digital Health Survey',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'AI-Assisted Diagnostic Imaging (Radiology AI)',
+    cpt_codes: [],
+    annual_us_procedures: 30000000,
+    procedure_growth_rate: 25.0,
+    applicable_indications: ['Lung Nodule Detection', 'Breast Cancer Screening', 'Stroke Triage', 'Fracture Detection'],
+    applicable_device_categories: ['device_digital_health', 'device_capital_equipment'],
+    current_standard_of_care: 'FDA-cleared AI algorithms (Viz.ai stroke, Aidoc triage, Lunit chest, iCAD mammography); integrated into PACS workflows',
+    new_device_eligible_procedures: 15000000,
+    adoption_curve: 'rapid',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Radiology', 'Pathology'],
+    source: 'ACR AI Registry 2024; FDA AI/ML SaMD Database; Signify Research',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Digital Therapeutics (DTx) Prescription',
+    cpt_codes: ['98975', '98976', '98977'],
+    annual_us_procedures: 500000,
+    procedure_growth_rate: 30.0,
+    applicable_indications: ['Substance Use Disorder', 'Chronic Insomnia', 'Type 2 Diabetes Management', 'Chronic Low Back Pain'],
+    applicable_device_categories: ['device_digital_health'],
+    current_standard_of_care: 'FDA-cleared DTx (Pear reSET/reSET-O, Freespira PTSD/panic, Mahana for IBS, EndeavorRx for ADHD); prescription digital therapeutics reimbursed via CPT 989xx',
+    new_device_eligible_procedures: 350000,
+    adoption_curve: 'rapid',
+    site_of_care: 'home',
+    physician_specialty: ['Psychiatry', 'Endocrinology', 'Pain Management'],
+    source: 'DTA (Digital Therapeutics Alliance) Industry Reports 2024; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // VASCULAR (ADDITIONAL)
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Peripheral Artery Intervention (PAD/CLI)',
+    cpt_codes: ['37220', '37224', '37228'],
+    annual_us_procedures: 400000,
+    procedure_growth_rate: 5.0,
+    applicable_indications: ['Peripheral Artery Disease', 'Critical Limb Ischemia', 'Intermittent Claudication', 'Chronic Limb-Threatening Ischemia'],
+    applicable_device_categories: ['device_implantable', 'device_surgical'],
+    current_standard_of_care: 'Drug-coated balloons (Medtronic IN.PACT, BD Lutonix); peripheral stents (Medtronic, Abbott, Cook); atherectomy (Philips, Boston Scientific, Cardiovascular Systems)',
+    new_device_eligible_procedures: 120000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Vascular Surgery', 'Interventional Cardiology'],
+    source: 'SVS Vascular Quality Initiative 2024; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Varicose Vein Ablation (Endovenous)',
+    cpt_codes: ['36475', '36478'],
+    annual_us_procedures: 500000,
+    procedure_growth_rate: 4.0,
+    applicable_indications: ['Varicose Veins', 'Chronic Venous Insufficiency', 'Venous Reflux Disease', 'Venous Leg Ulcer'],
+    applicable_device_categories: ['device_surgical'],
+    current_standard_of_care: 'Endovenous laser ablation (AngioDynamics, Biolitec); radiofrequency ablation (Medtronic ClosureFast/VenaSeal); mechanochemical ablation (Clarivein)',
+    new_device_eligible_procedures: 150000,
+    adoption_curve: 'moderate',
+    site_of_care: 'office',
+    physician_specialty: ['Vascular Surgery', 'Interventional Radiology'],
+    source: 'AVF (American Venous Forum) 2024; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // DERMATOLOGY (ADDITIONAL)
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Cryotherapy / Cryosurgery',
+    cpt_codes: ['17000', '17003', '17004'],
+    annual_us_procedures: 5000000,
+    procedure_growth_rate: 2.0,
+    applicable_indications: ['Actinic Keratosis', 'Common Warts', 'Seborrheic Keratosis', 'Basal Cell Carcinoma (Superficial)'],
+    applicable_device_categories: ['device_surgical'],
+    current_standard_of_care: 'Liquid nitrogen spray/probe (Brymill CryoSurgery, Wallach Surgical); nitrous oxide cryosurgery (CryoPen, CryoProbe)',
+    new_device_eligible_procedures: 1000000,
+    adoption_curve: 'slow',
+    site_of_care: 'office',
+    physician_specialty: ['Dermatology', 'Family Medicine'],
+    source: 'AAD Skin Disease Data 2024; CMS Part B Claims',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // ENT (ADDITIONAL)
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Balloon Sinuplasty',
+    cpt_codes: ['31295', '31296', '31297'],
+    annual_us_procedures: 150000,
+    procedure_growth_rate: 6.0,
+    applicable_indications: ['Chronic Rhinosinusitis', 'Recurrent Acute Sinusitis', 'Frontal Sinusitis', 'Maxillary Sinusitis'],
+    applicable_device_categories: ['device_surgical'],
+    current_standard_of_care: 'Balloon sinus dilation systems (Stryker/Entellus, Medtronic NuVent, Johnson & Johnson Acclarent); in-office under local anesthesia increasing',
+    new_device_eligible_procedures: 60000,
+    adoption_curve: 'rapid',
+    site_of_care: 'office',
+    physician_specialty: ['Otolaryngology (ENT)'],
+    source: 'AAO-HNS 2024; CMS Claims Data; Stryker ENT Procedure Reports',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // UROLOGY (ADDITIONAL)
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Rezum / UroLift (BPH Minimally Invasive Therapy)',
+    cpt_codes: ['53899', '55874'],
+    annual_us_procedures: 180000,
+    procedure_growth_rate: 12.0,
+    applicable_indications: ['Benign Prostatic Hyperplasia', 'Lower Urinary Tract Symptoms', 'Bladder Outlet Obstruction', 'BPH-Related Urinary Retention'],
+    applicable_device_categories: ['device_surgical', 'device_implantable'],
+    current_standard_of_care: 'UroLift prostatic urethral lift (Teleflex); Rezum water vapor thermal therapy (Boston Scientific); iTind (Olympus); TURP declining for moderate BPH',
+    new_device_eligible_procedures: 80000,
+    adoption_curve: 'rapid',
+    site_of_care: 'office',
+    physician_specialty: ['Urology'],
+    source: 'AUA Guidelines on BPH 2024; CMS Claims Data; Boston Scientific/Teleflex Investor Reports',
+    last_updated: '2025-01-15',
+  },
+
 ];
 
 // ────────────────────────────────────────────────────────────

@@ -26,6 +26,24 @@ import type {
   CMCRiskAssessment,
 } from '@/types';
 
+import type {
+  PredicateDeviceRecord,
+  DeviceClinicalEvidenceStrategy,
+  DeviceIndicationScopeScenario,
+  DeviceManufacturingRisk,
+  DeviceRegulatoryInput,
+  DeviceRegulatoryOutput,
+  DeviceCategory,
+  ProductCategory,
+  FDADevicePathway,
+} from '@/types';
+
+import {
+  PREDICATE_DEVICE_DATABASE,
+  findPredicatesByCategory,
+  findPredicatesByUse,
+} from '@/lib/data/predicate-devices';
+
 import {
   REGULATORY_PATHWAYS,
   DESIGNATION_DEFINITIONS,
@@ -2112,4 +2130,1455 @@ function getDataSources(): DataSource[] {
       type: 'proprietary',
     },
   ];
+}
+
+// ════════════════════════════════════════════════════════════════
+// DEVICE REGULATORY ANALYTICS — 4 New Functions
+// Predicate search, clinical evidence strategy, indication scope,
+// and manufacturing risk profiling for medical devices.
+// ════════════════════════════════════════════════════════════════
+
+// ────────────────────────────────────────────────────────────
+// FUNCTION 1: findPredicateDevices
+// Queries PREDICATE_DEVICE_DATABASE, scores by relevance,
+// returns top 8 sorted by score.
+// ────────────────────────────────────────────────────────────
+
+export function findPredicateDevices(
+  deviceCategory: DeviceCategory,
+  intendedUse: string,
+): PredicateDeviceRecord[] {
+  // Split intended use into keyword tokens for the predicate search
+  const intendedUseKeywords = intendedUse
+    .toLowerCase()
+    .split(/[\s,;.\/\-]+/)
+    .filter(w => w.length > 3);
+
+  const allPredicates = [
+    ...findPredicatesByCategory(deviceCategory),
+    ...findPredicatesByUse(intendedUseKeywords),
+    ...PREDICATE_DEVICE_DATABASE,
+  ];
+
+  // Deduplicate by k_number_or_pma
+  const seen = new Set<string>();
+  const unique: typeof allPredicates = [];
+  for (const p of allPredicates) {
+    if (!seen.has(p.k_number_or_pma)) {
+      seen.add(p.k_number_or_pma);
+      unique.push(p);
+    }
+  }
+
+  const intendedUseLower = intendedUse.toLowerCase();
+  const useKeywords = intendedUseLower
+    .split(/[\s,;.\/\-]+/)
+    .filter(w => w.length > 3);
+  const currentYear = new Date().getFullYear();
+
+  const scored = unique.map(predicate => {
+    let score = 0;
+
+    // Exact category match: +10
+    if (predicate.device_category === deviceCategory) {
+      score += 10;
+    }
+
+    // Indication keyword overlap: +5 per keyword
+    const predicateUseLower = predicate.indication_for_use.toLowerCase();
+    for (const keyword of useKeywords) {
+      if (predicateUseLower.includes(keyword)) {
+        score += 5;
+      }
+    }
+
+    // Recency bonus: +2 if clearance within 5 years
+    const clearanceYear = new Date(predicate.clearance_date).getFullYear();
+    if (currentYear - clearanceYear <= 5) {
+      score += 2;
+    }
+
+    // Same pathway bonus: +3 for 510(k) predicates (most common chain)
+    if (predicate.pathway === '510(k)') {
+      score += 3;
+    }
+
+    return { predicate, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+
+  return scored.slice(0, 8).map(s => s.predicate);
+}
+
+// ────────────────────────────────────────────────────────────
+// FUNCTION 2: buildDeviceClinicalEvidenceStrategy
+// Study design recommendation by pathway + device category.
+// ────────────────────────────────────────────────────────────
+
+interface DeviceEvidenceSpec {
+  study_type: string;
+  sample_size: { low: number; base: number; high: number };
+  enrollment_months: number;
+  cost_m: { low: number; base: number; high: number };
+  comparator: string;
+  follow_up_months: number;
+}
+
+const DEVICE_EVIDENCE_REQUIREMENTS: Record<string, Record<string, DeviceEvidenceSpec>> = {
+  '510(k) Clearance': {
+    default: {
+      study_type: 'Bench + biocompatibility testing',
+      sample_size: { low: 0, base: 0, high: 0 },
+      enrollment_months: 0,
+      cost_m: { low: 0.3, base: 0.8, high: 1.5 },
+      comparator: 'Predicate device (bench comparison)',
+      follow_up_months: 0,
+    },
+    device_implantable: {
+      study_type: 'Single-arm prospective clinical study',
+      sample_size: { low: 50, base: 100, high: 150 },
+      enrollment_months: 12,
+      cost_m: { low: 2.0, base: 5.0, high: 10.0 },
+      comparator: 'Predicate device performance goals',
+      follow_up_months: 6,
+    },
+    device_drug_delivery: {
+      study_type: 'Single-arm prospective clinical study',
+      sample_size: { low: 60, base: 120, high: 150 },
+      enrollment_months: 14,
+      cost_m: { low: 3.0, base: 7.0, high: 12.0 },
+      comparator: 'Predicate device performance goals',
+      follow_up_months: 6,
+    },
+    device_surgical: {
+      study_type: 'Performance testing + limited clinical',
+      sample_size: { low: 20, base: 50, high: 80 },
+      enrollment_months: 8,
+      cost_m: { low: 1.0, base: 3.0, high: 6.0 },
+      comparator: 'Predicate device bench equivalence',
+      follow_up_months: 3,
+    },
+  },
+  'De Novo Classification': {
+    default: {
+      study_type: 'Single-arm pivotal or prospective registry',
+      sample_size: { low: 100, base: 200, high: 300 },
+      enrollment_months: 15,
+      cost_m: { low: 3.0, base: 8.0, high: 15.0 },
+      comparator: 'Performance goals derived from literature',
+      follow_up_months: 9,
+    },
+    device_digital_health: {
+      study_type: 'Prospective clinical validation study',
+      sample_size: { low: 100, base: 150, high: 250 },
+      enrollment_months: 10,
+      cost_m: { low: 1.5, base: 4.0, high: 8.0 },
+      comparator: 'Clinical gold standard or physician adjudication',
+      follow_up_months: 6,
+    },
+    diagnostics_ivd: {
+      study_type: 'Prospective clinical validation (PPA/NPA study)',
+      sample_size: { low: 150, base: 250, high: 400 },
+      enrollment_months: 12,
+      cost_m: { low: 2.0, base: 5.0, high: 10.0 },
+      comparator: 'FDA-cleared comparator or clinical truth standard',
+      follow_up_months: 0,
+    },
+    device_point_of_care: {
+      study_type: 'Prospective multi-site clinical validation',
+      sample_size: { low: 120, base: 200, high: 300 },
+      enrollment_months: 10,
+      cost_m: { low: 2.0, base: 5.5, high: 9.0 },
+      comparator: 'Central laboratory reference method',
+      follow_up_months: 0,
+    },
+  },
+  'PMA (Premarket Approval)': {
+    default: {
+      study_type: 'Randomized controlled trial',
+      sample_size: { low: 200, base: 350, high: 500 },
+      enrollment_months: 24,
+      cost_m: { low: 15.0, base: 30.0, high: 50.0 },
+      comparator: 'Active comparator (standard of care device) or sham control',
+      follow_up_months: 18,
+    },
+    device_implantable: {
+      study_type: 'Randomized controlled trial',
+      sample_size: { low: 250, base: 400, high: 500 },
+      enrollment_months: 30,
+      cost_m: { low: 20.0, base: 35.0, high: 50.0 },
+      comparator: 'Standard of care device or medical therapy',
+      follow_up_months: 24,
+    },
+    device_capital_equipment: {
+      study_type: 'Randomized controlled trial',
+      sample_size: { low: 200, base: 300, high: 450 },
+      enrollment_months: 24,
+      cost_m: { low: 15.0, base: 28.0, high: 45.0 },
+      comparator: 'Standard of care system',
+      follow_up_months: 12,
+    },
+    diagnostics_companion: {
+      study_type: 'Prospective-retrospective bridging study + co-review with drug',
+      sample_size: { low: 200, base: 350, high: 500 },
+      enrollment_months: 18,
+      cost_m: { low: 10.0, base: 20.0, high: 35.0 },
+      comparator: 'FDA-cleared comparator assay or clinical outcome',
+      follow_up_months: 12,
+    },
+    diagnostics_liquid_biopsy: {
+      study_type: 'Prospective clinical validation with tissue concordance',
+      sample_size: { low: 250, base: 400, high: 500 },
+      enrollment_months: 20,
+      cost_m: { low: 12.0, base: 25.0, high: 40.0 },
+      comparator: 'Tissue biopsy gold standard',
+      follow_up_months: 12,
+    },
+  },
+  'HDE (Humanitarian Device Exemption)': {
+    default: {
+      study_type: 'Feasibility study (safety primary)',
+      sample_size: { low: 10, base: 20, high: 30 },
+      enrollment_months: 12,
+      cost_m: { low: 0.5, base: 2.0, high: 5.0 },
+      comparator: 'No comparator required (single-arm)',
+      follow_up_months: 6,
+    },
+  },
+};
+
+const DEVICE_PRIMARY_ENDPOINTS: Record<string, string> = {
+  cardiovascular: 'Composite of 30-day all-cause mortality, stroke, and major bleeding',
+  orthopedic: 'Knee Society Score (KSS) or Harris Hip Score at 2 years',
+  neurology: 'Seizure frequency reduction or UPDRS motor score improvement',
+  ophthalmology: 'Best Corrected Visual Acuity (BCVA) at 12 months',
+  endoscopy_gi: 'Adenoma detection rate or procedural success rate',
+  wound_care: 'Complete wound closure rate at 12 weeks',
+  diabetes_metabolic: 'Time in range (70-180 mg/dL) or HbA1c reduction at 6 months',
+  oncology_surgical: 'R0 resection rate or margin-negative resection rate',
+  oncology_radiation: 'Local tumor control rate at 12 months',
+  ivd_oncology: 'Positive Percent Agreement (PPA) / Negative Percent Agreement (NPA) vs tissue biopsy',
+  ivd_infectious: 'Sensitivity and specificity vs culture or PCR gold standard',
+  ivd_cardiology: 'Clinical sensitivity/specificity for acute MI detection',
+  ivd_genetics: 'Analytical accuracy vs Sanger sequencing or validated NGS panel',
+  imaging_radiology: 'Diagnostic sensitivity and specificity vs clinical truth panel',
+  renal_dialysis: 'Kt/V adequacy ≥1.2 or ultrafiltration accuracy',
+  respiratory: 'FEV1 improvement or apnea-hypopnea index (AHI) reduction',
+  dental: 'Implant survival rate at 12 months or marginal bone loss',
+  general_surgery: 'Procedural success rate and 30-day complication rate',
+  vascular: 'Primary patency rate at 12 months',
+  ent: 'Symptom improvement on validated patient-reported outcome',
+  urology: 'International Prostate Symptom Score (IPSS) improvement',
+  dermatology: 'Lesion clearance rate or validated dermatologic endpoint',
+};
+
+const DEVICE_STUDY_RISKS: Record<string, string[]> = {
+  cardiovascular: ['High adverse event rate requiring DSMB oversight', 'Sham procedure ethical concerns', 'Long-term follow-up attrition for implant durability'],
+  orthopedic: ['Surgeon learning curve confounding early outcomes', 'Long follow-up required for implant longevity (minimum 2 years)', 'Crossover from control to treatment arm'],
+  neurology: ['Sham surgery ethics in device trials', 'High placebo response rate', 'Endpoint variability and subjective assessment bias'],
+  ophthalmology: ['Contralateral eye as control raises statistical issues', 'Masking challenges with device procedures', 'Variable natural history complicating endpoint assessment'],
+  diabetes_metabolic: ['Sensor accuracy variability across glucose ranges', 'Real-world vs. controlled-setting performance gap', 'Insulin dosing confounders'],
+  ivd_oncology: ['Specimen quality variability affecting assay performance', 'Evolving molecular classification during study', 'Clinical utility vs. analytical validity distinction'],
+  general_surgery: ['Surgeon variability in procedural outcomes', 'Standardization of surgical technique across sites', 'Short-term endpoints may not predict long-term safety'],
+  default: ['Enrollment competition with other device trials', 'Site variability in procedural technique', 'Regulatory endpoint alignment with commercial value proposition'],
+};
+
+const DEVICE_FDA_GUIDANCES: Record<string, string[]> = {
+  cardiovascular: [
+    'Guidance for Industry and FDA Staff: Clinical Investigations of Devices Indicated for the Treatment of Heart Failure',
+    'FDA Guidance: Investigational Device Exemptions for Transcatheter Aortic Valve Replacement (TAVR)',
+    'FDA Guidance: Clinical Evidence for Coronary Artery Stents',
+  ],
+  orthopedic: [
+    'FDA Guidance: Clinical Evaluation of Orthopedic Devices',
+    'FDA Guidance: Premarket Notification Requirements for Total Internal Knee Joint Prostheses',
+    'FDA Guidance: Non-clinical Testing for Metal-on-Metal Hip Arthroplasty',
+  ],
+  neurology: [
+    'FDA Guidance: Implanted Brain-Computer Interface Devices for Patients with Paralysis or Amputation',
+    'FDA Guidance: Deep Brain Stimulation Devices for OCD',
+    'FDA Guidance: Vagus Nerve Stimulation Device Clinical Studies',
+  ],
+  ophthalmology: [
+    'FDA Guidance: Intraocular Lens Devices — 510(k) Submission',
+    'FDA Guidance: Clinical Study Guidance for LASIK Devices',
+  ],
+  diabetes_metabolic: [
+    'FDA Guidance: Self-Monitoring Blood Glucose Test Systems for Over-the-Counter Use',
+    'FDA Guidance: Continuous Glucose Monitoring Systems',
+    'FDA Guidance: Artificial Pancreas Device Systems',
+  ],
+  ivd_oncology: [
+    'FDA Guidance: Principles for Codevelopment of an In Vitro Companion Diagnostic Device with a Therapeutic Product',
+    'FDA Guidance: In Vitro Companion Diagnostic Devices (2014)',
+    'FDA Guidance: Nucleic Acid Based Tests',
+  ],
+  ivd_infectious: [
+    'FDA Guidance: In Vitro Diagnostics for the Detection of SARS-CoV-2 (Framework)',
+    'FDA Guidance: Microbiology Devices; Classification of Antimicrobial Susceptibility Test Systems',
+  ],
+  ivd_genetics: [
+    'FDA Guidance: Use of Public Human Genetic Variant Databases to Support Clinical Validity',
+    'FDA Guidance: Considerations for Design, Development, and Analytical Validation of NGS-Based IVDs',
+  ],
+  imaging_radiology: [
+    'FDA Guidance: Clinical Performance Assessment: Considerations for Computer-Assisted Detection Devices Applied to Radiology Images',
+    'FDA Guidance: Clinical Evidence for Radiology AI/ML Devices',
+  ],
+  default: [
+    'FDA Guidance: De Novo Classification Process (Evaluation of Automatic Class III Designation)',
+    'FDA Guidance: Deciding When to Submit a 510(k) for a Change to an Existing Device',
+    'FDA Guidance: Factors to Consider Regarding Benefit-Risk in Medical Device Product Availability, Compliance, and Enforcement Decisions',
+  ],
+};
+
+export function buildDeviceClinicalEvidenceStrategy(
+  pathway: string,
+  deviceCategory: DeviceCategory,
+  developmentStage: string,
+): DeviceClinicalEvidenceStrategy {
+  // Normalize pathway key to match our evidence requirements table
+  let pathwayKey: string;
+  if (pathway.includes('510(k)')) {
+    pathwayKey = '510(k) Clearance';
+  } else if (pathway.includes('De Novo')) {
+    pathwayKey = 'De Novo Classification';
+  } else if (pathway.includes('PMA')) {
+    pathwayKey = 'PMA (Premarket Approval)';
+  } else if (pathway.includes('HDE')) {
+    pathwayKey = 'HDE (Humanitarian Device Exemption)';
+  } else {
+    pathwayKey = '510(k) Clearance';
+  }
+
+  // Map device category to product category key for lookup
+  const categoryToProductKey: Record<string, string> = {
+    cardiovascular: 'device_implantable',
+    orthopedic: 'device_implantable',
+    neurology: 'device_implantable',
+    ophthalmology: 'device_surgical',
+    endoscopy_gi: 'device_surgical',
+    wound_care: 'device_surgical',
+    diabetes_metabolic: 'device_monitoring',
+    oncology_surgical: 'device_surgical',
+    oncology_radiation: 'device_capital_equipment',
+    ivd_oncology: 'diagnostics_ivd',
+    ivd_infectious: 'diagnostics_ivd',
+    ivd_cardiology: 'diagnostics_ivd',
+    ivd_genetics: 'diagnostics_ivd',
+    imaging_radiology: 'device_capital_equipment',
+    renal_dialysis: 'device_capital_equipment',
+    respiratory: 'device_monitoring',
+    dental: 'device_implantable',
+    general_surgery: 'device_surgical',
+    vascular: 'device_implantable',
+    ent: 'device_surgical',
+    urology: 'device_surgical',
+    dermatology: 'device_surgical',
+  };
+
+  const productKey = categoryToProductKey[deviceCategory] ?? 'default';
+  const pathwayReqs = DEVICE_EVIDENCE_REQUIREMENTS[pathwayKey] ?? DEVICE_EVIDENCE_REQUIREMENTS['510(k) Clearance'];
+  const spec: DeviceEvidenceSpec = pathwayReqs[productKey] ?? pathwayReqs['default'];
+
+  // Get primary endpoint for this device category
+  const primaryEndpoint = DEVICE_PRIMARY_ENDPOINTS[deviceCategory] ?? 'Primary clinical endpoint per FDA device-specific guidance';
+
+  // Get study risks
+  const studyRisks = DEVICE_STUDY_RISKS[deviceCategory] ?? DEVICE_STUDY_RISKS['default'];
+
+  // Get FDA guidance documents
+  const guidanceDocs = DEVICE_FDA_GUIDANCES[deviceCategory] ?? DEVICE_FDA_GUIDANCES['default'];
+
+  // Build adaptive elements based on pathway and category
+  const adaptiveElements: string[] = [];
+  if (pathwayKey === 'PMA (Premarket Approval)') {
+    adaptiveElements.push('Bayesian endpoint evaluation for primary outcome');
+    adaptiveElements.push('Interim futility analysis at 50% enrollment');
+    if (spec.sample_size.base > 300) {
+      adaptiveElements.push('Adaptive randomization to optimize allocation ratio');
+    }
+    adaptiveElements.push('Pre-specified subgroup analyses for label differentiation');
+  } else if (pathwayKey === 'De Novo Classification') {
+    adaptiveElements.push('Interim futility analysis');
+    adaptiveElements.push('Bayesian adaptive design for sample size re-estimation');
+  } else if (pathwayKey === '510(k) Clearance' && spec.sample_size.base > 0) {
+    adaptiveElements.push('Bayesian performance goal assessment');
+  }
+  if (developmentStage === 'concept' || developmentStage === 'preclinical') {
+    adaptiveElements.push('Seamless feasibility-to-pivotal design to reduce development time');
+  }
+
+  // Build study rationale
+  const rationaleStr = pathwayKey === '510(k) Clearance' && spec.sample_size.base === 0
+    ? `For 510(k) clearance of this ${deviceCategory} device, bench testing and biocompatibility data are expected to be sufficient to demonstrate substantial equivalence to the predicate device. Clinical data may be required only if the predicate comparison reveals meaningful differences in technology, materials, or intended use.`
+    : pathwayKey === 'HDE (Humanitarian Device Exemption)'
+    ? `HDE pathway requires demonstration of probable benefit with safety data. Given the small patient population (<8,000/yr), a feasibility study of ${spec.sample_size.low}-${spec.sample_size.high} patients with safety as the primary endpoint is the standard approach. IRB approval at each institution is required for use.`
+    : `${spec.study_type} is recommended based on FDA precedent for ${deviceCategory} devices pursuing ${pathwayKey}. ` +
+      `Estimated enrollment of ${spec.sample_size.base} patients over ${spec.enrollment_months} months with ${spec.follow_up_months}-month follow-up. ` +
+      `Primary endpoint: ${primaryEndpoint}. ` +
+      `Estimated study cost: $${spec.cost_m.low}M-$${spec.cost_m.high}M (base: $${spec.cost_m.base}M). ` +
+      `Pre-Submission (Q-Sub) meeting with FDA is strongly recommended to align on study design, primary endpoint, and acceptance criteria before trial initiation.`;
+
+  return {
+    recommended_study_type: spec.study_type,
+    study_rationale: rationaleStr,
+    recommended_primary_endpoint: primaryEndpoint,
+    estimated_sample_size: spec.sample_size,
+    estimated_enrollment_months: spec.enrollment_months,
+    estimated_study_cost_m: spec.cost_m,
+    comparator_recommendation: spec.comparator,
+    adaptive_elements: adaptiveElements,
+    key_study_risks: studyRisks.slice(0, 5),
+    fda_guidance_documents: guidanceDocs,
+    narrative:
+      `Clinical evidence strategy for ${deviceCategory} device via ${pathwayKey}: ` +
+      `${spec.study_type}${spec.sample_size.base > 0 ? ` with ${spec.sample_size.low}-${spec.sample_size.high} patients` : ''}. ` +
+      `Recommended primary endpoint: ${primaryEndpoint}. ` +
+      `Estimated total study cost: $${spec.cost_m.low}M-$${spec.cost_m.high}M. ` +
+      `${adaptiveElements.length > 0 ? `Adaptive elements: ${adaptiveElements.slice(0, 2).join('; ')}. ` : ''}` +
+      `Key risks: ${studyRisks.slice(0, 2).join('; ')}.`,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// FUNCTION 3: buildDeviceIndicationScopeScenarios
+// Three scenarios (narrow/base/broad) with indication scope,
+// probability, and commercial impact multipliers.
+// ────────────────────────────────────────────────────────────
+
+interface IndicationScopeTemplate {
+  narrow: {
+    multiplier_range: [number, number];
+    probability: number;
+    risk: 'low' | 'moderate' | 'high';
+  };
+  base: {
+    multiplier: number;
+    probability: number;
+    risk: 'low' | 'moderate' | 'high';
+  };
+  broad: {
+    multiplier_range: [number, number];
+    probability: number;
+    risk: 'low' | 'moderate' | 'high';
+  };
+}
+
+const INDICATION_SCOPE_TEMPLATES: Record<string, IndicationScopeTemplate> = {
+  '510(k) Clearance': {
+    narrow: { multiplier_range: [0.5, 0.7], probability: 0.85, risk: 'low' },
+    base: { multiplier: 1.0, probability: 0.70, risk: 'moderate' },
+    broad: { multiplier_range: [1.3, 1.5], probability: 0.40, risk: 'high' },
+  },
+  'PMA (Premarket Approval)': {
+    narrow: { multiplier_range: [0.5, 0.7], probability: 0.90, risk: 'low' },
+    base: { multiplier: 1.0, probability: 0.65, risk: 'moderate' },
+    broad: { multiplier_range: [1.3, 1.5], probability: 0.35, risk: 'high' },
+  },
+  'De Novo Classification': {
+    narrow: { multiplier_range: [0.4, 0.6], probability: 0.80, risk: 'low' },
+    base: { multiplier: 1.0, probability: 0.60, risk: 'moderate' },
+    broad: { multiplier_range: [1.5, 1.8], probability: 0.30, risk: 'high' },
+  },
+  'HDE (Humanitarian Device Exemption)': {
+    narrow: { multiplier_range: [0.6, 0.8], probability: 0.90, risk: 'low' },
+    base: { multiplier: 1.0, probability: 0.75, risk: 'moderate' },
+    broad: { multiplier_range: [1.2, 1.4], probability: 0.45, risk: 'high' },
+  },
+};
+
+// Indication scope details per device category for realistic narratives
+const DEVICE_INDICATION_SCOPE_DETAILS: Record<string, {
+  narrow_indication: string;
+  narrow_population: string[];
+  narrow_settings: string[];
+  base_indication: string;
+  base_population: string[];
+  base_settings: string[];
+  broad_indication: string;
+  broad_population: string[];
+  broad_settings: string[];
+}> = {
+  cardiovascular: {
+    narrow_indication: 'Severe symptomatic aortic stenosis in patients at extreme/high surgical risk',
+    narrow_population: ['Age ≥75', 'STS score ≥8%', 'Heart team determination of inoperability'],
+    narrow_settings: ['Tertiary care hospitals with structural heart program'],
+    base_indication: 'Severe symptomatic aortic stenosis across surgical risk categories',
+    base_population: ['Adults with symptomatic severe AS', 'All surgical risk categories'],
+    base_settings: ['Hospitals with structural heart programs', 'High-volume cardiac surgery centers'],
+    broad_indication: 'Aortic stenosis including moderate AS and asymptomatic severe AS',
+    broad_population: ['All adults with severe AS', 'Expansion to moderate AS', 'Asymptomatic patients with LV dysfunction'],
+    broad_settings: ['Community hospitals with catheterization labs', 'Ambulatory surgical centers'],
+  },
+  orthopedic: {
+    narrow_indication: 'Primary total knee arthroplasty in end-stage osteoarthritis',
+    narrow_population: ['Adults 55-80 years', 'BMI <40', 'Kellgren-Lawrence Grade IV'],
+    narrow_settings: ['Hospital inpatient and ASC with orthopedic capability'],
+    base_indication: 'Primary and revision total knee arthroplasty',
+    base_population: ['Adults ≥21 years', 'OA and post-traumatic arthritis', 'Including revision procedures'],
+    base_settings: ['Hospitals', 'Ambulatory surgical centers', 'Orthopedic specialty centers'],
+    broad_indication: 'Total and partial knee arthroplasty including robotic-assisted and patient-specific',
+    broad_population: ['Adults of all ages', 'All BMI categories', 'Complex deformities and post-infectious'],
+    broad_settings: ['All surgical settings including office-based surgery', 'Expansion to outpatient-only protocols'],
+  },
+  neurology: {
+    narrow_indication: 'Drug-resistant epilepsy with focal onset seizures',
+    narrow_population: ['Adults 18-65', 'Failed ≥2 AEDs', 'Localized seizure focus on EEG'],
+    narrow_settings: ['Level 4 epilepsy centers'],
+    base_indication: 'Drug-resistant epilepsy with focal and generalized onset seizures',
+    base_population: ['Adults and adolescents ≥12', 'Failed ≥2 AEDs'],
+    base_settings: ['Level 3-4 epilepsy centers', 'Academic medical centers'],
+    broad_indication: 'Refractory epilepsy and movement disorders including essential tremor',
+    broad_population: ['All ages ≥6', 'Expansion to movement disorders', 'Treatment-resistant depression adjunct'],
+    broad_settings: ['Community neurology practices', 'Rehabilitation centers'],
+  },
+  diabetes_metabolic: {
+    narrow_indication: 'Continuous glucose monitoring in Type 1 diabetes on insulin pump therapy',
+    narrow_population: ['Adults with T1D', 'Insulin pump users', 'HbA1c >7.5%'],
+    narrow_settings: ['Endocrinology practices'],
+    base_indication: 'Continuous glucose monitoring in Type 1 and Type 2 diabetes on intensive insulin therapy',
+    base_population: ['Adults and pediatrics ≥2 years', 'T1D and insulin-treated T2D'],
+    base_settings: ['Endocrinology', 'Primary care', 'Diabetes education centers'],
+    broad_indication: 'Glucose monitoring for all diabetes patients and prediabetes prevention',
+    broad_population: ['All diabetes patients', 'Non-insulin-treated T2D', 'Prediabetes and gestational diabetes'],
+    broad_settings: ['Primary care', 'OTC/direct-to-consumer', 'Pharmacy-based programs'],
+  },
+  ivd_oncology: {
+    narrow_indication: 'Companion diagnostic for specific biomarker in a single tumor type',
+    narrow_population: ['Stage III-IV patients', 'Prior to first-line therapy', 'Tissue-based testing only'],
+    narrow_settings: ['CLIA-certified oncology reference laboratories'],
+    base_indication: 'Multi-biomarker panel for tumor profiling in multiple solid tumors',
+    base_population: ['All advanced solid tumor patients', 'All lines of therapy'],
+    base_settings: ['Reference laboratories', 'Hospital-based pathology labs'],
+    broad_indication: 'Comprehensive genomic profiling across all solid tumors and hematologic malignancies',
+    broad_population: ['All cancer patients', 'Early-stage and advanced', 'Longitudinal monitoring'],
+    broad_settings: ['Point-of-care molecular testing', 'Community hospital labs', 'Decentralized testing'],
+  },
+  general_surgery: {
+    narrow_indication: 'Laparoscopic cholecystectomy in elective, non-emergent cases',
+    narrow_population: ['Adults 18-70', 'BMI <35', 'ASA I-II'],
+    narrow_settings: ['Hospital operating rooms with trained surgeons'],
+    base_indication: 'Minimally invasive general surgery across multiple abdominal procedures',
+    base_population: ['Adults ≥18', 'ASA I-III', 'Including bariatric and colorectal'],
+    base_settings: ['Hospital ORs', 'Ambulatory surgical centers'],
+    broad_indication: 'Multi-specialty minimally invasive and robotic-assisted surgery',
+    broad_population: ['All surgical candidates', 'Expansion to thoracic and urologic procedures'],
+    broad_settings: ['All surgical settings', 'Office-based procedures', 'Field surgical units'],
+  },
+  default: {
+    narrow_indication: 'Specific clinical indication with restricted patient population',
+    narrow_population: ['Narrowly defined patient criteria', 'Specific age/disease severity restrictions'],
+    narrow_settings: ['Specialized centers only'],
+    base_indication: 'Intended clinical indication matching pivotal trial population',
+    base_population: ['Pivotal trial population', 'Standard clinical criteria'],
+    base_settings: ['Standard-of-care clinical settings'],
+    broad_indication: 'Expanded indications beyond pivotal data, including adjacent populations',
+    broad_population: ['All-comers', 'Expanded age ranges', 'Adjacent disease states'],
+    broad_settings: ['All applicable clinical settings', 'Point-of-care', 'Home use'],
+  },
+};
+
+export function buildDeviceIndicationScopeScenarios(
+  pathway: string,
+  deviceCategory: DeviceCategory,
+): DeviceIndicationScopeScenario[] {
+  // Normalize pathway key
+  let pathwayKey: string;
+  if (pathway.includes('510(k)')) {
+    pathwayKey = '510(k) Clearance';
+  } else if (pathway.includes('De Novo')) {
+    pathwayKey = 'De Novo Classification';
+  } else if (pathway.includes('PMA')) {
+    pathwayKey = 'PMA (Premarket Approval)';
+  } else if (pathway.includes('HDE')) {
+    pathwayKey = 'HDE (Humanitarian Device Exemption)';
+  } else {
+    pathwayKey = '510(k) Clearance';
+  }
+
+  const template = INDICATION_SCOPE_TEMPLATES[pathwayKey] ?? INDICATION_SCOPE_TEMPLATES['510(k) Clearance'];
+  const details = DEVICE_INDICATION_SCOPE_DETAILS[deviceCategory] ?? DEVICE_INDICATION_SCOPE_DETAILS['default'];
+
+  const narrowMultiplier = (template.narrow.multiplier_range[0] + template.narrow.multiplier_range[1]) / 2;
+  const broadMultiplier = (template.broad.multiplier_range[0] + template.broad.multiplier_range[1]) / 2;
+
+  // Build narrow scenario
+  const narrowNarrative =
+    `Narrow indication scenario for ${deviceCategory} device via ${pathwayKey}: ` +
+    `"${details.narrow_indication}". ` +
+    `Restricted to ${details.narrow_population.join('; ')}. ` +
+    `Setting: ${details.narrow_settings.join('; ')}. ` +
+    `This represents the most conservative regulatory outcome with the highest probability of clearance/approval (${(template.narrow.probability * 100).toFixed(0)}%). ` +
+    `Commercial impact multiplier: ${narrowMultiplier.toFixed(1)}x — significantly limits addressable market but de-risks the regulatory pathway. ` +
+    (pathwayKey === '510(k) Clearance'
+      ? 'For 510(k), this means exact predicate match with single indication and specific population. Predicate chain is straightforward and review is expedited.'
+      : pathwayKey === 'PMA (Premarket Approval)'
+      ? 'For PMA, biomarker-selected or single-site-of-care restriction ensures robust efficacy signal in pivotal trial but limits commercial potential.'
+      : 'Narrow scope minimizes regulatory risk and enables faster time to market.');
+
+  // Build base scenario
+  const baseNarrative =
+    `Base indication scenario for ${deviceCategory} device via ${pathwayKey}: ` +
+    `"${details.base_indication}". ` +
+    `Population: ${details.base_population.join('; ')}. ` +
+    `Setting: ${details.base_settings.join('; ')}. ` +
+    `This is the most likely regulatory outcome based on pivotal trial design and FDA precedent (probability: ${(template.base.probability * 100).toFixed(0)}%). ` +
+    `Commercial impact multiplier: 1.0x — represents the full intended market based on development plan. ` +
+    (pathwayKey === '510(k) Clearance'
+      ? 'For 510(k), slightly broader indication than predicate but within the same device category. Standard substantial equivalence argument.'
+      : pathwayKey === 'PMA (Premarket Approval)'
+      ? 'For PMA, broad indication across multiple settings. Pivotal RCT must demonstrate safety and effectiveness in the intended population.'
+      : 'Standard indication scope aligned with clinical development program.');
+
+  // Build broad scenario
+  const broadNarrative =
+    `Broad indication scenario for ${deviceCategory} device via ${pathwayKey}: ` +
+    `"${details.broad_indication}". ` +
+    `Population: ${details.broad_population.join('; ')}. ` +
+    `Setting: ${details.broad_settings.join('; ')}. ` +
+    `This represents the most optimistic regulatory outcome with the lowest probability (${(template.broad.probability * 100).toFixed(0)}%). ` +
+    `Commercial impact multiplier: ${broadMultiplier.toFixed(1)}x — significantly expands addressable market. ` +
+    (pathwayKey === '510(k) Clearance'
+      ? 'For 510(k), this requires establishing a new predicate chain with expanded indications. FDA may request clinical data or reclassify the submission as De Novo.'
+      : pathwayKey === 'PMA (Premarket Approval)'
+      ? 'For PMA, all-comers trial with expanded settings including ASCs and expanded operator credentials. Post-market study commitments likely required.'
+      : pathwayKey === 'De Novo Classification'
+      ? 'For De Novo, expansion to OTC or point-of-care use with expanded indications. Creates a new classification that competitors can reference.'
+      : 'Broad scope maximizes commercial potential but carries highest regulatory risk.');
+
+  return [
+    {
+      scenario: 'narrow',
+      indication_statement: details.narrow_indication,
+      population_restrictions: details.narrow_population,
+      setting_restrictions: details.narrow_settings,
+      regulatory_risk: template.narrow.risk,
+      commercial_impact_multiplier: narrowMultiplier,
+      probability: template.narrow.probability,
+      narrative: narrowNarrative,
+    },
+    {
+      scenario: 'base',
+      indication_statement: details.base_indication,
+      population_restrictions: details.base_population,
+      setting_restrictions: details.base_settings,
+      regulatory_risk: template.base.risk,
+      commercial_impact_multiplier: template.base.multiplier,
+      probability: template.base.probability,
+      narrative: baseNarrative,
+    },
+    {
+      scenario: 'broad',
+      indication_statement: details.broad_indication,
+      population_restrictions: details.broad_population,
+      setting_restrictions: details.broad_settings,
+      regulatory_risk: template.broad.risk,
+      commercial_impact_multiplier: broadMultiplier,
+      probability: template.broad.probability,
+      narrative: broadNarrative,
+    },
+  ];
+}
+
+// ────────────────────────────────────────────────────────────
+// FUNCTION 4: buildDeviceManufacturingRisk
+// Manufacturing risk profiling by product category.
+// ────────────────────────────────────────────────────────────
+
+interface ManufacturingProfile {
+  complexity: number;
+  sterilization_method: string;
+  sterilization_risk: 'low' | 'moderate' | 'high';
+  validation_months: number;
+  biocompat_tests: string[];
+  iso_standards: string[];
+  cogs_range: { low_pct: number; high_pct: number };
+  scale_up_challenges: string[];
+  supply_chain_risk: 'low' | 'moderate' | 'high';
+}
+
+const DEVICE_MANUFACTURING_PROFILES: Record<string, ManufacturingProfile> = {
+  device_implantable: {
+    complexity: 8,
+    sterilization_method: 'Ethylene oxide (EtO) or gamma radiation',
+    sterilization_risk: 'high',
+    validation_months: 18,
+    biocompat_tests: [
+      'Cytotoxicity (ISO 10993-5)',
+      'Sensitization (ISO 10993-10)',
+      'Irritation (ISO 10993-23)',
+      'Systemic toxicity (ISO 10993-11)',
+      'Genotoxicity (ISO 10993-3)',
+      'Implantation (ISO 10993-6)',
+      'Hemocompatibility (ISO 10993-4)',
+    ],
+    iso_standards: ['ISO 13485', 'ISO 10993 series', 'ISO 14971', 'ISO 11607 (packaging)'],
+    cogs_range: { low_pct: 15, high_pct: 35 },
+    scale_up_challenges: [
+      'Biocompatible material sourcing (titanium, PEEK, UHMWPE)',
+      'Cleanroom capacity for Class 7/8 manufacturing',
+      'Sterilization validation (EtO cycle optimization)',
+      'Lot-to-lot consistency for critical dimensions',
+      'Incoming material qualification for implant-grade alloys',
+      'Long-term stability studies for shelf-life claims',
+    ],
+    supply_chain_risk: 'high',
+  },
+  device_surgical: {
+    complexity: 6,
+    sterilization_method: 'Ethylene oxide (EtO)',
+    sterilization_risk: 'moderate',
+    validation_months: 12,
+    biocompat_tests: [
+      'Cytotoxicity (ISO 10993-5)',
+      'Sensitization (ISO 10993-10)',
+      'Irritation (ISO 10993-23)',
+    ],
+    iso_standards: ['ISO 13485', 'ISO 14971', 'IEC 60601-1 (electrical safety, if applicable)'],
+    cogs_range: { low_pct: 20, high_pct: 40 },
+    scale_up_challenges: [
+      'Precision machining tolerances for cutting instruments',
+      'Reprocessing validation for reusable devices',
+      'Sterile packaging design and validation',
+      'Multi-component assembly process qualification',
+      'Supplier qualification for specialty stainless steel',
+    ],
+    supply_chain_risk: 'moderate',
+  },
+  device_monitoring: {
+    complexity: 4,
+    sterilization_method: 'Not required for external non-invasive devices',
+    sterilization_risk: 'low',
+    validation_months: 9,
+    biocompat_tests: [
+      'Cytotoxicity (ISO 10993-5) — for skin-contact components',
+      'Sensitization (ISO 10993-10) — for adhesive components',
+    ],
+    iso_standards: ['ISO 13485', 'ISO 14971', 'IEC 60601-1', 'IEC 62304 (software lifecycle)'],
+    cogs_range: { low_pct: 25, high_pct: 45 },
+    scale_up_challenges: [
+      'Electronics component supply chain volatility',
+      'Sensor calibration consistency at scale',
+      'Firmware/software update deployment management',
+      'Battery life optimization and testing',
+      'Consumer-grade packaging for home-use devices',
+    ],
+    supply_chain_risk: 'moderate',
+  },
+  device_drug_delivery: {
+    complexity: 9,
+    sterilization_method: 'Gamma radiation or ethylene oxide (EtO)',
+    sterilization_risk: 'high',
+    validation_months: 24,
+    biocompat_tests: [
+      'Cytotoxicity (ISO 10993-5)',
+      'Sensitization (ISO 10993-10)',
+      'Irritation (ISO 10993-23)',
+      'Systemic toxicity (ISO 10993-11)',
+      'Genotoxicity (ISO 10993-3)',
+      'Implantation (ISO 10993-6)',
+      'Hemocompatibility (ISO 10993-4)',
+      'Drug-device interaction testing',
+    ],
+    iso_standards: ['ISO 13485', 'ISO 10993 series', 'ISO 14971', 'ICH Q8/Q9 (drug substance)', '21 CFR 4 (combination products)'],
+    cogs_range: { low_pct: 20, high_pct: 40 },
+    scale_up_challenges: [
+      'Combination product regulatory complexity (CDER/CDRH jurisdiction)',
+      'Drug-device compatibility and stability studies',
+      'Dual GMP compliance (drug + device manufacturing)',
+      'Sterilization method impact on drug stability',
+      'Elution rate consistency across manufacturing lots',
+      'Long-term drug reservoir stability validation',
+    ],
+    supply_chain_risk: 'high',
+  },
+  device_digital_health: {
+    complexity: 3,
+    sterilization_method: 'Not applicable (software only)',
+    sterilization_risk: 'low',
+    validation_months: 6,
+    biocompat_tests: [],
+    iso_standards: ['IEC 62304 (software lifecycle)', 'ISO 14971', 'IEC 82304 (health software)', 'ISO 13485 (if hardware component)'],
+    cogs_range: { low_pct: 5, high_pct: 15 },
+    scale_up_challenges: [
+      'Cybersecurity compliance (FDA premarket cybersecurity guidance)',
+      'Cloud infrastructure scaling and HIPAA compliance',
+      'Software version management and update validation',
+      'AI/ML model retraining and predetermined change control plan',
+      'Interoperability with EHR systems (HL7 FHIR)',
+      'Real-world performance monitoring post-deployment',
+    ],
+    supply_chain_risk: 'low',
+  },
+  device_capital_equipment: {
+    complexity: 7,
+    sterilization_method: 'Not applicable (non-sterile capital equipment)',
+    sterilization_risk: 'low',
+    validation_months: 15,
+    biocompat_tests: [],
+    iso_standards: ['ISO 13485', 'ISO 14971', 'IEC 60601-1', 'IEC 61010 (lab equipment)', 'IEC 62366 (usability)'],
+    cogs_range: { low_pct: 25, high_pct: 45 },
+    scale_up_challenges: [
+      'Complex electromechanical assembly qualification',
+      'Heavy supply chain dependency on specialized components (tubes, detectors, lasers)',
+      'Installation qualification (IQ) and operational qualification (OQ) at customer sites',
+      'Service infrastructure buildout (field service engineers)',
+      'Long lead times for custom optics and radiation sources',
+      'Regulatory clearance for hardware + software system integration',
+    ],
+    supply_chain_risk: 'high',
+  },
+  device_point_of_care: {
+    complexity: 5,
+    sterilization_method: 'Gamma radiation for reagent cartridges',
+    sterilization_risk: 'moderate',
+    validation_months: 10,
+    biocompat_tests: [
+      'Cytotoxicity (ISO 10993-5) — for specimen-contact components',
+    ],
+    iso_standards: ['ISO 13485', 'ISO 14971', 'ISO 15197 (glucose monitoring)', 'CLSI EP (evaluation protocols)'],
+    cogs_range: { low_pct: 15, high_pct: 30 },
+    scale_up_challenges: [
+      'Reagent shelf-life and cold chain management',
+      'Reader-to-reader variability in field conditions',
+      'High-volume cartridge/test strip manufacturing consistency',
+      'CLIA waiver study requirements for operator simplicity',
+      'Environmental performance validation (temperature, humidity)',
+    ],
+    supply_chain_risk: 'moderate',
+  },
+  diagnostics_ivd: {
+    complexity: 5,
+    sterilization_method: 'Not applicable (non-sterile laboratory reagents)',
+    sterilization_risk: 'low',
+    validation_months: 12,
+    biocompat_tests: [],
+    iso_standards: ['ISO 13485', 'ISO 14971', 'ISO 23640 (IVD performance evaluation)', 'CLSI EP (evaluation protocols)'],
+    cogs_range: { low_pct: 10, high_pct: 25 },
+    scale_up_challenges: [
+      'Reagent lot-to-lot consistency and stability',
+      'Reference material sourcing and characterization',
+      'Platform-instrument calibration standardization',
+      'Clinical specimen banking for ongoing validation',
+      'Software validation for data analysis algorithms',
+    ],
+    supply_chain_risk: 'moderate',
+  },
+  diagnostics_companion: {
+    complexity: 6,
+    sterilization_method: 'Not applicable (non-sterile laboratory reagents)',
+    sterilization_risk: 'low',
+    validation_months: 14,
+    biocompat_tests: [],
+    iso_standards: ['ISO 13485', 'ISO 14971', 'ISO 23640', 'FDA CDx PMA guidance'],
+    cogs_range: { low_pct: 10, high_pct: 25 },
+    scale_up_challenges: [
+      'Co-development timeline synchronization with drug partner',
+      'Clinical trial specimen access and bridging study design',
+      'Analytical validation across specimen types (FFPE, fresh frozen, liquid)',
+      'Label expansion tracking when drug label changes',
+      'Multi-platform validation if distributed across analyzer systems',
+    ],
+    supply_chain_risk: 'moderate',
+  },
+  diagnostics_liquid_biopsy: {
+    complexity: 7,
+    sterilization_method: 'Not applicable (non-sterile laboratory reagents)',
+    sterilization_risk: 'low',
+    validation_months: 16,
+    biocompat_tests: [],
+    iso_standards: ['ISO 13485', 'ISO 14971', 'ISO 20186 (molecular testing)', 'CAP/CLIA laboratory standards'],
+    cogs_range: { low_pct: 15, high_pct: 30 },
+    scale_up_challenges: [
+      'ctDNA extraction efficiency and limit-of-detection optimization',
+      'Pre-analytical variable control (blood collection tube, processing time)',
+      'Complex bioinformatics pipeline validation and version control',
+      'Reference standard development for ultra-low-frequency variants',
+      'Wet lab automation for high-throughput clinical laboratory operation',
+      'Tissue concordance study design and execution',
+    ],
+    supply_chain_risk: 'moderate',
+  },
+};
+
+export function buildDeviceManufacturingRisk(
+  productCategory: ProductCategory,
+  mechanism?: string,
+): DeviceManufacturingRisk {
+  // Map product category to manufacturing profile key
+  const profileKey = productCategory as string;
+  const profile = DEVICE_MANUFACTURING_PROFILES[profileKey] ?? DEVICE_MANUFACTURING_PROFILES['device_surgical'];
+
+  // Adjust complexity based on mechanism keywords if provided
+  let adjustedComplexity = profile.complexity;
+  const mechLower = (mechanism ?? '').toLowerCase();
+  if (mechLower.includes('robot') || mechLower.includes('ai') || mechLower.includes('machine learning')) {
+    adjustedComplexity = Math.min(10, adjustedComplexity + 1);
+  }
+  if (mechLower.includes('nano') || mechLower.includes('bioresorbable') || mechLower.includes('3d print')) {
+    adjustedComplexity = Math.min(10, adjustedComplexity + 1);
+  }
+
+  const narrative =
+    `Manufacturing risk profile for ${productCategory}: complexity ${adjustedComplexity}/10. ` +
+    `Sterilization: ${profile.sterilization_method} (risk: ${profile.sterilization_risk}). ` +
+    `Estimated manufacturing validation timeline: ${profile.validation_months} months. ` +
+    `Estimated COGS: ${profile.cogs_range.low_pct}-${profile.cogs_range.high_pct}% of ASP. ` +
+    `Supply chain risk: ${profile.supply_chain_risk}. ` +
+    (profile.biocompat_tests.length > 0
+      ? `Biocompatibility testing required: ${profile.biocompat_tests.length} tests per ISO 10993 series. `
+      : 'No biocompatibility testing required (non-patient-contact). ') +
+    `Applicable standards: ${profile.iso_standards.join(', ')}. ` +
+    `Key scale-up challenges: ${profile.scale_up_challenges.slice(0, 3).join('; ')}. ` +
+    `Early engagement with CDMOs/CMOs and establishment of a robust Design History File (DHF) per 21 CFR 820 are critical to de-risking manufacturing.`;
+
+  return {
+    sterilization_method: profile.sterilization_method,
+    sterilization_risk: profile.sterilization_risk,
+    biocompatibility_testing_required: profile.biocompat_tests,
+    iso_standards_applicable: profile.iso_standards,
+    manufacturing_complexity_score: adjustedComplexity,
+    supply_chain_risk: profile.supply_chain_risk,
+    scale_up_challenges: profile.scale_up_challenges,
+    estimated_manufacturing_validation_months: profile.validation_months,
+    estimated_cogs_range: profile.cogs_range,
+    narrative,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// DEVICE REGULATORY ANALYSIS — WIRING FUNCTION
+// Constructs a DeviceRegulatoryOutput by calling the 4 new
+// functions and integrating them with the existing device
+// regulatory pathway logic.
+// ────────────────────────────────────────────────────────────
+
+export async function analyzeDeviceRegulatory(
+  input: DeviceRegulatoryInput,
+): Promise<DeviceRegulatoryOutput> {
+  // Determine recommended pathway
+  const pathwayResult = recommendDevicePathway(input);
+
+  // Determine device class and review division
+  const deviceClass = input.device_class_claimed ?? inferDeviceClass(input);
+  const reviewDivision = input.product_category.startsWith('diagnostics')
+    ? 'CDRH - Office of In Vitro Diagnostics and Radiological Health (OIR)'
+    : 'CDRH - Office of Product Evaluation and Quality (OPEQ)';
+
+  // Determine development stage label for evidence strategy
+  const devStage = input.clinical_data_available ? 'clinical_trial' : 'preclinical';
+
+  // Extract pathway string for downstream functions
+  const pathwayStr = pathwayResult.primary.pathway;
+
+  // ── NEW: Function 1 — Predicate device search ──
+  const predicateDevices = findPredicateDevices(
+    inferDeviceCategory(input),
+    input.intended_use,
+  );
+
+  // ── NEW: Function 2 — Clinical evidence strategy ──
+  const deviceClinicalEvidenceStrategy = buildDeviceClinicalEvidenceStrategy(
+    pathwayStr as string,
+    inferDeviceCategory(input),
+    devStage,
+  );
+
+  // ── NEW: Function 3 — Indication scope scenarios ──
+  const indicationScopeScenarios = buildDeviceIndicationScopeScenarios(
+    pathwayStr as string,
+    inferDeviceCategory(input),
+  );
+
+  // ── NEW: Function 4 — Manufacturing risk ──
+  const deviceManufacturingRisk = buildDeviceManufacturingRisk(
+    input.product_category,
+    input.device_description,
+  );
+
+  // Build special designations
+  const specialDesignations = scoreDeviceDesignations(input);
+
+  // Timeline estimate
+  const timelineEstimate = estimateDeviceTimeline(input, pathwayStr);
+
+  // Key risks
+  const keyRisks = assessDeviceRisks(input, pathwayStr);
+
+  // Comparable clearances
+  const comparableClearances = predicateDevices.slice(0, 5).map(p => ({
+    device: p.device_name,
+    company: p.company,
+    pathway: p.pathway,
+    clearance_date: p.clearance_date,
+    review_months: Math.round(p.review_days / 30),
+    device_class: p.device_class,
+  }));
+
+  // Clinical evidence strategy summary (for the existing field)
+  const clinicalEvidenceStrategy = {
+    study_design: deviceClinicalEvidenceStrategy.recommended_study_type,
+    primary_endpoint: deviceClinicalEvidenceStrategy.recommended_primary_endpoint,
+    sample_size_estimate: `${deviceClinicalEvidenceStrategy.estimated_sample_size.low}-${deviceClinicalEvidenceStrategy.estimated_sample_size.high} patients`,
+    duration: `${deviceClinicalEvidenceStrategy.estimated_enrollment_months} months enrollment`,
+    key_considerations: deviceClinicalEvidenceStrategy.key_study_risks.slice(0, 4),
+  };
+
+  // Post-market requirements
+  const postMarketRequirements = buildPostMarketRequirements(input, pathwayStr);
+
+  return {
+    recommended_pathway: {
+      primary: {
+        pathway: pathwayStr,
+        device_class: deviceClass,
+        review_division: reviewDivision,
+        typical_timeline_months: timelineEstimate.total_to_market.realistic,
+        submission_requirements: pathwayResult.primary.requirements,
+        clinical_evidence_required: deviceClinicalEvidenceStrategy.recommended_study_type,
+      },
+      alternatives: pathwayResult.alternatives,
+      rationale: pathwayResult.rationale,
+    },
+    special_designations: specialDesignations,
+    timeline_estimate: timelineEstimate,
+    key_risks: keyRisks,
+    comparable_clearances: comparableClearances,
+    clinical_evidence_strategy: clinicalEvidenceStrategy,
+    post_market_requirements: postMarketRequirements,
+
+    // 99+ world-class regulatory analytics extensions
+    predicate_devices: predicateDevices.length > 0 ? predicateDevices : undefined,
+    device_clinical_evidence_strategy: deviceClinicalEvidenceStrategy,
+    indication_scope_scenarios: indicationScopeScenarios,
+    device_manufacturing_risk: deviceManufacturingRisk,
+
+    data_sources: [
+      { name: 'FDA 510(k) Premarket Notification Database', type: 'public' },
+      { name: 'FDA PMA Database', type: 'public' },
+      { name: 'FDA De Novo Classification Orders', type: 'public' },
+      { name: 'FDA CDRH Annual Performance Reports', type: 'public' },
+      { name: 'FDA Device Guidance Documents Library', type: 'public' },
+      { name: 'Terrain Device Regulatory Intelligence', type: 'proprietary' },
+      { name: 'Ambrosia Ventures MedTech Deal Database', type: 'proprietary' },
+    ],
+    generated_at: new Date().toISOString(),
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// DEVICE REGULATORY HELPER FUNCTIONS
+// ────────────────────────────────────────────────────────────
+
+function inferDeviceCategory(input: DeviceRegulatoryInput): DeviceCategory {
+  const desc = (input.device_description + ' ' + input.intended_use + ' ' + input.indications_for_use).toLowerCase();
+
+  if (/heart|valve|stent|cardiac|coronary|atrial|aortic|pacemaker|defibrillator/.test(desc)) return 'cardiovascular';
+  if (/knee|hip|spine|bone|joint|orthop|arthroplasty|fracture/.test(desc)) return 'orthopedic';
+  if (/brain|neuro|seizure|epilepsy|parkinson|dbs|vagus/.test(desc)) return 'neurology';
+  if (/eye|ophthalm|retina|cataract|lens|glaucoma|lasik/.test(desc)) return 'ophthalmology';
+  if (/endoscop|colonoscop|gastro|gi tract/.test(desc)) return 'endoscopy_gi';
+  if (/wound|dermal|skin repair|tissue regenerat/.test(desc)) return 'wound_care';
+  if (/glucose|diabetes|insulin|cgm|metabolic|pump/.test(desc)) return 'diabetes_metabolic';
+  if (/tumor|ablation|oncol|cancer.*surg/.test(desc)) return 'oncology_surgical';
+  if (/radiation|proton|linac|brachytherapy/.test(desc)) return 'oncology_radiation';
+  if (/ivd.*oncol|tumor marker|companion diag|genomic profil/.test(desc)) return 'ivd_oncology';
+  if (/infect|pathogen|pcr|culture|antimicrob/.test(desc)) return 'ivd_infectious';
+  if (/troponin|bnp|cardiac marker/.test(desc)) return 'ivd_cardiology';
+  if (/genetic|ngs|sequenc|variant|genomic/.test(desc)) return 'ivd_genetics';
+  if (/imaging|mri|ct scan|x-ray|ultrasound|radiol/.test(desc)) return 'imaging_radiology';
+  if (/dialysis|renal|hemodialysis|peritoneal/.test(desc)) return 'renal_dialysis';
+  if (/respirat|ventilat|cpap|pulmon|oxygen/.test(desc)) return 'respiratory';
+  if (/dental|tooth|implant.*dental|oral/.test(desc)) return 'dental';
+  if (/vascular|angioplasty|graft|embol/.test(desc)) return 'vascular';
+  if (/ear|nose|throat|sinus|cochlear|hearing/.test(desc)) return 'ent';
+  if (/urolog|prostate|bladder|kidney stone/.test(desc)) return 'urology';
+  if (/dermatol|skin.*laser|cosmetic.*device/.test(desc)) return 'dermatology';
+
+  return 'general_surgery';
+}
+
+type FDADeviceClassType = 'Class I' | 'Class II' | 'Class III';
+
+function inferDeviceClass(input: DeviceRegulatoryInput): FDADeviceClassType {
+  if (input.is_novel_technology && !input.has_predicate) return 'Class III';
+  if (input.is_combination_product) return 'Class III';
+  if (input.product_category === 'device_implantable') return 'Class III';
+  if (input.product_category === 'diagnostics_companion') return 'Class III';
+  if (input.has_predicate) return 'Class II';
+  if (input.product_category === 'device_digital_health') return 'Class II';
+  if (input.product_category === 'device_monitoring') return 'Class II';
+  if (input.product_category === 'device_point_of_care') return 'Class II';
+  if (input.product_category === 'diagnostics_ivd') return 'Class II';
+
+  return 'Class II';
+}
+
+function recommendDevicePathway(
+  input: DeviceRegulatoryInput,
+): {
+  primary: { pathway: FDADevicePathway; requirements: string[] };
+  alternatives: { pathway: string; rationale: string; tradeoffs: string }[];
+  rationale: string;
+} {
+  let primaryPathway: FDADevicePathway;
+  let requirements: string[];
+  const alternatives: { pathway: string; rationale: string; tradeoffs: string }[] = [];
+
+  // HDE check first — patient population <8,000/yr
+  if (input.patient_population_us && input.patient_population_us < 8000 && input.unmet_need === 'high') {
+    primaryPathway = 'HDE (Humanitarian Device Exemption)';
+    requirements = [
+      'Humanitarian Use Device (HUD) designation from OOPD',
+      'Probable benefit demonstration (not effectiveness)',
+      'Safety data from feasibility study',
+      'IRB approval required at each institution for use',
+      'Annual distribution report to FDA',
+    ];
+    alternatives.push({
+      pathway: 'PMA (Premarket Approval)',
+      rationale: 'If clinical data supports full effectiveness claim, PMA allows broader commercialization without per-institution IRB requirement',
+      tradeoffs: 'Significantly higher cost ($15-50M) and longer timeline (3-5 years) but removes HDE distribution restrictions',
+    });
+  }
+  // PMA for Class III or novel high-risk
+  else if (
+    input.device_class_claimed === 'Class III' ||
+    (input.is_novel_technology && input.is_combination_product) ||
+    (input.product_category === 'device_implantable' && input.is_novel_technology && !input.has_predicate)
+  ) {
+    primaryPathway = 'PMA (Premarket Approval)';
+    requirements = [
+      'Complete PMA application (21 CFR 814)',
+      'Valid scientific evidence of safety and effectiveness',
+      'IDE-approved clinical trial with adequate patient enrollment',
+      'Non-clinical (bench, animal) testing per FDA guidance',
+      'Manufacturing information and quality system documentation',
+      'Proposed labeling and instructions for use',
+      'Environmental assessment or claim for categorical exclusion',
+    ];
+    alternatives.push({
+      pathway: 'Breakthrough Device Designation',
+      rationale: 'If device treats a life-threatening or irreversibly debilitating condition and represents breakthrough technology',
+      tradeoffs: 'Adds interactive review and priority review but does not change submission type (still PMA). Application required early in development.',
+    });
+    alternatives.push({
+      pathway: 'De Novo Classification',
+      rationale: 'If FDA agrees device is low-to-moderate risk despite no predicate, De Novo creates new Class II classification',
+      tradeoffs: 'Lower evidence burden than PMA but longer review time than 510(k). Creates predicate path for future competitors.',
+    });
+  }
+  // De Novo for novel, low-to-moderate risk
+  else if (input.is_novel_technology && !input.has_predicate) {
+    primaryPathway = 'De Novo Classification';
+    requirements = [
+      'De Novo request (21 CFR 860.260)',
+      'Description of device and intended use',
+      'Risk analysis (ISO 14971) demonstrating low-to-moderate risk',
+      'Performance data (clinical and/or non-clinical)',
+      'Proposed classification and product code',
+      'Comparison to existing classified devices',
+      'Proposed special controls',
+    ];
+    alternatives.push({
+      pathway: '510(k) Clearance',
+      rationale: 'If a suitable predicate device can be identified through creative predicate chain analysis',
+      tradeoffs: 'Faster and less expensive but requires substantial equivalence argument. May be challenged by FDA reviewer.',
+    });
+    alternatives.push({
+      pathway: 'PMA (Premarket Approval)',
+      rationale: 'If FDA disagrees with low-to-moderate risk classification, automatic Class III designation triggers PMA requirement',
+      tradeoffs: 'Significantly higher evidence burden, cost, and timeline. Clinical trial required.',
+    });
+  }
+  // 510(k) for predicate-based
+  else {
+    primaryPathway = '510(k) Clearance';
+    requirements = [
+      'Premarket Notification 510(k) (21 CFR 807 Subpart E)',
+      'Substantial equivalence comparison to predicate device(s)',
+      'Device description and intended use statement',
+      'Performance data (bench, biocompatibility, clinical if applicable)',
+      'Sterilization and shelf-life information (if applicable)',
+      'Electrical safety and EMC testing (if applicable)',
+      'Software documentation (if applicable, per IEC 62304)',
+      'Labeling',
+    ];
+    alternatives.push({
+      pathway: 'De Novo Classification',
+      rationale: 'If predicate comparison is weak or FDA challenges substantial equivalence, De Novo provides alternative pathway',
+      tradeoffs: 'Longer review time (12-18 months vs 3-6 months) but creates new classification. Clinical data may be required.',
+    });
+  }
+
+  // Always suggest Q-Sub
+  alternatives.push({
+    pathway: 'Q-Submission (Pre-Sub Meeting)',
+    rationale: 'Pre-Submission meeting with FDA is recommended regardless of pathway to align on submission strategy, testing requirements, and clinical evidence expectations',
+    tradeoffs: 'Adds 3-4 months to timeline but significantly reduces risk of FDA additional information requests or refuse-to-accept.',
+  });
+
+  // Build rationale
+  const rationale =
+    `Based on the product profile (${input.product_category}, ${input.has_predicate ? 'predicate identified' : 'no predicate'}` +
+    `${input.is_novel_technology ? ', novel technology' : ''}` +
+    `${input.is_combination_product ? ', combination product' : ''}), ` +
+    `the recommended primary pathway is ${primaryPathway}. ` +
+    (primaryPathway === '510(k) Clearance'
+      ? 'The presence of a predicate device supports 510(k) substantial equivalence. FDA review is typically 3-6 months. Pre-Submission meeting is strongly recommended to confirm predicate acceptability.'
+      : primaryPathway === 'De Novo Classification'
+      ? 'As a novel device with no identified predicate, De Novo classification is appropriate for low-to-moderate risk devices. This creates a new regulatory classification and product code.'
+      : primaryPathway === 'PMA (Premarket Approval)'
+      ? 'The high-risk profile of this device requires PMA with valid scientific evidence of safety and effectiveness. An IDE clinical trial is typically required. Breakthrough Device Designation should be evaluated for interactive FDA review.'
+      : 'HDE is appropriate for devices targeting conditions affecting fewer than 8,000 patients per year in the US. Probable benefit (not effectiveness) must be demonstrated.');
+
+  return { primary: { pathway: primaryPathway, requirements }, alternatives, rationale };
+}
+
+function scoreDeviceDesignations(input: DeviceRegulatoryInput): DeviceRegulatoryOutput['special_designations'] {
+  const designations: DeviceRegulatoryOutput['special_designations'] = [];
+
+  // Breakthrough Device
+  const isLifeThreatening = input.unmet_need === 'high';
+  const isBreakthroughTech = input.is_novel_technology;
+  designations.push({
+    designation: 'Breakthrough Device',
+    eligibility: isLifeThreatening && isBreakthroughTech ? 'likely' : isLifeThreatening || isBreakthroughTech ? 'possible' : 'unlikely',
+    benefit: 'Interactive and timely FDA review, data development plan, priority review of premarket submission, senior management involvement in review',
+    criteria: 'Device provides more effective treatment or diagnosis of life-threatening or irreversibly debilitating human disease or condition AND represents breakthrough technology OR no approved/cleared alternative exists OR significant advantages over existing alternatives',
+  });
+
+  // HDE
+  const isHDEEligible = input.patient_population_us !== undefined && input.patient_population_us < 8000;
+  designations.push({
+    designation: 'HDE',
+    eligibility: isHDEEligible ? 'likely' : 'unlikely',
+    benefit: 'Requires probable benefit rather than effectiveness, smaller clinical studies, PDUFA fee exemption',
+    criteria: 'Device is intended to benefit patients in the treatment or diagnosis of a disease or condition that affects or is manifested in not more than 8,000 individuals in the United States per year',
+  });
+
+  // De Novo
+  const isDeNovoCandidate = !input.has_predicate && !input.device_class_claimed?.includes('III');
+  designations.push({
+    designation: 'De Novo',
+    eligibility: isDeNovoCandidate ? 'likely' : 'possible',
+    benefit: 'Creates new Class I or Class II device classification, establishes regulatory pathway for similar devices, lower evidence burden than PMA',
+    criteria: 'Novel device with no identified predicate that is low-to-moderate risk. Cannot be classified by the 510(k) process because no predicate exists.',
+  });
+
+  // EUA
+  designations.push({
+    designation: 'EUA',
+    eligibility: 'unlikely',
+    benefit: 'Emergency authorization during declared public health emergency',
+    criteria: 'Public health emergency declared by HHS Secretary, and device may be effective for emergency use. Not applicable outside of declared emergencies.',
+  });
+
+  // MDUFA Priority Review
+  designations.push({
+    designation: 'MDUFA Priority Review',
+    eligibility: isLifeThreatening ? 'possible' : 'unlikely',
+    benefit: 'Shorter FDA review timeline, dedicated review team',
+    criteria: 'Device addresses significant clinical need for life-threatening or irreversibly debilitating condition. Applied at time of premarket submission.',
+  });
+
+  return designations;
+}
+
+function estimateDeviceTimeline(
+  input: DeviceRegulatoryInput,
+  pathway: string,
+): DeviceRegulatoryOutput['timeline_estimate'] {
+  let ideSubmission: string | undefined;
+  let clinicalCompletion: string | undefined;
+  let fdaSubmission: string | undefined;
+  let fdaReviewMonths: number;
+  let approvalEstimate: string | undefined;
+
+  const now = new Date();
+  const addMo = (m: number) => {
+    const d = new Date(now);
+    d.setMonth(d.getMonth() + m);
+    return d.toISOString().split('T')[0];
+  };
+
+  if (pathway.includes('510(k)')) {
+    fdaReviewMonths = 6;
+    if (!input.clinical_data_available) {
+      fdaSubmission = addMo(6);
+      approvalEstimate = addMo(6 + fdaReviewMonths);
+    } else {
+      fdaSubmission = addMo(3);
+      approvalEstimate = addMo(3 + fdaReviewMonths);
+    }
+  } else if (pathway.includes('De Novo')) {
+    fdaReviewMonths = 12;
+    if (!input.clinical_data_available) {
+      clinicalCompletion = addMo(18);
+      fdaSubmission = addMo(20);
+      approvalEstimate = addMo(20 + fdaReviewMonths);
+    } else {
+      fdaSubmission = addMo(4);
+      approvalEstimate = addMo(4 + fdaReviewMonths);
+    }
+  } else if (pathway.includes('PMA')) {
+    fdaReviewMonths = 12;
+    if (!input.clinical_data_available) {
+      ideSubmission = addMo(3);
+      clinicalCompletion = addMo(36);
+      fdaSubmission = addMo(39);
+      approvalEstimate = addMo(39 + fdaReviewMonths);
+    } else {
+      fdaSubmission = addMo(6);
+      approvalEstimate = addMo(6 + fdaReviewMonths);
+    }
+  } else if (pathway.includes('HDE')) {
+    fdaReviewMonths = 8;
+    if (!input.clinical_data_available) {
+      clinicalCompletion = addMo(12);
+      fdaSubmission = addMo(14);
+      approvalEstimate = addMo(14 + fdaReviewMonths);
+    } else {
+      fdaSubmission = addMo(3);
+      approvalEstimate = addMo(3 + fdaReviewMonths);
+    }
+  } else {
+    fdaReviewMonths = 6;
+    fdaSubmission = addMo(6);
+    approvalEstimate = addMo(12);
+  }
+
+  // Calculate total months
+  const approvalDate = new Date(approvalEstimate ?? addMo(12));
+  const totalMonths = Math.round((approvalDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30));
+
+  return {
+    ide_submission: ideSubmission,
+    clinical_completion: clinicalCompletion,
+    fda_submission: fdaSubmission,
+    fda_review_months: fdaReviewMonths,
+    approval_estimate: approvalEstimate,
+    total_to_market: {
+      optimistic: Math.max(3, Math.round(totalMonths * 0.75)),
+      realistic: totalMonths,
+    },
+  };
+}
+
+function assessDeviceRisks(
+  input: DeviceRegulatoryInput,
+  pathway: string,
+): DeviceRegulatoryOutput['key_risks'] {
+  const risks: DeviceRegulatoryOutput['key_risks'] = [];
+
+  // Predicate risk for 510(k)
+  if (pathway.includes('510(k)')) {
+    risks.push({
+      risk: 'Predicate device identification: FDA may disagree with predicate selection or substantial equivalence argument, triggering reclassification to De Novo or Class III.',
+      severity: input.has_predicate ? 'moderate' : 'high',
+      mitigation: 'Submit Pre-Submission (Q-Sub) with proposed predicate(s) and substantial equivalence rationale. Identify backup predicates. Prepare De Novo strategy as contingency.',
+    });
+  }
+
+  // Novel technology risk
+  if (input.is_novel_technology) {
+    risks.push({
+      risk: 'Novel technology: FDA may request additional testing or reclassify the device to a higher risk class. Longer review times and additional information requests are likely.',
+      severity: 'high',
+      mitigation: 'Engage FDA early via Q-Sub. Develop comprehensive risk analysis per ISO 14971. Consider Breakthrough Device Designation for interactive review.',
+    });
+  }
+
+  // Combination product risk
+  if (input.is_combination_product) {
+    risks.push({
+      risk: 'Combination product complexity: Dual regulatory jurisdiction (CDRH + CDER/CBER) adds complexity. Primary mode of action determination affects lead center assignment.',
+      severity: 'high',
+      mitigation: 'Request combination product designation from Office of Combination Products (OCP) early. Develop both device and drug components in parallel. Follow 21 CFR Part 4.',
+    });
+  }
+
+  // Clinical data risk
+  if (!input.clinical_data_available && (pathway.includes('PMA') || pathway.includes('De Novo'))) {
+    risks.push({
+      risk: 'Clinical evidence gap: No clinical data currently available. IDE clinical trial required for PMA; clinical data likely needed for De Novo.',
+      severity: 'high',
+      mitigation: 'Initiate IDE application process. Design pivotal trial aligned with FDA guidance for this device category. Consider feasibility study to de-risk before pivotal.',
+    });
+  }
+
+  // Manufacturing risk
+  risks.push({
+    risk: 'Manufacturing and quality system compliance: FDA may conduct pre-approval inspection. Design control and production process must comply with 21 CFR 820 (Quality System Regulation).',
+    severity: 'moderate',
+    mitigation: 'Establish QMS per ISO 13485/21 CFR 820 early. Complete Design History File (DHF). Conduct internal audit and mock FDA inspection before submission.',
+  });
+
+  // Post-market risk
+  risks.push({
+    risk: 'Post-market surveillance requirements: FDA may require post-market studies, MDR reporting, and periodic safety update reports. For PMA, annual reports and PMA supplements for changes.',
+    severity: 'low',
+    mitigation: 'Build post-market surveillance plan into development timeline. Establish MDR reporting procedures. Budget for post-market clinical study if required.',
+  });
+
+  // EU MDR risk
+  if (input.geography.includes('CE_MDR') || input.geography.includes('CE_IVDR')) {
+    risks.push({
+      risk: 'EU MDR/IVDR compliance: New regulations (MDR 2017/745, IVDR 2017/746) impose stricter requirements including clinical evaluation, post-market surveillance, and Notified Body capacity constraints.',
+      severity: 'high',
+      mitigation: 'Engage Notified Body early. Prepare Clinical Evaluation Report (CER) per MEDDEV 2.7/1. Budget for longer EU certification timeline (12-24 months). Monitor MDCG guidance updates.',
+    });
+  }
+
+  return risks;
+}
+
+function buildPostMarketRequirements(
+  input: DeviceRegulatoryInput,
+  pathway: string,
+): string[] {
+  const reqs: string[] = [];
+
+  reqs.push('Medical Device Reporting (MDR) per 21 CFR 803 — mandatory adverse event reporting');
+  reqs.push('Correction and removal reporting per 21 CFR 806');
+  reqs.push('Registration and listing per 21 CFR 807');
+
+  if (pathway.includes('PMA')) {
+    reqs.push('PMA annual report (21 CFR 814.84)');
+    reqs.push('PMA supplement required for design, labeling, or manufacturing changes');
+    reqs.push('Post-approval study conditions (if imposed by FDA)');
+  }
+
+  if (pathway.includes('510(k)')) {
+    reqs.push('New 510(k) required for significant changes to device design, intended use, or manufacturing process');
+  }
+
+  if (pathway.includes('De Novo')) {
+    reqs.push('Compliance with special controls established in the De Novo classification order');
+    reqs.push('New 510(k) required for future modifications (as a newly classified Class II device)');
+  }
+
+  if (pathway.includes('HDE')) {
+    reqs.push('Annual distribution report to FDA');
+    reqs.push('IRB approval required at each institution before device use');
+    reqs.push('Profit restrictions unless granted profit exemption');
+  }
+
+  reqs.push('Quality System Regulation (QSR) compliance per 21 CFR 820');
+  reqs.push('Unique Device Identification (UDI) labeling per 21 CFR 830');
+
+  if (input.product_category === 'device_digital_health') {
+    reqs.push('Predetermined Change Control Plan (PCCP) for AI/ML-based software modifications');
+    reqs.push('Cybersecurity postmarket management per FDA guidance');
+  }
+
+  if (input.geography.includes('CE_MDR') || input.geography.includes('CE_IVDR')) {
+    reqs.push('EU Post-Market Surveillance Plan per MDR Article 84');
+    reqs.push('Periodic Safety Update Report (PSUR) per MDR Article 86');
+    reqs.push('Post-Market Clinical Follow-up (PMCF) per MDR Annex XIV Part B');
+  }
+
+  return reqs;
 }

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { INDICATION_DATA, type IndicationData } from '@/lib/data/indication-map';
 import { cn } from '@/lib/utils/cn';
-import { Search, AlertTriangle, Clock, TrendingUp } from 'lucide-react';
+import { Search, AlertTriangle, Clock, TrendingUp, ChevronsUpDown, CornerDownLeft } from 'lucide-react';
 
 // ── localStorage key for recently used indications ──────────
 const RECENT_KEY = 'terrain:recent-indications';
@@ -92,7 +93,7 @@ function searchIndications(query: string): IndicationData[] {
     .filter((s) => s.score > 0)
     .sort((a, b) => b.score - a.score);
 
-  return scored.slice(0, 8).map((s) => s.ind);
+  return scored.slice(0, 12).map((s) => s.ind);
 }
 
 // ── Highlight matching text ─────────────────────────────────
@@ -112,6 +113,32 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
     </>
   );
 }
+
+// ── Category grouping ───────────────────────────────────────
+interface GroupedResults {
+  category: string;
+  items: IndicationData[];
+}
+
+function groupByTherapyArea(items: IndicationData[]): GroupedResults[] {
+  const map = new Map<string, IndicationData[]>();
+  for (const item of items) {
+    const cat = item.therapy_area
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase()) || 'Other';
+    const group = map.get(cat);
+    if (group) group.push(item);
+    else map.set(cat, [item]);
+  }
+  return Array.from(map.entries()).map(([category, items]) => ({ category, items }));
+}
+
+// ── Dropdown animation ──────────────────────────────────────
+const dropdownVariants = {
+  hidden: { opacity: 0, y: -4, scale: 0.98 },
+  visible: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -4, scale: 0.98 },
+};
 
 // ── Component ───────────────────────────────────────────────
 
@@ -142,6 +169,7 @@ export function IndicationAutocomplete({
   }, [value]);
 
   const results = useMemo(() => searchIndications(query), [query]);
+  const groupedResults = useMemo(() => groupByTherapyArea(results), [results]);
 
   const recentIndications = useMemo(() => {
     const names = getRecentIndications();
@@ -233,6 +261,15 @@ export function IndicationAutocomplete({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Compute flat index for an item within grouped results
+  function getFlatIndex(groupIdx: number, itemIdx: number): number {
+    let flat = 0;
+    for (let g = 0; g < groupIdx; g++) {
+      flat += groupedResults[g].items.length;
+    }
+    return flat + itemIdx;
+  }
+
   function renderItem(ind: IndicationData, i: number, highlight: boolean) {
     return (
       <button
@@ -245,8 +282,8 @@ export function IndicationAutocomplete({
         onMouseDown={() => select(ind.name)}
         onMouseEnter={() => setActiveIndex(i)}
         className={cn(
-          'w-full px-3 py-2.5 flex items-center justify-between text-left transition-colors',
-          i === activeIndex ? 'bg-navy-700 text-white' : 'text-slate-300 hover:bg-navy-700/70'
+          'w-full px-3 py-2.5 flex items-center justify-between text-left transition-colors duration-75',
+          i === activeIndex ? 'bg-teal-500/10 text-white' : 'text-slate-300 hover:bg-navy-700/70'
         )}
       >
         <span className="text-sm truncate">
@@ -266,7 +303,13 @@ export function IndicationAutocomplete({
     <div ref={containerRef} className="relative">
       {label && <label htmlFor="indication-input" className="input-label">{label}</label>}
       <div className="relative mt-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" aria-hidden="true" />
+        <Search
+          className={cn(
+            'absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none transition-colors duration-150',
+            open ? 'text-teal-500' : 'text-slate-500'
+          )}
+          aria-hidden="true"
+        />
         <input
           ref={inputRef}
           id="indication-input"
@@ -290,6 +333,7 @@ export function IndicationAutocomplete({
           placeholder={placeholder ?? 'e.g., Non-Small Cell Lung Cancer'}
           className={cn(
             'input pl-9',
+            open && 'border-teal-500/40 ring-1 ring-teal-500/20',
             error && 'border-signal-red focus:ring-signal-red/30'
           )}
           autoComplete="off"
@@ -301,62 +345,124 @@ export function IndicationAutocomplete({
         )}
       </div>
 
-      {/* Search results dropdown */}
-      {showResults && (
-        <div
-          ref={listRef}
-          id={listboxId}
-          role="listbox"
-          aria-label="Indication suggestions"
-          className="absolute z-50 w-full mt-1 bg-navy-800 border border-navy-700 rounded-md shadow-elevated max-h-72 overflow-y-auto"
-        >
-          {results.map((ind, i) => renderItem(ind, i, true))}
-        </div>
-      )}
+      <AnimatePresence>
+        {/* Search results dropdown — grouped by therapy area */}
+        {showResults && (
+          <motion.div
+            ref={listRef}
+            id={listboxId}
+            role="listbox"
+            aria-label="Indication suggestions"
+            className="absolute z-50 w-full mt-1 bg-navy-800 border border-navy-700 rounded-lg shadow-elevated max-h-80 overflow-y-auto"
+            variants={dropdownVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.15, ease: [0.2, 0, 0, 1] }}
+          >
+            {/* Header */}
+            <div className="px-3 py-1.5 flex items-center justify-between border-b border-navy-700/60 sticky top-0 bg-navy-800/95 backdrop-blur-sm z-10">
+              <span className="text-2xs font-mono text-slate-500">
+                {results.length} of {INDICATION_DATA.length}
+              </span>
+              <span className="text-2xs font-mono text-slate-600 flex items-center gap-1.5">
+                <ChevronsUpDown className="w-2.5 h-2.5" />
+                <span>navigate</span>
+                <span className="text-slate-700">·</span>
+                <CornerDownLeft className="w-2.5 h-2.5" />
+                <span>select</span>
+              </span>
+            </div>
 
-      {/* Recent + Popular suggestions (when no query) */}
-      {showSuggestions && (recentIndications.length > 0 || popularIndications.length > 0) && (
-        <div
-          ref={listRef}
-          id={listboxId}
-          role="listbox"
-          aria-label="Suggested indications"
-          className="absolute z-50 w-full mt-1 bg-navy-800 border border-navy-700 rounded-md shadow-elevated max-h-80 overflow-y-auto"
-        >
-          {recentIndications.length > 0 && (
-            <>
-              <div className="px-3 py-2 flex items-center gap-1.5 border-b border-navy-700/60">
-                <Clock className="w-3 h-3 text-slate-600" />
-                <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">
-                  Recently Used
-                </span>
+            {/* Grouped results */}
+            {groupedResults.map((group, gIdx) => (
+              <div key={group.category}>
+                {groupedResults.length > 1 && (
+                  <div className="px-3 py-1 bg-navy-800/80 sticky top-[29px] z-[5]">
+                    <span className="text-[9px] font-mono text-teal-500/70 uppercase tracking-widest">
+                      {group.category}
+                    </span>
+                  </div>
+                )}
+                {group.items.map((ind, iIdx) =>
+                  renderItem(ind, getFlatIndex(gIdx, iIdx), true)
+                )}
               </div>
-              {recentIndications.map((ind, i) => renderItem(ind, i, false))}
-            </>
-          )}
-          <div className="px-3 py-2 flex items-center gap-1.5 border-b border-navy-700/60">
-            <TrendingUp className="w-3 h-3 text-slate-600" />
-            <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">
-              Popular
-            </span>
-          </div>
-          {popularIndications
-            .filter((p) => !recentIndications.some((r) => r.name === p.name))
-            .map((ind, i) => renderItem(ind, recentIndications.length + i, false))}
-        </div>
-      )}
+            ))}
+          </motion.div>
+        )}
 
-      {/* No results */}
-      {showNoResults && (
-        <div className="absolute z-50 w-full mt-1 bg-navy-800 border border-navy-700 rounded-md px-3 py-3">
-          <p className="text-xs text-slate-500 mb-1">
-            No matching indications found for &ldquo;{query}&rdquo;
-          </p>
-          <p className="text-2xs text-slate-600">
-            Try a different spelling or use a common abbreviation (e.g., NSCLC, NASH, AML)
-          </p>
-        </div>
-      )}
+        {/* Recent + Popular suggestions (when no query) */}
+        {showSuggestions && (recentIndications.length > 0 || popularIndications.length > 0) && (
+          <motion.div
+            ref={listRef}
+            id={listboxId}
+            role="listbox"
+            aria-label="Suggested indications"
+            className="absolute z-50 w-full mt-1 bg-navy-800 border border-navy-700 rounded-lg shadow-elevated max-h-80 overflow-y-auto"
+            variants={dropdownVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.15, ease: [0.2, 0, 0, 1] }}
+          >
+            {recentIndications.length > 0 && (
+              <>
+                <div className="px-3 py-1.5 flex items-center gap-1.5 border-b border-navy-700/60">
+                  <Clock className="w-3 h-3 text-slate-600" />
+                  <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">
+                    Recently Used
+                  </span>
+                </div>
+                {recentIndications.map((ind, i) => renderItem(ind, i, false))}
+              </>
+            )}
+            <div className="px-3 py-1.5 flex items-center gap-1.5 border-b border-navy-700/60">
+              <TrendingUp className="w-3 h-3 text-slate-600" />
+              <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">
+                Popular
+              </span>
+            </div>
+            {popularIndications
+              .filter((p) => !recentIndications.some((r) => r.name === p.name))
+              .map((ind, i) => renderItem(ind, recentIndications.length + i, false))}
+            {/* Footer hint */}
+            <div className="px-3 py-1.5 border-t border-navy-700/60 flex items-center justify-between">
+              <span className="text-2xs font-mono text-slate-600">
+                {INDICATION_DATA.length} indications
+              </span>
+              <span className="text-2xs font-mono text-slate-600 flex items-center gap-1.5">
+                <ChevronsUpDown className="w-2.5 h-2.5" />
+                <span>navigate</span>
+                <span className="text-slate-700">·</span>
+                <CornerDownLeft className="w-2.5 h-2.5" />
+                <span>select</span>
+              </span>
+            </div>
+          </motion.div>
+        )}
+
+        {/* No results */}
+        {showNoResults && (
+          <motion.div
+            className="absolute z-50 w-full mt-1 bg-navy-800 border border-navy-700 rounded-lg shadow-elevated"
+            variants={dropdownVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.15, ease: [0.2, 0, 0, 1] }}
+          >
+            <div className="px-3 py-4 text-center">
+              <p className="text-xs text-slate-400">
+                No matching indications for &ldquo;<span className="text-slate-300">{query}</span>&rdquo;
+              </p>
+              <p className="text-2xs text-slate-500 mt-1.5">
+                Try a different spelling or use a common abbreviation (e.g., NSCLC, NASH, AML)
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {error && <p id="indication-error" role="alert" className="text-xs text-signal-red mt-1">{error}</p>}
       {/* Screen reader announcement for results count */}

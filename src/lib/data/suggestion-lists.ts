@@ -270,6 +270,36 @@ export const BIOMARKER_SUGGESTIONS: SuggestionItem[] = [
   { name: 'Tumor Mutational Burden', category: 'Pan-tumor', detail: 'WES/NGS panel' },
   { name: 'Circulating Tumor DNA (ctDNA)', category: 'Pan-tumor', detail: 'Liquid biopsy' },
   { name: 'Homologous Recombination Deficiency (HRD)', category: 'Pan-tumor', detail: 'NGS' },
+  // Cardiology
+  { name: 'Troponin I/T (high-sensitivity)', category: 'Cardiology', detail: 'Immunoassay' },
+  { name: 'NT-proBNP / BNP', category: 'Cardiology', detail: 'Immunoassay' },
+  { name: 'Lipoprotein(a) [Lp(a)]', category: 'Cardiology', detail: 'Blood assay' },
+  { name: 'hs-CRP (high-sensitivity C-reactive protein)', category: 'Cardiology', detail: 'Blood assay' },
+  { name: 'D-Dimer', category: 'Cardiology', detail: 'Blood assay' },
+  // Metabolic / Endocrine
+  { name: 'HbA1c (Glycated hemoglobin)', category: 'Metabolic', detail: 'Blood assay' },
+  { name: 'Fasting insulin / HOMA-IR', category: 'Metabolic', detail: 'Blood assay' },
+  { name: 'GLP-1 receptor expression', category: 'Metabolic', detail: 'IHC' },
+  { name: 'FGF21', category: 'Metabolic', detail: 'Blood assay' },
+  { name: 'ELF Score (Enhanced Liver Fibrosis)', category: 'Metabolic', detail: 'Blood panel' },
+  // Autoimmune / Inflammatory
+  { name: 'Anti-CCP (Anti-citrullinated peptide)', category: 'Autoimmune', detail: 'Immunoassay' },
+  { name: 'ANA (Antinuclear antibody)', category: 'Autoimmune', detail: 'Immunofluorescence' },
+  { name: 'IL-6 / IL-17 / TNF-alpha', category: 'Autoimmune', detail: 'ELISA' },
+  { name: 'Calprotectin (fecal)', category: 'Autoimmune', detail: 'ELISA' },
+  // Infectious Disease
+  { name: 'HIV-1 RNA viral load', category: 'Infectious Disease', detail: 'PCR' },
+  { name: 'HBV DNA / HCV RNA', category: 'Infectious Disease', detail: 'PCR' },
+  { name: 'Procalcitonin (PCT)', category: 'Infectious Disease', detail: 'Immunoassay' },
+  { name: 'SARS-CoV-2 antigen/PCR', category: 'Infectious Disease', detail: 'Lateral flow/PCR' },
+  // Reproductive / Women's Health
+  { name: 'AMH (Anti-Mullerian Hormone)', category: 'Reproductive', detail: 'Immunoassay' },
+  { name: 'NIPT (cell-free fetal DNA)', category: 'Reproductive', detail: 'NGS' },
+  { name: 'HPV genotyping (high-risk types)', category: 'Reproductive', detail: 'PCR/NGS' },
+  // Renal
+  { name: 'Cystatin C', category: 'Renal', detail: 'Blood assay' },
+  { name: 'NGAL (Neutrophil Gelatinase-Associated Lipocalin)', category: 'Renal', detail: 'Immunoassay' },
+  { name: 'Kidney Injury Molecule-1 (KIM-1)', category: 'Renal', detail: 'Blood/urine assay' },
 ];
 
 export const POPULAR_BIOMARKERS = [
@@ -277,9 +307,62 @@ export const POPULAR_BIOMARKERS = [
   'EGFR exon 19 deletion',
   'KRAS G12C',
   'HER2 (IHC 3+ / FISH+)',
-  'BRCA1/2 mutation',
-  'ALK rearrangement',
+  'NT-proBNP / BNP',
+  'Troponin I/T (high-sensitivity)',
 ];
+
+// ── Biomarker Prevalence Auto-Fill (CDx form) ───────────────
+
+export const BIOMARKER_PREVALENCE: Record<string, { prevalence_pct: number; context: string }> = {
+  // Immunotherapy
+  'PD-L1 (TPS ≥1%)': { prevalence_pct: 60, context: 'NSCLC' },
+  'PD-L1 (CPS ≥10)': { prevalence_pct: 40, context: 'Gastric / H&N / Urothelial' },
+  'PD-L1 (IC ≥1%)': { prevalence_pct: 25, context: 'Urothelial carcinoma' },
+  // Oncology — Lung
+  'EGFR exon 19 deletion': { prevalence_pct: 10, context: 'NSCLC' },
+  'EGFR L858R': { prevalence_pct: 5, context: 'NSCLC' },
+  'EGFR T790M': { prevalence_pct: 50, context: 'EGFR+ NSCLC after TKI' },
+  'EGFR exon 20 insertion': { prevalence_pct: 2, context: 'NSCLC' },
+  'KRAS G12C': { prevalence_pct: 13, context: 'NSCLC' },
+  'KRAS G12D': { prevalence_pct: 4, context: 'NSCLC / PDAC' },
+  'ALK rearrangement': { prevalence_pct: 5, context: 'NSCLC' },
+  'ROS1 rearrangement': { prevalence_pct: 2, context: 'NSCLC' },
+  'BRAF V600E': { prevalence_pct: 2, context: 'NSCLC / Melanoma (50%)' },
+  'NTRK fusion': { prevalence_pct: 1, context: 'Pan-tumor' },
+  'RET fusion': { prevalence_pct: 2, context: 'NSCLC / Thyroid' },
+  'MET exon 14 skipping': { prevalence_pct: 3, context: 'NSCLC' },
+  'MET amplification': { prevalence_pct: 5, context: 'NSCLC / Gastric' },
+  // Oncology — Breast
+  'HER2 (IHC 3+ / FISH+)': { prevalence_pct: 20, context: 'Breast cancer' },
+  'HER2-low (IHC 1+/2+)': { prevalence_pct: 55, context: 'Breast cancer' },
+  'BRCA1/2 mutation': { prevalence_pct: 15, context: 'Ovarian / Breast cancer' },
+  'ESR1 mutation': { prevalence_pct: 30, context: 'HR+ mBC after AI' },
+  'PIK3CA mutation': { prevalence_pct: 40, context: 'HR+/HER2- breast cancer' },
+  // Oncology — GI / GU
+  'KRAS wild-type': { prevalence_pct: 45, context: 'Colorectal cancer' },
+  'MSI-High / dMMR': { prevalence_pct: 15, context: 'Colorectal / Endometrial' },
+  'TMB-High (≥10 mut/Mb)': { prevalence_pct: 10, context: 'Pan-tumor' },
+  'FGFR alteration': { prevalence_pct: 20, context: 'Bladder cancer' },
+  'IDH1/2 mutation': { prevalence_pct: 20, context: 'AML / Glioma' },
+  // Hematology
+  'BCR-ABL1 (Philadelphia+)': { prevalence_pct: 95, context: 'CML' },
+  'FLT3-ITD': { prevalence_pct: 25, context: 'AML' },
+  'NPM1 mutation': { prevalence_pct: 30, context: 'AML' },
+  // Neuroscience
+  'Amyloid PET positivity': { prevalence_pct: 35, context: 'MCI / early Alzheimer\'s' },
+  'Plasma p-tau217': { prevalence_pct: 35, context: 'Alzheimer\'s disease' },
+  // Cardiology
+  'Troponin I/T (high-sensitivity)': { prevalence_pct: 30, context: 'Chest pain presentations' },
+  'NT-proBNP / BNP': { prevalence_pct: 50, context: 'Heart failure suspected' },
+  // Metabolic
+  'HbA1c (Glycated hemoglobin)': { prevalence_pct: 100, context: 'Diabetes (universal screen)' },
+  // Infectious Disease
+  'HIV-1 RNA viral load': { prevalence_pct: 100, context: 'HIV-positive patients' },
+  'HBV DNA / HCV RNA': { prevalence_pct: 100, context: 'Hepatitis-positive patients' },
+  // Reproductive
+  'HPV genotyping (high-risk types)': { prevalence_pct: 10, context: 'Cervical screening population' },
+  'NIPT (cell-free fetal DNA)': { prevalence_pct: 100, context: 'Prenatal (universal option)' },
+};
 
 // ── Patient Segment / Line of Therapy ────────────────────────
 

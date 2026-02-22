@@ -6,6 +6,9 @@
 import type { DeviceMarketSizingOutput, CDxOutput } from './devices-diagnostics';
 export type { DeviceMarketSizingOutput, CDxOutput } from './devices-diagnostics';
 export type { DeviceMarketSizingInput, CDxMarketSizingInput, CDxDeal, RevenueStreamBreakdown, ProductCategory } from './devices-diagnostics';
+export type { DeviceRegulatoryInput, DeviceRegulatoryOutput, DeviceCategory, FDADevicePathway, FDADeviceClass } from './devices-diagnostics';
+export type { PredicateDeviceRecord, DeviceClinicalEvidenceStrategy, DeviceIndicationScopeScenario, DeviceManufacturingRisk } from './devices-diagnostics';
+export type { DevicePartnerDiscoveryInput, DevicePartnerMatch, DeviceAcquisitionProbability, DeviceRegulatoryTrackRecord, DistributionStrengthAssessment, DeviceDealStructureModel } from './devices-diagnostics';
 
 // ────────────────────────────────────────────────────────────
 // USERS & AUTH

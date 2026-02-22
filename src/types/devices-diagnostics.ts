@@ -191,6 +191,18 @@ export interface DeviceMarketSizingOutput {
 
   revenue_projection: { year: number; bear: number; base: number; bull: number }[];
 
+  // 99+ world-class analytics extensions
+  reimbursement_analytics?: DeviceReimbursementAnalytics;
+  competitive_share_distribution?: DeviceCompetitiveShareDistribution;
+  evidence_gap_analysis?: DeviceEvidenceGapAnalysis;
+  pricing_pressure?: DevicePricingPressureModel;
+  deal_benchmark?: MedTechDealBenchmark;
+
+  // 99+ world-class competitive analytics extensions
+  technology_readiness?: TechnologyReadinessScoring;
+  clinical_superiority?: ClinicalSuperiorityMatrix;
+  surgeon_switching_cost?: SurgeonSwitchingCostModel;
+
   methodology: string;
   data_sources: { name: string; type: 'public' | 'proprietary' | 'licensed'; url?: string }[];
   generated_at: string;
@@ -359,6 +371,12 @@ export interface DeviceRegulatoryOutput {
 
   post_market_requirements: string[];
 
+  // 99+ world-class regulatory analytics extensions
+  predicate_devices?: PredicateDeviceRecord[];
+  device_clinical_evidence_strategy?: DeviceClinicalEvidenceStrategy;
+  indication_scope_scenarios?: DeviceIndicationScopeScenario[];
+  device_manufacturing_risk?: DeviceManufacturingRisk;
+
   data_sources: { name: string; type: string }[];
   generated_at: string;
 }
@@ -408,6 +426,319 @@ export interface DevicePartnerMatch {
   };
   rationale: string;
   acquisition_signals: string[];
+
+  // 99+ world-class partner analytics extensions
+  acquisition_probability?: DeviceAcquisitionProbability;
+  regulatory_track_record?: DeviceRegulatoryTrackRecord;
+  distribution_strength?: DistributionStrengthAssessment;
+  device_deal_structure?: DeviceDealStructureModel;
+}
+
+// ────────────────────────────────────────────────────────────
+// REIMBURSEMENT ANALYTICS (quantified $ models)
+// ────────────────────────────────────────────────────────────
+
+export interface NTAPCalculation {
+  eligible: boolean;
+  drg_payment: number;
+  device_cost: number;
+  excess_cost: number;
+  ntap_payment: number;
+  effective_coverage_pct: number;
+  application_deadline: string;
+  narrative: string;
+}
+
+export interface PayerMixEntry {
+  payer: string;
+  patient_share_pct: number;
+  reimbursement_rate: number;
+  coverage_status: 'covered' | 'pending' | 'not_covered';
+  prior_auth_required: boolean;
+}
+
+export interface PayerMixModel {
+  payers: PayerMixEntry[];
+  blended_reimbursement_rate: number;
+  commercial_vs_medicare_ratio: number;
+  narrative: string;
+}
+
+export interface CoverageMilestone {
+  milestone: string;
+  estimated_months: number;
+  probability: number;
+  dependency?: string;
+}
+
+export interface CoverageTimeline {
+  milestones: CoverageMilestone[];
+  full_coverage_estimate_months: number;
+  critical_path: string;
+  narrative: string;
+}
+
+export interface ReimbursementScenario {
+  scenario: 'favorable' | 'base' | 'adverse';
+  effective_reimbursement: number;
+  patient_access_pct: number;
+  revenue_impact_multiplier: number;
+  key_assumptions: string[];
+  narrative: string;
+}
+
+export interface DeviceReimbursementAnalytics {
+  ntap?: NTAPCalculation;
+  payer_mix?: PayerMixModel;
+  coverage_timeline?: CoverageTimeline;
+  scenarios?: ReimbursementScenario[];
+  overall_reimbursement_risk_score: number;
+}
+
+// ────────────────────────────────────────────────────────────
+// CATEGORY-SPECIFIC ADOPTION CURVES
+// ────────────────────────────────────────────────────────────
+
+export interface CategoryAdoptionCurve {
+  category: string;
+  year_factors: number[];
+  learning_curve_factor: number;
+  peak_year: number;
+  ramp_narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// DEVICE COMPETITIVE ANALYTICS (institutional-grade)
+// ────────────────────────────────────────────────────────────
+
+export interface DeviceCompetitiveShareEntry {
+  name: string;
+  estimated_share_pct: number;
+  basis: string;
+}
+
+export interface DeviceCompetitiveShareDistribution {
+  competitors: DeviceCompetitiveShareEntry[];
+  hhi_index: number;
+  concentration_label: 'Fragmented' | 'Moderate' | 'Concentrated' | 'Monopolistic';
+  top_3_share_pct: number;
+  narrative: string;
+}
+
+export interface DeviceEvidenceGap {
+  evidence_type: string;
+  current_state: string;
+  gap_severity: 'critical' | 'significant' | 'moderate';
+  competitive_impact: string;
+  recommendation: string;
+}
+
+export interface DeviceEvidenceGapAnalysis {
+  gaps: DeviceEvidenceGap[];
+  overall_evidence_score: number;
+  narrative: string;
+}
+
+export interface DevicePricingPressureModel {
+  current_asp: number;
+  category_median_asp: number;
+  asp_trend_pct_annual: number;
+  gpo_pressure_score: number;
+  competitive_pricing_pressure: number;
+  reimbursement_erosion_risk: 'low' | 'moderate' | 'high';
+  projected_asp_5yr: number[];
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// MEDTECH DEAL DATABASE TYPES
+// ────────────────────────────────────────────────────────────
+
+export interface MedTechDeal {
+  acquirer: string;
+  target: string;
+  deal_type: 'acquisition' | 'licensing' | 'partnership' | 'investment' | 'distribution';
+  value_m?: number;
+  announced_date: string;
+  closed_date?: string;
+  device_category: DeviceCategory;
+  product_category: ProductCategory;
+  rationale: string;
+  source: string;
+}
+
+export interface MedTechDealBenchmark {
+  comparable_deals: MedTechDeal[];
+  median_deal_value_m: number;
+  median_revenue_multiple?: number;
+  deal_count_last_3yr: number;
+  hottest_categories: string[];
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// DEVICE PARTNER ANALYTICS (99+ world-class extensions)
+// ────────────────────────────────────────────────────────────
+
+export interface DeviceAcquisitionProbability {
+  serial_acquirer_score: number;
+  acquisitions_last_3yr: number;
+  acquisitions_last_5yr: number;
+  avg_deal_size_m: number;
+  revenue_gap_to_fill_b: number;
+  category_deal_frequency: number;
+  acquisition_probability_pct: number;
+  key_signals: string[];
+  narrative: string;
+}
+
+export interface DeviceRegulatoryTrackRecord {
+  total_510k_clearances: number;
+  total_pma_approvals: number;
+  avg_510k_review_days: number;
+  avg_pma_review_months: number;
+  fda_warning_letters_5yr: number;
+  breakthrough_designations: number;
+  regulatory_capability_score: number;
+  narrative: string;
+}
+
+export interface DistributionStrengthAssessment {
+  hospital_direct_sales: number;
+  asc_coverage: number;
+  office_channel: number;
+  lab_channel: number;
+  gpo_relationships: string[];
+  estimated_us_field_reps: number;
+  overall_distribution_score: number;
+  narrative: string;
+}
+
+export interface DeviceDealStructureModel {
+  deal_type_recommended: string;
+  typical_upfront_pct: number;
+  royalty_range: [number, number];
+  margin_structure?: { low_pct: number; high_pct: number };
+  milestones: { milestone: string; typical_value_m: number; probability: number }[];
+  governance_complexity: 'low' | 'moderate' | 'high';
+  comparable_deal_count: number;
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// DEVICE REGULATORY ANALYTICS (99+ world-class extensions)
+// ────────────────────────────────────────────────────────────
+
+export interface PredicateDeviceRecord {
+  device_name: string;
+  company: string;
+  k_number_or_pma: string;
+  pathway: '510(k)' | 'PMA' | 'De Novo' | 'HDE';
+  device_class: FDADeviceClass;
+  product_code: string;
+  clearance_date: string;
+  review_days: number;
+  device_category: DeviceCategory;
+  indication_for_use: string;
+  primary_endpoint?: string;
+  sample_size?: number;
+  clinical_study_required: boolean;
+  landmark_significance: string;
+}
+
+export interface DeviceClinicalEvidenceStrategy {
+  recommended_study_type: string;
+  study_rationale: string;
+  recommended_primary_endpoint: string;
+  estimated_sample_size: { low: number; base: number; high: number };
+  estimated_enrollment_months: number;
+  estimated_study_cost_m: { low: number; base: number; high: number };
+  comparator_recommendation: string;
+  adaptive_elements: string[];
+  key_study_risks: string[];
+  fda_guidance_documents: string[];
+  narrative: string;
+}
+
+export interface DeviceIndicationScopeScenario {
+  scenario: 'narrow' | 'base' | 'broad';
+  indication_statement: string;
+  population_restrictions: string[];
+  setting_restrictions: string[];
+  regulatory_risk: 'low' | 'moderate' | 'high';
+  commercial_impact_multiplier: number;
+  probability: number;
+  narrative: string;
+}
+
+export interface DeviceManufacturingRisk {
+  sterilization_method: string;
+  sterilization_risk: 'low' | 'moderate' | 'high';
+  biocompatibility_testing_required: string[];
+  iso_standards_applicable: string[];
+  manufacturing_complexity_score: number;
+  supply_chain_risk: 'low' | 'moderate' | 'high';
+  scale_up_challenges: string[];
+  estimated_manufacturing_validation_months: number;
+  estimated_cogs_range: { low_pct: number; high_pct: number };
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// DEVICE COMPETITIVE ANALYTICS (99+ world-class extensions)
+// ────────────────────────────────────────────────────────────
+
+export interface TechnologyReadinessEntry {
+  competitor_name: string;
+  trl_level: number;
+  trl_label: string;
+  clinical_validation_status: string;
+  manufacturing_readiness: 'prototype' | 'pilot' | 'scaled' | 'commercial';
+  ip_strength: 'weak' | 'moderate' | 'strong' | 'dominant';
+  years_to_market: number;
+  threat_score: number;
+  narrative: string;
+}
+
+export interface TechnologyReadinessScoring {
+  entries: TechnologyReadinessEntry[];
+  highest_threat_competitor: string;
+  avg_trl: number;
+  narrative: string;
+}
+
+export interface ClinicalSuperiorityEntry {
+  competitor_device: string;
+  company: string;
+  primary_endpoint: string;
+  success_rate_pct?: number;
+  complication_rate_pct?: number;
+  procedural_time_minutes?: number;
+  hospital_los_days?: number;
+  revision_rate_pct?: number;
+  data_quality: 'RCT' | 'registry' | 'single_arm' | 'case_series' | 'bench_only';
+  superiority_score: number;
+  narrative: string;
+}
+
+export interface ClinicalSuperiorityMatrix {
+  entries: ClinicalSuperiorityEntry[];
+  user_device_position: 'superior' | 'comparable' | 'inferior' | 'insufficient_data';
+  key_differentiator: string;
+  narrative: string;
+}
+
+export interface SurgeonSwitchingCostModel {
+  training_requirement_hours: number;
+  learning_curve_cases: number;
+  credentialing_required: boolean;
+  or_workflow_change: 'minimal' | 'moderate' | 'significant' | 'transformative';
+  compatibility_with_existing_systems: 'full' | 'partial' | 'none';
+  estimated_switching_cost_per_site: number;
+  switching_barrier_score: number;
+  switching_facilitators: string[];
+  switching_inhibitors: string[];
+  narrative: string;
 }
 
 // ────────────────────────────────────────────────────────────
