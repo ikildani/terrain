@@ -511,7 +511,12 @@ export default function DeviceMarketSizingReport({
             outputs: data as unknown as Record<string, unknown>,
           }}
         />
-        <ExportButton format="pdf" />
+        <ExportButton
+          format="pdf"
+          reportTitle={`${input.procedure_or_condition} — Device Market Assessment`}
+          reportSubtitle={[input.device_category, input.product_name].filter(Boolean).join(' — ') || undefined}
+          filename={`terrain-${input.procedure_or_condition.toLowerCase().replace(/\s+/g, '-')}-device-market-sizing`}
+        />
         <ExportButton
           format="csv"
           data={flattenDeviceForCSV(data)}

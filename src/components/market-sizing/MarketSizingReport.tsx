@@ -273,7 +273,12 @@ export default function MarketSizingReport({ data, input }: MarketSizingReportPr
             outputs: data as unknown as Record<string, unknown>,
           }}
         />
-        <ExportButton format="pdf" />
+        <ExportButton
+          format="pdf"
+          reportTitle={`${input.indication} — Market Sizing`}
+          reportSubtitle={[input.subtype, input.mechanism].filter(Boolean).join(' — ') || undefined}
+          filename={`terrain-${input.indication.toLowerCase().replace(/\s+/g, '-')}-market-sizing`}
+        />
         <ExportButton
           format="csv"
           data={flattenForCSV(data)}

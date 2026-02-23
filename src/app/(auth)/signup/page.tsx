@@ -36,6 +36,9 @@ export default function SignupPage() {
       return;
     }
 
+    // Fire-and-forget welcome email — don't block signup flow
+    fetch('/api/email/welcome', { method: 'POST' }).catch(() => {});
+
     router.push('/dashboard');
     router.refresh();
   }

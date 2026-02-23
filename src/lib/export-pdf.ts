@@ -11,8 +11,9 @@ interface ExportPdfOptions {
 
 /**
  * Generates a branded PDF from a DOM element.
- * Captures the element as a high-resolution image and places it
- * in a letter-sized PDF with institutional header and footer.
+ * Applies a light export theme before capture, then captures as a
+ * high-resolution image and places it in a letter-sized PDF with
+ * institutional header and footer.
  */
 export async function exportToPdf(
   element: HTMLElement,
@@ -20,136 +21,150 @@ export async function exportToPdf(
 ): Promise<void> {
   const { title, subtitle, filename = 'terrain-report' } = options;
 
-  // Capture at 2x for retina clarity
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: '#04080F',
-    logging: false,
-    windowWidth: element.scrollWidth,
-    windowHeight: element.scrollHeight,
-  });
+  // ── Apply light export theme for clean paper output ────
+  element.classList.add('export-light');
+  await new Promise<void>((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+  );
 
-  const imgData = canvas.toDataURL('image/png');
-  const imgWidth = canvas.width;
-  const imgHeight = canvas.height;
+  try {
+    // Capture at 2x for retina clarity
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#FFFFFF',
+      logging: false,
+      windowWidth: element.scrollWidth,
+      windowHeight: element.scrollHeight,
+    });
 
-  // Letter size in mm
-  const pageWidth = 215.9;
-  const pageHeight = 279.4;
-  const margin = 15;
-  const headerHeight = 28;
-  const footerHeight = 15;
-  const contentWidth = pageWidth - margin * 2;
-  const contentHeight = pageHeight - margin * 2 - headerHeight - footerHeight;
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
 
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'letter',
-  });
+    // Letter size in mm
+    const pageWidth = 215.9;
+    const pageHeight = 279.4;
+    const margin = 15;
+    const headerHeight = 28;
+    const footerHeight = 15;
+    const contentWidth = pageWidth - margin * 2;
+    const contentHeight = pageHeight - margin * 2 - headerHeight - footerHeight;
 
-  // Scale image to fit content width
-  const ratio = contentWidth / (imgWidth / 2); // /2 because scale=2
-  const scaledHeight = (imgHeight / 2) * ratio;
-  const totalPages = Math.ceil(scaledHeight / contentHeight);
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'letter',
+    });
 
-  for (let page = 0; page < totalPages; page++) {
-    if (page > 0) pdf.addPage();
+    // ── PDF metadata ───────────────────────────────────────
+    pdf.setProperties({
+      title: `${title} — Terrain Intelligence Report`,
+      subject: subtitle || 'Market Intelligence Report',
+      author: 'Terrain by Ambrosia Ventures',
+      creator: 'Terrain (terrain.ambrosiaventures.co)',
+      keywords: 'market intelligence, life sciences, biotech, terrain',
+    });
 
-    // ── Header ────────────────────────────────────────────
-    // Background
-    pdf.setFillColor(4, 8, 15); // navy-950
-    pdf.rect(0, 0, pageWidth, headerHeight + margin, 'F');
+    // Scale image to fit content width
+    const ratio = contentWidth / (imgWidth / 2); // /2 because scale=2
+    const scaledHeight = (imgHeight / 2) * ratio;
+    const totalPages = Math.ceil(scaledHeight / contentHeight);
 
-    // Brand
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(14);
-    pdf.setTextColor(240, 244, 248); // white
-    pdf.text('TERRAIN', margin, margin + 8);
+    const dateString = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
 
-    // Separator
-    pdf.setFontSize(8);
-    pdf.setTextColor(0, 201, 167); // teal-500
-    pdf.text('by Ambrosia Ventures', margin + 30, margin + 8);
+    for (let page = 0; page < totalPages; page++) {
+      if (page > 0) pdf.addPage();
 
-    // Report title
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(10);
-    pdf.setTextColor(240, 244, 248);
-    pdf.text(title, margin, margin + 16);
+      // ── Header ──────────────────────────────────────────
+      pdf.setFillColor(255, 255, 255);
+      pdf.rect(0, 0, pageWidth, headerHeight + margin, 'F');
 
-    if (subtitle) {
+      // Brand
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(14);
+      pdf.setTextColor(4, 8, 15); // navy-950
+      pdf.text('TERRAIN', margin, margin + 8);
+
+      // Separator
+      pdf.setFontSize(8);
+      pdf.setTextColor(0, 138, 116); // teal-600 (darker for print)
+      pdf.text('by Ambrosia Ventures', margin + 30, margin + 8);
+
+      // Report title
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(10);
+      pdf.setTextColor(4, 8, 15);
+      pdf.text(title, margin, margin + 16);
+
+      if (subtitle) {
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(7);
+        pdf.setTextColor(100, 116, 139); // slate-500
+        pdf.text(subtitle, margin, margin + 21);
+      }
+
+      // Page number
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(7);
-      pdf.setTextColor(148, 163, 184); // slate-300
-      pdf.text(subtitle, margin, margin + 21);
-    }
-
-    // Page number
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(7);
-    pdf.setTextColor(100, 116, 139); // slate-500
-    pdf.text(
-      `Page ${page + 1} of ${totalPages}`,
-      pageWidth - margin,
-      margin + 8,
-      { align: 'right' }
-    );
-
-    // Teal accent line
-    pdf.setDrawColor(0, 201, 167);
-    pdf.setLineWidth(0.5);
-    pdf.line(margin, headerHeight + margin - 2, pageWidth - margin, headerHeight + margin - 2);
-
-    // ── Content (cropped from the full image) ─────────────
-    const sourceY = page * contentHeight / ratio * 2; // Offset in original pixels
-    const sourceH = Math.min(contentHeight / ratio * 2, imgHeight - sourceY);
-
-    // Create a temporary canvas for this page's slice
-    const pageCanvas = document.createElement('canvas');
-    pageCanvas.width = imgWidth;
-    pageCanvas.height = sourceH;
-    const ctx = pageCanvas.getContext('2d');
-    if (ctx) {
-      ctx.drawImage(canvas, 0, sourceY, imgWidth, sourceH, 0, 0, imgWidth, sourceH);
-      const pageImgData = pageCanvas.toDataURL('image/png');
-      const sliceHeight = (sourceH / 2) * ratio;
-      pdf.addImage(
-        pageImgData,
-        'PNG',
-        margin,
-        headerHeight + margin,
-        contentWidth,
-        sliceHeight
+      pdf.setTextColor(100, 116, 139);
+      pdf.text(
+        `Page ${page + 1} of ${totalPages}`,
+        pageWidth - margin,
+        margin + 8,
+        { align: 'right' }
       );
+
+      // Teal accent line
+      pdf.setDrawColor(0, 138, 116);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, headerHeight + margin - 2, pageWidth - margin, headerHeight + margin - 2);
+
+      // ── Content (cropped from the full image) ───────────
+      const sourceY = page * contentHeight / ratio * 2;
+      const sourceH = Math.min(contentHeight / ratio * 2, imgHeight - sourceY);
+
+      const pageCanvas = document.createElement('canvas');
+      pageCanvas.width = imgWidth;
+      pageCanvas.height = sourceH;
+      const ctx = pageCanvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(canvas, 0, sourceY, imgWidth, sourceH, 0, 0, imgWidth, sourceH);
+        const pageImgData = pageCanvas.toDataURL('image/png');
+        const sliceHeight = (sourceH / 2) * ratio;
+        pdf.addImage(
+          pageImgData,
+          'PNG',
+          margin,
+          headerHeight + margin,
+          contentWidth,
+          sliceHeight
+        );
+      }
+
+      // ── Footer ──────────────────────────────────────────
+      const footerY = pageHeight - margin - 4;
+      pdf.setDrawColor(209, 213, 219); // gray-300
+      pdf.setLineWidth(0.3);
+      pdf.line(margin, footerY - 4, pageWidth - margin, footerY - 4);
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(6);
+      pdf.setTextColor(100, 116, 139);
+      pdf.text(
+        'CONFIDENTIAL — Generated by Terrain (terrain.ambrosiaventures.co)',
+        margin,
+        footerY
+      );
+      pdf.text(dateString, pageWidth - margin, footerY, { align: 'right' });
     }
 
-    // ── Footer ────────────────────────────────────────────
-    const footerY = pageHeight - margin - 4;
-    pdf.setDrawColor(16, 34, 54); // navy-700
-    pdf.setLineWidth(0.3);
-    pdf.line(margin, footerY - 4, pageWidth - margin, footerY - 4);
-
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(6);
-    pdf.setTextColor(100, 116, 139);
-    pdf.text(
-      'CONFIDENTIAL — Generated by Terrain (terrain.ambrosiaventures.co)',
-      margin,
-      footerY
-    );
-    pdf.text(
-      new Date().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-      pageWidth - margin,
-      footerY,
-      { align: 'right' }
-    );
+    pdf.save(`${filename}.pdf`);
+  } finally {
+    // Always remove the export class, even on error
+    element.classList.remove('export-light');
   }
-
-  pdf.save(`${filename}.pdf`);
 }

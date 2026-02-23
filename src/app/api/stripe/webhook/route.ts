@@ -140,7 +140,60 @@ export async function POST(request: NextRequest) {
 
   try {
     switch (event.type) {
-      case 'customer.subscription.created':
+      case 'customer.subscription.created': {
+        const sub = event.data.object as Stripe.Subscription;
+        await upsertSubscription(supabase, sub);
+
+        // Send subscription confirmation email (non-blocking)
+        const createdUserId = sub.metadata?.supabase_user_id;
+        if (createdUserId) {
+          (async () => {
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('email, full_name')
+                .eq('id', createdUserId)
+                .single();
+
+              if (profile?.email) {
+                const planItem = sub.items.data[0];
+                const priceId = planItem?.price?.id;
+                const planName = priceId === process.env.STRIPE_TEAM_PRICE_ID ? 'Team' : 'Pro';
+                const price = planName === 'Team' ? '$499' : '$149';
+
+                const { sendEmail } = await import('@/lib/email');
+                const { SubscriptionConfirmationEmail } = await import(
+                  '@/emails/SubscriptionConfirmationEmail'
+                );
+
+                await sendEmail({
+                  to: profile.email as string,
+                  subject: `Your Terrain ${planName} plan is active`,
+                  react: SubscriptionConfirmationEmail({
+                    userName: (profile.full_name as string) || '',
+                    planName,
+                    price,
+                    nextBillingDate: new Date(
+                      sub.current_period_end * 1000
+                    ).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    }),
+                  }),
+                  tags: [{ name: 'type', value: 'subscription_confirmation' }],
+                });
+              }
+            } catch (emailErr) {
+              logger.error('subscription_email_failed', {
+                userId: createdUserId,
+                error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+              });
+            }
+          })();
+        }
+        break;
+      }
       case 'customer.subscription.updated': {
         const sub = event.data.object as Stripe.Subscription;
         await upsertSubscription(supabase, sub);
@@ -165,6 +218,46 @@ export async function POST(request: NextRequest) {
             throw new Error(`Subscription downgrade failed for user ${userId}: ${error.message}`);
           }
           logger.info('webhook_subscription_canceled', { userId });
+
+          // Send cancellation email (non-blocking)
+          (async () => {
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('email, full_name')
+                .eq('id', userId)
+                .single();
+
+              if (profile?.email) {
+                const { sendEmail } = await import('@/lib/email');
+                const { CancellationConfirmationEmail } = await import(
+                  '@/emails/CancellationConfirmationEmail'
+                );
+
+                await sendEmail({
+                  to: profile.email as string,
+                  subject: 'Your Terrain subscription has been cancelled',
+                  react: CancellationConfirmationEmail({
+                    userName: (profile.full_name as string) || '',
+                    planName: 'Pro',
+                    accessEndDate: sub.current_period_end
+                      ? new Date(sub.current_period_end * 1000).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })
+                      : 'immediately',
+                  }),
+                  tags: [{ name: 'type', value: 'cancellation' }],
+                });
+              }
+            } catch (emailErr) {
+              logger.error('cancellation_email_failed', {
+                userId,
+                error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+              });
+            }
+          })();
         }
         break;
       }
@@ -183,6 +276,50 @@ export async function POST(request: NextRequest) {
           throw new Error(`Payment failed update failed for customer ${customerId}: ${error.message}`);
         }
         logger.warn('webhook_payment_failed', { customerId, invoiceId: invoice.id });
+
+        // Send payment failed email (non-blocking)
+        (async () => {
+          try {
+            const { data: subRow } = await supabase
+              .from('subscriptions')
+              .select('user_id')
+              .eq('stripe_customer_id', customerId)
+              .single();
+
+            if (subRow?.user_id) {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('email, full_name')
+                .eq('id', subRow.user_id)
+                .single();
+
+              if (profile?.email) {
+                const { sendEmail } = await import('@/lib/email');
+                const { PaymentFailedEmail } = await import(
+                  '@/emails/PaymentFailedEmail'
+                );
+
+                await sendEmail({
+                  to: profile.email as string,
+                  subject: 'Action required: Terrain payment failed',
+                  react: PaymentFailedEmail({
+                    userName: (profile.full_name as string) || '',
+                    invoiceAmount: invoice.amount_due
+                      ? `$${(invoice.amount_due / 100).toFixed(2)}`
+                      : '',
+                    billingPortalUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://terrain.ambrosiaventures.co'}/settings/billing`,
+                  }),
+                  tags: [{ name: 'type', value: 'payment_failed' }],
+                });
+              }
+            }
+          } catch (emailErr) {
+            logger.error('payment_failed_email_failed', {
+              customerId,
+              error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+            });
+          }
+        })();
         break;
       }
       default:

@@ -2,10 +2,14 @@
 // TERRAIN — Nutraceutical Partner Database
 // lib/data/nutraceutical-partner-database.ts
 //
-// 55+ nutraceutical industry partner profiles across 8 types:
+// 70+ nutraceutical industry partner profiles across 8 types:
 //   contract_manufacturer, ingredient_supplier, distributor,
 //   retail_partner, strategic_acquirer, dtc_platform,
 //   clinical_research, marketing_agency
+//
+// Includes deal activity data: recent_acquisitions,
+// deal_terms_typical, partnership_track_record, and
+// strategic_priorities for key strategic acquirers and partners.
 //
 // Sources: SEC filings, annual reports, press releases,
 // industry directories, Nutrition Business Journal (2022-2025)
@@ -1410,6 +1414,531 @@ export const NUTRACEUTICAL_PARTNER_DATABASE: NutraceuticalPartnerProfile[] = [
     notable_clients: ['DTC supplement brands', 'Thorne', 'performance nutrition brands', 'longevity startups'],
     deal_size_range: '$10K - $200K+ monthly retainers',
     source: 'Tinuiti company disclosures; industry rankings',
+  },
+
+  // ══════════════════════════════════════════════════════════
+  // SPECIALTY CDMOs (~3)
+  // ══════════════════════════════════════════════════════════
+
+  {
+    company: 'Nutra Manufacturing',
+    partner_type: 'contract_manufacturer',
+    hq: 'Greenville, SC',
+    revenue_b: 0.1,
+    description: 'Mid-size CDMO specializing in tablets, capsules, and powders for the dietary supplement industry. Part of the New Chapter / Procter & Gamble supply ecosystem. Operates a 250,000 sq ft cGMP-certified facility in Greenville, SC with strong capabilities in botanical and herbal formulations.',
+    capabilities: [
+      'Tablet compression and coating',
+      'Two-piece capsule filling (vegetarian and gelatin)',
+      'Powder blending and packaging',
+      'Botanical and herbal extract processing',
+      'cGMP-certified manufacturing facility',
+      'Private label and white label programs',
+      'Stability testing and shelf-life studies',
+      'Packaging and co-packing services',
+    ],
+    categories_served: ['dietary_supplement', 'functional_food', 'sports_nutrition', 'probiotic_microbiome'],
+    channels_served: ['wholesale_b2b', 'retail_mass', 'retail_specialty', 'dtc_ecommerce', 'amazon'],
+    notable_clients: ['New Chapter', 'regional supplement brands', 'private label retailers', 'emerging DTC brands'],
+    deal_size_range: '$50K - $8M annual contracts',
+    source: 'Nutra Manufacturing company records; industry directories',
+    deal_terms_typical: {
+      upfront_range: '$50K - $500K (tooling and setup)',
+      royalty_range: 'N/A',
+      typical_deal_type: 'contract',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 15,
+      notable_partnerships: ['New Chapter', 'P&G supplement brands', 'regional natural product companies'],
+      avg_deal_value_m: 1.5,
+    },
+  },
+
+  {
+    company: 'GNC Manufacturing',
+    partner_type: 'contract_manufacturer',
+    hq: 'Pittsburgh, PA',
+    revenue_b: 0.4,
+    description: 'Vertically integrated manufacturing arm of GNC Holdings. Produces both GNC-branded products and contract manufacturing for third-party brands. Leverages GNC retail distribution insights to inform formulation development and trend-responsive product launches.',
+    capabilities: [
+      'Vertical integration with GNC retail',
+      'Tablet, capsule, and powder manufacturing',
+      'Sports nutrition formulation expertise',
+      'Private label and co-manufacturing',
+      'Rapid product development (trend-responsive)',
+      'Quality control and in-house testing labs',
+      'Scale manufacturing (billions of doses annually)',
+      'Regulatory compliance and label claims support',
+    ],
+    categories_served: ['dietary_supplement', 'sports_nutrition', 'functional_food', 'cosmeceutical'],
+    channels_served: ['wholesale_b2b', 'retail_specialty', 'dtc_ecommerce', 'amazon'],
+    notable_clients: ['GNC (own brand)', 'Nugenix', 'Ghost Lifestyle', 'third-party sports nutrition brands'],
+    deal_size_range: '$100K - $15M annual contracts',
+    source: 'GNC Holdings financial reports; Harbin Pharmaceutical disclosures',
+    deal_terms_typical: {
+      upfront_range: '$100K - $1M (tooling and development)',
+      royalty_range: 'N/A',
+      typical_deal_type: 'contract',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 10,
+      notable_partnerships: ['GNC retail (captive supply)', 'Nugenix', 'select third-party brands'],
+      avg_deal_value_m: 3,
+    },
+  },
+
+  {
+    company: 'Herbalife Manufacturing Network',
+    partner_type: 'contract_manufacturer',
+    hq: 'Los Angeles, CA (global manufacturing sites)',
+    revenue_b: 0.8,
+    description: 'Global multi-format manufacturing network operated by Herbalife. Produces meal replacement shakes, protein powders, tablets, capsules, and teas across facilities in the US, China, India, and Brazil. Vertically integrated for Herbalife product lines with selective contract manufacturing capacity.',
+    capabilities: [
+      'Multi-format manufacturing (powders, shakes, tablets, capsules, teas)',
+      'Global manufacturing footprint (US, China, India, Brazil)',
+      'Meal replacement and protein powder specialty',
+      'High-volume powder blending and sachet filling',
+      'Flavoring and sensory optimization',
+      'Quality systems across multiple regulatory regimes',
+      'Halal and Kosher certified lines',
+      'Innovation labs for novel delivery formats',
+    ],
+    categories_served: ['dietary_supplement', 'sports_nutrition', 'functional_food', 'cosmeceutical'],
+    channels_served: ['wholesale_b2b', 'dtc_ecommerce', 'subscription'],
+    notable_clients: ['Herbalife Nutrition (primary)', 'select third-party contract clients'],
+    deal_size_range: '$500K - $20M annual contracts',
+    source: 'Herbalife SEC 10-K 2024; manufacturing disclosures',
+    deal_terms_typical: {
+      upfront_range: '$200K - $2M (development and tooling)',
+      royalty_range: 'N/A',
+      typical_deal_type: 'contract',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 5,
+      notable_partnerships: ['Herbalife internal brands', 'select third-party sports nutrition brands'],
+      avg_deal_value_m: 5,
+    },
+  },
+
+  // ══════════════════════════════════════════════════════════
+  // EMERGING INGREDIENT BIOTECHS (~4)
+  // ══════════════════════════════════════════════════════════
+
+  {
+    company: 'Compound Solutions',
+    partner_type: 'ingredient_supplier',
+    hq: 'Carlsbad, CA',
+    revenue_b: 0.04,
+    description: 'Specialty branded ingredient company focused on performance and energy compounds. Produces TeaCrine (theacrine), Dynamine (methylliberine), and CaloriBurn GP (Grains of Paradise extract). Strong presence in the sports nutrition and pre-workout category with patented, clinically studied ingredients.',
+    capabilities: [
+      'TeaCrine (theacrine) — patented energy/focus compound',
+      'Dynamine (methylliberine) — rapid-onset energy ingredient',
+      'CaloriBurn GP — Grains of Paradise thermogenic extract',
+      'Branded ingredient licensing and co-marketing',
+      'Clinical research support (multiple published studies)',
+      'Formulation guidance for sports nutrition brands',
+      'Global regulatory dossiers (US, EU, APAC)',
+      'Patent portfolio on performance compounds',
+    ],
+    categories_served: ['sports_nutrition', 'dietary_supplement', 'functional_food'],
+    channels_served: ['wholesale_b2b', 'retail_specialty', 'dtc_ecommerce', 'amazon'],
+    notable_clients: ['Ghost Lifestyle', 'Transparent Labs', 'PEScience', 'JYM Supplement Science'],
+    deal_size_range: '$25K - $3M ingredient supply agreements',
+    source: 'Compound Solutions published research; company records',
+    deal_terms_typical: {
+      upfront_range: '$0 - $50K (licensing fee)',
+      royalty_range: '3-8% on branded ingredient sales',
+      typical_deal_type: 'licensing',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 40,
+      notable_partnerships: ['Ghost Lifestyle', 'Transparent Labs', 'Kaged', 'Gorilla Mind'],
+      avg_deal_value_m: 0.5,
+    },
+    strategic_priorities: ['pre-workout category leadership', 'nootropic/focus compounds', 'clean energy alternatives to caffeine'],
+  },
+
+  {
+    company: 'NNB Nutrition',
+    partner_type: 'ingredient_supplier',
+    hq: 'St. Louis, MO',
+    revenue_b: 0.02,
+    description: 'Emerging ingredient supplier specializing in NAD+ precursors (NMN — nicotinamide mononucleotide), novel nootropics, and performance compounds. Known for competitive pricing on longevity ingredients and rapid scaling capacity. Supplies both branded and bulk NMN to the global market.',
+    capabilities: [
+      'NMN (nicotinamide mononucleotide) production — competitive pricing',
+      'MitoPrime (L-ergothioneine) — antioxidant amino acid',
+      'RhodioPrime (Rhodiola rosea standardized salidroside)',
+      'GlucoVantage (dihydroberberine) — blood sugar support',
+      'Bulk and branded ingredient supply',
+      'Rapid scaling for high-demand ingredients',
+      'Third-party testing and purity verification',
+      'Global supply chain (US and Asia manufacturing)',
+    ],
+    categories_served: ['longevity_compound', 'dietary_supplement', 'sports_nutrition', 'functional_food'],
+    channels_served: ['wholesale_b2b', 'dtc_ecommerce', 'amazon', 'retail_specialty'],
+    notable_clients: ['Longevity supplement brands', 'Amazon NMN sellers', 'DTC biohacking brands', 'sports nutrition formulators'],
+    deal_size_range: '$10K - $2M ingredient supply agreements',
+    source: 'NNB Nutrition company records; ingredient databases',
+    deal_terms_typical: {
+      upfront_range: '$0 - $25K',
+      royalty_range: '0-5% on branded ingredients',
+      typical_deal_type: 'licensing',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 25,
+      notable_partnerships: ['DoNotAge', 'ProHealth Longevity', 'multiple Amazon longevity brands'],
+      avg_deal_value_m: 0.3,
+    },
+    strategic_priorities: ['NAD+ precursor category leadership', 'longevity ingredient pipeline', 'competitive NMN pricing'],
+  },
+
+  {
+    company: 'Maypro Industries',
+    partner_type: 'ingredient_supplier',
+    hq: 'Purchase, NY',
+    revenue_b: 0.06,
+    description: 'Specialty ingredient distributor and marketer bridging Japanese and Asian ingredient innovation with the North American supplement market. Represents exclusive branded ingredients including Oligonol (lychee polyphenol), NattoMK-7 (vitamin K2), and multiple fermentation-derived Japanese actives.',
+    capabilities: [
+      'Japanese specialty ingredient sourcing and distribution',
+      'Oligonol — lychee-derived polyphenol (anti-aging, circulation)',
+      'NattoMK-7 — fermentation-derived vitamin K2',
+      'Enzogenol — pine bark extract (cognitive health)',
+      'Exclusive North American distribution agreements',
+      'Regulatory support for novel Asian ingredients (NDI, GRAS)',
+      'Clinical study coordination (bridging Japanese data to US market)',
+      'Custom formulation support with Japanese actives',
+    ],
+    categories_served: ['dietary_supplement', 'longevity_compound', 'functional_food', 'cosmeceutical'],
+    channels_served: ['wholesale_b2b', 'retail_specialty', 'practitioner', 'dtc_ecommerce'],
+    notable_clients: ['Quality of Life Labs', 'Japanese ingredient manufacturers', 'practitioner supplement brands', 'K2 formulators'],
+    deal_size_range: '$25K - $5M ingredient distribution agreements',
+    source: 'Maypro Industries company records; ingredient databases',
+    deal_terms_typical: {
+      upfront_range: '$0 - $50K (exclusive territory fees)',
+      royalty_range: '5-12% distribution margin',
+      typical_deal_type: 'distribution',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 20,
+      notable_partnerships: ['Amino Up Chemical (Oligonol)', 'ENZO Nutraceuticals', 'Japanese fermentation houses'],
+      avg_deal_value_m: 0.8,
+    },
+    strategic_priorities: ['Japanese ingredient innovation pipeline', 'fermentation-derived actives', 'longevity and anti-aging compounds'],
+  },
+
+  {
+    company: 'Gencor Pacific',
+    partner_type: 'ingredient_supplier',
+    hq: 'Irvine, CA',
+    revenue_b: 0.03,
+    description: 'Branded ingredient company specializing in clinically studied botanical extracts from Southeast Asian and Indian sources. Key ingredients include LJ100 (Tongkat Ali, Eurycoma longifolia), PrimaVie (purified Shilajit), and HydroCurc (water-dispersible curcumin). Strong clinical evidence portfolio.',
+    capabilities: [
+      'LJ100 — standardized Tongkat Ali (testosterone, vitality)',
+      'PrimaVie — purified Shilajit (mitochondrial support, CoQ10 synergy)',
+      'HydroCurc — water-dispersible curcumin (9x bioavailability)',
+      'AstraGin — absorption enhancer (from Astragalus + Panax notoginseng)',
+      'Branded ingredient licensing with co-marketing support',
+      'Clinical study portfolio (20+ human trials across ingredients)',
+      'Regulatory dossiers (US GRAS, EU Novel Food submissions)',
+      'Vertical supply chain from Southeast Asia plantations',
+    ],
+    categories_served: ['dietary_supplement', 'sports_nutrition', 'longevity_compound', 'functional_food'],
+    channels_served: ['wholesale_b2b', 'retail_specialty', 'dtc_ecommerce', 'amazon'],
+    notable_clients: ['Momentous', 'Transparent Labs', 'Nootropics Depot', 'sports nutrition brands'],
+    deal_size_range: '$15K - $3M ingredient licensing agreements',
+    source: 'Gencor Pacific published research; company records',
+    deal_terms_typical: {
+      upfront_range: '$0 - $25K (licensing fee)',
+      royalty_range: '3-10% on branded ingredient sales',
+      typical_deal_type: 'licensing',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 30,
+      notable_partnerships: ['Momentous', 'NuLiv Science (AstraGin co-development)', 'multiple sports nutrition brands'],
+      avg_deal_value_m: 0.4,
+    },
+    strategic_priorities: ['Tongkat Ali category leadership', 'mitochondrial health ingredients', 'bioavailability-enhanced botanicals'],
+  },
+
+  // ══════════════════════════════════════════════════════════
+  // REGIONAL DISTRIBUTORS (~3)
+  // ══════════════════════════════════════════════════════════
+
+  {
+    company: 'Threshold Enterprises',
+    partner_type: 'distributor',
+    hq: 'Scotts Valley, CA',
+    revenue_b: 0.15,
+    description: 'Specialty natural products distributor focused on the West Coast and independent natural retail channel. Distributes premium, practitioner-grade, and specialty supplement brands to independent health food stores, co-ops, and natural grocers across the Western US.',
+    capabilities: [
+      'West Coast independent natural retail distribution',
+      'Health food store and co-op delivery network',
+      'New brand launch and shelf placement programs',
+      'Category management for natural retailers',
+      'Promotional support and sampling programs',
+      'Trade show representation (Natural Products Expo West)',
+      'Emerging brand incubation and mentorship',
+      'Weekly delivery to 3,000+ retail locations',
+    ],
+    categories_served: ['dietary_supplement', 'functional_food', 'probiotic_microbiome', 'cosmeceutical', 'longevity_compound'],
+    channels_served: ['retail_specialty', 'wholesale_b2b'],
+    notable_clients: ['Herb Pharm', 'MegaFood', 'Nordic Naturals', 'independent natural retailers'],
+    deal_size_range: '$25K - $3M annual distribution revenue',
+    source: 'Threshold Enterprises company records; NPA directories',
+    deal_terms_typical: {
+      upfront_range: '$0 - $10K (slotting/intro fees)',
+      revenue_share_range: '20-35% distributor margin',
+      typical_deal_type: 'distribution',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 30,
+      notable_partnerships: ['Herb Pharm', 'MegaFood', 'West Coast natural food co-ops'],
+      avg_deal_value_m: 0.5,
+    },
+  },
+
+  {
+    company: 'Emerson Ecologics (Fullscript)',
+    partner_type: 'distributor',
+    hq: 'Manchester, NH',
+    revenue_b: 0.25,
+    description: 'Leading practitioner-channel supplement distributor, now integrated into the Fullscript platform. Distributes 300+ professional-grade supplement brands directly to healthcare practitioners (naturopaths, functional medicine MDs, chiropractors, registered dietitians). Acts as the bridge between supplement manufacturers and the clinical channel.',
+    capabilities: [
+      'Practitioner-channel specialty distribution',
+      '300+ professional supplement brand catalog',
+      'Fullscript digital dispensary integration',
+      'Practitioner education and product training',
+      'Drop-ship to patients from practitioner recommendations',
+      'Autoship and subscription management for patients',
+      'HIPAA-compliant order processing',
+      'CE credit programs for practitioners',
+    ],
+    categories_served: ['dietary_supplement', 'probiotic_microbiome', 'functional_food', 'medical_food', 'longevity_compound'],
+    channels_served: ['practitioner', 'wholesale_b2b', 'dtc_ecommerce', 'subscription'],
+    notable_clients: ['Pure Encapsulations', 'Metagenics', 'Designs for Health', 'Integrative Therapeutics'],
+    deal_size_range: '$50K - $10M annual distribution revenue',
+    source: 'Emerson Ecologics/Fullscript company records; practitioner platform data',
+    deal_terms_typical: {
+      upfront_range: '$0 (no upfront fees)',
+      revenue_share_range: '25-40% distributor/platform margin',
+      typical_deal_type: 'distribution',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 50,
+      notable_partnerships: ['Fullscript merger', 'Pure Encapsulations', 'Metagenics', 'Designs for Health'],
+      avg_deal_value_m: 1.0,
+    },
+    strategic_priorities: ['practitioner channel digitization', 'patient adherence technology', 'professional-grade brand aggregation'],
+  },
+
+  {
+    company: 'DaVinci Laboratories',
+    partner_type: 'distributor',
+    hq: 'Williston, VT',
+    revenue_b: 0.05,
+    description: 'Practitioner supplement manufacturer and distributor producing physician-grade formulations since 1973. Known for high-potency, hypoallergenic formulations sold exclusively through healthcare practitioners. Also distributes select third-party professional brands.',
+    capabilities: [
+      'Practitioner-exclusive supplement manufacturing',
+      'High-potency, hypoallergenic formulations',
+      'In-house R&D and formulation development',
+      'Third-party brand distribution to practitioners',
+      'Practitioner education and clinical training',
+      'Custom formulation services for clinics',
+      'Direct-to-practitioner sales and support',
+      'Comprehensive Certificate of Analysis program',
+    ],
+    categories_served: ['dietary_supplement', 'probiotic_microbiome', 'medical_food', 'longevity_compound'],
+    channels_served: ['practitioner', 'wholesale_b2b'],
+    notable_clients: ['Naturopathic physicians', 'functional medicine practitioners', 'integrative health clinics', 'chiropractic offices'],
+    deal_size_range: '$10K - $2M annual distribution/manufacturing revenue',
+    source: 'DaVinci Laboratories company records; practitioner directories',
+    deal_terms_typical: {
+      upfront_range: '$0 - $25K',
+      revenue_share_range: '30-45% practitioner margin',
+      typical_deal_type: 'distribution',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 15,
+      notable_partnerships: ['Vermont naturopathic community', 'integrative medicine networks', 'select ingredient partners'],
+      avg_deal_value_m: 0.3,
+    },
+  },
+
+  // ══════════════════════════════════════════════════════════
+  // EMERGING DTC / RETAIL (~3)
+  // ══════════════════════════════════════════════════════════
+
+  {
+    company: 'Thrive Market',
+    partner_type: 'retail_partner',
+    hq: 'Los Angeles, CA',
+    revenue_b: 0.5,
+    description: 'Membership-based DTC e-commerce platform for natural, organic, and healthy products at wholesale prices. 1.5M+ paid members. Carries 6,000+ products including a growing supplement and wellness category. Positioned as the "online Costco for natural products" with strong mission-driven branding.',
+    capabilities: [
+      '1.5M+ paid membership base',
+      'DTC e-commerce with wholesale pricing',
+      'Curated natural and organic product assortment',
+      'Growing supplement and wellness category',
+      'Thrive Market private label brand',
+      'Subscription auto-ship for consumables',
+      'Mission-driven marketing (free membership for low-income families)',
+      'Data-driven product curation and recommendation engine',
+    ],
+    categories_served: ['dietary_supplement', 'functional_food', 'probiotic_microbiome', 'cosmeceutical', 'sports_nutrition'],
+    channels_served: ['dtc_ecommerce', 'subscription'],
+    notable_clients: ['Garden of Life', 'NOW Foods', 'Nordic Naturals', 'Dr. Bronner\'s'],
+    deal_size_range: '$50K - $5M annual e-commerce revenue',
+    source: 'Thrive Market company disclosures; industry estimates',
+    deal_terms_typical: {
+      upfront_range: '$0 - $10K (onboarding fee)',
+      revenue_share_range: '25-40% platform margin',
+      typical_deal_type: 'distribution',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 100,
+      notable_partnerships: ['Garden of Life', 'NOW Foods', 'Primal Kitchen', 'emerging DTC supplement brands'],
+      avg_deal_value_m: 0.3,
+    },
+    strategic_priorities: ['membership growth', 'private label expansion in supplements', 'wellness category depth'],
+  },
+
+  {
+    company: 'Grove Collaborative',
+    partner_type: 'retail_partner',
+    hq: 'San Francisco, CA',
+    revenue_b: 0.3,
+    description: 'DTC e-commerce platform for sustainable household and wellness products. Publicly traded (NYSE: GROV). Expanding from household cleaning into personal care and wellness/supplement categories. 2M+ active customers with strong subscription/auto-ship model.',
+    capabilities: [
+      '2M+ active customer base',
+      'DTC e-commerce with subscription model',
+      'Sustainable/clean product positioning',
+      'Grove Co. private label brand',
+      'Expanding wellness and supplement assortment',
+      'Auto-ship and bundle subscription management',
+      'Customer data and personalization',
+      'B Corp certified platform',
+    ],
+    categories_served: ['dietary_supplement', 'cosmeceutical', 'functional_food'],
+    channels_served: ['dtc_ecommerce', 'subscription'],
+    notable_clients: ['Mrs. Meyer\'s', 'Method', 'Seventh Generation', 'expanding wellness brands'],
+    deal_size_range: '$25K - $2M annual e-commerce revenue',
+    source: 'Grove Collaborative SEC filings (NYSE: GROV); annual report',
+    deal_terms_typical: {
+      upfront_range: '$0 - $5K (onboarding)',
+      revenue_share_range: '30-45% platform margin',
+      typical_deal_type: 'distribution',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 50,
+      notable_partnerships: ['Method', 'Mrs. Meyer\'s', 'Seventh Generation', 'emerging clean wellness brands'],
+      avg_deal_value_m: 0.2,
+    },
+    strategic_priorities: ['wellness category expansion', 'clean/sustainable supplement brands', 'subscription revenue growth'],
+  },
+
+  {
+    company: 'Erewhon',
+    partner_type: 'retail_partner',
+    hq: 'Los Angeles, CA',
+    revenue_b: 0.15,
+    description: 'Ultra-premium natural grocery and wellness destination with 10 locations in the Los Angeles area. Known as the tastemaker retail channel for luxury supplement and wellness brands. Products carried at Erewhon gain significant influencer and social media credibility. $200+ average basket size.',
+    capabilities: [
+      '10 ultra-premium retail locations in Los Angeles',
+      'Tastemaker and trendsetter retail positioning',
+      'Curated supplement and wellness section',
+      'Influencer and celebrity shopping destination',
+      'Social media amplification for carried brands',
+      'In-store sampling and product education',
+      'High average basket size ($200+)',
+      'Premium shelf placement and brand story integration',
+    ],
+    categories_served: ['dietary_supplement', 'functional_food', 'longevity_compound', 'cosmeceutical', 'sports_nutrition', 'probiotic_microbiome'],
+    channels_served: ['retail_specialty'],
+    notable_clients: ['Moon Juice', 'Seed', 'Athletic Greens (AG1)', 'Cymbiotika', 'Sakara Life'],
+    deal_size_range: '$10K - $1M annual retail revenue',
+    source: 'Erewhon company disclosures; industry press',
+    deal_terms_typical: {
+      upfront_range: '$0 - $5K (slotting/intro)',
+      revenue_share_range: '35-50% retail margin',
+      typical_deal_type: 'distribution',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 60,
+      notable_partnerships: ['Moon Juice', 'Seed', 'AG1', 'Cymbiotika', 'Sakara Life'],
+      avg_deal_value_m: 0.15,
+    },
+    strategic_priorities: ['luxury wellness positioning', 'influencer brand amplification', 'longevity and biohacking category growth'],
+  },
+
+  // ══════════════════════════════════════════════════════════
+  // TESTING & CERTIFICATION (~2)
+  // ══════════════════════════════════════════════════════════
+
+  {
+    company: 'NSF International',
+    partner_type: 'clinical_research',
+    hq: 'Ann Arbor, MI',
+    revenue_b: 0.5,
+    description: 'Global leader in third-party testing, certification, and standards development for dietary supplements, food, water, and consumer products. NSF Certified for Sport is the gold standard certification for sport supplement safety testing. NSF GMP registration is a baseline requirement for credible supplement manufacturers.',
+    capabilities: [
+      'NSF Certified for Sport — banned substance testing for athletes',
+      'NSF GMP registration for supplement manufacturing facilities',
+      'NSF/ANSI 173 — Dietary Supplement standard certification',
+      'Product testing and label claim verification',
+      'Contaminant screening (heavy metals, pesticides, microbial)',
+      'Supply chain auditing and quality systems consulting',
+      'Regulatory consulting (FDA, DSHEA compliance)',
+      'International certification (US, Canada, EU, Asia)',
+    ],
+    categories_served: ['dietary_supplement', 'sports_nutrition', 'functional_food', 'probiotic_microbiome', 'longevity_compound', 'otc_drug'],
+    channels_served: ['wholesale_b2b', 'retail_mass', 'retail_specialty', 'practitioner', 'dtc_ecommerce', 'amazon'],
+    notable_clients: ['Thorne', 'Klean Athlete', 'Momentous', 'NOW Foods', 'major retail private label programs'],
+    deal_size_range: '$5K - $200K annual certification and testing fees',
+    source: 'NSF International company disclosures; certification databases',
+    deal_terms_typical: {
+      upfront_range: '$5K - $50K (initial audit and testing)',
+      royalty_range: 'N/A (annual certification fees)',
+      typical_deal_type: 'contract',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 200,
+      notable_partnerships: ['NFL', 'MLB', 'NHL', 'Major League Soccer', 'US Olympic & Paralympic Committee'],
+      avg_deal_value_m: 0.05,
+    },
+    strategic_priorities: ['sport supplement certification expansion', 'longevity compound testing protocols', 'international certification harmonization'],
+  },
+
+  {
+    company: 'Informed Sport / Informed Choice (LGC Group)',
+    partner_type: 'clinical_research',
+    hq: 'Fordham, UK (US offices)',
+    revenue_b: 0.3,
+    description: 'World-class sports supplement and ingredient testing program operated by LGC Group. Informed Sport tests finished products for banned substances per WADA standards. Informed Choice certifies raw ingredients. Trusted by elite athletes, sports teams, and anti-doping organizations worldwide.',
+    capabilities: [
+      'Informed Sport — finished product banned substance testing (WADA list)',
+      'Informed Choice — raw ingredient quality certification',
+      'Blind sample testing program (monthly batch testing)',
+      'Anti-doping laboratory expertise (ISO 17025 accredited)',
+      'Athlete risk assessment and safety profiling',
+      'Marketing and brand licensing for Informed Sport logo',
+      'Global certification recognized by 100+ sports organizations',
+      'Supply chain traceability and ingredient provenance testing',
+    ],
+    categories_served: ['sports_nutrition', 'dietary_supplement', 'functional_food'],
+    channels_served: ['wholesale_b2b', 'retail_specialty', 'dtc_ecommerce', 'amazon', 'retail_mass'],
+    notable_clients: ['Optimum Nutrition', 'MyProtein', 'USN', 'PhD Nutrition', 'Healthspan Elite'],
+    deal_size_range: '$3K - $150K annual certification and testing fees',
+    source: 'LGC Group / Informed Sport company disclosures; WADA accreditation records',
+    deal_terms_typical: {
+      upfront_range: '$3K - $25K (initial registration and testing)',
+      royalty_range: 'N/A (annual certification and batch testing fees)',
+      typical_deal_type: 'contract',
+    },
+    partnership_track_record: {
+      deals_last_5yr: 150,
+      notable_partnerships: ['Premiership Rugby', 'UFC', 'World Athletics', 'Optimum Nutrition', 'MyProtein'],
+      avg_deal_value_m: 0.03,
+    },
+    strategic_priorities: ['US market expansion', 'e-sports supplement certification', 'longevity supplement testing protocols'],
   },
 ];
 

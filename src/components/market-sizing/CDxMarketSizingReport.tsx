@@ -672,7 +672,12 @@ export default function CDxMarketSizingReport({ data, input }: CDxMarketSizingRe
             outputs: data as unknown as Record<string, unknown>,
           }}
         />
-        <ExportButton format="pdf" />
+        <ExportButton
+          format="pdf"
+          reportTitle={`${input.biomarker} CDx — ${input.drug_indication}`}
+          reportSubtitle={[input.drug_name, input.test_type].filter(Boolean).join(' — ') || undefined}
+          filename={`terrain-cdx-${input.drug_indication.toLowerCase().replace(/\s+/g, '-')}`}
+        />
         <ExportButton
           format="csv"
           data={flattenCDxForCSV(data)}

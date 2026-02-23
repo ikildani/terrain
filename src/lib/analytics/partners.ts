@@ -3238,8 +3238,26 @@ function generateNutraRationale(
     lines.push(`Capabilities well-matched to ${input.development_stage.replace(/_/g, ' ')} stage needs.`);
   }
 
-  // Notable clients
-  if (partner.notable_clients.length > 0) {
+  // Deal history and strategic context (from enhanced partner profiles)
+  if (partner.recent_acquisitions && partner.recent_acquisitions.length > 0) {
+    const dealExamples = partner.recent_acquisitions.slice(0, 2).join('; ');
+    lines.push(`Recent M&A activity: ${dealExamples}.`);
+  }
+
+  if (partner.deal_terms_typical) {
+    lines.push(`Typical deal terms: ${partner.deal_terms_typical}.`);
+  }
+
+  if (partner.strategic_priorities) {
+    lines.push(`Strategic priorities: ${partner.strategic_priorities}.`);
+  }
+
+  if (partner.partnership_track_record) {
+    lines.push(`Track record: ${partner.partnership_track_record}.`);
+  }
+
+  // Notable clients (only if no deal history was shown — avoid repetition)
+  if (!partner.recent_acquisitions?.length && partner.notable_clients.length > 0) {
     lines.push(`Works with: ${partner.notable_clients.slice(0, 3).join(', ')}.`);
   }
 

@@ -998,6 +998,136 @@ body {
 }
 
 /* ============================================
+   EXPORT LIGHT THEME — Applied programmatically
+   before html2canvas capture for institutional
+   PDF output quality.
+   ============================================ */
+
+.export-light {
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+}
+
+.export-light * {
+  color: #1a1a1a !important;
+  text-shadow: none !important;
+}
+
+/* Restore signal colors for data clarity */
+.export-light .text-teal-500,
+.export-light .text-teal-400,
+.export-light .confidence-high { color: #008a74 !important; }
+.export-light .text-signal-green { color: #15803d !important; }
+.export-light .text-signal-red { color: #b91c1c !important; }
+.export-light .text-signal-amber { color: #a16207 !important; }
+.export-light .text-white { color: #000000 !important; }
+.export-light .text-slate-100 { color: #111827 !important; }
+.export-light .text-slate-300 { color: #374151 !important; }
+.export-light .text-slate-400 { color: #6b7280 !important; }
+.export-light .text-slate-500 { color: #9ca3af !important; }
+
+/* Metric values stay prominent */
+.export-light .metric {
+  color: #000 !important;
+  font-weight: 600;
+}
+
+/* Labels stay muted */
+.export-light .label {
+  color: #6b7280 !important;
+}
+
+/* Display headings */
+.export-light .font-display,
+.export-light .page-title {
+  color: #000 !important;
+}
+
+/* Cards & surfaces — white with gray borders */
+.export-light .card,
+.export-light .card-elevated,
+.export-light .stat-card,
+.export-light .chart-container {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  box-shadow: none !important;
+}
+
+/* Remove noise overlay */
+.export-light .noise::after {
+  display: none !important;
+}
+
+/* Data tables — institutional style */
+.export-light .data-table thead tr {
+  border-bottom: 2px solid #000 !important;
+}
+
+.export-light .data-table thead th {
+  color: #000 !important;
+  font-weight: 600;
+  background: #f9fafb !important;
+  border-bottom: 2px solid #000 !important;
+}
+
+.export-light .data-table tbody tr {
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.export-light .data-table tbody tr:hover {
+  background: transparent !important;
+}
+
+.export-light .data-table tbody tr:nth-child(even) {
+  background: #f9fafb !important;
+}
+
+.export-light .data-table tbody td {
+  color: #374151 !important;
+}
+
+.export-light .data-table tbody td.numeric {
+  color: #000 !important;
+}
+
+/* Recharts overrides */
+.export-light .recharts-text {
+  fill: #374151 !important;
+}
+
+.export-light .recharts-cartesian-grid-horizontal line,
+.export-light .recharts-cartesian-grid-vertical line {
+  stroke: #e5e7eb !important;
+}
+
+/* Badges */
+.export-light .badge,
+.export-light .phase-badge,
+.export-light .badge-pro,
+.export-light .badge-teal,
+.export-light .badge-green,
+.export-light .badge-amber,
+.export-light .badge-red,
+.export-light .badge-slate,
+.export-light .badge-510k,
+.export-light .badge-pma,
+.export-light .badge-de-novo,
+.export-light .badge-cdx {
+  border: 1px solid #9ca3af !important;
+  background: #f3f4f6 !important;
+}
+
+/* Navy background overrides */
+.export-light [class*="bg-navy-"] {
+  background: #ffffff !important;
+}
+
+.export-light .border-navy-700,
+.export-light .border-slate-700 {
+  border-color: #d1d5db !important;
+}
+
+/* ============================================
    RESPONSIVE (Tablet breakpoint)
    ============================================ */
 
