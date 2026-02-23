@@ -27,24 +27,28 @@ export default async function Image() {
         <div
           style={{
             position: 'absolute',
-            inset: 0,
-            opacity: 0.04,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            opacity: 0.03,
             backgroundImage:
               'linear-gradient(rgba(0,201,167,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,201,167,0.5) 1px, transparent 1px)',
             backgroundSize: '48px 48px',
+            display: 'flex',
           }}
         />
 
-        {/* Glow */}
+        {/* Top glow */}
         <div
           style={{
             position: 'absolute',
             top: '-200px',
             left: '50%',
-            transform: 'translateX(-50%)',
             width: '800px',
             height: '400px',
-            background: 'radial-gradient(ellipse, rgba(0,201,167,0.15), transparent 70%)',
+            background: 'radial-gradient(ellipse, rgba(0,201,167,0.12), transparent 70%)',
+            display: 'flex',
           }}
         />
 
@@ -54,40 +58,65 @@ export default async function Image() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '24px',
+            gap: '28px',
             position: 'relative',
           }}
         >
-          {/* Logo */}
+          {/* Logo mark + wordmark */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              marginBottom: '8px',
+              gap: '14px',
+              marginBottom: '4px',
             }}
           >
-            {/* T icon */}
+            {/* T icon — matches the favicon */}
             <div
               style={{
-                width: '48px',
-                height: '48px',
+                width: '52px',
+                height: '52px',
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, #00C9A7, #00E4BF)',
+                background: '#04080F',
+                border: '1.5px solid rgba(0,201,167,0.25)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#04080F',
-                fontSize: '28px',
-                fontWeight: 700,
-                fontFamily: 'serif',
+                position: 'relative',
+                overflow: 'hidden',
               }}
             >
-              T
+              {/* Geometric T mark */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}
+              >
+                <div
+                  style={{
+                    width: '32px',
+                    height: '7px',
+                    background: 'linear-gradient(180deg, #00E4BF, #00C9A7)',
+                    borderRadius: '1px 1px 0 0',
+                    display: 'flex',
+                  }}
+                />
+                <div
+                  style={{
+                    width: '10px',
+                    height: '21px',
+                    background: '#00C9A7',
+                    borderRadius: '0 0 1px 1px',
+                    display: 'flex',
+                  }}
+                />
+              </div>
             </div>
             <span
               style={{
-                fontSize: '36px',
+                fontSize: '38px',
                 fontWeight: 600,
                 color: '#F0F4F8',
                 fontFamily: 'serif',
@@ -101,13 +130,14 @@ export default async function Image() {
           {/* Headline */}
           <div
             style={{
-              fontSize: '56px',
-              fontWeight: 600,
+              fontSize: '58px',
+              fontWeight: 700,
               color: '#F0F4F8',
               textAlign: 'center',
-              lineHeight: 1.15,
+              lineHeight: 1.12,
               fontFamily: 'serif',
               maxWidth: '900px',
+              letterSpacing: '-0.02em',
             }}
           >
             Market Opportunity Intelligence
@@ -119,8 +149,9 @@ export default async function Image() {
               fontSize: '22px',
               color: '#94A3B8',
               textAlign: 'center',
-              maxWidth: '700px',
+              maxWidth: '720px',
               lineHeight: 1.5,
+              display: 'flex',
             }}
           >
             TAM analysis, competitive landscapes, and partner matching for life sciences professionals.
@@ -131,11 +162,11 @@ export default async function Image() {
             style={{
               display: 'flex',
               gap: '48px',
-              marginTop: '24px',
-              padding: '20px 40px',
+              marginTop: '20px',
+              padding: '18px 44px',
               borderRadius: '12px',
-              border: '1px solid rgba(0,201,167,0.2)',
-              background: 'rgba(0,201,167,0.05)',
+              border: '1px solid rgba(0,201,167,0.15)',
+              background: 'rgba(0,201,167,0.04)',
             }}
           >
             {[
@@ -149,13 +180,28 @@ export default async function Image() {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '4px',
+                  gap: '6px',
                 }}
               >
-                <span style={{ fontSize: '28px', fontWeight: 600, color: '#00C9A7', fontFamily: 'monospace' }}>
+                <span
+                  style={{
+                    fontSize: '28px',
+                    fontWeight: 600,
+                    color: '#00C9A7',
+                    fontFamily: 'monospace',
+                  }}
+                >
                   {s.val}
                 </span>
-                <span style={{ fontSize: '13px', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                <span
+                  style={{
+                    fontSize: '12px',
+                    color: '#64748B',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.12em',
+                    fontWeight: 500,
+                  }}
+                >
                   {s.label}
                 </span>
               </div>
@@ -163,18 +209,20 @@ export default async function Image() {
           </div>
         </div>
 
-        {/* Footer attribution */}
+        {/* Footer */}
         <div
           style={{
             position: 'absolute',
             bottom: '28px',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
           }}
         >
-          <span style={{ fontSize: '14px', color: '#64748B' }}>Built by</span>
-          <span style={{ fontSize: '14px', color: '#94A3B8', fontWeight: 500 }}>Ambrosia Ventures</span>
+          <span style={{ fontSize: '13px', color: '#475569' }}>Built by</span>
+          <span style={{ fontSize: '13px', color: '#94A3B8', fontWeight: 500 }}>
+            Ambrosia Ventures
+          </span>
         </div>
       </div>
     ),

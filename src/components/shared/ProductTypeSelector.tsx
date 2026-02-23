@@ -15,6 +15,11 @@ const categories: { value: ProductCategory; label: string; description: string }
     description: 'Small molecule, biologic, RNA therapeutic',
   },
   {
+    value: 'nutraceutical',
+    label: 'Nutraceutical / Consumer Health',
+    description: 'Supplement, OTC, longevity, functional food',
+  },
+  {
     value: 'diagnostics_ivd',
     label: 'Diagnostics (IVD)',
     description: 'In vitro diagnostic test or assay',

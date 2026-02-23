@@ -26,6 +26,15 @@ import {
   POPULAR_SUBTYPES,
   BIOMARKER_PREVALENCE,
 } from "@/lib/data/suggestion-lists";
+import {
+  INGREDIENT_SUGGESTIONS,
+  POPULAR_INGREDIENTS,
+  HEALTH_FOCUS_SUGGESTIONS,
+  NUTRACEUTICAL_CATEGORY_OPTIONS,
+  NUTRACEUTICAL_CHANNEL_OPTIONS,
+  CLAIM_TYPE_OPTIONS,
+  NUTRACEUTICAL_STAGES,
+} from "@/lib/data/nutraceutical-data";
 
 // ────────────────────────────────────────────────────────────
 // Constants
@@ -210,14 +219,32 @@ const cdxSchema = z.object({
   launch_year: z.coerce.number().min(2025).max(2040).default(2028),
 });
 
+const nutraSchema = z.object({
+  primary_ingredient: z.string().min(1, "Primary ingredient is required"),
+  health_focus: z.string().min(1, "Health focus is required"),
+  nutraceutical_category: z.string().default("dietary_supplement"),
+  target_demographic: z.string().optional(),
+  claim_type: z.string().default("structure_function"),
+  channels: z.array(z.string()).min(1, "Select at least one channel"),
+  unit_price: z.coerce.number().min(0, "Unit price is required"),
+  units_per_year_per_customer: z.coerce.number().min(1).max(24).default(12),
+  cogs_pct: z.coerce.number().min(1).max(99).default(30),
+  development_stage: z.string().default("market_ready"),
+  has_clinical_data: z.boolean().default(false),
+  patent_protected: z.boolean().default(false),
+  geography: z.array(z.string()).min(1, "Select at least one geography"),
+  launch_year: z.coerce.number().min(2025).max(2040).default(2026),
+});
+
 // ────────────────────────────────────────────────────────────
 // Helpers
 // ────────────────────────────────────────────────────────────
 
-type FormMode = "pharma" | "device" | "cdx";
+type FormMode = "pharma" | "device" | "cdx" | "nutra";
 
 function getFormMode(category: ProductCategory): FormMode {
   if (category === "pharmaceutical") return "pharma";
+  if (category === "nutraceutical") return "nutra";
   if (category === "diagnostics_companion" || category === "diagnostics_ivd") return "cdx";
   return "device";
 }
@@ -440,6 +467,13 @@ export default function MarketSizingForm({ onSubmit, isLoading }: MarketSizingFo
       )}
       {formMode === "cdx" && (
         <CdxForm
+          productCategory={productCategory}
+          onSubmit={onSubmit}
+          isLoading={isLoading}
+        />
+      )}
+      {formMode === "nutra" && (
+        <NutraForm
           productCategory={productCategory}
           onSubmit={onSubmit}
           isLoading={isLoading}
@@ -942,6 +976,259 @@ function CdxForm({
         options={CDX_STAGE_OPTIONS}
         {...register("cdx_development_stage")}
       />
+
+      <SectionDivider />
+
+      <GeographyGrid
+        selected={geography}
+        onToggle={toggleGeo}
+        error={errors.geography?.message}
+      />
+
+      <Input
+        label="Expected Launch Year"
+        type="number"
+        {...register("launch_year")}
+        min={2025}
+        max={2040}
+        step={1}
+      />
+
+      <SectionDivider />
+
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        isLoading={isLoading}
+        className="w-full"
+      >
+        Generate Analysis
+      </Button>
+    </form>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// NUTRACEUTICAL / CONSUMER HEALTH FORM
+// ────────────────────────────────────────────────────────────
+
+function NutraForm({
+  productCategory,
+  onSubmit,
+  isLoading,
+}: {
+  productCategory: string;
+  onSubmit: (category: string, data: Record<string, unknown>) => void;
+  isLoading: boolean;
+}) {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(nutraSchema),
+    defaultValues: {
+      primary_ingredient: "",
+      health_focus: "",
+      nutraceutical_category: "dietary_supplement",
+      target_demographic: "",
+      claim_type: "structure_function",
+      channels: ["dtc_ecommerce"] as string[],
+      unit_price: undefined as unknown as number,
+      units_per_year_per_customer: 12,
+      cogs_pct: 30,
+      development_stage: "market_ready",
+      has_clinical_data: false,
+      patent_protected: false,
+      geography: ["US"] as string[],
+      launch_year: 2026,
+    },
+  });
+
+  const geography = watch("geography");
+  const channels = watch("channels");
+  const developmentStage = watch("development_stage");
+  const hasClinicalData = watch("has_clinical_data");
+  const patentProtected = watch("patent_protected");
+
+  const toggleGeo = useCallback(
+    (code: string) => {
+      const next = geography.includes(code)
+        ? geography.filter((g) => g !== code)
+        : [...geography, code];
+      setValue("geography", next, { shouldValidate: true });
+    },
+    [geography, setValue]
+  );
+
+  const toggleChannel = useCallback(
+    (value: string) => {
+      const next = channels.includes(value)
+        ? channels.filter((c) => c !== value)
+        : [...channels, value];
+      setValue("channels", next, { shouldValidate: true });
+    },
+    [channels, setValue]
+  );
+
+  const doSubmit = handleSubmit((data) => {
+    onSubmit(productCategory, data as Record<string, unknown>);
+  });
+
+  return (
+    <form onSubmit={doSubmit} className="space-y-5">
+      <FuzzyAutocomplete
+        label="Primary Ingredient / Product"
+        value={watch("primary_ingredient")}
+        onChange={(v) => setValue("primary_ingredient", v, { shouldValidate: true })}
+        items={INGREDIENT_SUGGESTIONS}
+        popularItems={POPULAR_INGREDIENTS}
+        storageKey="terrain:recent-ingredients"
+        placeholder="e.g., NMN, Creatine, Probiotics"
+        error={errors.primary_ingredient?.message}
+      />
+
+      <FuzzyAutocomplete
+        label="Health Focus / Category"
+        value={watch("health_focus")}
+        onChange={(v) => setValue("health_focus", v, { shouldValidate: true })}
+        items={HEALTH_FOCUS_SUGGESTIONS}
+        storageKey="terrain:recent-health-focus"
+        placeholder="e.g., Longevity / NAD+ restoration"
+        error={errors.health_focus?.message}
+      />
+
+      <Select
+        label="Product Type"
+        options={NUTRACEUTICAL_CATEGORY_OPTIONS}
+        {...register("nutraceutical_category")}
+      />
+
+      <Input
+        label="Target Demographic"
+        {...register("target_demographic")}
+        placeholder="e.g., Adults 40-65, health-optimizers"
+      />
+
+      <SectionDivider />
+
+      <Select
+        label="Claim Type"
+        options={CLAIM_TYPE_OPTIONS}
+        {...register("claim_type")}
+      />
+
+      <MultiCheckboxGrid
+        label="Distribution Channels"
+        options={NUTRACEUTICAL_CHANNEL_OPTIONS}
+        selected={channels}
+        onToggle={toggleChannel}
+        error={errors.channels?.message}
+      />
+
+      <SectionDivider />
+
+      <Input
+        label="Unit Retail Price ($)"
+        type="number"
+        {...register("unit_price")}
+        step="0.01"
+        min={0}
+        placeholder="e.g., 49.99"
+        error={errors.unit_price?.message}
+      />
+
+      <Input
+        label="Units per Customer per Year"
+        type="number"
+        {...register("units_per_year_per_customer")}
+        step="1"
+        min={1}
+        max={24}
+        placeholder="12"
+      />
+
+      <Input
+        label="COGS (% of retail)"
+        type="number"
+        {...register("cogs_pct")}
+        step="1"
+        min={1}
+        max={99}
+        placeholder="30"
+      />
+
+      <SectionDivider />
+
+      <PillSelector
+        label="Development Stage"
+        options={NUTRACEUTICAL_STAGES}
+        value={developmentStage as (typeof NUTRACEUTICAL_STAGES)[number]["value"]}
+        onChange={(v) => setValue("development_stage", v)}
+      />
+
+      <div className="grid grid-cols-2 gap-3">
+        <label
+          className={cn(
+            "flex items-center gap-2 px-3 py-2.5 rounded-md cursor-pointer text-xs border transition-colors",
+            hasClinicalData
+              ? "bg-teal-500/10 text-teal-400 border-teal-500/30"
+              : "bg-navy-800 text-slate-400 border-navy-700 hover:border-navy-600"
+          )}
+        >
+          <input
+            type="checkbox"
+            checked={hasClinicalData}
+            onChange={(e) => setValue("has_clinical_data", e.target.checked)}
+            className="sr-only"
+          />
+          <div
+            className={cn(
+              "w-3 h-3 rounded-sm border flex items-center justify-center flex-shrink-0",
+              hasClinicalData ? "bg-teal-500 border-teal-500" : "border-slate-600"
+            )}
+          >
+            {hasClinicalData && (
+              <svg className="w-2 h-2 text-navy-950" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </div>
+          Clinical Data
+        </label>
+
+        <label
+          className={cn(
+            "flex items-center gap-2 px-3 py-2.5 rounded-md cursor-pointer text-xs border transition-colors",
+            patentProtected
+              ? "bg-teal-500/10 text-teal-400 border-teal-500/30"
+              : "bg-navy-800 text-slate-400 border-navy-700 hover:border-navy-600"
+          )}
+        >
+          <input
+            type="checkbox"
+            checked={patentProtected}
+            onChange={(e) => setValue("patent_protected", e.target.checked)}
+            className="sr-only"
+          />
+          <div
+            className={cn(
+              "w-3 h-3 rounded-sm border flex items-center justify-center flex-shrink-0",
+              patentProtected ? "bg-teal-500 border-teal-500" : "border-slate-600"
+            )}
+          >
+            {patentProtected && (
+              <svg className="w-2 h-2 text-navy-950" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </div>
+          Patent Protected
+        </label>
+      </div>
 
       <SectionDivider />
 

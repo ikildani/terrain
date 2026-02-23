@@ -15,6 +15,7 @@
 
 export type ProductCategory =
   | 'pharmaceutical'
+  | 'nutraceutical'             // Dietary supplements, consumer health, longevity
   | 'diagnostics_ivd'           // In vitro diagnostic (blood, tissue, urine)
   | 'diagnostics_companion'     // CDx tied to a specific drug
   | 'diagnostics_imaging'       // Imaging agents, PET tracers, contrast media
@@ -739,6 +740,57 @@ export interface SurgeonSwitchingCostModel {
   switching_facilitators: string[];
   switching_inhibitors: string[];
   narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// NUTRACEUTICAL / CONSUMER HEALTH / LONGEVITY
+// ────────────────────────────────────────────────────────────
+
+export type NutraceuticalCategory =
+  | 'dietary_supplement'        // DSHEA-regulated supplement
+  | 'functional_food'           // Food with health claims
+  | 'medical_food'              // FSMA-regulated medical food (IEM)
+  | 'otc_drug'                  // OTC monograph or NDA/ANDA
+  | 'rx_to_otc_switch'          // Rx-to-OTC conversion
+  | 'cosmeceutical'             // Cosmetic with active ingredients
+  | 'longevity_compound'        // NAD+, rapamycin analogs, senolytics
+  | 'probiotic_microbiome'      // Live biotherapeutics, probiotics
+  | 'sports_nutrition';         // Performance, recovery, body composition
+
+export type NutraceuticalChannel =
+  | 'dtc_ecommerce'             // Direct-to-consumer online
+  | 'amazon'                    // Amazon marketplace
+  | 'retail_mass'               // Walmart, Target, CVS, Walgreens
+  | 'retail_specialty'          // Whole Foods, Sprouts, GNC, Vitamin Shoppe
+  | 'practitioner'              // Healthcare practitioner dispensary
+  | 'subscription'              // Recurring subscription model
+  | 'wholesale_b2b';            // White-label / ingredient supplier
+
+export type ClaimType =
+  | 'structure_function'        // "Supports immune health" (DSHEA, no FDA approval)
+  | 'qualified_health'          // "May reduce risk of..." (FDA-approved qualified claim)
+  | 'authorized_health'         // "Adequate calcium may reduce osteoporosis risk" (FDA-authorized)
+  | 'nutrient_content'          // "High in Vitamin C" (nutrient level claim)
+  | 'drug_claim'                // "Treats/cures/prevents X" — triggers FDA drug regulation
+  | 'cosmetic_claim';           // "Reduces appearance of wrinkles"
+
+export interface NutraceuticalMarketSizingInput {
+  product_name?: string;
+  product_category: 'nutraceutical';
+  nutraceutical_category: NutraceuticalCategory;
+  primary_ingredient: string;           // e.g., "NMN (Nicotinamide Mononucleotide)"
+  health_focus: string;                 // e.g., "Longevity / NAD+ restoration"
+  target_demographic: string;           // e.g., "Adults 40-65, health-optimizers"
+  claim_type: ClaimType;
+  channels: NutraceuticalChannel[];
+  unit_price: number;                   // Retail price per unit (bottle/box)
+  units_per_year_per_customer: number;  // Annual purchase frequency
+  cogs_pct: number;                     // Cost of goods as % of retail
+  geography: string[];
+  development_stage: 'formulation' | 'clinical_study' | 'market_ready' | 'commercial';
+  has_clinical_data: boolean;
+  patent_protected: boolean;
+  launch_year: number;
 }
 
 // ────────────────────────────────────────────────────────────

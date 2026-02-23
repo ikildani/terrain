@@ -1,5 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" fill="#04080F"/>
-  <rect x="1" y="1" width="30" height="30" rx="5" fill="none" stroke="#00C9A7" stroke-opacity="0.2" stroke-width="1"/>
-  <text x="16" y="23" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="700" fill="#00C9A7">T</text>
+  <defs>
+    <linearGradient id="m" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#00E4BF"/>
+      <stop offset="100%" stop-color="#00C9A7"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="#04080F"/>
+  <path d="M5 6.5 h22 v5 h-7.5 v14.5 h-7 v-14.5 h-7.5 z" fill="url(#m)"/>
 </svg>

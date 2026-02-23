@@ -13,32 +13,37 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #04080F 0%, #07101E 100%)',
-          borderRadius: '36px',
+          background: '#04080F',
+          borderRadius: '40px',
         }}
       >
         <div
           style={{
-            width: '120px',
-            height: '120px',
-            borderRadius: '24px',
-            background: 'linear-gradient(135deg, #00C9A7, #00E4BF)',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
           }}
         >
-          <span
+          {/* Crossbar */}
+          <div
             style={{
-              fontSize: '80px',
-              fontWeight: 700,
-              color: '#04080F',
-              fontFamily: 'serif',
-              lineHeight: 1,
+              width: '124px',
+              height: '28px',
+              background: 'linear-gradient(180deg, #00E4BF 0%, #00C9A7 100%)',
+              borderRadius: '3px 3px 0 0',
+              display: 'flex',
             }}
-          >
-            T
-          </span>
+          />
+          {/* Stem */}
+          <div
+            style={{
+              width: '40px',
+              height: '82px',
+              background: 'linear-gradient(180deg, #00C9A7 0%, #00C9A7 100%)',
+              borderRadius: '0 0 3px 3px',
+              display: 'flex',
+            }}
+          />
         </div>
       </div>
     ),

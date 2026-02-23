@@ -9,6 +9,7 @@ export type { DeviceMarketSizingInput, CDxMarketSizingInput, CDxDeal, RevenueStr
 export type { DeviceRegulatoryInput, DeviceRegulatoryOutput, DeviceCategory, FDADevicePathway, FDADeviceClass } from './devices-diagnostics';
 export type { PredicateDeviceRecord, DeviceClinicalEvidenceStrategy, DeviceIndicationScopeScenario, DeviceManufacturingRisk } from './devices-diagnostics';
 export type { DevicePartnerDiscoveryInput, DevicePartnerMatch, DeviceAcquisitionProbability, DeviceRegulatoryTrackRecord, DistributionStrengthAssessment, DeviceDealStructureModel } from './devices-diagnostics';
+export type { NutraceuticalCategory, NutraceuticalChannel, ClaimType, NutraceuticalMarketSizingInput } from './devices-diagnostics';
 
 // ────────────────────────────────────────────────────────────
 // USERS & AUTH
