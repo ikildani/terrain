@@ -9,6 +9,7 @@ import MarketSizingForm from '@/components/market-sizing/MarketSizingForm';
 import MarketSizingReport from '@/components/market-sizing/MarketSizingReport';
 import DeviceMarketSizingReport from '@/components/market-sizing/DeviceMarketSizingReport';
 import CDxMarketSizingReport from '@/components/market-sizing/CDxMarketSizingReport';
+import { PdfPreviewOverlay } from '@/components/shared/PdfPreviewOverlay';
 import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
 import type { MarketSizingOutput, MarketSizingInput, DeviceMarketSizingOutput, CDxOutput, DeviceMarketSizingInput, CDxMarketSizingInput } from '@/types';
 
@@ -66,6 +67,7 @@ function EmptyState() {
 export default function MarketSizingPage() {
   const [formInput, setFormInput] = useState<Record<string, unknown> | null>(null);
   const [productCategory, setProductCategory] = useState<string>('pharmaceutical');
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const mutation = useMutation({
     mutationFn: async ({ productCategory: pc, formData }: { productCategory: string; formData: Record<string, unknown> }) => {
@@ -103,14 +105,18 @@ export default function MarketSizingPage() {
     mutation.mutate({ productCategory: pc, formData: enrichedData });
   }
 
-  function renderReport() {
+  function renderReport(preview = false) {
     if (!results || !formInput) return null;
+
+    const pdfExport = preview ? undefined : () => setPreviewOpen(true);
 
     if (isDevice(productCategory)) {
       return (
         <DeviceMarketSizingReport
           data={results as DeviceMarketSizingOutput}
           input={formInput as unknown as DeviceMarketSizingInput}
+          previewMode={preview}
+          onPdfExport={pdfExport}
         />
       );
     }
@@ -120,6 +126,8 @@ export default function MarketSizingPage() {
         <CDxMarketSizingReport
           data={results as CDxOutput}
           input={formInput as unknown as CDxMarketSizingInput}
+          previewMode={preview}
+          onPdfExport={pdfExport}
         />
       );
     }
@@ -129,6 +137,8 @@ export default function MarketSizingPage() {
       <MarketSizingReport
         data={results as MarketSizingOutput}
         input={formInput as unknown as MarketSizingInput}
+        previewMode={preview}
+        onPdfExport={pdfExport}
       />
     );
   }
@@ -162,6 +172,25 @@ export default function MarketSizingPage() {
           {!isLoading && !error && results && formInput && renderReport()}
         </div>
       </div>
+
+      {/* PDF Preview Overlay */}
+      <PdfPreviewOverlay
+        isOpen={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        reportTitle={
+          formInput
+            ? `${(formInput as Record<string, unknown>).indication || (formInput as Record<string, unknown>).procedure_or_condition || (formInput as Record<string, unknown>).drug_indication || 'Market'} — Market Sizing`
+            : 'Market Sizing Report'
+        }
+        reportSubtitle={productCategory !== 'pharmaceutical' ? productCategory.replace(/_/g, ' ') : undefined}
+        filename={
+          formInput
+            ? `terrain-${String((formInput as Record<string, unknown>).indication || (formInput as Record<string, unknown>).procedure_or_condition || 'report').toLowerCase().replace(/\s+/g, '-')}-market-sizing`
+            : 'terrain-market-sizing'
+        }
+      >
+        {renderReport(true)}
+      </PdfPreviewOverlay>
     </>
   );
 }

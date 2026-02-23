@@ -22,10 +22,14 @@ export async function exportToPdf(
   const { title, subtitle, filename = 'terrain-report' } = options;
 
   // ── Apply light export theme for clean paper output ────
-  element.classList.add('export-light');
-  await new Promise<void>((resolve) =>
-    requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-  );
+  // If already in light mode (e.g., preview overlay), skip the toggle
+  const alreadyLight = element.classList.contains('export-light');
+  if (!alreadyLight) {
+    element.classList.add('export-light');
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    );
+  }
 
   try {
     // Capture at 2x for retina clarity
@@ -164,7 +168,9 @@ export async function exportToPdf(
 
     pdf.save(`${filename}.pdf`);
   } finally {
-    // Always remove the export class, even on error
-    element.classList.remove('export-light');
+    // Only remove the class if we added it
+    if (!alreadyLight) {
+      element.classList.remove('export-light');
+    }
   }
 }

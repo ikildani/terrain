@@ -23,6 +23,8 @@ import type { DeviceMarketSizingOutput, DeviceMarketSizingInput } from '@/types/
 interface DeviceMarketSizingReportProps {
   data: DeviceMarketSizingOutput;
   input: DeviceMarketSizingInput;
+  previewMode?: boolean;
+  onPdfExport?: () => void;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -95,8 +97,10 @@ function riskBadgeClass(risk: 'low' | 'moderate' | 'high'): string {
 export default function DeviceMarketSizingReport({
   data,
   input,
+  previewMode,
+  onPdfExport,
 }: DeviceMarketSizingReportProps) {
-  const [methodologyOpen, setMethodologyOpen] = useState(false);
+  const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
   const { summary } = data;
 
   // Compute peak sales from revenue projection for MarketGrowthChart
@@ -501,33 +505,36 @@ export default function DeviceMarketSizingReport({
       </div>
 
       {/* ──────────────────────── 13. Action Bar ──────────────────────── */}
-      <div className="flex items-center gap-3 pt-6 border-t border-navy-700">
-        <SaveReportButton
-          reportData={{
-            title: `${input.procedure_or_condition} Device Market Assessment`,
-            report_type: 'market_sizing',
-            indication: input.procedure_or_condition,
-            inputs: input as unknown as Record<string, unknown>,
-            outputs: data as unknown as Record<string, unknown>,
-          }}
-        />
-        <ExportButton
-          format="pdf"
-          reportTitle={`${input.procedure_or_condition} — Device Market Assessment`}
-          reportSubtitle={[input.device_category, input.product_name].filter(Boolean).join(' — ') || undefined}
-          filename={`terrain-${input.procedure_or_condition.toLowerCase().replace(/\s+/g, '-')}-device-market-sizing`}
-        />
-        <ExportButton
-          format="csv"
-          data={flattenDeviceForCSV(data)}
-          filename={`terrain-${input.procedure_or_condition.toLowerCase().replace(/\s+/g, '-')}-device-market-sizing`}
-        />
-        <ExportButton
-          format="email"
-          reportTitle={`${input.procedure_or_condition} — Device Market Assessment`}
-          reportSubtitle={[input.device_category, input.product_name].filter(Boolean).join(' — ') || undefined}
-        />
-      </div>
+      {!previewMode && (
+        <div className="flex items-center gap-3 pt-6 border-t border-navy-700">
+          <SaveReportButton
+            reportData={{
+              title: `${input.procedure_or_condition} Device Market Assessment`,
+              report_type: 'market_sizing',
+              indication: input.procedure_or_condition,
+              inputs: input as unknown as Record<string, unknown>,
+              outputs: data as unknown as Record<string, unknown>,
+            }}
+          />
+          <ExportButton
+            format="pdf"
+            onPdfExport={onPdfExport}
+            reportTitle={`${input.procedure_or_condition} — Device Market Assessment`}
+            reportSubtitle={[input.device_category, input.product_name].filter(Boolean).join(' — ') || undefined}
+            filename={`terrain-${input.procedure_or_condition.toLowerCase().replace(/\s+/g, '-')}-device-market-sizing`}
+          />
+          <ExportButton
+            format="csv"
+            data={flattenDeviceForCSV(data)}
+            filename={`terrain-${input.procedure_or_condition.toLowerCase().replace(/\s+/g, '-')}-device-market-sizing`}
+          />
+          <ExportButton
+            format="email"
+            reportTitle={`${input.procedure_or_condition} — Device Market Assessment`}
+            reportSubtitle={[input.device_category, input.product_name].filter(Boolean).join(' — ') || undefined}
+          />
+        </div>
+      )}
 
       {/* ──────────────────────── 14. Confidential Footer ──────────────────────── */}
       <ConfidentialFooter />

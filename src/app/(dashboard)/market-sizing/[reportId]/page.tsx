@@ -6,21 +6,25 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import MarketSizingReport from '@/components/market-sizing/MarketSizingReport';
 import DeviceMarketSizingReport from '@/components/market-sizing/DeviceMarketSizingReport';
 import CDxMarketSizingReport from '@/components/market-sizing/CDxMarketSizingReport';
+import { PdfPreviewOverlay } from '@/components/shared/PdfPreviewOverlay';
 import { SkeletonCard, SkeletonMetric } from '@/components/ui/Skeleton';
 import { Button } from '@/components/ui/Button';
 import { apiGet } from '@/lib/utils/api';
 import { ArrowLeft, FileText } from 'lucide-react';
 import type { Report, MarketSizingOutput, MarketSizingInput, DeviceMarketSizingOutput, CDxOutput, DeviceMarketSizingInput, CDxMarketSizingInput } from '@/types';
 
-function renderReportForCategory(report: Report) {
+function renderReportForCategory(report: Report, preview = false, onPdfExport?: () => void) {
   const inputs = report.inputs as Record<string, unknown> | null;
   const category = (inputs?.product_category as string) || 'pharmaceutical';
+  const pdfExport = preview ? undefined : onPdfExport;
 
   if (category.startsWith('device') || category.startsWith('medical_device')) {
     return (
       <DeviceMarketSizingReport
         data={report.outputs as unknown as DeviceMarketSizingOutput}
         input={inputs as unknown as DeviceMarketSizingInput}
+        previewMode={preview}
+        onPdfExport={pdfExport}
       />
     );
   }
@@ -35,6 +39,8 @@ function renderReportForCategory(report: Report) {
       <CDxMarketSizingReport
         data={report.outputs as unknown as CDxOutput}
         input={inputs as unknown as CDxMarketSizingInput}
+        previewMode={preview}
+        onPdfExport={pdfExport}
       />
     );
   }
@@ -43,6 +49,8 @@ function renderReportForCategory(report: Report) {
     <MarketSizingReport
       data={report.outputs as unknown as MarketSizingOutput}
       input={inputs as unknown as MarketSizingInput}
+      previewMode={preview}
+      onPdfExport={pdfExport}
     />
   );
 }
@@ -55,6 +63,7 @@ export default function MarketSizingReportPage({
   const [report, setReport] = useState<Report | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -111,7 +120,20 @@ export default function MarketSizingReportPage({
         </div>
       )}
 
-      {!isLoading && report && report.outputs && renderReportForCategory(report)}
+      {!isLoading && report && report.outputs && renderReportForCategory(report, false, () => setPreviewOpen(true))}
+
+      {/* PDF Preview Overlay */}
+      {report && report.outputs && (
+        <PdfPreviewOverlay
+          isOpen={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+          reportTitle={report.title || 'Market Assessment Report'}
+          reportSubtitle={`${report.indication} — ${report.report_type}`}
+          filename={`terrain-${report.indication?.toLowerCase().replace(/\s+/g, '-') || 'report'}-market-sizing`}
+        >
+          {renderReportForCategory(report, true)}
+        </PdfPreviewOverlay>
+      )}
     </>
   );
 }

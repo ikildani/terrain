@@ -4,9 +4,37 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { checkUsage, recordUsage } from '@/lib/usage';
 import { analyzeCompetitiveLandscape } from '@/lib/analytics/competitive';
+import { analyzeDeviceCompetitiveLandscape } from '@/lib/analytics/device-competitive';
+import { analyzeCDxCompetitiveLandscape } from '@/lib/analytics/cdx-competitive';
+import { analyzeNutraceuticalCompetitiveLandscape } from '@/lib/analytics/nutraceutical-competitive';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, withTiming, logApiRequest, logApiResponse } from '@/lib/logger';
-import type { ApiResponse, CompetitiveLandscapeOutput } from '@/types';
+import type { ApiResponse } from '@/types';
+
+// ────────────────────────────────────────────────────────────
+// CATEGORY ROUTING HELPERS
+// ────────────────────────────────────────────────────────────
+
+function isPharma(category: string): boolean {
+  return category === 'pharmaceutical' || category.startsWith('pharma');
+}
+
+function isDevice(category: string): boolean {
+  return category.startsWith('medical_device') || category.startsWith('device');
+}
+
+function isCDx(category: string): boolean {
+  return (
+    category === 'companion_diagnostic' ||
+    category === 'cdx' ||
+    category === 'diagnostics_companion' ||
+    category === 'diagnostics_ivd'
+  );
+}
+
+function isNutraceutical(category: string): boolean {
+  return category === 'nutraceutical' || category.startsWith('nutra');
+}
 
 // ────────────────────────────────────────────────────────────
 // REQUEST SCHEMA
@@ -14,9 +42,27 @@ import type { ApiResponse, CompetitiveLandscapeOutput } from '@/types';
 
 const RequestSchema = z.object({
   input: z.object({
-    indication: z.string().min(1, 'Indication is required.'),
+    // Pharma fields
+    indication: z.string().optional(),
     mechanism: z.string().optional(),
-  }),
+
+    // Device fields
+    procedure_or_condition: z.string().optional(),
+    device_category: z.string().optional(),
+    technology_type: z.string().optional(),
+
+    // CDx fields
+    biomarker: z.string().optional(),
+    test_type: z.string().optional(),
+    linked_drug: z.string().optional(),
+
+    // Nutraceutical fields
+    primary_ingredient: z.string().optional(),
+    health_focus: z.string().optional(),
+    ingredient_category: z.string().optional(),
+  }).passthrough(),
+
+  product_category: z.string().default('pharmaceutical'),
   save: z.boolean().optional(),
   report_title: z.string().optional(),
 });
@@ -77,29 +123,106 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    logApiRequest({ route: '/api/analyze/competitive', method: 'POST', userId: user.id, indication: parsed.data.input.indication });
+    const { input, product_category } = parsed.data;
 
-    // ── Run competitive landscape analysis ──────────────────
-    const { result } = await withTiming('competitive_analysis', () => analyzeCompetitiveLandscape(parsed.data.input), { indication: parsed.data.input.indication });
+    // ── Category-specific validation ──────────────────────────
+    if (isPharma(product_category)) {
+      if (!input.indication) {
+        return NextResponse.json(
+          { success: false, error: 'Indication is required for pharmaceutical competitive analysis.' } satisfies ApiResponse<never>,
+          { status: 400 },
+        );
+      }
+    } else if (isDevice(product_category)) {
+      if (!input.procedure_or_condition) {
+        return NextResponse.json(
+          { success: false, error: 'Procedure or condition is required for device competitive analysis.' } satisfies ApiResponse<never>,
+          { status: 400 },
+        );
+      }
+    } else if (isCDx(product_category)) {
+      if (!input.biomarker) {
+        return NextResponse.json(
+          { success: false, error: 'Biomarker is required for CDx competitive analysis.' } satisfies ApiResponse<never>,
+          { status: 400 },
+        );
+      }
+    } else if (isNutraceutical(product_category)) {
+      if (!input.primary_ingredient) {
+        return NextResponse.json(
+          { success: false, error: 'Primary ingredient is required for nutraceutical competitive analysis.' } satisfies ApiResponse<never>,
+          { status: 400 },
+        );
+      }
+    } else {
+      return NextResponse.json(
+        { success: false, error: `Unknown product_category: "${product_category}". Supported: pharmaceutical, medical_device/device, companion_diagnostic/cdx, nutraceutical.` } satisfies ApiResponse<never>,
+        { status: 400 },
+      );
+    }
+
+    const indication = input.indication || input.procedure_or_condition || input.biomarker || input.primary_ingredient || '';
+    logApiRequest({ route: '/api/analyze/competitive', method: 'POST', userId: user.id, indication });
+
+    // ── Route to correct engine ─────────────────────────────
+    let result: unknown;
+
+    if (isPharma(product_category)) {
+      const engineResult = await withTiming('competitive_analysis_pharma', () =>
+        analyzeCompetitiveLandscape({ indication: input.indication!, mechanism: input.mechanism }),
+        { indication: input.indication },
+      );
+      result = engineResult.result;
+    } else if (isDevice(product_category)) {
+      const engineResult = await withTiming('competitive_analysis_device', async () =>
+        analyzeDeviceCompetitiveLandscape({
+          procedure_or_condition: input.procedure_or_condition!,
+          device_category: input.device_category as any,
+          technology_type: input.technology_type,
+        }),
+        { procedure: input.procedure_or_condition },
+      );
+      result = engineResult.result;
+    } else if (isCDx(product_category)) {
+      const engineResult = await withTiming('competitive_analysis_cdx', async () =>
+        analyzeCDxCompetitiveLandscape({
+          biomarker: input.biomarker!,
+          indication: input.indication,
+          test_type: input.test_type as any,
+          linked_drug: input.linked_drug,
+        }),
+        { biomarker: input.biomarker },
+      );
+      result = engineResult.result;
+    } else if (isNutraceutical(product_category)) {
+      const engineResult = await withTiming('competitive_analysis_nutra', async () =>
+        analyzeNutraceuticalCompetitiveLandscape({
+          primary_ingredient: input.primary_ingredient!,
+          health_focus: input.health_focus,
+          ingredient_category: input.ingredient_category as any,
+        }),
+        { ingredient: input.primary_ingredient },
+      );
+      result = engineResult.result;
+    }
 
     // ── Record usage ────────────────────────────────────────
-    await recordUsage(user.id, 'competitive', parsed.data.input.indication, {
-      mechanism: parsed.data.input.mechanism,
-    });
+    await recordUsage(user.id, 'competitive', indication, { product_category });
 
     // ── Success ─────────────────────────────────────────────
-    logApiResponse({ route: '/api/analyze/competitive', status: 200, durationMs: Math.round(performance.now() - routeStart), userId: user.id, indication: parsed.data.input.indication });
+    logApiResponse({ route: '/api/analyze/competitive', status: 200, durationMs: Math.round(performance.now() - routeStart), userId: user.id, indication });
     return NextResponse.json(
       {
         success: true,
         data: result,
+        product_category,
         usage: {
           feature: 'competitive',
           monthly_count: usage.monthlyCount + 1,
           limit: usage.limit,
           remaining: usage.remaining === -1 ? -1 : Math.max(0, usage.remaining - 1),
         },
-      } satisfies ApiResponse<CompetitiveLandscapeOutput> & { usage: unknown },
+      },
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } },
     );
   } catch (error: unknown) {

@@ -1377,3 +1377,17 @@ body {
   height: 2px;
   background: linear-gradient(90deg, rgba(0,201,167,0), var(--teal-500), rgba(0,201,167,0));
 }
+
+/* ============================================
+   PDF PREVIEW PAPER CONTAINER
+   ============================================ */
+
+.pdf-preview-paper {
+  max-width: 8.5in;
+  min-height: 11in;
+  background: #ffffff;
+  margin: 2rem auto;
+  padding: 0.75in;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+}

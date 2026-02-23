@@ -19,6 +19,8 @@ import type { MarketSizingOutput, MarketSizingInput } from '@/types';
 interface MarketSizingReportProps {
   data: MarketSizingOutput;
   input: MarketSizingInput;
+  previewMode?: boolean;
+  onPdfExport?: () => void;
 }
 
 function flattenForCSV(data: MarketSizingOutput): Record<string, unknown>[] {
@@ -63,8 +65,8 @@ function flattenForCSV(data: MarketSizingOutput): Record<string, unknown>[] {
   return rows;
 }
 
-export default function MarketSizingReport({ data, input }: MarketSizingReportProps) {
-  const [methodologyOpen, setMethodologyOpen] = useState(false);
+export default function MarketSizingReport({ data, input, previewMode, onPdfExport }: MarketSizingReportProps) {
+  const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
   const { summary } = data;
 
   return (
@@ -263,33 +265,36 @@ export default function MarketSizingReport({ data, input }: MarketSizingReportPr
       </div>
 
       {/* Action Bar */}
-      <div className="flex items-center gap-3 pt-6 border-t border-navy-700">
-        <SaveReportButton
-          reportData={{
-            title: `${input.indication} Market Assessment`,
-            report_type: 'market_sizing',
-            indication: input.indication,
-            inputs: input as unknown as Record<string, unknown>,
-            outputs: data as unknown as Record<string, unknown>,
-          }}
-        />
-        <ExportButton
-          format="pdf"
-          reportTitle={`${input.indication} — Market Sizing`}
-          reportSubtitle={[input.subtype, input.mechanism].filter(Boolean).join(' — ') || undefined}
-          filename={`terrain-${input.indication.toLowerCase().replace(/\s+/g, '-')}-market-sizing`}
-        />
-        <ExportButton
-          format="csv"
-          data={flattenForCSV(data)}
-          filename={`terrain-${input.indication.toLowerCase().replace(/\s+/g, '-')}-market-sizing`}
-        />
-        <ExportButton
-          format="email"
-          reportTitle={`${input.indication} — Market Sizing`}
-          reportSubtitle={[input.subtype, input.mechanism].filter(Boolean).join(' — ') || undefined}
-        />
-      </div>
+      {!previewMode && (
+        <div className="flex items-center gap-3 pt-6 border-t border-navy-700">
+          <SaveReportButton
+            reportData={{
+              title: `${input.indication} Market Assessment`,
+              report_type: 'market_sizing',
+              indication: input.indication,
+              inputs: input as unknown as Record<string, unknown>,
+              outputs: data as unknown as Record<string, unknown>,
+            }}
+          />
+          <ExportButton
+            format="pdf"
+            onPdfExport={onPdfExport}
+            reportTitle={`${input.indication} — Market Sizing`}
+            reportSubtitle={[input.subtype, input.mechanism].filter(Boolean).join(' — ') || undefined}
+            filename={`terrain-${input.indication.toLowerCase().replace(/\s+/g, '-')}-market-sizing`}
+          />
+          <ExportButton
+            format="csv"
+            data={flattenForCSV(data)}
+            filename={`terrain-${input.indication.toLowerCase().replace(/\s+/g, '-')}-market-sizing`}
+          />
+          <ExportButton
+            format="email"
+            reportTitle={`${input.indication} — Market Sizing`}
+            reportSubtitle={[input.subtype, input.mechanism].filter(Boolean).join(' — ') || undefined}
+          />
+        </div>
+      )}
 
       <ConfidentialFooter />
     </div>

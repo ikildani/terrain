@@ -16,6 +16,8 @@ interface PartnerDiscoveryReportProps {
     geography_rights: string[];
     deal_types: string[];
   };
+  previewMode?: boolean;
+  onPdfExport?: () => void;
 }
 
 function formatDealValue(value: number): string {
@@ -35,7 +37,7 @@ function formatStage(stage: string): string {
   return map[stage] || stage.charAt(0).toUpperCase() + stage.slice(1);
 }
 
-export default function PartnerDiscoveryReport({ data, input }: PartnerDiscoveryReportProps) {
+export default function PartnerDiscoveryReport({ data, input, previewMode, onPdfExport }: PartnerDiscoveryReportProps) {
   const reportRef = useRef<HTMLDivElement>(null);
 
   // CSV export data
@@ -157,25 +159,28 @@ export default function PartnerDiscoveryReport({ data, input }: PartnerDiscovery
             ? `Top ${data.ranked_partners.length} Partner Matches`
             : 'No Partners Above Threshold'}
         </h3>
-        <div className="flex items-center gap-2">
-          <ExportButton
-            format="csv"
-            data={csvData}
-            filename={`partner-discovery-${data.summary.indication.toLowerCase().replace(/\s+/g, '-')}`}
-          />
-          <ExportButton
-            format="pdf"
-            targetRef={reportRef}
-            reportTitle="Partner Discovery Report"
-            reportSubtitle={`${data.summary.indication} — ${formatStage(data.summary.development_stage)}`}
-          />
-          <ExportButton
-            format="email"
-            reportTitle="Partner Discovery Report"
-            reportSubtitle={`${data.summary.indication} — ${formatStage(data.summary.development_stage)}`}
-          />
-          {reportData && <SaveReportButton reportData={reportData} />}
-        </div>
+        {!previewMode && (
+          <div className="flex items-center gap-2">
+            <ExportButton
+              format="csv"
+              data={csvData}
+              filename={`partner-discovery-${data.summary.indication.toLowerCase().replace(/\s+/g, '-')}`}
+            />
+            <ExportButton
+              format="pdf"
+              onPdfExport={onPdfExport}
+              targetRef={reportRef}
+              reportTitle="Partner Discovery Report"
+              reportSubtitle={`${data.summary.indication} — ${formatStage(data.summary.development_stage)}`}
+            />
+            <ExportButton
+              format="email"
+              reportTitle="Partner Discovery Report"
+              reportSubtitle={`${data.summary.indication} — ${formatStage(data.summary.development_stage)}`}
+            />
+            {reportData && <SaveReportButton reportData={reportData} />}
+          </div>
+        )}
       </div>
 
       {/* Partner Cards */}

@@ -7,6 +7,7 @@ import { UpgradeGate } from '@/components/shared/UpgradeGate';
 import { useSubscription } from '@/hooks/useSubscription';
 import PartnerSearchForm from '@/components/partners/PartnerSearchForm';
 import PartnerDiscoveryReport from '@/components/partners/PartnerDiscoveryReport';
+import { PdfPreviewOverlay } from '@/components/shared/PdfPreviewOverlay';
 import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -104,6 +105,7 @@ function PreviewContent() {
 export default function PartnersPage() {
   const { isPro, isLoading: subLoading } = useSubscription();
   const [lastInput, setLastInput] = useState<PartnerFormData | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const mutation = useMutation({
     mutationFn: async (formData: PartnerFormData) => {
@@ -220,10 +222,34 @@ export default function PartnersPage() {
                 geography_rights: lastInput.geography_rights,
                 deal_types: lastInput.deal_types,
               } : undefined}
+              onPdfExport={() => setPreviewOpen(true)}
             />
           )}
         </div>
       </div>
+
+      {/* PDF Preview Overlay */}
+      {results && (
+        <PdfPreviewOverlay
+          isOpen={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+          reportTitle="Partner Discovery Report"
+          reportSubtitle={lastInput ? `${lastInput.indication} — ${lastInput.development_stage}` : undefined}
+          filename={`partner-discovery-${lastInput?.indication.toLowerCase().replace(/\s+/g, '-') || 'report'}`}
+        >
+          <PartnerDiscoveryReport
+            data={results}
+            input={lastInput ? {
+              indication: lastInput.indication,
+              mechanism: lastInput.mechanism,
+              development_stage: lastInput.development_stage,
+              geography_rights: lastInput.geography_rights,
+              deal_types: lastInput.deal_types,
+            } : undefined}
+            previewMode
+          />
+        </PdfPreviewOverlay>
+      )}
     </>
   );
 }

@@ -17,6 +17,8 @@ interface ExportButtonProps {
   reportTitle?: string;
   /** Report subtitle for the PDF header. */
   reportSubtitle?: string;
+  /** When provided, clicking PDF export opens preview instead of generating immediately. */
+  onPdfExport?: () => void;
 }
 
 const formatLabels = { pdf: 'PDF', csv: 'CSV', email: 'Email Report' };
@@ -57,6 +59,7 @@ export function ExportButton({
   targetRef,
   reportTitle,
   reportSubtitle,
+  onPdfExport,
 }: ExportButtonProps) {
   const { isPro, isTeam } = useSubscription();
   const canExport = isPro || isTeam;
@@ -68,7 +71,13 @@ export function ExportButton({
       if (format === 'csv' && data) {
         exportCSV(data, filename);
       } else if (format === 'pdf') {
-        // Try to use the proper PDF generator
+        if (onPdfExport) {
+          // Open preview overlay instead of generating immediately
+          onPdfExport();
+          setIsExporting(false);
+          return;
+        }
+        // Fallback: direct export (when no preview handler provided)
         const target = targetRef?.current || document.querySelector('[data-report-content]');
         if (target) {
           const { exportToPdf } = await import('@/lib/export-pdf');
@@ -78,7 +87,6 @@ export function ExportButton({
             filename,
           });
         } else {
-          // Fallback to print
           window.print();
         }
       } else if (format === 'email') {

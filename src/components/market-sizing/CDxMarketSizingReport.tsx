@@ -20,6 +20,8 @@ import type { CDxOutput, CDxMarketSizingInput, CDxDeal } from '@/types';
 interface CDxMarketSizingReportProps {
   data: CDxOutput;
   input: CDxMarketSizingInput;
+  previewMode?: boolean;
+  onPdfExport?: () => void;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -177,8 +179,8 @@ function getPathwayBadgeClass(pathway: string): string {
 // COMPONENT
 // ────────────────────────────────────────────────────────────
 
-export default function CDxMarketSizingReport({ data, input }: CDxMarketSizingReportProps) {
-  const [methodologyOpen, setMethodologyOpen] = useState(false);
+export default function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMarketSizingReportProps) {
+  const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
   const { summary } = data;
   const economics = data.cdx_economics;
   const deals = data.deal_structure_benchmark;
@@ -662,33 +664,36 @@ export default function CDxMarketSizingReport({ data, input }: CDxMarketSizingRe
       {/* ──────────────────────────────────────────────────────
           10. ACTION BAR
           ────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 pt-6 border-t border-navy-700">
-        <SaveReportButton
-          reportData={{
-            title: `CDx: ${displayName} — ${input.drug_indication}`,
-            report_type: 'market_sizing',
-            indication: input.drug_indication,
-            inputs: input as unknown as Record<string, unknown>,
-            outputs: data as unknown as Record<string, unknown>,
-          }}
-        />
-        <ExportButton
-          format="pdf"
-          reportTitle={`${input.biomarker} CDx — ${input.drug_indication}`}
-          reportSubtitle={[input.drug_name, input.test_type].filter(Boolean).join(' — ') || undefined}
-          filename={`terrain-cdx-${input.drug_indication.toLowerCase().replace(/\s+/g, '-')}`}
-        />
-        <ExportButton
-          format="csv"
-          data={flattenCDxForCSV(data)}
-          filename={`terrain-cdx-${input.drug_indication.toLowerCase().replace(/\s+/g, '-')}`}
-        />
-        <ExportButton
-          format="email"
-          reportTitle={`${input.biomarker} CDx — ${input.drug_indication}`}
-          reportSubtitle={[input.drug_name, input.test_type].filter(Boolean).join(' — ') || undefined}
-        />
-      </div>
+      {!previewMode && (
+        <div className="flex items-center gap-3 pt-6 border-t border-navy-700">
+          <SaveReportButton
+            reportData={{
+              title: `CDx: ${displayName} — ${input.drug_indication}`,
+              report_type: 'market_sizing',
+              indication: input.drug_indication,
+              inputs: input as unknown as Record<string, unknown>,
+              outputs: data as unknown as Record<string, unknown>,
+            }}
+          />
+          <ExportButton
+            format="pdf"
+            onPdfExport={onPdfExport}
+            reportTitle={`${input.biomarker} CDx — ${input.drug_indication}`}
+            reportSubtitle={[input.drug_name, input.test_type].filter(Boolean).join(' — ') || undefined}
+            filename={`terrain-cdx-${input.drug_indication.toLowerCase().replace(/\s+/g, '-')}`}
+          />
+          <ExportButton
+            format="csv"
+            data={flattenCDxForCSV(data)}
+            filename={`terrain-cdx-${input.drug_indication.toLowerCase().replace(/\s+/g, '-')}`}
+          />
+          <ExportButton
+            format="email"
+            reportTitle={`${input.biomarker} CDx — ${input.drug_indication}`}
+            reportSubtitle={[input.drug_name, input.test_type].filter(Boolean).join(' — ') || undefined}
+          />
+        </div>
+      )}
 
       {/* ──────────────────────────────────────────────────────
           11. CONFIDENTIAL FOOTER

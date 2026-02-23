@@ -6,9 +6,19 @@ import { toast } from 'sonner';
 import { Crosshair } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import CompetitiveForm from '@/components/competitive/CompetitiveForm';
+import type { CompetitiveFormSubmission } from '@/components/competitive/CompetitiveForm';
 import CompetitiveLandscapeReport from '@/components/competitive/CompetitiveLandscapeReport';
+import DeviceCompetitiveLandscapeReport from '@/components/competitive/DeviceCompetitiveLandscapeReport';
+import CDxCompetitiveLandscapeReport from '@/components/competitive/CDxCompetitiveLandscapeReport';
+import NutraceuticalCompetitiveLandscapeReport from '@/components/competitive/NutraceuticalCompetitiveLandscapeReport';
+import { PdfPreviewOverlay } from '@/components/shared/PdfPreviewOverlay';
 import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
 import type { CompetitiveLandscapeOutput } from '@/types';
+import type {
+  DeviceCompetitiveLandscapeOutput,
+  CDxCompetitiveLandscapeOutput,
+  NutraceuticalCompetitiveLandscapeOutput,
+} from '@/types/devices-diagnostics';
 
 function ResultsSkeleton() {
   return (
@@ -33,29 +43,45 @@ function EmptyState() {
         Map Your Competitive Landscape
       </h3>
       <p className="text-sm text-slate-500 max-w-md">
-        Enter an indication to generate a competitive landscape analysis with
-        differentiation scoring, evidence assessment, pipeline mapping, and
-        white space identification.
+        Select a product category and enter your target indication, procedure,
+        biomarker, or ingredient to generate a competitive landscape analysis
+        with differentiation scoring, evidence assessment, and white space identification.
       </p>
     </div>
   );
 }
 
+type ResultCategory = 'pharmaceutical' | 'device' | 'cdx' | 'nutraceutical';
+
+interface AnalysisResult {
+  category: ResultCategory;
+  data: CompetitiveLandscapeOutput | DeviceCompetitiveLandscapeOutput | CDxCompetitiveLandscapeOutput | NutraceuticalCompetitiveLandscapeOutput;
+}
+
 export default function CompetitivePage() {
   const [mechanism, setMechanism] = useState<string | undefined>(undefined);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const mutation = useMutation({
-    mutationFn: async (formData: { indication: string; mechanism?: string }) => {
+    mutationFn: async (formData: CompetitiveFormSubmission) => {
       const response = await fetch('/api/analyze/competitive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: { indication: formData.indication, mechanism: formData.mechanism } }),
+        body: JSON.stringify({
+          input: formData,
+          product_category: formData.product_category,
+        }),
       });
       const json = await response.json();
       if (!json.success) throw new Error(json.error || 'Analysis failed');
-      return json.data as CompetitiveLandscapeOutput;
+      return {
+        category: (formData.product_category || 'pharmaceutical') as ResultCategory,
+        data: json.data,
+      };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      setAnalysisResult(result);
       toast.success('Competitive analysis complete');
     },
     onError: (err) => {
@@ -64,20 +90,58 @@ export default function CompetitivePage() {
     },
   });
 
-  const results = mutation.data ?? null;
   const isLoading = mutation.isPending;
   const error = mutation.error ? (mutation.error as Error).message : null;
 
-  function handleSubmit(formData: { indication: string; mechanism?: string }) {
+  function handleSubmit(formData: CompetitiveFormSubmission) {
     setMechanism(formData.mechanism);
+    setAnalysisResult(null);
     mutation.mutate(formData);
+  }
+
+  function renderResults(preview = false) {
+    if (!analysisResult) return null;
+
+    const pdfExport = preview ? undefined : () => setPreviewOpen(true);
+
+    switch (analysisResult.category) {
+      case 'pharmaceutical':
+        return (
+          <CompetitiveLandscapeReport
+            data={analysisResult.data as CompetitiveLandscapeOutput}
+            mechanism={mechanism}
+            previewMode={preview}
+            onPdfExport={pdfExport}
+          />
+        );
+      case 'device':
+        return (
+          <DeviceCompetitiveLandscapeReport
+            data={analysisResult.data as DeviceCompetitiveLandscapeOutput}
+          />
+        );
+      case 'cdx':
+        return (
+          <CDxCompetitiveLandscapeReport
+            data={analysisResult.data as CDxCompetitiveLandscapeOutput}
+          />
+        );
+      case 'nutraceutical':
+        return (
+          <NutraceuticalCompetitiveLandscapeReport
+            data={analysisResult.data as NutraceuticalCompetitiveLandscapeOutput}
+          />
+        );
+      default:
+        return null;
+    }
   }
 
   return (
     <>
       <PageHeader
         title="Competitive Landscape"
-        subtitle="Map the competitive battlefield for any indication."
+        subtitle="Map the competitive battlefield across pharmaceuticals, devices, diagnostics, and nutraceuticals."
       />
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left panel — Form */}
@@ -98,12 +162,24 @@ export default function CompetitivePage() {
               </p>
             </div>
           )}
-          {!isLoading && !error && !results && <EmptyState />}
-          {!isLoading && !error && results && (
-            <CompetitiveLandscapeReport data={results} mechanism={mechanism} />
-          )}
+          {!isLoading && !error && !analysisResult && <EmptyState />}
+          {!isLoading && !error && analysisResult && renderResults()}
         </div>
       </div>
+
+      {/* PDF Preview Overlay */}
+      <PdfPreviewOverlay
+        isOpen={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        reportTitle={
+          analysisResult
+            ? `Competitive Landscape — ${(analysisResult.data as CompetitiveLandscapeOutput).summary?.indication || 'Analysis'}`
+            : 'Competitive Landscape'
+        }
+        filename={`competitive-landscape-${Date.now()}`}
+      >
+        {renderResults(true)}
+      </PdfPreviewOverlay>
     </>
   );
 }

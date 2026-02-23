@@ -15,6 +15,8 @@ import { ExportButton } from '@/components/shared/ExportButton';
 interface CompetitiveLandscapeReportProps {
   data: CompetitiveLandscapeOutput;
   mechanism?: string;
+  previewMode?: boolean;
+  onPdfExport?: () => void;
 }
 
 type TabId = 'approved' | 'phase3' | 'phase2' | 'early';
@@ -34,6 +36,8 @@ function getCrowdingColor(score: number): string {
 export default function CompetitiveLandscapeReport({
   data,
   mechanism,
+  previewMode,
+  onPdfExport,
 }: CompetitiveLandscapeReportProps) {
   const [activeTab, setActiveTab] = useState<TabId>('approved');
   const [phaseFilter, setPhaseFilter] = useState<string>('all');
@@ -390,32 +394,35 @@ export default function CompetitiveLandscapeReport({
       )}
 
       {/* ─── 9. Action Bar ─── */}
-      <div className="flex items-center justify-end gap-3">
-        <SaveReportButton
-          reportData={{
-            title: `Competitive Landscape — ${data.summary.indication}`,
-            report_type: 'competitive',
-            indication: data.summary.indication,
-            inputs: { indication: data.summary.indication, mechanism: mechanism ?? '' },
-            outputs: data as unknown as Record<string, unknown>,
-          }}
-        />
-        <ExportButton
-          format="pdf"
-          targetRef={reportRef}
-          reportTitle={`Competitive Landscape — ${data.summary.indication}`}
-          filename={`competitive-landscape-${Date.now()}`}
-        />
-        <ExportButton
-          format="csv"
-          data={csvData}
-          filename={`competitive-landscape-${Date.now()}`}
-        />
-        <ExportButton
-          format="email"
-          reportTitle={`Competitive Landscape — ${data.summary.indication}`}
-        />
-      </div>
+      {!previewMode && (
+        <div className="flex items-center justify-end gap-3">
+          <SaveReportButton
+            reportData={{
+              title: `Competitive Landscape — ${data.summary.indication}`,
+              report_type: 'competitive',
+              indication: data.summary.indication,
+              inputs: { indication: data.summary.indication, mechanism: mechanism ?? '' },
+              outputs: data as unknown as Record<string, unknown>,
+            }}
+          />
+          <ExportButton
+            format="pdf"
+            onPdfExport={onPdfExport}
+            targetRef={reportRef}
+            reportTitle={`Competitive Landscape — ${data.summary.indication}`}
+            filename={`competitive-landscape-${Date.now()}`}
+          />
+          <ExportButton
+            format="csv"
+            data={csvData}
+            filename={`competitive-landscape-${Date.now()}`}
+          />
+          <ExportButton
+            format="email"
+            reportTitle={`Competitive Landscape — ${data.summary.indication}`}
+          />
+        </div>
+      )}
 
       {/* ─── 10. Data Sources Footer ─── */}
       {data.data_sources.length > 0 && (
