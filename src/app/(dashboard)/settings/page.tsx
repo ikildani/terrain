@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -9,7 +10,7 @@ import { useUser } from '@/hooks/useUser';
 import { useProfile } from '@/hooks/useProfile';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
-import { Save, Check } from 'lucide-react';
+import { Save, Check, AlertTriangle } from 'lucide-react';
 
 const ROLE_OPTIONS = [
   { value: 'founder', label: 'Biotech Founder / CEO' },
@@ -46,6 +47,10 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!user) return;
@@ -209,13 +214,85 @@ export default function SettingsPage() {
         <div className="card noise p-6 border-signal-red/20">
           <h3 className="text-sm font-medium text-signal-red mb-1">Danger Zone</h3>
           <p className="text-xs text-slate-500 mb-4">
-            Permanently delete your account and all associated data.
+            Permanently delete your account and all associated data. This cannot be undone.
           </p>
-          <Button variant="danger" size="sm" disabled>
+          <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
             Delete Account
           </Button>
         </div>
       </div>
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => { setShowDeleteModal(false); setDeleteConfirm(''); }}
+          />
+          <div className="relative card noise p-6 max-w-md w-full border-signal-red/30">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-signal-red/10 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5 text-signal-red" />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-white">Delete Account</h3>
+                <p className="text-xs text-slate-400">This action is permanent and irreversible.</p>
+              </div>
+            </div>
+            <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+              All your saved reports, analyses, and profile data will be permanently deleted.
+              Your subscription will be canceled immediately with no refund.
+            </p>
+            <div className="mb-4">
+              <label className="block text-xs text-slate-500 mb-1.5">
+                Type <span className="font-mono text-signal-red">DELETE</span> to confirm
+              </label>
+              <input
+                type="text"
+                value={deleteConfirm}
+                onChange={(e) => setDeleteConfirm(e.target.value)}
+                placeholder="DELETE"
+                className="w-full px-3 py-2 bg-navy-800 border border-navy-700 rounded text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-signal-red/50"
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => { setShowDeleteModal(false); setDeleteConfirm(''); }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                disabled={deleteConfirm !== 'DELETE' || deleting}
+                isLoading={deleting}
+                onClick={async () => {
+                  setDeleting(true);
+                  try {
+                    const res = await fetch('/api/account/delete', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success) {
+                      const supabase = createClient();
+                      if (supabase) await supabase.auth.signOut();
+                      router.push('/login');
+                    } else {
+                      toast.error(data.error || 'Failed to delete account');
+                    }
+                  } catch {
+                    toast.error('Failed to delete account');
+                  } finally {
+                    setDeleting(false);
+                  }
+                }}
+              >
+                Delete My Account
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

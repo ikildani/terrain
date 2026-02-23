@@ -39,7 +39,6 @@ interface CommandItem {
 const REPORT_TYPE_ROUTES: Record<string, string> = {
   market_sizing: '/market-sizing',
   competitive: '/competitive',
-  pipeline: '/pipeline',
   regulatory: '/regulatory',
   partners: '/partners',
 };

@@ -12,7 +12,6 @@ import { FileText, Star, Trash2, ExternalLink, BarChart3 } from 'lucide-react';
 const TYPE_LABELS: Record<string, string> = {
   market_sizing: 'Market Sizing',
   competitive: 'Competitive',
-  pipeline: 'Pipeline',
   full: 'Full Report',
 };
 

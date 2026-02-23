@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 const createReportSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  report_type: z.enum(['market_sizing', 'competitive', 'pipeline', 'full']),
+  report_type: z.enum(['market_sizing', 'competitive', 'full']),
   indication: z.string().min(1, 'Indication is required'),
   inputs: z.record(z.unknown()).optional(),
   outputs: z.record(z.unknown()).optional(),

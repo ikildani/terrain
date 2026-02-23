@@ -8,6 +8,7 @@ import {
   calculateDeviceMarketSizing,
   calculateCDxMarketSizing,
 } from '@/lib/analytics/device-market-sizing';
+import { calculateNutraceuticalMarketSizing } from '@/lib/analytics/nutraceutical-market-sizing';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, withTiming, logApiRequest, logApiResponse } from '@/lib/logger';
 import type { ApiResponse } from '@/types';
@@ -92,6 +93,10 @@ function isCDx(category: string): boolean {
     category === 'diagnostics_companion' ||
     category === 'diagnostics_ivd'
   );
+}
+
+function isNutraceutical(category: string): boolean {
+  return category === 'nutraceutical' || category.startsWith('nutra');
 }
 
 // ────────────────────────────────────────────────────────────
@@ -215,11 +220,18 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       }
+    } else if (isNutraceutical(product_category)) {
+      if (!(input as Record<string, unknown>).primary_ingredient) {
+        return NextResponse.json(
+          { success: false, error: 'primary_ingredient is required for nutraceutical analysis.' } satisfies ApiResponse<never>,
+          { status: 400 },
+        );
+      }
     }
 
     // ── Route to the correct engine ─────────────────────────
     let result: unknown;
-    const indication = input.indication || input.drug_indication || input.procedure_or_condition || '';
+    const indication = input.indication || input.drug_indication || input.procedure_or_condition || (input as Record<string, unknown>).primary_ingredient as string || '';
 
     if (isPharma(product_category)) {
       const { result: r } = await withTiming('market_sizing_pharma', () => calculateMarketSizing(input as Parameters<typeof calculateMarketSizing>[0]), { indication });
@@ -230,11 +242,14 @@ export async function POST(request: NextRequest) {
     } else if (isCDx(product_category)) {
       const { result: r } = await withTiming('market_sizing_cdx', () => calculateCDxMarketSizing(input as Parameters<typeof calculateCDxMarketSizing>[0]), { indication });
       result = r;
+    } else if (isNutraceutical(product_category)) {
+      const { result: r } = await withTiming('market_sizing_nutraceutical', () => calculateNutraceuticalMarketSizing(input as unknown as Parameters<typeof calculateNutraceuticalMarketSizing>[0]), { indication });
+      result = r;
     } else {
       return NextResponse.json(
         {
           success: false,
-          error: `Unknown product_category: "${product_category}". Supported categories: pharmaceutical, medical_device/device, companion_diagnostic/cdx.`,
+          error: `Unknown product_category: "${product_category}". Supported categories: pharmaceutical, medical_device/device, companion_diagnostic/cdx, nutraceutical.`,
         } satisfies ApiResponse<never>,
         { status: 400 },
       );

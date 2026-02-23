@@ -61,7 +61,6 @@ const quickActions = [
 const REPORT_TYPE_COLORS: Record<string, string> = {
   market_sizing: 'bg-teal-500/15 text-teal-400 border-teal-500/20',
   competitive: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
-  pipeline: 'bg-amber-500/15 text-amber-400 border-amber-500/20',
   regulatory: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
   partners: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
   full: 'bg-slate-500/15 text-slate-400 border-slate-500/20',
@@ -70,7 +69,6 @@ const REPORT_TYPE_COLORS: Record<string, string> = {
 const REPORT_TYPE_ROUTES: Record<string, string> = {
   market_sizing: '/market-sizing',
   competitive: '/competitive',
-  pipeline: '/pipeline',
   regulatory: '/regulatory',
   partners: '/partners',
 };

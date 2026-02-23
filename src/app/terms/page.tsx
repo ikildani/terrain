@@ -39,8 +39,8 @@ export default function TermsPage() {
             <h2 className="font-display text-lg text-white mb-3">2. Description of Service</h2>
             <p>
               Terrain is a market intelligence platform for life sciences professionals. It provides
-              market sizing, competitive landscape, pipeline intelligence, partner discovery, regulatory
-              intelligence, and deal alert services. All analyses are generated using proprietary
+              market sizing, competitive landscape, partner discovery, and regulatory
+              intelligence services. All analyses are generated using proprietary
               algorithms applied to publicly available data sources including ClinicalTrials.gov,
               FDA databases, SEC filings, and published epidemiological literature.
             </p>

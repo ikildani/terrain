@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Progress } from '@/components/ui/Progress';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useUser } from '@/hooks/useUser';
+import { createClient } from '@/lib/supabase/client';
 import { PLAN_DISPLAY, PLAN_LIMITS } from '@/lib/subscription';
 import {
   CreditCard,
@@ -97,8 +99,37 @@ async function openPortal() {
 export default function BillingPage() {
   const { plan, isPro, cancelAtPeriodEnd, currentPeriodEnd } =
     useSubscription();
+  const { user } = useUser();
   const [upgrading, setUpgrading] = useState(false);
+  const [usage, setUsage] = useState<Record<string, number>>({});
   const limits = PLAN_LIMITS[plan];
+
+  useEffect(() => {
+    if (!user) return;
+    const supabase = createClient();
+    if (!supabase) return;
+
+    async function fetchUsage() {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+      const { data } = await supabase!
+        .from('usage_events')
+        .select('feature')
+        .eq('user_id', user!.id)
+        .gte('created_at', monthStart);
+
+      if (data) {
+        const counts: Record<string, number> = {};
+        for (const row of data) {
+          const feature = (row as { feature: string }).feature;
+          counts[feature] = (counts[feature] || 0) + 1;
+        }
+        setUsage(counts);
+      }
+    }
+    fetchUsage();
+  }, [user]);
 
   async function handleUpgrade(targetPlan: Plan) {
     if (targetPlan === 'free') return;
@@ -167,18 +198,19 @@ export default function BillingPage() {
               const limit = (limits as Record<string, number | boolean>)[feature];
               const numLimit = typeof limit === 'number' ? limit : 0;
               const isUnlimited = numLimit === -1;
+              const used = usage[feature] ?? 0;
 
               return (
                 <div key={feature}>
                   <Progress
                     label={label}
-                    value={0}
+                    value={used}
                     max={isUnlimited ? 100 : numLimit}
                     showValue={!isUnlimited}
                   />
                   {isUnlimited && (
                     <span className="text-2xs font-mono text-teal-500 mt-0.5 block">
-                      Unlimited
+                      Unlimited ({used} used)
                     </span>
                   )}
                 </div>
@@ -202,7 +234,7 @@ export default function BillingPage() {
                     'PDF & CSV report exports',
                     'Partner discovery & matching',
                     'Regulatory pathway analysis',
-                    'Deal alert monitoring',
+                    'Global geography coverage',
                   ].map((f) => (
                     <li
                       key={f}

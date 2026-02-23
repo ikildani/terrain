@@ -47,15 +47,15 @@ const MODULES = [
     name: 'Competitive Landscape',
     icon: Network,
     description:
-      'Pipeline mapping, crowding scores, and head-to-head comparisons across every development phase.',
-    metric: 'Real-time pipeline',
+      'Competitive mapping, crowding scores, and head-to-head comparisons across every development phase.',
+    metric: '300+ competitors',
     href: '/competitive',
   },
   {
     name: 'Partner Discovery',
     icon: Users,
     description:
-      'Algorithmic matching to 300+ biopharma and medtech BD groups based on deal history and pipeline gaps.',
+      'Algorithmic matching to 300+ biopharma and medtech BD groups based on deal history and strategic gaps.',
     metric: '300+ companies',
     href: '/partners',
   },
@@ -115,7 +115,7 @@ const BEFORE_AFTER = [
   { label: 'Time to market assessment', before: '2–3 weeks', after: '< 30 seconds' },
   { label: 'Cost per analysis', before: '$15K–$50K', after: '$149/mo unlimited' },
   { label: 'Geography coverage', before: 'US-only (usually)', after: 'US, EU5, Japan, China, RoW' },
-  { label: 'Competitive pipeline data', before: 'Stale (quarterly updates)', after: 'Real-time (ClinicalTrials.gov)' },
+  { label: 'Competitive landscape data', before: 'Stale (quarterly updates)', after: 'Real-time (ClinicalTrials.gov)' },
   { label: 'Partner matching', before: 'Relationship-driven guesswork', after: 'Algorithmic scoring (300+ companies)' },
 ];
 
@@ -172,7 +172,7 @@ const PRICING = [
       '5 team seats included',
       'Shared report library',
       'API access',
-      'Custom alert configurations',
+      'Team analytics dashboard',
       'Priority support',
     ],
   },
@@ -199,11 +199,11 @@ const PRICING = [
 const FAQ = [
   {
     q: 'Where does Terrain\u2019s data come from?',
-    a: 'Terrain pulls from ClinicalTrials.gov (live pipeline data), FDA/EMA approval databases, SEC EDGAR filings (partnership disclosures), WHO Global Burden of Disease (epidemiology), and a proprietary database of 10,000+ biopharma transactions built by Ambrosia Ventures.',
+    a: 'Terrain pulls from ClinicalTrials.gov (competitive intelligence), FDA/EMA approval databases, SEC EDGAR filings (partnership disclosures), WHO Global Burden of Disease (epidemiology), and a proprietary database of 10,000+ biopharma transactions built by Ambrosia Ventures.',
   },
   {
-    q: 'How current is the pipeline and competitive data?',
-    a: 'Pipeline data from ClinicalTrials.gov updates nightly. FDA actions and SEC filings are processed within 24 hours. Epidemiology and pricing benchmarks are updated quarterly against the latest published sources.',
+    q: 'How current is the competitive data?',
+    a: 'Competitive intelligence from ClinicalTrials.gov updates nightly. FDA actions and SEC filings are processed within 24 hours. Epidemiology and pricing benchmarks are updated quarterly against the latest published sources.',
   },
   {
     q: 'Can I trust the market sizing numbers for a board presentation?',
@@ -215,7 +215,7 @@ const FAQ = [
   },
   {
     q: 'What\u2019s the difference between Pro and Team?',
-    a: 'Pro is for individual professionals — unlimited analyses, full module access, and export capabilities. Team adds 5 seats, a shared report library, API access, and custom alert configurations for BD groups and deal teams working collaboratively.',
+    a: 'Pro is for individual professionals — unlimited analyses, full module access, and export capabilities. Team adds 5 seats, a shared report library, API access, and a team analytics dashboard for BD groups and deal teams working collaboratively.',
   },
   {
     q: 'Is my data secure?',

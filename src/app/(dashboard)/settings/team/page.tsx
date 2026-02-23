@@ -4,10 +4,17 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useUser } from '@/hooks/useUser';
-import { Users, Plus, Mail, Shield, Crown } from 'lucide-react';
+import { Users, Shield, Crown, FileText, Globe, Zap, Mail } from 'lucide-react';
+
+const TEAM_FEATURES = [
+  { icon: Users, label: '5 team seats included' },
+  { icon: FileText, label: 'Shared report library' },
+  { icon: Globe, label: 'API access for integrations' },
+  { icon: Zap, label: 'Priority support' },
+];
 
 export default function TeamPage() {
-  const { isTeam, plan } = useSubscription();
+  const { isTeam } = useSubscription();
   const { user } = useUser();
 
   if (!isTeam) {
@@ -57,12 +64,6 @@ export default function TeamPage() {
         title="Team"
         subtitle="Manage team members and permissions."
         badge="Team"
-        actions={
-          <Button variant="primary" size="sm" disabled>
-            <Plus className="w-4 h-4" />
-            Invite Member
-          </Button>
-        }
       />
 
       <div className="space-y-6 max-w-2xl">
@@ -75,7 +76,6 @@ export default function TeamPage() {
           </div>
 
           <div className="divide-y divide-navy-700/60">
-            {/* Owner */}
             <div className="px-5 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-teal-500/10 flex items-center justify-center">
@@ -96,29 +96,36 @@ export default function TeamPage() {
           </div>
         </div>
 
-        {/* Invite */}
+        {/* Team Features + Contact */}
         <div className="card noise p-6">
-          <div className="flex items-start gap-3">
-            <Mail className="w-5 h-5 text-slate-500 mt-0.5 shrink-0" />
-            <div>
-              <h3 className="text-sm font-medium text-white mb-1">
-                Invite Team Members
-              </h3>
-              <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-                You have 4 remaining seats. Invited members get full access to
-                all Pro features and can share reports within your organization.
-              </p>
-              <p className="text-xs text-slate-600">
-                Team invitations coming soon. Contact{' '}
-                <a
-                  href="mailto:support@ambrosiaventures.co"
-                  className="text-teal-400 hover:text-teal-300"
-                >
-                  support@ambrosiaventures.co
-                </a>{' '}
-                to add team members.
-              </p>
-            </div>
+          <h3 className="text-sm font-medium text-white mb-4">
+            Team Features
+          </h3>
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {TEAM_FEATURES.map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded bg-navy-800 border border-navy-700"
+              >
+                <Icon className="w-4 h-4 text-teal-500 shrink-0" />
+                <span className="text-xs text-slate-300">{label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-navy-700 pt-4">
+            <p className="text-xs text-slate-400 mb-3">
+              To invite team members, contact our team and we&apos;ll get you set up within 24 hours.
+            </p>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                window.location.href = 'mailto:team@ambrosiaventures.co?subject=Terrain Team — Add Members';
+              }}
+            >
+              <Mail className="w-3.5 h-3.5" />
+              Contact Us
+            </Button>
           </div>
         </div>
       </div>

@@ -3,13 +3,14 @@
 // All shared types for the platform. Import from '@/types'
 // ============================================================
 
-import type { DeviceMarketSizingOutput, CDxOutput } from './devices-diagnostics';
+import type { DeviceMarketSizingOutput, CDxOutput, NutraceuticalMarketSizingOutput } from './devices-diagnostics';
 export type { DeviceMarketSizingOutput, CDxOutput } from './devices-diagnostics';
 export type { DeviceMarketSizingInput, CDxMarketSizingInput, CDxDeal, RevenueStreamBreakdown, ProductCategory } from './devices-diagnostics';
 export type { DeviceRegulatoryInput, DeviceRegulatoryOutput, DeviceCategory, FDADevicePathway, FDADeviceClass } from './devices-diagnostics';
 export type { PredicateDeviceRecord, DeviceClinicalEvidenceStrategy, DeviceIndicationScopeScenario, DeviceManufacturingRisk } from './devices-diagnostics';
 export type { DevicePartnerDiscoveryInput, DevicePartnerMatch, DeviceAcquisitionProbability, DeviceRegulatoryTrackRecord, DistributionStrengthAssessment, DeviceDealStructureModel } from './devices-diagnostics';
 export type { NutraceuticalCategory, NutraceuticalChannel, ClaimType, NutraceuticalMarketSizingInput } from './devices-diagnostics';
+export type { NutraceuticalMarketSizingOutput, NutraceuticalPartnerProfile, NutraceuticalPartnerMatch, NutraceuticalPartnerDiscoveryInput, NutraceuticalPartnerType, NutraceuticalConsumerFunnel, NutraceuticalChannelRevenue, NutraceuticalDTCEconomics, NutraceuticalRegulatoryAssessment, NutraceuticalCompetitivePositioning, NutraceuticalAmazonIntelligence, NutraceuticalAcquisitionAttractiveness } from './devices-diagnostics';
 
 // ────────────────────────────────────────────────────────────
 // USERS & AUTH
@@ -1056,7 +1057,7 @@ export interface Report {
   report_type: ReportType;
   indication: string;
   inputs: MarketSizingInput | Partial<MarketSizingInput> | null;
-  outputs: MarketSizingOutput | DeviceMarketSizingOutput | CDxOutput | CompetitiveLandscapeOutput | null;
+  outputs: MarketSizingOutput | DeviceMarketSizingOutput | CDxOutput | NutraceuticalMarketSizingOutput | CompetitiveLandscapeOutput | null;
   status: 'draft' | 'final';
   is_starred: boolean;
   tags: string[];

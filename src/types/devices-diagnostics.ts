@@ -794,6 +794,257 @@ export interface NutraceuticalMarketSizingInput {
 }
 
 // ────────────────────────────────────────────────────────────
+// NUTRACEUTICAL OUTPUT TYPES
+// Consumer funnel, channel economics, DTC metrics, regulatory
+// ────────────────────────────────────────────────────────────
+
+export interface NutraceuticalConsumerFunnel {
+  us_adult_population: number;
+  supplement_users: number;
+  supplement_users_pct: number;
+  health_category_users: number;
+  health_category_penetration_pct: number;
+  target_demographic_users: number;
+  demographic_penetration_pct: number;
+  addressable_consumers: number;
+  capturable_consumers: number;
+  avg_annual_spend: number;
+}
+
+export interface NutraceuticalChannelRevenue {
+  channel: NutraceuticalChannel;
+  channel_share_pct: number;
+  volume_units: number;
+  gross_revenue_m: number;
+  brand_margin_pct: number;
+  net_revenue_m: number;
+  cac: number;
+  ltv: number;
+  ltv_to_cac: number;
+  contribution_pct: number;
+}
+
+export interface NutraceuticalDTCEconomics {
+  monthly_subscription_price: number;
+  cac: number;
+  ltv_12m: number;
+  ltv_36m: number;
+  payback_months: number;
+  month_6_retention_pct: number;
+  month_12_retention_pct: number;
+  gross_margin_pct: number;
+  contribution_margin_per_customer: number;
+  break_even_subscribers: number;
+  narrative: string;
+}
+
+export interface NutraceuticalGeographyBreakdown {
+  territory: string;
+  tam: { value: number; unit: 'B' | 'M' };
+  supplement_penetration_pct: number;
+  regulatory_environment: string;
+  market_note: string;
+}
+
+export interface NutraceuticalCompetitivePositioning {
+  total_brands_in_category: number;
+  top_brand: string;
+  top_brand_estimated_revenue_m: number;
+  price_positioning: 'mass' | 'premium' | 'clinical_grade' | 'luxury';
+  clinical_evidence_differentiator: boolean;
+  amazon_bsr_range?: string;
+  key_differentiation_vectors: string[];
+  competitive_moat_score: number;
+  narrative: string;
+}
+
+export interface NutraceuticalRegulatoryAssessment {
+  recommended_pathway: string;
+  ndi_required: boolean;
+  ndi_acceptance_probability_pct?: number;
+  ftc_claim_risk: 'low' | 'moderate' | 'high';
+  fda_warning_letter_risk: 'low' | 'moderate' | 'high';
+  cgmp_compliance_cost_k: { low: number; high: number };
+  certifications_recommended: string[];
+  regulatory_timeline_months: { optimistic: number; realistic: number; pessimistic: number };
+  claim_substantiation_gaps: string[];
+  prop_65_risk: boolean;
+  key_risks: { risk: string; severity: 'high' | 'medium' | 'low'; mitigation: string }[];
+  narrative: string;
+}
+
+export interface NutraceuticalSensitivityDriver {
+  variable: string;
+  low_som_m: number;
+  high_som_m: number;
+  base_som_m: number;
+  swing_pct: number;
+}
+
+export interface NutraceuticalClinicalEvidenceImpact {
+  evidence_level: 'strong' | 'moderate' | 'emerging' | 'preliminary' | 'none';
+  pricing_premium_pct: number;
+  channel_access_unlocked: NutraceuticalChannel[];
+  practitioner_trust_score: number;
+  claim_upgrade_potential: ClaimType | null;
+  narrative: string;
+}
+
+export interface NutraceuticalBrandEconomics {
+  estimated_brand_build_cost_m: { low: number; base: number; high: number };
+  time_to_brand_recognition_months: number;
+  influencer_dependency_score: number;
+  content_moat_score: number;
+  community_strength: 'none' | 'emerging' | 'moderate' | 'strong';
+  narrative: string;
+}
+
+export interface NutraceuticalAmazonIntelligence {
+  estimated_category_bsr_range: { top: number; median: number };
+  avg_review_count_top_10: number;
+  avg_rating_top_10: number;
+  ppc_cpc_estimate: number;
+  ppc_acos_estimate_pct: number;
+  subscribe_save_adoption_pct: number;
+  estimated_monthly_revenue_top_seller_k: number;
+  barrier_to_entry_score: number;
+  narrative: string;
+}
+
+export interface NutraceuticalSubscriptionModel {
+  optimal_price_point: number;
+  churn_curve: { month: number; retention_pct: number }[];
+  avg_lifetime_months: number;
+  projected_mrr_12m: number;
+  projected_arr_m: number;
+  narrative: string;
+}
+
+export interface NutraceuticalIngredientSupplyChain {
+  primary_ingredient_source: string;
+  source_concentration: 'single_source' | 'limited' | 'diversified';
+  supply_risk: 'low' | 'moderate' | 'high';
+  cogs_volatility: 'stable' | 'moderate' | 'volatile';
+  ip_protection: string;
+  narrative: string;
+}
+
+export interface NutraceuticalAcquisitionAttractiveness {
+  strategic_acquirer_interest: 'high' | 'moderate' | 'low';
+  revenue_multiple_range: { low: number; base: number; high: number };
+  ebitda_multiple_range: { low: number; base: number; high: number };
+  key_value_drivers: string[];
+  likely_acquirer_types: string[];
+  comparable_acquisitions: { target: string; acquirer: string; value_m: number; multiple: string; year: number }[];
+  narrative: string;
+}
+
+export interface NutraceuticalMarketSizingOutput {
+  summary: {
+    us_tam: { value: number; unit: 'B' | 'M'; confidence: 'high' | 'medium' | 'low' };
+    us_sam: { value: number; unit: 'B' | 'M'; confidence: 'high' | 'medium' | 'low' };
+    us_som: { value: number; unit: 'B' | 'M'; range: [number, number] };
+    global_tam: { value: number; unit: 'B' | 'M'; confidence: 'high' | 'medium' | 'low' };
+    cagr_5yr: number;
+    market_growth_driver: string;
+    peak_annual_revenue: { low: number; base: number; high: number };
+  };
+
+  consumer_funnel: NutraceuticalConsumerFunnel;
+  channel_revenue: NutraceuticalChannelRevenue[];
+  dtc_unit_economics?: NutraceuticalDTCEconomics;
+  geography_breakdown: NutraceuticalGeographyBreakdown[];
+  revenue_projection: { year: number; bear: number; base: number; bull: number }[];
+  competitive_positioning: NutraceuticalCompetitivePositioning;
+  regulatory_assessment: NutraceuticalRegulatoryAssessment;
+  sensitivity_analysis?: NutraceuticalSensitivityDriver[];
+  clinical_evidence_impact?: NutraceuticalClinicalEvidenceImpact;
+  brand_economics?: NutraceuticalBrandEconomics;
+
+  amazon_intelligence?: NutraceuticalAmazonIntelligence;
+  subscription_model?: NutraceuticalSubscriptionModel;
+  ingredient_supply_chain?: NutraceuticalIngredientSupplyChain;
+  acquisition_attractiveness?: NutraceuticalAcquisitionAttractiveness;
+
+  methodology: string;
+  data_sources: { name: string; type: 'public' | 'proprietary' | 'licensed'; url?: string }[];
+  generated_at: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// NUTRACEUTICAL PARTNER TYPES
+// ────────────────────────────────────────────────────────────
+
+export type NutraceuticalPartnerType =
+  | 'contract_manufacturer'
+  | 'ingredient_supplier'
+  | 'distributor'
+  | 'retail_partner'
+  | 'strategic_acquirer'
+  | 'dtc_platform'
+  | 'clinical_research'
+  | 'marketing_agency';
+
+export interface NutraceuticalPartnerProfile {
+  company: string;
+  partner_type: NutraceuticalPartnerType;
+  hq: string;
+  revenue_b?: number;
+  description: string;
+  capabilities: string[];
+  categories_served: NutraceuticalCategory[];
+  channels_served: NutraceuticalChannel[];
+  notable_clients: string[];
+  deal_size_range?: string;
+  source: string;
+
+  // Deal activity & track record
+  recent_acquisitions?: { target: string; year: number; value_m?: number }[];
+  deal_terms_typical?: {
+    upfront_range?: string;
+    royalty_range?: string;
+    revenue_share_range?: string;
+    typical_deal_type: string;    // 'acquisition' | 'licensing' | 'distribution' | 'co-development' | 'contract'
+  };
+  partnership_track_record?: {
+    deals_last_5yr: number;
+    notable_partnerships: string[];
+    avg_deal_value_m?: number;
+  };
+  strategic_priorities?: string[];  // e.g., "NAD+ longevity category", "GLP-1 adjacent supplements"
+}
+
+export interface NutraceuticalPartnerMatch {
+  rank: number;
+  company: string;
+  partner_type: NutraceuticalPartnerType;
+  match_score: number;
+  score_breakdown: {
+    category_alignment: number;
+    channel_fit: number;
+    capability_match: number;
+    scale_appropriateness: number;
+    geographic_fit: number;
+  };
+  capabilities: string[];
+  notable_clients: string[];
+  rationale: string;
+}
+
+export interface NutraceuticalPartnerDiscoveryInput {
+  product_description: string;
+  primary_ingredient: string;
+  nutraceutical_category: NutraceuticalCategory;
+  channels: NutraceuticalChannel[];
+  development_stage: 'formulation' | 'clinical_study' | 'market_ready' | 'commercial';
+  geography_rights: string[];
+  partner_types_sought: NutraceuticalPartnerType[];
+  exclude_companies?: string[];
+  has_clinical_data: boolean;
+  estimated_revenue_m?: number;
+}
+
+// ────────────────────────────────────────────────────────────
 // PROCEDURE DATA (equivalent of IndicationData for devices)
 // ────────────────────────────────────────────────────────────
 

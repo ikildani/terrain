@@ -44,6 +44,12 @@ import type {
   DeviceDealStructureModel,
   DeviceCategory,
   ProductCategory,
+  NutraceuticalPartnerDiscoveryInput,
+  NutraceuticalPartnerMatch,
+  NutraceuticalPartnerProfile,
+  NutraceuticalPartnerType,
+  NutraceuticalCategory,
+  NutraceuticalChannel,
 } from '@/types';
 
 import {
@@ -55,6 +61,8 @@ import {
   DEVICE_PARTNER_DATABASE_FULL as RAW_DEVICE_PARTNERS,
   type DevicePartnerProfile,
 } from '@/lib/data/device-partner-database';
+
+import { NUTRACEUTICAL_PARTNER_DATABASE } from '@/lib/data/nutraceutical-partner-database';
 
 import { findIndicationByName } from '@/lib/data/indication-map';
 
@@ -3006,5 +3014,355 @@ export async function analyzePartners(
     data_sources: dataSources,
     generated_at: new Date().toISOString(),
     negotiation_leverage,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// NUTRACEUTICAL PARTNER DISCOVERY
+// ────────────────────────────────────────────────────────────
+//
+// Scores and ranks nutraceutical industry partners (contract
+// manufacturers, ingredient suppliers, distributors, retail
+// partners, DTC platforms, etc.) against a user's product
+// profile.
+//
+// Scoring dimensions (weighted to 100):
+//   Category alignment        — 25 pts
+//   Channel fit               — 25 pts
+//   Capability match          — 20 pts
+//   Scale appropriateness     — 15 pts
+//   Geographic fit            — 15 pts
+// ────────────────────────────────────────────────────────────
+
+/** Related categories for partial matching in category alignment scoring */
+const RELATED_NUTRACEUTICAL_CATEGORIES: Partial<Record<NutraceuticalCategory, NutraceuticalCategory[]>> = {
+  dietary_supplement: ['functional_food', 'sports_nutrition', 'longevity_compound'],
+  functional_food: ['dietary_supplement', 'medical_food', 'probiotic_microbiome'],
+  medical_food: ['functional_food', 'dietary_supplement', 'rx_to_otc_switch'],
+  otc_drug: ['rx_to_otc_switch', 'cosmeceutical', 'dietary_supplement'],
+  rx_to_otc_switch: ['otc_drug', 'medical_food', 'dietary_supplement'],
+  cosmeceutical: ['otc_drug', 'dietary_supplement', 'longevity_compound'],
+  longevity_compound: ['dietary_supplement', 'probiotic_microbiome', 'sports_nutrition'],
+  probiotic_microbiome: ['functional_food', 'dietary_supplement', 'longevity_compound'],
+  sports_nutrition: ['dietary_supplement', 'functional_food', 'longevity_compound'],
+};
+
+/** Stage-to-preferred-partner-type mapping for capability scoring */
+const STAGE_PREFERRED_TYPES: Record<
+  NutraceuticalPartnerDiscoveryInput['development_stage'],
+  NutraceuticalPartnerType[]
+> = {
+  formulation: ['contract_manufacturer', 'ingredient_supplier'],
+  clinical_study: ['clinical_research', 'ingredient_supplier'],
+  market_ready: ['distributor', 'retail_partner', 'dtc_platform'],
+  commercial: ['strategic_acquirer', 'retail_partner', 'marketing_agency'],
+};
+
+/** Score category alignment (0-25) */
+function scoreNutraCategoryAlignment(
+  partner: NutraceuticalPartnerProfile,
+  inputCategory: NutraceuticalCategory,
+): number {
+  // Full match: partner serves the exact category
+  if (partner.categories_served.includes(inputCategory)) return 25;
+
+  // Partial: partner serves a related category
+  const related = RELATED_NUTRACEUTICAL_CATEGORIES[inputCategory] ?? [];
+  const hasRelated = partner.categories_served.some((cat) => related.includes(cat));
+  if (hasRelated) return 12;
+
+  return 0;
+}
+
+/** Score channel fit (0-25) */
+function scoreNutraChannelFit(
+  partner: NutraceuticalPartnerProfile,
+  inputChannels: NutraceuticalChannel[],
+): number {
+  if (inputChannels.length === 0) return 0;
+  const overlapCount = inputChannels.filter((ch) =>
+    partner.channels_served.includes(ch),
+  ).length;
+  return Math.round((overlapCount / inputChannels.length) * 25);
+}
+
+/** Score capability match based on development stage (0-20) */
+function scoreNutraCapabilityMatch(
+  partner: NutraceuticalPartnerProfile,
+  developmentStage: NutraceuticalPartnerDiscoveryInput['development_stage'],
+): number {
+  const preferred = STAGE_PREFERRED_TYPES[developmentStage];
+  if (preferred.includes(partner.partner_type)) return 20;
+
+  // Partial match: partner type is adjacent to preferred types
+  // (e.g., a distributor is partially useful during clinical_study for launch prep)
+  const allTypes: NutraceuticalPartnerType[] = [
+    'contract_manufacturer',
+    'ingredient_supplier',
+    'distributor',
+    'retail_partner',
+    'strategic_acquirer',
+    'dtc_platform',
+    'clinical_research',
+    'marketing_agency',
+  ];
+  // Check if the partner's capabilities overlap with preferred type keywords
+  const preferredKeywords = preferred.map((t) => t.replace(/_/g, ' '));
+  const capabilitiesStr = partner.capabilities.join(' ').toLowerCase();
+  const hasPartialCapability = preferredKeywords.some((kw) =>
+    capabilitiesStr.includes(kw.replace(/_/g, ' ')),
+  );
+  if (hasPartialCapability) return 10;
+
+  return 10; // Baseline partial score — every partner has some transferable capability
+}
+
+/** Score scale appropriateness (0-15) */
+function scoreNutraScaleAppropriateness(
+  partner: NutraceuticalPartnerProfile,
+  estimatedRevenueM?: number,
+): number {
+  if (!partner.revenue_b) return 10; // No revenue data — default
+  if (estimatedRevenueM === undefined) return 10;
+
+  const partnerRevenueB = partner.revenue_b;
+  const companyRevenueM = estimatedRevenueM;
+
+  // Large partner (>$10B) + small company (<$5M)
+  if (partnerRevenueB > 10 && companyRevenueM < 5) return 8;
+  // Mid partner ($1-10B) + startup
+  if (partnerRevenueB >= 1 && partnerRevenueB <= 10 && companyRevenueM < 50) return 15;
+  // Small partner (<$1B) + startup
+  if (partnerRevenueB < 1 && companyRevenueM < 50) return 12;
+  // Large partner + large company
+  if (partnerRevenueB > 10 && companyRevenueM >= 50) return 13;
+  // Mid partner + mid company
+  if (partnerRevenueB >= 1 && partnerRevenueB <= 10 && companyRevenueM >= 50) return 11;
+
+  return 10;
+}
+
+/** Score geographic fit (0-15) */
+function scoreNutraGeographicFit(
+  partner: NutraceuticalPartnerProfile,
+  geographyRights: string[],
+): number {
+  if (geographyRights.length === 0) return 8; // No geography specified — neutral
+
+  const hqLower = partner.hq.toLowerCase();
+  const geoLower = geographyRights.map((g) => g.toLowerCase());
+
+  // Check US presence
+  const isUSPartner =
+    hqLower.includes('us') ||
+    hqLower.includes('united states') ||
+    hqLower.includes('california') ||
+    hqLower.includes('new york') ||
+    hqLower.includes('new jersey') ||
+    hqLower.includes('texas') ||
+    hqLower.includes('illinois') ||
+    hqLower.includes('florida') ||
+    hqLower.includes('ohio') ||
+    hqLower.includes('utah') ||
+    hqLower.includes('wisconsin') ||
+    hqLower.includes('north carolina') ||
+    hqLower.includes('connecticut') ||
+    hqLower.includes('massachusetts') ||
+    hqLower.includes('minnesota');
+
+  const wantsUS = geoLower.some((g) => g === 'us' || g === 'usa' || g === 'united states');
+
+  if (isUSPartner && wantsUS) return 15;
+
+  // International partner matching
+  const regionKeywords: Record<string, string[]> = {
+    eu: ['germany', 'france', 'uk', 'italy', 'spain', 'europe', 'switzerland', 'netherlands', 'denmark'],
+    japan: ['japan', 'tokyo'],
+    china: ['china', 'shanghai', 'beijing'],
+    india: ['india', 'mumbai'],
+    canada: ['canada', 'toronto'],
+    australia: ['australia', 'sydney'],
+    global: ['global'],
+  };
+
+  // Check if partner HQ matches any requested geography
+  for (const geo of geoLower) {
+    const keywords = regionKeywords[geo] ?? [geo];
+    if (keywords.some((kw) => hqLower.includes(kw))) return 12;
+  }
+
+  // Partial overlap — partner is international but requested geography is partially covered
+  // Check capabilities/description for international presence signals
+  const descLower = partner.description.toLowerCase();
+  const capsLower = partner.capabilities.join(' ').toLowerCase();
+  const combined = `${descLower} ${capsLower}`;
+  for (const geo of geoLower) {
+    const keywords = regionKeywords[geo] ?? [geo];
+    if (keywords.some((kw) => combined.includes(kw))) return 8;
+  }
+
+  return 3;
+}
+
+/** Generate rationale string for a nutraceutical partner match */
+function generateNutraRationale(
+  partner: NutraceuticalPartnerProfile,
+  input: NutraceuticalPartnerDiscoveryInput,
+  totalScore: number,
+  breakdown: NutraceuticalPartnerMatch['score_breakdown'],
+): string {
+  const lines: string[] = [];
+
+  // Overall assessment
+  const tier = totalScore >= 70 ? 'strong' : totalScore >= 50 ? 'good' : 'moderate';
+  lines.push(
+    `${partner.company} is a ${partner.partner_type.replace(/_/g, ' ')} with ${tier} alignment (${totalScore}/100) to this ${input.nutraceutical_category.replace(/_/g, ' ')} opportunity.`,
+  );
+
+  // Category insight
+  if (breakdown.category_alignment >= 25) {
+    lines.push(`Directly serves the ${input.nutraceutical_category.replace(/_/g, ' ')} category.`);
+  } else if (breakdown.category_alignment >= 12) {
+    lines.push('Serves related product categories with transferable expertise.');
+  }
+
+  // Channel insight
+  if (breakdown.channel_fit >= 20) {
+    lines.push(`Strong channel overlap across ${input.channels.length > 1 ? 'multiple' : 'the target'} distribution channel${input.channels.length > 1 ? 's' : ''}.`);
+  } else if (breakdown.channel_fit >= 10) {
+    lines.push('Partial channel coverage with expansion potential.');
+  }
+
+  // Capability insight
+  if (breakdown.capability_match >= 20) {
+    lines.push(`Capabilities well-matched to ${input.development_stage.replace(/_/g, ' ')} stage needs.`);
+  }
+
+  // Notable clients
+  if (partner.notable_clients.length > 0) {
+    lines.push(`Works with: ${partner.notable_clients.slice(0, 3).join(', ')}.`);
+  }
+
+  return lines.join(' ');
+}
+
+export async function analyzeNutraceuticalPartners(
+  input: NutraceuticalPartnerDiscoveryInput,
+): Promise<{
+  ranked_partners: NutraceuticalPartnerMatch[];
+  summary: {
+    total_screened: number;
+    total_matched: number;
+    top_tier_count: number;
+    avg_match_score: number;
+  };
+  methodology: string;
+  data_sources: { name: string; type: 'public' | 'proprietary' | 'licensed'; url?: string }[];
+  generated_at: string;
+}> {
+  const {
+    nutraceutical_category,
+    channels,
+    development_stage,
+    geography_rights,
+    partner_types_sought,
+    exclude_companies = [],
+    estimated_revenue_m,
+  } = input;
+
+  // ── Step 1: Filter candidates ──────────────────────────────
+  const excludeSet = new Set(exclude_companies.map((c) => c.toLowerCase()));
+  let candidates: NutraceuticalPartnerProfile[] = NUTRACEUTICAL_PARTNER_DATABASE.filter(
+    (p) => !excludeSet.has(p.company.toLowerCase()),
+  );
+
+  // Filter by partner types sought (if provided)
+  if (partner_types_sought && partner_types_sought.length > 0) {
+    const typeSet = new Set(partner_types_sought);
+    candidates = candidates.filter((p) => typeSet.has(p.partner_type));
+  }
+
+  // ── Step 2: Score each candidate on 5 dimensions ───────────
+  const scored = candidates.map((partner) => {
+    const category_alignment = scoreNutraCategoryAlignment(partner, nutraceutical_category);
+    const channel_fit = scoreNutraChannelFit(partner, channels);
+    const capability_match = scoreNutraCapabilityMatch(partner, development_stage);
+    const scale_appropriateness = scoreNutraScaleAppropriateness(partner, estimated_revenue_m);
+    const geographic_fit = scoreNutraGeographicFit(partner, geography_rights);
+
+    const total = category_alignment + channel_fit + capability_match + scale_appropriateness + geographic_fit;
+
+    return {
+      partner,
+      total,
+      breakdown: {
+        category_alignment,
+        channel_fit,
+        capability_match,
+        scale_appropriateness,
+        geographic_fit,
+      },
+    };
+  });
+
+  // ── Step 3: Sort by total score descending ─────────────────
+  scored.sort((a, b) => b.total - a.total);
+
+  // ── Step 4: Build ranked partner matches (top 15) ──────────
+  const top15 = scored.slice(0, 15);
+
+  const rankedPartners: NutraceuticalPartnerMatch[] = top15.map((item, index) => {
+    const { partner, total, breakdown } = item;
+
+    return {
+      rank: index + 1,
+      company: partner.company,
+      partner_type: partner.partner_type,
+      match_score: total,
+      score_breakdown: breakdown,
+      capabilities: partner.capabilities.slice(0, 6),
+      notable_clients: partner.notable_clients.slice(0, 4),
+      rationale: generateNutraRationale(partner, input, total, breakdown),
+    };
+  });
+
+  // ── Step 5: Summary statistics ─────────────────────────────
+  const matchedCount = scored.length;
+  const topTierCount = scored.filter((s) => s.total >= 60).length;
+  const avgScore = rankedPartners.length > 0
+    ? Math.round(rankedPartners.reduce((s, p) => s + p.match_score, 0) / rankedPartners.length)
+    : 0;
+
+  const methodology = [
+    `Screened ${candidates.length} nutraceutical industry partners against product profile.`,
+    `Scoring methodology: Category Alignment (25 pts), Channel Fit (25 pts), Capability Match (20 pts), Scale Appropriateness (15 pts), Geographic Fit (15 pts).`,
+    `Category alignment evaluates whether the partner serves the target nutraceutical category (${nutraceutical_category.replace(/_/g, ' ')}) or closely related categories.`,
+    `Channel fit measures overlap between the product's target distribution channels and the partner's channel expertise.`,
+    `Capability match assesses whether the partner's core competencies align with the product's current development stage (${development_stage.replace(/_/g, ' ')}).`,
+    `Scale appropriateness evaluates revenue-proportionate fit between the partner's size and the product company's scale.`,
+    `Geographic fit measures alignment between offered geography rights and the partner's operational footprint.`,
+    `Top 15 partners returned, ranked by composite score.`,
+  ].join(' ');
+
+  const dataSources: { name: string; type: 'public' | 'proprietary' | 'licensed'; url?: string }[] = [
+    { name: 'SEC EDGAR Filings', type: 'public', url: 'https://www.sec.gov/edgar/searchedgar/companysearch' },
+    { name: 'NIH Dietary Supplement Label Database', type: 'public', url: 'https://dsld.od.nih.gov' },
+    { name: 'FDA Dietary Supplement Adverse Event Reporting', type: 'public', url: 'https://www.fda.gov/food/dietary-supplements' },
+    { name: 'Nutrition Business Journal Market Reports', type: 'licensed' },
+    { name: 'SPINS / IRI Retail Scanner Data', type: 'licensed' },
+    { name: 'Ambrosia Ventures Proprietary Nutraceutical Intelligence', type: 'proprietary' },
+  ];
+
+  return {
+    ranked_partners: rankedPartners,
+    summary: {
+      total_screened: candidates.length,
+      total_matched: matchedCount,
+      top_tier_count: topTierCount,
+      avg_match_score: avgScore,
+    },
+    methodology,
+    data_sources: dataSources,
+    generated_at: new Date().toISOString(),
   };
 }
