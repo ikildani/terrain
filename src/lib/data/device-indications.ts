@@ -1812,10 +1812,163 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     indication: 'Neovascular AMD',
     clearance_year: 2021,
     regulatory_pathway: 'PMA',
-    hospital_asp_usd: 2200,              // Device implant; drug refills separate
-    typical_reimbursement_usd: 5400,     // Device + initial drug fill; refills ~$5K/6-months
+    hospital_asp_usd: 2200,
+    typical_reimbursement_usd: 5400,
     gross_margin_pct: 72,
     notes: 'Combination product (device + ranibizumab). Transforms monthly injections to 6-month refills. Requires surgical implant procedure (ASC/hospital).',
+  },
+
+  // ── Additional Device ASP Benchmarks ──
+
+  // Spinal
+  {
+    product_name: 'Pedicle Screw System (posterior spinal fusion)',
+    company: 'Medtronic / DePuy Synthes / NuVasive',
+    product_category: 'device_implantable',
+    indication: 'Degenerative Disc Disease / Spinal Stenosis',
+    clearance_year: 2005,
+    regulatory_pathway: '510(k)',
+    hospital_asp_usd: 8500,
+    key_drg: 'DRG 460 (fusion) / DRG 491 (decompression)',
+    drg_payment_usd: 35000,
+    gross_margin_pct: 72,
+    notes: 'Per-level implant set. Multi-level fusions use 2-4x sets. Heavy price pressure from GPO contracts and ASC shift.',
+  },
+  {
+    product_name: 'INFUSE Bone Graft (BMP-2)',
+    company: 'Medtronic',
+    product_category: 'device_implantable',
+    indication: 'Spinal Fusion / Tibial Fracture',
+    clearance_year: 2002,
+    regulatory_pathway: 'PMA',
+    hospital_asp_usd: 4500,
+    gross_margin_pct: 90,
+    notes: 'Biologic. Recombinant BMP-2 on collagen sponge. Was $4-5K per kit. High margin biologic revenue for Medtronic spine division.',
+  },
+
+  // Cardiac Rhythm Management
+  {
+    product_name: 'Micra Transcatheter Pacing System',
+    company: 'Medtronic',
+    product_category: 'device_implantable',
+    indication: 'Bradycardia',
+    clearance_year: 2016,
+    regulatory_pathway: 'PMA',
+    hospital_asp_usd: 19000,
+    key_drg: 'DRG 245 (cardiac defibrillator implant)',
+    drg_payment_usd: 42000,
+    gross_margin_pct: 72,
+    notes: 'Leadless pacemaker. Premium vs. traditional pacemaker ($6-8K) but eliminates pocket/lead complications.',
+  },
+  {
+    product_name: 'EMBLEM S-ICD System',
+    company: 'Boston Scientific',
+    product_category: 'device_implantable',
+    indication: 'Sudden Cardiac Death Prevention',
+    clearance_year: 2012,
+    regulatory_pathway: 'PMA',
+    hospital_asp_usd: 25000,
+    drg_payment_usd: 42000,
+    gross_margin_pct: 68,
+    notes: 'Subcutaneous ICD — no transvenous leads. Growing share vs. traditional ICDs. Battery life ~7 years.',
+  },
+
+  // Ophthalmic
+  {
+    product_name: 'AcrySof IQ PanOptix Trifocal IOL',
+    company: 'Alcon',
+    product_category: 'device_implantable',
+    indication: 'Cataracts / Presbyopia',
+    clearance_year: 2019,
+    regulatory_pathway: 'PMA',
+    hospital_asp_usd: 2400,
+    typical_reimbursement_usd: 1500,
+    gross_margin_pct: 80,
+    notes: 'Premium IOL. CMS reimburses basic IOL ($175); patient pays difference for premium lens ($2-3K out-of-pocket). High-margin upgrade pathway.',
+  },
+  {
+    product_name: 'iStent inject W (MIGS)',
+    company: 'Glaukos',
+    product_category: 'device_implantable',
+    indication: 'Open-Angle Glaucoma',
+    clearance_year: 2018,
+    regulatory_pathway: 'PMA',
+    hospital_asp_usd: 1150,
+    typical_reimbursement_usd: 800,
+    gross_margin_pct: 82,
+    notes: 'Micro-invasive glaucoma surgery device. Implanted during cataract surgery. CPT 0671T/66989 for combined procedure.',
+  },
+
+  // Wound Care / Biologics
+  {
+    product_name: 'Integra Dermal Regeneration Template',
+    company: 'Integra LifeSciences',
+    product_category: 'device_implantable',
+    indication: 'Burns / Complex Wounds',
+    clearance_year: 1996,
+    regulatory_pathway: 'PMA',
+    hospital_asp_usd: 5500,
+    gross_margin_pct: 75,
+    notes: 'Per sheet ($20-25/cm²). Used in burn reconstruction and diabetic wound repair. CMS pass-through for Q4100-Q4116.',
+  },
+
+  // Endoscopy / GI
+  {
+    product_name: 'PillCam SB3 Capsule Endoscopy',
+    company: 'Medtronic (Given Imaging)',
+    product_category: 'device_surgical',
+    indication: 'Small Bowel Imaging / GI Bleeding',
+    clearance_year: 2017,
+    regulatory_pathway: '510(k)',
+    hospital_asp_usd: 550,
+    typical_reimbursement_usd: 950,
+    gross_margin_pct: 70,
+    notes: 'Disposable capsule + reader. CPT 91110. Non-invasive alternative to push enteroscopy. Growing with Crohn\'s monitoring.',
+  },
+
+  // Vascular
+  {
+    product_name: 'GORE EXCLUDER AAA Endoprosthesis',
+    company: 'Gore Medical',
+    product_category: 'device_implantable',
+    indication: 'Abdominal Aortic Aneurysm (AAA)',
+    clearance_year: 2002,
+    regulatory_pathway: 'PMA',
+    hospital_asp_usd: 12000,
+    key_drg: 'DRG 238 (major cardiovascular)',
+    drg_payment_usd: 28000,
+    gross_margin_pct: 70,
+    notes: 'EVAR endograft. Market split among Gore, Medtronic Endurant, Cook Zenith. ~50K EVAR/year in US.',
+  },
+
+  // Diabetes Technology
+  {
+    product_name: 'Omnipod 5 Automated Insulin Delivery',
+    company: 'Insulet',
+    product_category: 'device_monitoring',
+    indication: 'Type 1 Diabetes / Type 2 Diabetes',
+    clearance_year: 2022,
+    regulatory_pathway: '510(k)',
+    hospital_asp_usd: 0,
+    typical_reimbursement_usd: 350,
+    list_price_usd: 450,
+    gross_margin_pct: 55,
+    notes: 'Tubeless insulin pump (disposable pod). Per-month DMEPOS reimbursement. Paired with Dexcom G6/G7 for closed-loop control.',
+  },
+
+  // ENT
+  {
+    product_name: 'Cochlear Nucleus 8 System',
+    company: 'Cochlear Ltd',
+    product_category: 'device_implantable',
+    indication: 'Severe-to-Profound Sensorineural Hearing Loss',
+    clearance_year: 2022,
+    regulatory_pathway: 'PMA',
+    hospital_asp_usd: 30000,
+    key_drg: 'DRG 129',
+    drg_payment_usd: 45000,
+    gross_margin_pct: 70,
+    notes: 'Full cochlear implant system (internal implant + external sound processor). CMS NCD 50.3 covers bilateral.',
   },
 ];
 
