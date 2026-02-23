@@ -411,6 +411,10 @@ export default function CompetitiveLandscapeReport({
           data={csvData}
           filename={`competitive-landscape-${Date.now()}`}
         />
+        <ExportButton
+          format="email"
+          reportTitle={`Competitive Landscape — ${data.summary.indication}`}
+        />
       </div>
 
       {/* ─── 10. Data Sources Footer ─── */}

@@ -1086,3 +1086,320 @@ export interface ProcedureData {
   cagr_5yr: number;
   growth_driver: string;
 }
+
+// ────────────────────────────────────────────────────────────
+// SHARED TYPES FOR COMPETITIVE OUTPUTS
+// (Locally defined to avoid circular imports from index.ts)
+// ────────────────────────────────────────────────────────────
+
+export interface CompetitiveDataSource {
+  name: string;
+  type: 'public' | 'proprietary' | 'licensed';
+  url?: string;
+  last_updated?: string;
+}
+
+export interface CompetitiveComparisonAttribute {
+  attribute: string;
+  competitors: { [company_asset: string]: string | number };
+}
+
+export interface CompetitiveMarketShareDistribution {
+  competitors: { name: string; phase: string; estimated_share_pct: number }[];
+  hhi_index: number;
+  concentration_label: 'Fragmented' | 'Moderate' | 'Concentrated' | 'Monopolistic';
+  top_3_share_pct: number;
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// DEVICE COMPETITIVE LANDSCAPE
+// ────────────────────────────────────────────────────────────
+
+export type DeviceRegulatoryStatus =
+  | 'cleared'         // 510(k) cleared
+  | 'approved'        // PMA approved
+  | 'de_novo'         // De Novo authorized
+  | 'ide_ongoing'     // IDE clinical study active
+  | 'submitted'       // Under FDA review
+  | 'development';    // Pre-submission
+
+export type DeviceRegulatoryPathwayShort = '510k' | 'PMA' | 'De_Novo' | 'HDE' | 'EUA';
+
+export type ClinicalEvidenceLevel =
+  | 'RCT'
+  | 'registry'
+  | 'single_arm'
+  | 'case_series'
+  | 'bench_only';
+
+export type TechnologyReadiness =
+  | 'concept'         // TRL 1-3
+  | 'prototype'       // TRL 4-5
+  | 'clinical'        // TRL 6-7
+  | 'commercial'      // TRL 8-9
+  | 'mature';         // Established, widely adopted
+
+export interface DeviceCompetitor {
+  company: string;
+  device_name: string;
+  device_category: DeviceCategory;
+  procedure_or_condition: string;
+  regulatory_status: DeviceRegulatoryStatus;
+  pathway: DeviceRegulatoryPathwayShort;
+  clearance_date?: string;
+  k_number_or_pma?: string;
+  technology_type: string;
+  installed_base_estimate?: number;
+  estimated_market_share_pct?: number;
+  asp_estimate?: number;
+  reimbursement_status: 'covered' | 'partial' | 'emerging' | 'none';
+  clinical_evidence_level: ClinicalEvidenceLevel;
+  technology_readiness: TechnologyReadiness;
+  differentiation_score: number;   // 1-10
+  evidence_strength: number;       // 1-10
+  strengths: string[];
+  weaknesses: string[];
+  source: string;
+  last_updated: string;
+}
+
+export interface DeviceSwitchingCostAnalysis {
+  factor: string;                  // 'surgeon_training', 'or_workflow', 'capital_investment', 'implant_inventory'
+  severity: 'low' | 'moderate' | 'high';
+  estimated_cost?: number;
+  time_to_switch_months?: number;
+  narrative: string;
+}
+
+export interface PredicateDeviceMapEntry {
+  device_name: string;
+  company: string;
+  k_number: string;
+  clearance_date: string;
+  predicate_k_number?: string;
+  predicate_device_name?: string;
+}
+
+export interface DeviceTechnologyLandscape {
+  technology_type: string;
+  readiness: TechnologyReadiness;
+  competitor_count: number;
+  representative_device: string;
+  growth_trajectory: 'emerging' | 'growing' | 'mature' | 'declining';
+}
+
+export interface DeviceCompetitiveLandscapeInput {
+  procedure_or_condition: string;
+  device_category?: DeviceCategory;
+  technology_type?: string;
+}
+
+export interface DeviceCompetitiveLandscapeOutput {
+  summary: {
+    crowding_score: number;
+    crowding_label: 'Low' | 'Moderate' | 'High' | 'Extremely High';
+    technology_evolution_stage: string;
+    installed_base_concentration: string;
+    white_space: string[];
+    key_insight: string;
+  };
+  cleared_approved_devices: DeviceCompetitor[];
+  pipeline_devices: DeviceCompetitor[];
+  comparison_matrix: CompetitiveComparisonAttribute[];
+  market_share_distribution: CompetitiveMarketShareDistribution;
+  technology_landscape: DeviceTechnologyLandscape[];
+  switching_cost_analysis: DeviceSwitchingCostAnalysis[];
+  predicate_device_map?: PredicateDeviceMapEntry[];
+  deal_benchmark?: {
+    recent_deals: { target: string; acquirer: string; value_m: number; year: number; multiple?: string }[];
+    median_revenue_multiple: number;
+    median_deal_value_m: number;
+  };
+  data_sources: CompetitiveDataSource[];
+  generated_at: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// CDx COMPETITIVE LANDSCAPE
+// ────────────────────────────────────────────────────────────
+
+export type CDxPlatform = 'NGS' | 'PCR' | 'IHC' | 'FISH' | 'liquid_biopsy' | 'ddPCR' | 'microarray';
+
+export type CDxRegulatoryStatus =
+  | 'PMA_approved'
+  | 'cleared'
+  | 'LDT'
+  | 'development'
+  | 'submitted';
+
+export interface CDxCompetitor {
+  company: string;
+  test_name: string;
+  platform: CDxPlatform;
+  biomarkers_covered: string[];
+  linked_drugs: string[];
+  regulatory_status: CDxRegulatoryStatus;
+  genes_in_panel?: number;
+  turnaround_days?: number;
+  test_price_estimate?: number;
+  sample_type: string[];         // 'tissue', 'blood', 'urine'
+  estimated_annual_test_volume?: number;
+  estimated_revenue_m?: number;
+  differentiation_score: number; // 1-10
+  evidence_strength: number;     // 1-10
+  strengths: string[];
+  weaknesses: string[];
+  source: string;
+  last_updated: string;
+}
+
+export interface BiomarkerCompetitionEntry {
+  biomarker: string;
+  tests_detecting: { test_name: string; company: string; platform: CDxPlatform }[];
+  linked_drugs_approved: string[];
+  linked_drugs_pipeline: string[];
+  testing_rate_pct: number;
+  competitive_intensity: 'low' | 'moderate' | 'high' | 'very_high';
+}
+
+export interface CDxPlatformComparison {
+  platform: CDxPlatform;
+  test_count: number;
+  avg_turnaround_days: number;
+  avg_price_estimate: number;
+  biomarker_breadth: 'narrow' | 'moderate' | 'broad';
+  trend: 'growing' | 'stable' | 'declining';
+  narrative: string;
+}
+
+export interface CDxLinkedDrugDependency {
+  drug_name: string;
+  drug_company: string;
+  drug_phase: string;
+  estimated_drug_revenue_m?: number;
+  cdx_tests_linked: string[];
+  cdx_revenue_dependency: 'high' | 'moderate' | 'low';
+}
+
+export interface CDxCompetitiveLandscapeInput {
+  biomarker: string;
+  indication?: string;
+  test_type?: CDxPlatform;
+  linked_drug?: string;
+}
+
+export interface CDxCompetitiveLandscapeOutput {
+  summary: {
+    crowding_score: number;
+    crowding_label: 'Low' | 'Moderate' | 'High' | 'Extremely High';
+    platform_dominant: CDxPlatform;
+    testing_penetration_pct: number;
+    white_space: string[];
+    key_insight: string;
+  };
+  approved_tests: CDxCompetitor[];
+  pipeline_tests: CDxCompetitor[];
+  biomarker_competition_matrix: BiomarkerCompetitionEntry[];
+  platform_comparison: CDxPlatformComparison[];
+  linked_drug_dependency: CDxLinkedDrugDependency[];
+  testing_landscape: {
+    total_estimated_tests_per_year: number;
+    by_platform: { platform: CDxPlatform; share_pct: number }[];
+    growth_rate_pct: number;
+  };
+  comparable_cdx_deals?: {
+    deals: { target: string; acquirer: string; value_m: number; year: number; biomarker_focus?: string }[];
+    median_deal_value_m: number;
+  };
+  comparison_matrix: CompetitiveComparisonAttribute[];
+  data_sources: CompetitiveDataSource[];
+  generated_at: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// NUTRACEUTICAL COMPETITIVE LANDSCAPE
+// ────────────────────────────────────────────────────────────
+
+export type NutraPriceTier = 'mass' | 'premium' | 'clinical_grade' | 'luxury';
+
+export interface NutraBrandCompetitor {
+  brand: string;
+  company: string;
+  primary_ingredient: string;
+  category: NutraceuticalCategory;
+  estimated_revenue_m: number;
+  price_per_unit: number;
+  price_tier: NutraPriceTier;
+  channels: NutraceuticalChannel[];
+  certifications: string[];
+  clinical_studies_count: number;
+  amazon_bsr?: number;
+  amazon_reviews?: number;
+  amazon_rating?: number;
+  differentiation_score: number;  // 1-10
+  evidence_strength: number;      // 1-10
+  strengths: string[];
+  weaknesses: string[];
+}
+
+export interface NutraPricingLandscapeEntry {
+  tier: NutraPriceTier;
+  brand_count: number;
+  price_range: { low: number; high: number };
+  avg_revenue_m: number;
+  representative_brands: string[];
+}
+
+export interface NutraCertificationMatrix {
+  certification: string;
+  brands_with: string[];
+  brands_without: string[];
+  consumer_importance: 'high' | 'moderate' | 'low';
+  cost_to_obtain_k: number;
+}
+
+export interface NutraClinicalEvidenceGap {
+  evidence_area: string;
+  current_studies: number;
+  strongest_evidence: ClinicalEvidenceLevel | 'none';
+  opportunity: string;
+  brands_with_evidence: string[];
+}
+
+export interface NutraAmazonIntelligenceAgg {
+  avg_bsr_top_10: number;
+  avg_reviews_top_10: number;
+  avg_rating_top_10: number;
+  review_velocity_monthly: number;
+  ppc_competitiveness: 'low' | 'moderate' | 'high';
+  subscribe_save_pct: number;
+  narrative: string;
+}
+
+export interface NutraceuticalCompetitiveLandscapeInput {
+  primary_ingredient: string;
+  health_focus?: string;
+  ingredient_category?: NutraceuticalCategory;
+}
+
+export interface NutraceuticalCompetitiveLandscapeOutput {
+  summary: {
+    crowding_score: number;
+    crowding_label: 'Low' | 'Moderate' | 'High' | 'Extremely High';
+    category_revenue_m: number;
+    price_positioning_landscape: string;
+    white_space: string[];
+    key_insight: string;
+  };
+  top_brands: NutraBrandCompetitor[];
+  emerging_brands: NutraBrandCompetitor[];
+  comparison_matrix: CompetitiveComparisonAttribute[];
+  amazon_intelligence: NutraAmazonIntelligenceAgg;
+  channel_distribution: { channel: NutraceuticalChannel; brand_count: number; share_pct: number }[];
+  clinical_evidence_gaps: NutraClinicalEvidenceGap[];
+  pricing_landscape: NutraPricingLandscapeEntry[];
+  certification_matrix: NutraCertificationMatrix[];
+  data_sources: CompetitiveDataSource[];
+  generated_at: string;
+}

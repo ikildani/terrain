@@ -606,14 +606,39 @@ function identifyWhiteSpace(
   // 3. Biomarker selection gap: if no competitors use biomarker selection,
   //    there may be an opportunity for precision medicine differentiation.
   const anyBiomarkerSelected = competitors.some((c) => c.has_biomarker_selection);
-  if (!anyBiomarkerSelected && whiteSpace.length < 5) {
+  if (!anyBiomarkerSelected && whiteSpace.length < 6) {
     whiteSpace.push(
       `No biomarker-selected therapies in ${indicationName} — precision medicine approach could differentiate`
     );
   }
 
-  // Cap at 5
-  return whiteSpace.slice(0, 5);
+  // 4. Combination therapy gap: if most competitors are monotherapy,
+  //    rational combination approaches may be underexplored.
+  const comboCompetitors = competitors.filter(
+    c => c.indication_specifics.includes('+') || c.indication_specifics.toLowerCase().includes('combin')
+  );
+  if (comboCompetitors.length === 0 && competitors.length >= 3 && whiteSpace.length < 6) {
+    whiteSpace.push(
+      `No combination regimens in development for ${indicationName} — rational combos with existing agents could differentiate`
+    );
+  }
+
+  // 5. Geographic gap: if all approved are US-only, EU/Japan represents white space.
+  const approvedRecs = competitors.filter(c => c.phase === 'Approved');
+  if (approvedRecs.length > 0) {
+    const anyEU = approvedRecs.some(c => {
+      const text = ((c as unknown as { key_data?: string }).key_data ?? '').toLowerCase();
+      return text.includes('ema') || text.includes('eu ') || text.includes('europe');
+    });
+    if (!anyEU && whiteSpace.length < 6) {
+      whiteSpace.push(
+        `EU5 may be underserved — ${approvedRecs.length} approved product(s) appear US-centric, potential for ex-US licensing`
+      );
+    }
+  }
+
+  // Cap at 6
+  return whiteSpace.slice(0, 6);
 }
 
 // ────────────────────────────────────────────────────────────
@@ -1705,6 +1730,9 @@ function buildCompetitor(
   const competitiveTimeline = buildCompetitiveTimeline(record);
   const safetyProfile = parseSafetyProfile(record.key_data, record.mechanism_category);
   const dosingConvenience = inferDosingConvenience(record);
+  const exclusivity = inferExclusivity(record);
+  const combinationPartners = inferCombinationPartners(record);
+  const approvedGeographies = inferGeographies(record);
 
   return {
     id: slugify(`${record.indication}-${record.asset_name}`),
@@ -1734,6 +1762,11 @@ function buildCompetitor(
     competitive_timeline: competitiveTimeline,
     safety_profile: safetyProfile,
     dosing_convenience: dosingConvenience,
+    exclusivity_type: exclusivity.type,
+    exclusivity_expiry: exclusivity.expiry,
+    combination_partners: combinationPartners.length > 0 ? combinationPartners : undefined,
+    approved_geographies: approvedGeographies.length > 0 ? approvedGeographies : undefined,
+    line_of_therapy: record.line_of_therapy,
   };
 }
 
@@ -1993,6 +2026,211 @@ function buildDataSources(indicationName: string): DataSource[] {
 }
 
 // ────────────────────────────────────────────────────────────
+// REGULATORY EXCLUSIVITY OVERLAY (Pharma 95→99)
+//
+// Maps approved competitors to their exclusivity type and
+// estimated expiry date based on approval timing and modality.
+// NCE: 5yr from approval, Orphan: 7yr, Biologic: 12yr,
+// Pediatric: +6mo on top of existing exclusivity.
+// ────────────────────────────────────────────────────────────
+
+interface ExclusivityInfo {
+  type: 'NCE' | 'orphan' | 'biologic' | 'pediatric' | 'none';
+  expiry?: string;
+}
+
+function inferExclusivity(record: CompetitorRecord): ExclusivityInfo {
+  if (record.phase !== 'Approved') return { type: 'none' };
+
+  // Estimate approval year from last_updated (proxy for approval window)
+  const approvalYear = parseInt(record.last_updated.slice(0, 4), 10) || 2020;
+  const mechLower = record.mechanism.toLowerCase();
+
+  // Determine exclusivity type
+  if (record.orphan_drug) {
+    const expiryYear = approvalYear + 7;
+    return { type: 'orphan', expiry: `${expiryYear}-12-31` };
+  }
+
+  const isBiologic = mechLower.includes('antibody') || mechLower.includes('adc') ||
+    mechLower.includes('bispecific') || mechLower.includes('car-t') || mechLower.includes('car_t') ||
+    mechLower.includes('gene therapy') || mechLower.includes('gene_therapy') ||
+    mechLower.includes('fusion protein') || mechLower.includes('biologic');
+
+  if (isBiologic) {
+    const expiryYear = approvalYear + 12;
+    return { type: 'biologic', expiry: `${expiryYear}-12-31` };
+  }
+
+  // Default NCE: 5 years
+  if (record.first_in_class) {
+    const expiryYear = approvalYear + 5;
+    return { type: 'NCE', expiry: `${expiryYear}-12-31` };
+  }
+
+  return { type: 'none' };
+}
+
+// ────────────────────────────────────────────────────────────
+// COMBINATION REGIMEN MAPPING (Pharma 95→99)
+//
+// Infers combination partners from key_data free text.
+// Tracks which competitors are used in combination, affecting
+// white space analysis (combo opportunities).
+// ────────────────────────────────────────────────────────────
+
+const KNOWN_COMBO_AGENTS = [
+  'chemotherapy', 'chemo', 'platinum', 'carboplatin', 'cisplatin', 'pemetrexed',
+  'lenvatinib', 'bevacizumab', 'trastuzumab', 'rituximab', 'pertuzumab',
+  'pembrolizumab', 'nivolumab', 'ipilimumab', 'atezolizumab', 'durvalumab',
+  'olaparib', 'rucaparib', 'niraparib', 'tucatinib', 'lapatinib',
+  'dexamethasone', 'lenalidomide', 'pomalidomide', 'bortezomib', 'carfilzomib',
+  'venetoclax', 'obinutuzumab', 'ibrutinib', 'acalabrutinib',
+];
+
+function inferCombinationPartners(record: CompetitorRecord): string[] {
+  if (!record.key_data && !record.indication_specifics) return [];
+
+  const text = (
+    (record.key_data ?? '') + ' ' + (record.indication_specifics ?? '')
+  ).toLowerCase();
+
+  const partners: string[] = [];
+
+  // Check for explicit combination language
+  if (!text.includes('+') && !text.includes('combin') && !text.includes('plus ') &&
+      !text.includes('with ') && !text.includes('added to')) {
+    return [];
+  }
+
+  for (const agent of KNOWN_COMBO_AGENTS) {
+    if (text.includes(agent) && !record.asset_name.toLowerCase().includes(agent)) {
+      // Capitalize first letter
+      partners.push(agent.charAt(0).toUpperCase() + agent.slice(1));
+    }
+  }
+
+  return Array.from(new Set(partners)).slice(0, 5);
+}
+
+// ────────────────────────────────────────────────────────────
+// GEOGRAPHIC AVAILABILITY (Pharma 95→99)
+//
+// Infers approved geographies from key_data and indication
+// specifics. US-only approval = EU/Japan white space.
+// ────────────────────────────────────────────────────────────
+
+function inferGeographies(record: CompetitorRecord): string[] {
+  if (record.phase !== 'Approved') return [];
+
+  const text = (
+    (record.key_data ?? '') + ' ' + (record.indication_specifics ?? '') + ' ' + (record.source ?? '')
+  ).toLowerCase();
+
+  const geos: string[] = [];
+
+  // Most approved drugs in our US-centric DB are US-approved
+  geos.push('US');
+
+  // Look for EMA / EU signals
+  if (text.includes('ema') || text.includes('eu ') || text.includes('europe') ||
+      text.includes('chmp') || text.includes('epar')) {
+    geos.push('EU');
+  }
+
+  // Japan
+  if (text.includes('pmda') || text.includes('japan') || text.includes('mhlw')) {
+    geos.push('Japan');
+  }
+
+  // China
+  if (text.includes('nmpa') || text.includes('china') || text.includes('cfda')) {
+    geos.push('China');
+  }
+
+  return geos;
+}
+
+// ────────────────────────────────────────────────────────────
+// PATENT CLIFF TIMELINE (Pharma 95→99)
+//
+// Generates a timeline of exclusivity windows for approved
+// competitors. Cross-references partner DB LOE data when
+// available.
+// ────────────────────────────────────────────────────────────
+
+function buildPatentCliffTimeline(
+  competitors: Competitor[],
+  competitorRecords: CompetitorRecord[],
+): { company: string; asset: string; exclusivity_type: string; expiry: string; revenue_at_risk?: string }[] {
+  const timeline: { company: string; asset: string; exclusivity_type: string; expiry: string; revenue_at_risk?: string }[] = [];
+
+  for (let i = 0; i < competitors.length; i++) {
+    const comp = competitors[i];
+    if (comp.phase !== 'Approved') continue;
+    if (!comp.exclusivity_type || comp.exclusivity_type === 'none') continue;
+    if (!comp.exclusivity_expiry) continue;
+
+    timeline.push({
+      company: comp.company,
+      asset: comp.asset_name,
+      exclusivity_type: comp.exclusivity_type,
+      expiry: comp.exclusivity_expiry,
+      revenue_at_risk: comp.estimated_peak_sales,
+    });
+  }
+
+  // Sort by expiry date
+  timeline.sort((a, b) => a.expiry.localeCompare(b.expiry));
+
+  return timeline;
+}
+
+// ────────────────────────────────────────────────────────────
+// LINE-OF-THERAPY CROWDING SEGMENTATION (Pharma 95→99)
+//
+// Weights crowding by line of therapy. 1L is typically more
+// crowded than 3L+. Breaks down competitor counts per LOT.
+// ────────────────────────────────────────────────────────────
+
+function buildLOTCrowding(
+  competitorRecords: CompetitorRecord[],
+): { line: string; competitor_count: number; approved_count: number; crowding_intensity: 'low' | 'moderate' | 'high' }[] {
+  const lotBuckets: Record<string, { total: number; approved: number }> = {};
+
+  for (const r of competitorRecords) {
+    const lot = r.line_of_therapy || 'unspecified';
+    if (!lotBuckets[lot]) lotBuckets[lot] = { total: 0, approved: 0 };
+    lotBuckets[lot].total++;
+    if (r.phase === 'Approved') lotBuckets[lot].approved++;
+  }
+
+  const result: { line: string; competitor_count: number; approved_count: number; crowding_intensity: 'low' | 'moderate' | 'high' }[] = [];
+
+  // Define display order
+  const lotOrder = ['1L', '2L', '2L+', '3L+', 'maintenance', 'adjuvant', 'neoadjuvant', 'unspecified'];
+
+  for (const lot of lotOrder) {
+    const bucket = lotBuckets[lot];
+    if (!bucket) continue;
+
+    let intensity: 'low' | 'moderate' | 'high';
+    if (bucket.approved >= 4 || bucket.total >= 8) intensity = 'high';
+    else if (bucket.approved >= 2 || bucket.total >= 4) intensity = 'moderate';
+    else intensity = 'low';
+
+    result.push({
+      line: lot,
+      competitor_count: bucket.total,
+      approved_count: bucket.approved,
+      crowding_intensity: intensity,
+    });
+  }
+
+  return result;
+}
+
+// ────────────────────────────────────────────────────────────
 // MAIN FUNCTION: analyzeCompetitiveLandscape
 //
 // This is the primary entry point for the competitive
@@ -2151,6 +2389,12 @@ export async function analyzeCompetitiveLandscape(
   // ── Step 14b: Assess displacement risk ────────────────────
   const displacementRisk = assessDisplacementRisk(competitors, input.mechanism);
 
+  // ── Step 14c: Build patent cliff timeline ─────────────────
+  const patentCliffTimeline = buildPatentCliffTimeline(competitors, competitorRecords);
+
+  // ── Step 14d: Build LOT crowding segmentation ─────────────
+  const lotCrowding = buildLOTCrowding(competitorRecords);
+
   // ── Step 15: Assemble final output ────────────────────────
   const summary: LandscapeSummary = {
     indication: indication.name,
@@ -2176,6 +2420,8 @@ export async function analyzeCompetitiveLandscape(
     competitive_timelines: competitiveTimelines,
     market_share_distribution: marketShareDistribution,
     competitor_success_probabilities: competitorSuccessProbabilities,
+    patent_cliff_timeline: patentCliffTimeline.length > 0 ? patentCliffTimeline : undefined,
+    lot_crowding: lotCrowding.length > 0 ? lotCrowding : undefined,
   };
 
   return output;

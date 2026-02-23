@@ -1156,6 +1156,87 @@ body {
 }
 
 /* ============================================
+   RESPONSIVE (Mobile breakpoint)
+   ============================================ */
+
+@media (max-width: 640px) {
+  .page-content {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .font-display {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  h1.font-display {
+    font-size: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 12px 14px;
+  }
+
+  /* Stack stat grids vertically */
+  .stat-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Scrollable tables */
+  .data-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table {
+    min-width: 600px;
+  }
+
+  .chart-container {
+    min-height: 200px;
+  }
+
+  /* Stack action bars vertically */
+  .action-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .action-bar .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Full-width form inputs */
+  .input,
+  .select {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   STICKY TABLE HEADERS
+   ============================================ */
+
+.data-table-wrapper {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--navy-800);
+}
+
+/* ============================================
    ACCESSIBILITY — FOCUS INDICATORS
    ============================================ */
 

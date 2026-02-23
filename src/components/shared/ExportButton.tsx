@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Lock, Loader2 } from 'lucide-react';
+import { Download, Lock, Loader2, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useSubscription } from '@/hooks/useSubscription';
+import { toast } from 'sonner';
 
 interface ExportButtonProps {
-  format: 'pdf' | 'csv';
+  format: 'pdf' | 'csv' | 'email';
   data?: Record<string, unknown>[];
   filename?: string;
   className?: string;
@@ -18,7 +19,7 @@ interface ExportButtonProps {
   reportSubtitle?: string;
 }
 
-const formatLabels = { pdf: 'PDF', csv: 'CSV' };
+const formatLabels = { pdf: 'PDF', csv: 'CSV', email: 'Email Report' };
 
 function exportCSV(data: Record<string, unknown>[], filename: string) {
   if (!data || data.length === 0) return;
@@ -80,7 +81,24 @@ export function ExportButton({
           // Fallback to print
           window.print();
         }
+      } else if (format === 'email') {
+        const res = await fetch('/api/email/report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reportTitle, reportSubtitle }),
+        });
+        const result = await res.json();
+        if (result.success) {
+          toast.success('Report sent to your email');
+        } else {
+          toast.error(result.error || 'Failed to send email');
+        }
       }
+    } catch (err) {
+      if (format === 'email') {
+        toast.error('Failed to send email');
+      }
+      console.error('Export failed:', err);
     } finally {
       setTimeout(() => setIsExporting(false), 800);
     }
@@ -90,11 +108,15 @@ export function ExportButton({
     return (
       <button className={cn('btn btn-secondary opacity-50 cursor-not-allowed', className)} disabled>
         <Lock className="w-3.5 h-3.5" />
-        Export {formatLabels[format]}
+        {format === 'email' ? 'Email Report' : `Export ${formatLabels[format]}`}
         <span className="badge-pro text-[8px] px-1 py-0">PRO</span>
       </button>
     );
   }
+
+  const Icon = format === 'email' ? Mail : Download;
+  const label = format === 'email' ? 'Email Report' : `Export ${formatLabels[format]}`;
+  const loadingLabel = format === 'email' ? 'Sending...' : 'Generating...';
 
   return (
     <button
@@ -105,9 +127,9 @@ export function ExportButton({
       {isExporting ? (
         <Loader2 className="w-3.5 h-3.5 animate-spin" />
       ) : (
-        <Download className="w-3.5 h-3.5" />
+        <Icon className="w-3.5 h-3.5" />
       )}
-      {isExporting ? 'Generating...' : `Export ${formatLabels[format]}`}
+      {isExporting ? loadingLabel : label}
     </button>
   );
 }

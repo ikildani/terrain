@@ -11,6 +11,10 @@ export type { PredicateDeviceRecord, DeviceClinicalEvidenceStrategy, DeviceIndic
 export type { DevicePartnerDiscoveryInput, DevicePartnerMatch, DeviceAcquisitionProbability, DeviceRegulatoryTrackRecord, DistributionStrengthAssessment, DeviceDealStructureModel } from './devices-diagnostics';
 export type { NutraceuticalCategory, NutraceuticalChannel, ClaimType, NutraceuticalMarketSizingInput } from './devices-diagnostics';
 export type { NutraceuticalMarketSizingOutput, NutraceuticalPartnerProfile, NutraceuticalPartnerMatch, NutraceuticalPartnerDiscoveryInput, NutraceuticalPartnerType, NutraceuticalConsumerFunnel, NutraceuticalChannelRevenue, NutraceuticalDTCEconomics, NutraceuticalRegulatoryAssessment, NutraceuticalCompetitivePositioning, NutraceuticalAmazonIntelligence, NutraceuticalAcquisitionAttractiveness } from './devices-diagnostics';
+export type { CompetitiveDataSource, CompetitiveComparisonAttribute, CompetitiveMarketShareDistribution } from './devices-diagnostics';
+export type { DeviceRegulatoryStatus, DeviceRegulatoryPathwayShort, ClinicalEvidenceLevel, TechnologyReadiness, DeviceCompetitor, DeviceSwitchingCostAnalysis, PredicateDeviceMapEntry, DeviceTechnologyLandscape, DeviceCompetitiveLandscapeInput, DeviceCompetitiveLandscapeOutput } from './devices-diagnostics';
+export type { CDxPlatform, CDxRegulatoryStatus, CDxCompetitor, BiomarkerCompetitionEntry, CDxPlatformComparison, CDxLinkedDrugDependency, CDxCompetitiveLandscapeInput, CDxCompetitiveLandscapeOutput } from './devices-diagnostics';
+export type { NutraPriceTier, NutraBrandCompetitor, NutraPricingLandscapeEntry, NutraCertificationMatrix, NutraClinicalEvidenceGap, NutraAmazonIntelligenceAgg, NutraceuticalCompetitiveLandscapeInput, NutraceuticalCompetitiveLandscapeOutput } from './devices-diagnostics';
 
 // ────────────────────────────────────────────────────────────
 // USERS & AUTH
@@ -785,6 +789,11 @@ export interface Competitor {
   efficacy_deltas?: EfficacyDelta[];
   safety_profile?: SafetyProfile;
   dosing_convenience?: DosingConvenience;
+  exclusivity_type?: 'NCE' | 'orphan' | 'biologic' | 'pediatric' | 'none';
+  exclusivity_expiry?: string;          // ISO date
+  combination_partners?: string[];
+  approved_geographies?: string[];
+  line_of_therapy?: string;
 }
 
 export interface LandscapeSummary {
@@ -811,6 +820,8 @@ export interface CompetitiveLandscapeOutput {
   competitive_timelines?: CompetitiveTimeline[];
   market_share_distribution?: MarketShareDistribution;
   competitor_success_probabilities?: CompetitorSuccessProbability[];
+  patent_cliff_timeline?: { company: string; asset: string; exclusivity_type: string; expiry: string; revenue_at_risk?: string }[];
+  lot_crowding?: { line: string; competitor_count: number; approved_count: number; crowding_intensity: 'low' | 'moderate' | 'high' }[];
 }
 
 export interface ComparisonAttribute {

@@ -169,6 +169,11 @@ export default function PartnerDiscoveryReport({ data, input }: PartnerDiscovery
             reportTitle="Partner Discovery Report"
             reportSubtitle={`${data.summary.indication} — ${formatStage(data.summary.development_stage)}`}
           />
+          <ExportButton
+            format="email"
+            reportTitle="Partner Discovery Report"
+            reportSubtitle={`${data.summary.indication} — ${formatStage(data.summary.development_stage)}`}
+          />
           {reportData && <SaveReportButton reportData={reportData} />}
         </div>
       </div>
