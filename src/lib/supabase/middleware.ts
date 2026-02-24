@@ -42,10 +42,25 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+  // Protect all authenticated routes
+  // The (dashboard) route group doesn't add /dashboard to URLs,
+  // so module pages like /market-sizing, /competitive, etc. need explicit protection.
+  const PROTECTED_PREFIXES = [
+    '/dashboard',
+    '/market-sizing',
+    '/competitive',
+    '/partners',
+    '/regulatory',
+    '/reports',
+    '/settings',
+  ];
+  const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) => request.nextUrl.pathname.startsWith(prefix));
+
+  if (isProtectedRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);

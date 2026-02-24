@@ -13,6 +13,9 @@ import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
 const MarketSizingReport = dynamic(() => import('@/components/market-sizing/MarketSizingReport'));
 const DeviceMarketSizingReport = dynamic(() => import('@/components/market-sizing/DeviceMarketSizingReport'));
 const CDxMarketSizingReport = dynamic(() => import('@/components/market-sizing/CDxMarketSizingReport'));
+const NutraceuticalMarketSizingReport = dynamic(
+  () => import('@/components/market-sizing/NutraceuticalMarketSizingReport'),
+);
 const PdfPreviewOverlay = dynamic(() =>
   import('@/components/shared/PdfPreviewOverlay').then((mod) => ({ default: mod.PdfPreviewOverlay })),
 );
@@ -21,11 +24,12 @@ import type {
   MarketSizingInput,
   DeviceMarketSizingOutput,
   CDxOutput,
+  NutraceuticalMarketSizingOutput,
   DeviceMarketSizingInput,
   CDxMarketSizingInput,
 } from '@/types';
 
-type MarketSizingResult = MarketSizingOutput | DeviceMarketSizingOutput | CDxOutput;
+type MarketSizingResult = MarketSizingOutput | DeviceMarketSizingOutput | CDxOutput | NutraceuticalMarketSizingOutput;
 
 function isPharma(category: string): boolean {
   return category === 'pharmaceutical' || category.startsWith('pharma');
@@ -42,6 +46,10 @@ function isCDx(category: string): boolean {
     category === 'diagnostics_companion' ||
     category === 'diagnostics_ivd'
   );
+}
+
+function isNutraceutical(category: string): boolean {
+  return category === 'nutraceutical' || category.startsWith('nutra');
 }
 
 function ResultsSkeleton() {
@@ -147,6 +155,17 @@ export default function MarketSizingPage() {
       );
     }
 
+    if (isNutraceutical(productCategory)) {
+      return (
+        <NutraceuticalMarketSizingReport
+          data={results as NutraceuticalMarketSizingOutput}
+          input={formInput as Record<string, unknown>}
+          previewMode={preview}
+          onPdfExport={pdfExport}
+        />
+      );
+    }
+
     // Default: pharmaceutical
     return (
       <MarketSizingReport
@@ -191,7 +210,7 @@ export default function MarketSizingPage() {
         onClose={() => setPreviewOpen(false)}
         reportTitle={
           formInput
-            ? `${(formInput as Record<string, unknown>).indication || (formInput as Record<string, unknown>).procedure_or_condition || (formInput as Record<string, unknown>).drug_indication || 'Market'} — Market Sizing`
+            ? `${(formInput as Record<string, unknown>).indication || (formInput as Record<string, unknown>).procedure_or_condition || (formInput as Record<string, unknown>).drug_indication || (formInput as Record<string, unknown>).primary_ingredient || 'Market'} — Market Sizing`
             : 'Market Sizing Report'
         }
         reportSubtitle={productCategory !== 'pharmaceutical' ? productCategory.replace(/_/g, ' ') : undefined}

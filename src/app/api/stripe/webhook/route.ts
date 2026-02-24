@@ -10,17 +10,13 @@ import { captureApiError } from '@/lib/utils/sentry';
 // ────────────────────────────────────────────────────────────
 
 function createServiceClient() {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      cookies: {
-        get: () => undefined,
-        set: () => {},
-        remove: () => {},
-      },
-    }
-  );
+  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    cookies: {
+      get: () => undefined,
+      set: () => {},
+      remove: () => {},
+    },
+  });
 }
 
 // ────────────────────────────────────────────────────────────
@@ -53,7 +49,7 @@ function isDuplicate(eventId: string): boolean {
 
 async function upsertSubscription(
   supabase: ReturnType<typeof createServiceClient>,
-  stripeSubscription: Stripe.Subscription
+  stripeSubscription: Stripe.Subscription,
 ) {
   const userId = stripeSubscription.metadata?.supabase_user_id;
   if (!userId) {
@@ -78,12 +74,8 @@ async function upsertSubscription(
       stripe_customer_id: stripeSubscription.customer as string,
       plan,
       status: stripeSubscription.status,
-      current_period_start: new Date(
-        stripeSubscription.current_period_start * 1000
-      ).toISOString(),
-      current_period_end: new Date(
-        stripeSubscription.current_period_end * 1000
-      ).toISOString(),
+      current_period_start: new Date(stripeSubscription.current_period_start * 1000).toISOString(),
+      current_period_end: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
       cancel_at_period_end: stripeSubscription.cancel_at_period_end,
       updated_at: new Date().toISOString(),
     })
@@ -106,20 +98,13 @@ export async function POST(request: NextRequest) {
   const sig = request.headers.get('stripe-signature');
 
   if (!sig) {
-    return NextResponse.json(
-      { error: 'Missing stripe-signature header.' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Missing stripe-signature header.' }, { status: 400 });
   }
 
   // ── Signature verification ─────────────────────────────────
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
+    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
   } catch (err) {
     logger.error('webhook_signature_failed', {
       error: err instanceof Error ? err.message : 'Unknown error',
@@ -162,9 +147,7 @@ export async function POST(request: NextRequest) {
                 const price = planName === 'Team' ? '$499' : '$149';
 
                 const { sendEmail } = await import('@/lib/email');
-                const { SubscriptionConfirmationEmail } = await import(
-                  '@/emails/SubscriptionConfirmationEmail'
-                );
+                const { SubscriptionConfirmationEmail } = await import('@/emails/SubscriptionConfirmationEmail');
 
                 await sendEmail({
                   to: profile.email as string,
@@ -173,9 +156,7 @@ export async function POST(request: NextRequest) {
                     userName: (profile.full_name as string) || '',
                     planName,
                     price,
-                    nextBillingDate: new Date(
-                      sub.current_period_end * 1000
-                    ).toLocaleDateString('en-US', {
+                    nextBillingDate: new Date(sub.current_period_end * 1000).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
@@ -229,17 +210,19 @@ export async function POST(request: NextRequest) {
                 .single();
 
               if (profile?.email) {
+                const planItem = sub.items.data[0];
+                const priceId = planItem?.price?.id;
+                const cancelledPlanName = priceId === process.env.STRIPE_TEAM_PRICE_ID ? 'Team' : 'Pro';
+
                 const { sendEmail } = await import('@/lib/email');
-                const { CancellationConfirmationEmail } = await import(
-                  '@/emails/CancellationConfirmationEmail'
-                );
+                const { CancellationConfirmationEmail } = await import('@/emails/CancellationConfirmationEmail');
 
                 await sendEmail({
                   to: profile.email as string,
                   subject: 'Your Terrain subscription has been cancelled',
                   react: CancellationConfirmationEmail({
                     userName: (profile.full_name as string) || '',
-                    planName: 'Pro',
+                    planName: cancelledPlanName,
                     accessEndDate: sub.current_period_end
                       ? new Date(sub.current_period_end * 1000).toLocaleDateString('en-US', {
                           year: 'numeric',
@@ -295,18 +278,14 @@ export async function POST(request: NextRequest) {
 
               if (profile?.email) {
                 const { sendEmail } = await import('@/lib/email');
-                const { PaymentFailedEmail } = await import(
-                  '@/emails/PaymentFailedEmail'
-                );
+                const { PaymentFailedEmail } = await import('@/emails/PaymentFailedEmail');
 
                 await sendEmail({
                   to: profile.email as string,
                   subject: 'Action required: Terrain payment failed',
                   react: PaymentFailedEmail({
                     userName: (profile.full_name as string) || '',
-                    invoiceAmount: invoice.amount_due
-                      ? `$${(invoice.amount_due / 100).toFixed(2)}`
-                      : '',
+                    invoiceAmount: invoice.amount_due ? `$${(invoice.amount_due / 100).toFixed(2)}` : '',
                     billingPortalUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://terrain.ambrosiaventures.co'}/settings/billing`,
                   }),
                   tags: [{ name: 'type', value: 'payment_failed' }],
@@ -346,10 +325,7 @@ export async function POST(request: NextRequest) {
     // Remove from dedup set so retries can be processed
     processedEvents.delete(event.id);
 
-    return NextResponse.json(
-      { error: 'Webhook handler failed.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Webhook handler failed.' }, { status: 500 });
   }
 
   logger.info('webhook_processed', {
