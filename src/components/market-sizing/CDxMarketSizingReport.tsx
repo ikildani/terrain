@@ -3,17 +3,12 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
-import {
-  formatMetric,
-  formatCurrency,
-  formatPercent,
-  formatNumber,
-} from '@/lib/utils/format';
+import { formatMetric, formatCurrency, formatPercent, formatNumber } from '@/lib/utils/format';
 import { StatCard } from '@/components/shared/StatCard';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import { ConfidentialFooter } from '@/components/shared/ConfidentialFooter';
 import { ExportButton } from '@/components/shared/ExportButton';
-import { SaveReportButton } from '@/components/shared/SaveReportButton';
+import { BookmarkCheck } from 'lucide-react';
 import CDxTestingFunnelChart from './CDxTestingFunnelChart';
 import type { CDxOutput, CDxMarketSizingInput, CDxDeal } from '@/types';
 
@@ -197,28 +192,17 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
       <div className="card noise">
         <h3 className="chart-title">Executive Summary</h3>
         <p className="text-xs text-slate-400 leading-relaxed">
-          The companion diagnostic opportunity for{' '}
-          <span className="text-white font-medium">{displayName}</span> in{' '}
-          <span className="text-white font-medium">{input.drug_indication}</span> represents an
-          annual test volume of{' '}
-          <span className="metric text-teal-400">
-            {formatNumber(summary.annual_test_volume)}
-          </span>{' '}
-          tests, generating estimated CDx revenue of{' '}
-          <span className="metric text-white">
-            {formatMetric(summary.cdx_revenue.value, summary.cdx_revenue.unit)}
-          </span>{' '}
-          at{' '}
-          <span className="metric text-white">{summary.test_reimbursement}</span>{' '}
-          reimbursement. The testing funnel is driven by a US indication incidence of{' '}
-          <span className="metric text-white">
-            {formatNumber(summary.linked_drug_indication_incidence_us)}
-          </span>{' '}
+          The companion diagnostic opportunity for <span className="text-white font-medium">{displayName}</span> in{' '}
+          <span className="text-white font-medium">{input.drug_indication}</span> represents an annual test volume of{' '}
+          <span className="metric text-teal-400">{formatNumber(summary.annual_test_volume)}</span> tests, generating
+          estimated CDx revenue of{' '}
+          <span className="metric text-white">{formatMetric(summary.cdx_revenue.value, summary.cdx_revenue.unit)}</span>{' '}
+          at <span className="metric text-white">{summary.test_reimbursement}</span> reimbursement. The testing funnel
+          is driven by a US indication incidence of{' '}
+          <span className="metric text-white">{formatNumber(summary.linked_drug_indication_incidence_us)}</span>{' '}
           patients, with biomarker prevalence of{' '}
-          <span className="metric text-white">
-            {formatPercent(input.biomarker_prevalence_pct, 0)}
-          </span>{' '}
-          filtering to the addressable CDx population. Monitoring retests add{' '}
+          <span className="metric text-white">{formatPercent(input.biomarker_prevalence_pct, 0)}</span> filtering to the
+          addressable CDx population. Monitoring retests add{' '}
           <span className="metric text-white">
             {formatNumber(data.patient_testing_funnel.monitoring_retests_annual)}
           </span>{' '}
@@ -248,11 +232,7 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
           confidence={summary.cdx_revenue.confidence}
           source="Terrain Analysis"
         />
-        <StatCard
-          label="Test Reimbursement"
-          value={summary.test_reimbursement}
-          source="CMS / Commercial Payer Data"
-        />
+        <StatCard label="Test Reimbursement" value={summary.test_reimbursement} source="CMS / Commercial Payer Data" />
       </div>
 
       {/* ──────────────────────────────────────────────────────
@@ -270,9 +250,7 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
           <div className="space-y-4">
             <div className="flex items-center justify-between py-2 border-b border-navy-700">
               <span className="text-xs text-slate-500">Revenue Per Test (Gross)</span>
-              <span className="metric text-sm text-white">
-                {formatCurrency(economics.revenue_per_test_gross)}
-              </span>
+              <span className="metric text-sm text-white">{formatCurrency(economics.revenue_per_test_gross)}</span>
             </div>
 
             <div className="flex items-start justify-between py-2 border-b border-navy-700">
@@ -292,9 +270,7 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
             {economics.cms_reimbursement_rate != null && (
               <div className="flex items-center justify-between py-2 border-b border-navy-700">
                 <span className="text-xs text-slate-500">CMS Rate</span>
-                <span className="metric text-sm text-white">
-                  {formatCurrency(economics.cms_reimbursement_rate)}
-                </span>
+                <span className="metric text-sm text-white">{formatCurrency(economics.cms_reimbursement_rate)}</span>
               </div>
             )}
 
@@ -310,16 +286,12 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
           <div className="space-y-4">
             <div className="flex items-center justify-between py-2 border-b border-navy-700">
               <span className="text-xs text-slate-500">Gross-to-Net</span>
-              <span className="metric text-sm text-white">
-                {formatPercent(economics.gross_to_net_pct, 0)}
-              </span>
+              <span className="metric text-sm text-white">{formatPercent(economics.gross_to_net_pct, 0)}</span>
             </div>
 
             <div className="flex items-center justify-between py-2 border-b border-navy-700">
               <span className="text-xs text-slate-500">Net Revenue Per Test</span>
-              <span className="metric text-sm text-teal-400">
-                {formatCurrency(economics.net_revenue_per_test)}
-              </span>
+              <span className="metric text-sm text-teal-400">{formatCurrency(economics.net_revenue_per_test)}</span>
             </div>
 
             <div className="py-2 border-b border-navy-700">
@@ -360,41 +332,29 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
         {/* Narrative blocks */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="p-3 bg-navy-800/50 rounded-md">
-            <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">
-              Typical Deal Type
-            </span>
+            <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Typical Deal Type</span>
             <p className="text-xs text-slate-300 leading-relaxed">{deals.typical_deal_type}</p>
           </div>
           <div className="p-3 bg-navy-800/50 rounded-md">
-            <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">
-              CDx Partner Economics
-            </span>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              {deals.cdx_partner_economics}
-            </p>
+            <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">CDx Partner Economics</span>
+            <p className="text-xs text-slate-300 leading-relaxed">{deals.cdx_partner_economics}</p>
           </div>
           <div className="p-3 bg-navy-800/50 rounded-md">
-            <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">
-              Milestones
-            </span>
+            <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Milestones</span>
             <p className="text-xs text-slate-300 leading-relaxed">{deals.milestones}</p>
           </div>
           <div className="p-3 bg-navy-800/50 rounded-md">
             <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">
               Royalty / Supply Structure
             </span>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              {deals.royalty_or_supply_structure}
-            </p>
+            <p className="text-xs text-slate-300 leading-relaxed">{deals.royalty_or_supply_structure}</p>
           </div>
         </div>
 
         {/* Comparable Deals table */}
         {deals.comparable_deals.length > 0 && (
           <>
-            <div className="text-xs text-slate-500 uppercase tracking-wider mb-3">
-              Comparable Deals
-            </div>
+            <div className="text-xs text-slate-500 uppercase tracking-wider mb-3">Comparable Deals</div>
             <div className="overflow-x-auto">
               <table className="data-table">
                 <thead>
@@ -429,7 +389,7 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
                             'phase-badge',
                             deal.status === 'approved' && 'phase-approved',
                             deal.status === 'clinical' && 'phase-2',
-                            deal.status === 'pending' && 'phase-1'
+                            deal.status === 'pending' && 'phase-1',
                           )}
                         >
                           {deal.status}
@@ -452,12 +412,7 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
         <div className="space-y-4">
           {/* FDA Pathway Badge + Co-review */}
           <div className="flex items-center gap-4 flex-wrap">
-            <span
-              className={cn(
-                'phase-badge text-xs px-3 py-1',
-                getPathwayBadgeClass(regulatory.fda_pathway)
-              )}
-            >
+            <span className={cn('phase-badge text-xs px-3 py-1', getPathwayBadgeClass(regulatory.fda_pathway))}>
               {regulatory.fda_pathway}
             </span>
 
@@ -479,28 +434,20 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
           {/* Timeline */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-3 bg-navy-800/50 rounded-md">
-              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">
-                Timeline
-              </span>
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Timeline</span>
               <span className="metric text-sm text-white">
                 {regulatory.timeline_months.optimistic}–{regulatory.timeline_months.realistic} months
               </span>
-              <span className="text-2xs text-slate-500 block mt-0.5">
-                Optimistic to Realistic
-              </span>
+              <span className="text-2xs text-slate-500 block mt-0.5">Optimistic to Realistic</span>
             </div>
 
             <div className="p-3 bg-navy-800/50 rounded-md">
-              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">
-                EU IVDR Class
-              </span>
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">EU IVDR Class</span>
               <span className="text-xs text-slate-300">{regulatory.eu_ivdr_class}</span>
             </div>
 
             <div className="p-3 bg-navy-800/50 rounded-md">
-              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">
-                Co-Review
-              </span>
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Co-Review</span>
               <span className="text-xs text-slate-300">
                 {regulatory.co_review_with_drug
                   ? 'CDx PMA reviewed in parallel with drug NDA/BLA'
@@ -512,9 +459,7 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
           {/* Post-Approval Requirements */}
           {regulatory.post_approval_requirements.length > 0 && (
             <div>
-              <h4 className="text-xs text-slate-300 font-medium mb-2">
-                Post-Approval Requirements
-              </h4>
+              <h4 className="text-xs text-slate-300 font-medium mb-2">Post-Approval Requirements</h4>
               <ul className="space-y-1">
                 {regulatory.post_approval_requirements.map((req, i) => (
                   <li key={i} className="text-xs text-slate-500 flex items-start gap-2">
@@ -537,9 +482,7 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
         {/* Approved Tests */}
         {landscape.approved_tests.length > 0 && (
           <div className="mb-6">
-            <div className="text-xs text-slate-500 uppercase tracking-wider mb-3">
-              Approved Tests
-            </div>
+            <div className="text-xs text-slate-500 uppercase tracking-wider mb-3">Approved Tests</div>
             <div className="overflow-x-auto">
               <table className="data-table">
                 <thead>
@@ -572,9 +515,7 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
         {/* Pipeline Tests */}
         {landscape.pipeline_tests.length > 0 && (
           <div className="mb-6">
-            <div className="text-xs text-slate-500 uppercase tracking-wider mb-3">
-              Pipeline Tests
-            </div>
+            <div className="text-xs text-slate-500 uppercase tracking-wider mb-3">Pipeline Tests</div>
             <div className="overflow-x-auto">
               <table className="data-table">
                 <thead>
@@ -615,9 +556,7 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
         {/* Market Insight */}
         {landscape.market_insight && (
           <div className="p-3 bg-navy-800/50 rounded-md">
-            <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">
-              Market Insight
-            </span>
+            <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Market Insight</span>
             <p className="text-xs text-slate-400 leading-relaxed">{landscape.market_insight}</p>
           </div>
         )}
@@ -666,15 +605,10 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
           ────────────────────────────────────────────────────── */}
       {!previewMode && (
         <div className="flex items-center gap-3 pt-6 border-t border-navy-700">
-          <SaveReportButton
-            reportData={{
-              title: `CDx: ${displayName} — ${input.drug_indication}`,
-              report_type: 'market_sizing',
-              indication: input.drug_indication,
-              inputs: input as unknown as Record<string, unknown>,
-              outputs: data as unknown as Record<string, unknown>,
-            }}
-          />
+          <span className="flex items-center gap-1.5 text-xs text-emerald-400/80 font-medium px-2">
+            <BookmarkCheck className="w-3.5 h-3.5" />
+            Auto-saved
+          </span>
           <ExportButton
             format="pdf"
             onPdfExport={onPdfExport}

@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 const createReportSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  report_type: z.enum(['market_sizing', 'competitive', 'full']),
+  report_type: z.enum(['market_sizing', 'competitive', 'partners', 'regulatory', 'full']),
   indication: z.string().min(1, 'Indication is required'),
   inputs: z.record(z.unknown()).optional(),
   outputs: z.record(z.unknown()).optional(),
@@ -19,10 +19,7 @@ export async function GET() {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: 'Authentication required.' },
-      { status: 401 }
-    );
+    return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
   }
 
   const { data: reports, error } = await supabase
@@ -32,10 +29,7 @@ export async function GET() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch reports.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Failed to fetch reports.' }, { status: 500 });
   }
 
   return NextResponse.json({ success: true, data: reports });
@@ -49,10 +43,7 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: 'Authentication required.' },
-      { status: 401 }
-    );
+    return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
   }
 
   try {
@@ -60,14 +51,10 @@ export async function POST(request: NextRequest) {
     const parsed = createReportSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { success: false, error: 'Validation failed.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Validation failed.' }, { status: 400 });
     }
 
-    const { title, report_type, indication, inputs, outputs, tags } =
-      parsed.data;
+    const { title, report_type, indication, inputs, outputs, tags } = parsed.data;
 
     const { data: report, error } = await supabase
       .from('reports')
@@ -86,17 +73,11 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json(
-        { success: false, error: 'Failed to save report.' },
-        { status: 500 }
-      );
+      return NextResponse.json({ success: false, error: 'Failed to save report.' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, data: report }, { status: 201 });
   } catch {
-    return NextResponse.json(
-      { success: false, error: 'Invalid request body.' },
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, error: 'Invalid request body.' }, { status: 400 });
   }
 }

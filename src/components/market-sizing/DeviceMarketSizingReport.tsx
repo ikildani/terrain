@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { BookmarkCheck } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { formatMetric, formatCompact, formatCurrency, formatPercent, formatNumber } from '@/lib/utils/format';
 import { StatCard } from '@/components/shared/StatCard';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import { ConfidentialFooter } from '@/components/shared/ConfidentialFooter';
 import { ExportButton } from '@/components/shared/ExportButton';
-import { SaveReportButton } from '@/components/shared/SaveReportButton';
 import TAMChart from './TAMChart';
 import ProcedureVolumeChart from './ProcedureVolumeChart';
 import RevenueStreamChart from './RevenueStreamChart';
@@ -79,8 +79,7 @@ function flattenDeviceForCSV(data: DeviceMarketSizingOutput): Record<string, unk
 function coverageBadgeClass(status: string): string {
   const s = status.toLowerCase();
   if (s === 'covered') return 'bg-emerald-500/12 text-emerald-400 border border-emerald-500/20';
-  if (s === 'partial' || s === 'coverage_pending')
-    return 'bg-amber-500/12 text-amber-400 border border-amber-500/20';
+  if (s === 'partial' || s === 'coverage_pending') return 'bg-amber-500/12 text-amber-400 border border-amber-500/20';
   return 'bg-red-500/12 text-red-400 border border-red-500/20';
 }
 
@@ -114,40 +113,23 @@ export default function DeviceMarketSizingReport({
       <div className="card noise">
         <h3 className="chart-title">Executive Summary</h3>
         <p className="text-xs text-slate-400 leading-relaxed">
-          The{' '}
-          <span className="text-white font-medium">
-            {input.procedure_or_condition}
-          </span>{' '}
-          device market represents a US total addressable market of{' '}
-          <span className="metric text-teal-400">
-            {formatMetric(summary.us_tam.value, summary.us_tam.unit)}
-          </span>
-          , with a serviceable addressable market of{' '}
-          <span className="metric text-white">
-            {formatMetric(summary.us_sam.value, summary.us_sam.unit)}
-          </span>{' '}
-          and a serviceable obtainable market of{' '}
-          <span className="metric text-white">
-            {formatMetric(summary.us_som.value, summary.us_som.unit)}
-          </span>
+          The <span className="text-white font-medium">{input.procedure_or_condition}</span> device market represents a
+          US total addressable market of{' '}
+          <span className="metric text-teal-400">{formatMetric(summary.us_tam.value, summary.us_tam.unit)}</span>, with
+          a serviceable addressable market of{' '}
+          <span className="metric text-white">{formatMetric(summary.us_sam.value, summary.us_sam.unit)}</span> and a
+          serviceable obtainable market of{' '}
+          <span className="metric text-white">{formatMetric(summary.us_som.value, summary.us_som.unit)}</span>
           {summary.us_som.range
             ? ` (range: ${formatMetric(summary.us_som.range[0], summary.us_som.unit)}--${formatMetric(summary.us_som.range[1], summary.us_som.unit)})`
             : ''}
-          . The market is growing at{' '}
-          <span className="metric text-white">{summary.cagr_5yr}%</span> CAGR
-          over the next five years, driven by{' '}
-          <span className="text-slate-300">
-            {summary.market_growth_driver}
-          </span>
-          . Procedure volume stands at{' '}
-          <span className="metric text-white">
-            {formatNumber(data.procedure_volume.us_annual_procedures)}
-          </span>{' '}
-          annual US procedures, of which{' '}
-          <span className="metric text-white">
-            {formatNumber(data.procedure_volume.us_addressable_procedures)}
-          </span>{' '}
-          are addressable for the target device profile.
+          . The market is growing at <span className="metric text-white">{summary.cagr_5yr}%</span> CAGR over the next
+          five years, driven by <span className="text-slate-300">{summary.market_growth_driver}</span>. Procedure volume
+          stands at{' '}
+          <span className="metric text-white">{formatNumber(data.procedure_volume.us_annual_procedures)}</span> annual
+          US procedures, of which{' '}
+          <span className="metric text-white">{formatNumber(data.procedure_volume.us_addressable_procedures)}</span> are
+          addressable for the target device profile.
         </p>
       </div>
 
@@ -170,10 +152,14 @@ export default function DeviceMarketSizingReport({
           value={formatMetric(summary.us_som.value, summary.us_som.unit)}
           confidence="medium"
           source="Terrain Analysis"
-          range={summary.us_som.range ? {
-            low: formatMetric(summary.us_som.range[0], summary.us_som.unit),
-            high: formatMetric(summary.us_som.range[1], summary.us_som.unit),
-          } : undefined}
+          range={
+            summary.us_som.range
+              ? {
+                  low: formatMetric(summary.us_som.range[0], summary.us_som.unit),
+                  high: formatMetric(summary.us_som.range[1], summary.us_som.unit),
+                }
+              : undefined
+          }
         />
         <StatCard
           label="Global TAM"
@@ -211,9 +197,7 @@ export default function DeviceMarketSizingReport({
       />
 
       {/* ──────────────────────── 5. Revenue Streams ──────────────────────── */}
-      {data.revenue_streams.length > 0 && (
-        <RevenueStreamChart streams={data.revenue_streams} />
-      )}
+      {data.revenue_streams.length > 0 && <RevenueStreamChart streams={data.revenue_streams} />}
 
       {/* ──────────────────────── 6. Adoption Model ──────────────────────── */}
       <div className="chart-container noise">
@@ -221,29 +205,19 @@ export default function DeviceMarketSizingReport({
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Total US Sites */}
           <div className="p-3 bg-navy-800/50 rounded-md">
-            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
-              Total US Sites
-            </div>
-            <div className="metric text-lg text-white">
-              {formatNumber(data.adoption_model.total_us_sites)}
-            </div>
+            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Total US Sites</div>
+            <div className="metric text-lg text-white">{formatNumber(data.adoption_model.total_us_sites)}</div>
           </div>
 
           {/* Addressable Sites */}
           <div className="p-3 bg-navy-800/50 rounded-md">
-            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
-              Addressable Sites
-            </div>
-            <div className="metric text-lg text-white">
-              {formatNumber(data.adoption_model.addressable_sites)}
-            </div>
+            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Addressable Sites</div>
+            <div className="metric text-lg text-white">{formatNumber(data.adoption_model.addressable_sites)}</div>
           </div>
 
           {/* Peak Market Share */}
           <div className="p-3 bg-navy-800/50 rounded-md">
-            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
-              Peak Market Share
-            </div>
+            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Peak Market Share</div>
             <div className="flex items-baseline gap-2">
               <span className="metric text-lg text-teal-400">
                 {formatPercent(data.adoption_model.peak_market_share.base * 100, 0)}
@@ -259,31 +233,21 @@ export default function DeviceMarketSizingReport({
           {/* Peak Installed Base (conditional) */}
           {data.adoption_model.peak_installed_base != null && (
             <div className="p-3 bg-navy-800/50 rounded-md">
-              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
-                Peak Installed Base
-              </div>
-              <div className="metric text-lg text-white">
-                {formatNumber(data.adoption_model.peak_installed_base)}
-              </div>
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Peak Installed Base</div>
+              <div className="metric text-lg text-white">{formatNumber(data.adoption_model.peak_installed_base)}</div>
             </div>
           )}
 
           {/* Years to Peak */}
           <div className="p-3 bg-navy-800/50 rounded-md">
-            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
-              Years to Peak
-            </div>
-            <div className="metric text-lg text-white">
-              {data.adoption_model.years_to_peak}
-            </div>
+            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Years to Peak</div>
+            <div className="metric text-lg text-white">{data.adoption_model.years_to_peak}</div>
           </div>
         </div>
       </div>
 
       {/* ──────────────────────── 7. Geography ──────────────────────── */}
-      {data.geography_breakdown.length > 0 && (
-        <DeviceGeographyTable data={data.geography_breakdown} />
-      )}
+      {data.geography_breakdown.length > 0 && <DeviceGeographyTable data={data.geography_breakdown} />}
 
       {/* ──────────────────────── 8. Reimbursement Analysis ──────────────────────── */}
       <div className="chart-container noise">
@@ -295,7 +259,7 @@ export default function DeviceMarketSizingReport({
             <span
               className={cn(
                 'inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono uppercase tracking-wider',
-                coverageBadgeClass(data.reimbursement_analysis.us_coverage_status)
+                coverageBadgeClass(data.reimbursement_analysis.us_coverage_status),
               )}
             >
               {data.reimbursement_analysis.us_coverage_status}
@@ -319,28 +283,25 @@ export default function DeviceMarketSizingReport({
             )}
 
           {/* DRG Codes */}
-          {data.reimbursement_analysis.drg_codes &&
-            data.reimbursement_analysis.drg_codes.length > 0 && (
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-xs text-slate-400">DRG Codes:</span>
-                {data.reimbursement_analysis.drg_codes.map((code) => (
-                  <span
-                    key={code}
-                    className="inline-flex items-center px-2 py-0.5 rounded bg-navy-800 border border-navy-700 text-2xs font-mono text-slate-300"
-                  >
-                    {code}
-                  </span>
-                ))}
-              </div>
-            )}
+          {data.reimbursement_analysis.drg_codes && data.reimbursement_analysis.drg_codes.length > 0 && (
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-xs text-slate-400">DRG Codes:</span>
+              {data.reimbursement_analysis.drg_codes.map((code) => (
+                <span
+                  key={code}
+                  className="inline-flex items-center px-2 py-0.5 rounded bg-navy-800 border border-navy-700 text-2xs font-mono text-slate-300"
+                >
+                  {code}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Medicare Payment Rate */}
           {data.reimbursement_analysis.medicare_payment_rate && (
             <div className="flex items-center gap-3">
               <span className="text-xs text-slate-400">Medicare Payment Rate:</span>
-              <span className="metric text-sm text-white">
-                {data.reimbursement_analysis.medicare_payment_rate}
-              </span>
+              <span className="metric text-sm text-white">{data.reimbursement_analysis.medicare_payment_rate}</span>
             </div>
           )}
 
@@ -358,7 +319,7 @@ export default function DeviceMarketSizingReport({
             <span
               className={cn(
                 'inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono uppercase tracking-wider',
-                riskBadgeClass(data.reimbursement_analysis.reimbursement_risk)
+                riskBadgeClass(data.reimbursement_analysis.reimbursement_risk),
               )}
             >
               {data.reimbursement_analysis.reimbursement_risk}
@@ -368,9 +329,7 @@ export default function DeviceMarketSizingReport({
           {/* Reimbursement Strategy */}
           {data.reimbursement_analysis.reimbursement_strategy && (
             <div className="mt-4 p-3 bg-navy-800/50 rounded-md">
-              <h4 className="text-xs text-slate-300 font-medium mb-2">
-                Reimbursement Strategy
-              </h4>
+              <h4 className="text-xs text-slate-300 font-medium mb-2">Reimbursement Strategy</h4>
               <p className="text-xs text-slate-500 leading-relaxed">
                 {data.reimbursement_analysis.reimbursement_strategy}
               </p>
@@ -386,25 +345,15 @@ export default function DeviceMarketSizingReport({
           {/* Summary row */}
           <div className="grid grid-cols-3 gap-4">
             <div className="p-3 bg-navy-800/50 rounded-md">
-              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
-                Total Competitors
-              </div>
-              <div className="metric text-lg text-white">
-                {data.competitive_positioning.total_competitors}
-              </div>
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Total Competitors</div>
+              <div className="metric text-lg text-white">{data.competitive_positioning.total_competitors}</div>
             </div>
             <div className="p-3 bg-navy-800/50 rounded-md">
-              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
-                Market Leader
-              </div>
-              <div className="text-sm text-slate-300 font-medium">
-                {data.competitive_positioning.market_leader}
-              </div>
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Market Leader</div>
+              <div className="text-sm text-slate-300 font-medium">{data.competitive_positioning.market_leader}</div>
             </div>
             <div className="p-3 bg-navy-800/50 rounded-md">
-              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
-                Leader Market Share
-              </div>
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Leader Market Share</div>
               <div className="metric text-lg text-teal-400">
                 {formatPercent(data.competitive_positioning.leader_market_share_pct, 0)}
               </div>
@@ -413,9 +362,7 @@ export default function DeviceMarketSizingReport({
 
           {/* ASE Range */}
           <div className="p-3 bg-navy-800/50 rounded-md">
-            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-2">
-              Average Selling Price Range
-            </div>
+            <div className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Average Selling Price Range</div>
             <div className="flex items-center gap-6">
               <div>
                 <span className="text-2xs text-slate-500">Lowest</span>
@@ -441,21 +388,14 @@ export default function DeviceMarketSizingReport({
           {/* Key Differentiation Vectors */}
           {data.competitive_positioning.key_differentiation_vectors.length > 0 && (
             <div>
-              <h4 className="text-xs text-slate-300 font-medium mb-2">
-                Key Differentiation Vectors
-              </h4>
+              <h4 className="text-xs text-slate-300 font-medium mb-2">Key Differentiation Vectors</h4>
               <ul className="space-y-1">
-                {data.competitive_positioning.key_differentiation_vectors.map(
-                  (v, i) => (
-                    <li
-                      key={i}
-                      className="text-xs text-slate-500 flex items-start gap-2"
-                    >
-                      <span className="w-1 h-1 rounded-full bg-teal-500/60 mt-1.5 flex-shrink-0" />
-                      {v}
-                    </li>
-                  )
-                )}
+                {data.competitive_positioning.key_differentiation_vectors.map((v, i) => (
+                  <li key={i} className="text-xs text-slate-500 flex items-start gap-2">
+                    <span className="w-1 h-1 rounded-full bg-teal-500/60 mt-1.5 flex-shrink-0" />
+                    {v}
+                  </li>
+                ))}
               </ul>
             </div>
           )}
@@ -485,9 +425,7 @@ export default function DeviceMarketSizingReport({
         </button>
         {methodologyOpen && (
           <div className="mt-4 animate-fade-in">
-            <p className="text-xs text-slate-500 leading-relaxed">
-              {data.methodology}
-            </p>
+            <p className="text-xs text-slate-500 leading-relaxed">{data.methodology}</p>
           </div>
         )}
       </div>
@@ -495,27 +433,17 @@ export default function DeviceMarketSizingReport({
       {/* ──────────────────────── 12. Data Sources ──────────────────────── */}
       <div className="flex flex-wrap gap-3">
         {data.data_sources.map((source) => (
-          <DataSourceBadge
-            key={source.name}
-            source={source.name}
-            type={source.type}
-            url={source.url}
-          />
+          <DataSourceBadge key={source.name} source={source.name} type={source.type} url={source.url} />
         ))}
       </div>
 
       {/* ──────────────────────── 13. Action Bar ──────────────────────── */}
       {!previewMode && (
         <div className="flex items-center gap-3 pt-6 border-t border-navy-700">
-          <SaveReportButton
-            reportData={{
-              title: `${input.procedure_or_condition} Device Market Assessment`,
-              report_type: 'market_sizing',
-              indication: input.procedure_or_condition,
-              inputs: input as unknown as Record<string, unknown>,
-              outputs: data as unknown as Record<string, unknown>,
-            }}
-          />
+          <span className="flex items-center gap-1.5 text-xs text-emerald-400/80 font-medium px-2">
+            <BookmarkCheck className="w-3.5 h-3.5" />
+            Auto-saved
+          </span>
           <ExportButton
             format="pdf"
             onPdfExport={onPdfExport}

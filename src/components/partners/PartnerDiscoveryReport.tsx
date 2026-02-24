@@ -1,10 +1,9 @@
 'use client';
 
 import { useRef, useMemo } from 'react';
-import { Users, Building2, DollarSign, BarChart3, Database, FileText } from 'lucide-react';
+import { Users, Building2, DollarSign, BarChart3, Database, FileText, BookmarkCheck } from 'lucide-react';
 import type { PartnerDiscoveryOutput } from '@/types';
 import PartnerCard from './PartnerCard';
-import { SaveReportButton } from '@/components/shared/SaveReportButton';
 import { ExportButton } from '@/components/shared/ExportButton';
 
 interface PartnerDiscoveryReportProps {
@@ -63,14 +62,6 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
     }));
   }, [data]);
 
-  const reportData = input ? {
-    title: `Partner Discovery — ${input.indication}`,
-    report_type: 'partners' as const,
-    indication: input.indication,
-    inputs: input as Record<string, unknown>,
-    outputs: data as unknown as Record<string, unknown>,
-  } : undefined;
-
   return (
     <div ref={reportRef} className="space-y-4 animate-fade-in">
       {/* Summary Stat Cards */}
@@ -108,9 +99,7 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
             <span className="text-2xs font-mono text-slate-500 uppercase tracking-wider">Median Upfront</span>
           </div>
           <p className="font-mono text-2xl text-white">
-            {data.deal_benchmarks.median_upfront_m > 0
-              ? formatDealValue(data.deal_benchmarks.median_upfront_m)
-              : '--'}
+            {data.deal_benchmarks.median_upfront_m > 0 ? formatDealValue(data.deal_benchmarks.median_upfront_m) : '--'}
           </p>
           <p className="text-2xs text-slate-500 mt-1">
             {data.deal_benchmarks.sample_size > 0
@@ -130,19 +119,27 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
               <p className="text-2xs text-slate-600 uppercase tracking-wider">Avg Upfront</p>
-              <p className="font-mono text-sm text-teal-400 mt-1">{formatDealValue(data.deal_benchmarks.avg_upfront_m)}</p>
+              <p className="font-mono text-sm text-teal-400 mt-1">
+                {formatDealValue(data.deal_benchmarks.avg_upfront_m)}
+              </p>
             </div>
             <div>
               <p className="text-2xs text-slate-600 uppercase tracking-wider">Median Upfront</p>
-              <p className="font-mono text-sm text-white mt-1">{formatDealValue(data.deal_benchmarks.median_upfront_m)}</p>
+              <p className="font-mono text-sm text-white mt-1">
+                {formatDealValue(data.deal_benchmarks.median_upfront_m)}
+              </p>
             </div>
             <div>
               <p className="text-2xs text-slate-600 uppercase tracking-wider">Avg Total Value</p>
-              <p className="font-mono text-sm text-white mt-1">{formatDealValue(data.deal_benchmarks.avg_total_value_m)}</p>
+              <p className="font-mono text-sm text-white mt-1">
+                {formatDealValue(data.deal_benchmarks.avg_total_value_m)}
+              </p>
             </div>
             <div>
               <p className="text-2xs text-slate-600 uppercase tracking-wider">Median Total Value</p>
-              <p className="font-mono text-sm text-white mt-1">{formatDealValue(data.deal_benchmarks.median_total_value_m)}</p>
+              <p className="font-mono text-sm text-white mt-1">
+                {formatDealValue(data.deal_benchmarks.median_total_value_m)}
+              </p>
             </div>
             <div>
               <p className="text-2xs text-slate-600 uppercase tracking-wider">Typical Royalty</p>
@@ -178,7 +175,10 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
               reportTitle="Partner Discovery Report"
               reportSubtitle={`${data.summary.indication} — ${formatStage(data.summary.development_stage)}`}
             />
-            {reportData && <SaveReportButton reportData={reportData} />}
+            <span className="flex items-center gap-1.5 text-xs text-emerald-400/80 font-medium px-2">
+              <BookmarkCheck className="w-3.5 h-3.5" />
+              Auto-saved
+            </span>
           </div>
         )}
       </div>
@@ -205,11 +205,15 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
                 <div key={i} className="flex items-center gap-2 text-xs">
                   <Database className="w-3 h-3 text-slate-600" />
                   <span className="text-slate-400">{source.name}</span>
-                  <span className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded ${
-                    source.type === 'public' ? 'bg-signal-green/10 text-signal-green' :
-                    source.type === 'proprietary' ? 'bg-teal-500/10 text-teal-400' :
-                    'bg-amber-500/10 text-amber-400'
-                  }`}>
+                  <span
+                    className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded ${
+                      source.type === 'public'
+                        ? 'bg-signal-green/10 text-signal-green'
+                        : source.type === 'proprietary'
+                          ? 'bg-teal-500/10 text-teal-400'
+                          : 'bg-amber-500/10 text-amber-400'
+                    }`}
+                  >
                     {source.type}
                   </span>
                 </div>

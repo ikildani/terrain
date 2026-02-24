@@ -32,14 +32,19 @@ describe('calculateMarketSizing', () => {
     });
 
     it('should include TAM, SAM, SOM in summary', async () => {
-      result = result ?? await calculateMarketSizing(makeInput());
+      result = result ?? (await calculateMarketSizing(makeInput()));
       expect(result.summary.tam_us).toBeDefined();
       expect(result.summary.sam_us).toBeDefined();
       expect(result.summary.som_us).toBeDefined();
       expect(result.summary.global_tam).toBeDefined();
 
       // Each metric has value, unit, confidence
-      for (const metric of [result.summary.tam_us, result.summary.sam_us, result.summary.som_us, result.summary.global_tam]) {
+      for (const metric of [
+        result.summary.tam_us,
+        result.summary.sam_us,
+        result.summary.som_us,
+        result.summary.global_tam,
+      ]) {
         expect(metric.value).toBeTypeOf('number');
         expect(metric.value).toBeGreaterThan(0);
         expect(['B', 'M', 'K']).toContain(metric.unit);
@@ -48,7 +53,7 @@ describe('calculateMarketSizing', () => {
     });
 
     it('should return a valid patient funnel', async () => {
-      result = result ?? await calculateMarketSizing(makeInput());
+      result = result ?? (await calculateMarketSizing(makeInput()));
       const { patient_funnel } = result;
       expect(patient_funnel.us_prevalence).toBeGreaterThan(0);
       expect(patient_funnel.us_incidence).toBeGreaterThan(0);
@@ -65,19 +70,17 @@ describe('calculateMarketSizing', () => {
     });
 
     it('should include geography breakdown', async () => {
-      result = result ?? await calculateMarketSizing(makeInput());
+      result = result ?? (await calculateMarketSizing(makeInput()));
       expect(result.geography_breakdown).toBeInstanceOf(Array);
       expect(result.geography_breakdown.length).toBeGreaterThanOrEqual(1);
 
-      const usGeo = result.geography_breakdown.find(g =>
-        g.territory === 'United States' || g.territory === 'US'
-      );
+      const usGeo = result.geography_breakdown.find((g) => g.territory === 'United States' || g.territory === 'US');
       expect(usGeo).toBeDefined();
       expect(usGeo!.tam.value).toBeGreaterThan(0);
     });
 
     it('should include pricing analysis with comparable drugs', async () => {
-      result = result ?? await calculateMarketSizing(makeInput());
+      result = result ?? (await calculateMarketSizing(makeInput()));
       const { pricing_analysis } = result;
       expect(pricing_analysis).toBeDefined();
       expect(pricing_analysis.comparable_drugs).toBeInstanceOf(Array);
@@ -99,7 +102,7 @@ describe('calculateMarketSizing', () => {
     });
 
     it('should include revenue projection with 10 years', async () => {
-      result = result ?? await calculateMarketSizing(makeInput());
+      result = result ?? (await calculateMarketSizing(makeInput()));
       expect(result.revenue_projection).toHaveLength(10);
       for (const year of result.revenue_projection) {
         expect(year.year).toBeGreaterThanOrEqual(2028);
@@ -113,7 +116,7 @@ describe('calculateMarketSizing', () => {
     });
 
     it('should include competitive context', async () => {
-      result = result ?? await calculateMarketSizing(makeInput());
+      result = result ?? (await calculateMarketSizing(makeInput()));
       expect(result.competitive_context.crowding_score).toBeGreaterThanOrEqual(1);
       expect(result.competitive_context.crowding_score).toBeLessThanOrEqual(10);
       expect(result.competitive_context.approved_products).toBeGreaterThanOrEqual(0);
@@ -122,7 +125,7 @@ describe('calculateMarketSizing', () => {
     });
 
     it('should include peak sales estimates (low < base < high)', async () => {
-      result = result ?? await calculateMarketSizing(makeInput());
+      result = result ?? (await calculateMarketSizing(makeInput()));
       const ps = result.summary.peak_sales_estimate;
       expect(ps.low).toBeGreaterThan(0);
       expect(ps.base).toBeGreaterThan(0);
@@ -132,7 +135,7 @@ describe('calculateMarketSizing', () => {
     });
 
     it('should include methodology, assumptions, and data sources', async () => {
-      result = result ?? await calculateMarketSizing(makeInput());
+      result = result ?? (await calculateMarketSizing(makeInput()));
       expect(result.methodology.length).toBeGreaterThan(100);
       expect(result.assumptions.length).toBeGreaterThan(5);
       expect(result.data_sources.length).toBeGreaterThan(0);
@@ -141,7 +144,7 @@ describe('calculateMarketSizing', () => {
     });
 
     it('should include CAGR and market growth driver', async () => {
-      result = result ?? await calculateMarketSizing(makeInput());
+      result = result ?? (await calculateMarketSizing(makeInput()));
       expect(result.summary.cagr_5yr).toBeTypeOf('number');
       expect(result.summary.cagr_5yr).toBeGreaterThan(0);
       expect(result.summary.market_growth_driver).toBeDefined();
@@ -152,9 +155,9 @@ describe('calculateMarketSizing', () => {
   // ── Unknown indication ─────────────────────────────────
   describe('with an unknown indication', () => {
     it('should throw an error with a descriptive message', async () => {
-      await expect(
-        calculateMarketSizing(makeInput({ indication: 'Totally Fake Disease XYZ123' }))
-      ).rejects.toThrow(/indication not found/i);
+      await expect(calculateMarketSizing(makeInput({ indication: 'Totally Fake Disease XYZ123' }))).rejects.toThrow(
+        /indication not found/i,
+      );
     });
   });
 
@@ -166,13 +169,11 @@ describe('calculateMarketSizing', () => {
     });
 
     it('should return multiple territories when geography includes US, EU5, Japan', async () => {
-      const result = await calculateMarketSizing(
-        makeInput({ geography: ['US', 'EU5', 'Japan'] })
-      );
+      const result = await calculateMarketSizing(makeInput({ geography: ['US', 'EU5', 'Japan'] }));
       expect(result.geography_breakdown.length).toBe(3);
 
       // Territories should be sorted by TAM descending
-      const tamValues = result.geography_breakdown.map(g => {
+      const tamValues = result.geography_breakdown.map((g) => {
         return g.tam.unit === 'B' ? g.tam.value : g.tam.value / 1000;
       });
       for (let i = 1; i < tamValues.length; i++) {
@@ -182,16 +183,16 @@ describe('calculateMarketSizing', () => {
 
     it('should produce a larger global TAM with more geographies', async () => {
       const resultNarrow = await calculateMarketSizing(makeInput({ geography: ['US'] }));
-      const resultBroad = await calculateMarketSizing(
-        makeInput({ geography: ['US', 'EU5', 'Japan', 'China'] })
-      );
+      const resultBroad = await calculateMarketSizing(makeInput({ geography: ['US', 'EU5', 'Japan', 'China'] }));
 
-      const narrowGlobal = resultNarrow.summary.global_tam.unit === 'B'
-        ? resultNarrow.summary.global_tam.value
-        : resultNarrow.summary.global_tam.value / 1000;
-      const broadGlobal = resultBroad.summary.global_tam.unit === 'B'
-        ? resultBroad.summary.global_tam.value
-        : resultBroad.summary.global_tam.value / 1000;
+      const narrowGlobal =
+        resultNarrow.summary.global_tam.unit === 'B'
+          ? resultNarrow.summary.global_tam.value
+          : resultNarrow.summary.global_tam.value / 1000;
+      const broadGlobal =
+        resultBroad.summary.global_tam.unit === 'B'
+          ? resultBroad.summary.global_tam.value
+          : resultBroad.summary.global_tam.value / 1000;
 
       expect(broadGlobal).toBeGreaterThan(narrowGlobal);
     });
@@ -200,19 +201,15 @@ describe('calculateMarketSizing', () => {
   // ── Development stages affect market share ──────────────
   describe('development stage differences', () => {
     it('should produce higher SOM for phase3 than preclinical', async () => {
-      const preclinical = await calculateMarketSizing(
-        makeInput({ development_stage: 'preclinical' })
-      );
-      const phase3 = await calculateMarketSizing(
-        makeInput({ development_stage: 'phase3' })
-      );
+      const preclinical = await calculateMarketSizing(makeInput({ development_stage: 'preclinical' }));
+      const phase3 = await calculateMarketSizing(makeInput({ development_stage: 'phase3' }));
 
-      const somPreclinical = preclinical.summary.som_us.unit === 'B'
-        ? preclinical.summary.som_us.value
-        : preclinical.summary.som_us.value / 1000;
-      const somPhase3 = phase3.summary.som_us.unit === 'B'
-        ? phase3.summary.som_us.value
-        : phase3.summary.som_us.value / 1000;
+      const somPreclinical =
+        preclinical.summary.som_us.unit === 'B'
+          ? preclinical.summary.som_us.value
+          : preclinical.summary.som_us.value / 1000;
+      const somPhase3 =
+        phase3.summary.som_us.unit === 'B' ? phase3.summary.som_us.value : phase3.summary.som_us.value / 1000;
 
       expect(somPhase3).toBeGreaterThan(somPreclinical);
     });
@@ -221,29 +218,23 @@ describe('calculateMarketSizing', () => {
       const phase1 = await calculateMarketSizing(makeInput({ development_stage: 'phase1' }));
       const approved = await calculateMarketSizing(makeInput({ development_stage: 'approved' }));
 
-      expect(approved.summary.peak_sales_estimate.base).toBeGreaterThan(
-        phase1.summary.peak_sales_estimate.base
-      );
+      expect(approved.summary.peak_sales_estimate.base).toBeGreaterThan(phase1.summary.peak_sales_estimate.base);
     });
   });
 
   // ── Pricing assumptions ─────────────────────────────────
   describe('pricing assumption effects', () => {
     it('should produce different output values for conservative vs premium', async () => {
-      const conservative = await calculateMarketSizing(
-        makeInput({ pricing_assumption: 'conservative' })
-      );
-      const premium = await calculateMarketSizing(
-        makeInput({ pricing_assumption: 'premium' })
-      );
+      const conservative = await calculateMarketSizing(makeInput({ pricing_assumption: 'conservative' }));
+      const premium = await calculateMarketSizing(makeInput({ pricing_assumption: 'premium' }));
 
       // Premium should produce higher TAM than conservative
-      const tamC = conservative.summary.tam_us.unit === 'B'
-        ? conservative.summary.tam_us.value
-        : conservative.summary.tam_us.value / 1000;
-      const tamP = premium.summary.tam_us.unit === 'B'
-        ? premium.summary.tam_us.value
-        : premium.summary.tam_us.value / 1000;
+      const tamC =
+        conservative.summary.tam_us.unit === 'B'
+          ? conservative.summary.tam_us.value
+          : conservative.summary.tam_us.value / 1000;
+      const tamP =
+        premium.summary.tam_us.unit === 'B' ? premium.summary.tam_us.value : premium.summary.tam_us.value / 1000;
 
       expect(tamP).toBeGreaterThan(tamC);
     });
@@ -281,36 +272,24 @@ describe('calculateMarketSizing', () => {
   describe('patient segment narrowing', () => {
     it('should return a smaller addressable population for biomarker-selected patients', async () => {
       const broad = await calculateMarketSizing(makeInput());
-      const narrow = await calculateMarketSizing(
-        makeInput({ patient_segment: 'EGFR mutated 2L+' })
-      );
+      const narrow = await calculateMarketSizing(makeInput({ patient_segment: 'EGFR mutated 2L+' }));
 
       expect(narrow.patient_funnel.addressable).toBeLessThan(broad.patient_funnel.addressable);
     });
 
     it('should return narrower addressable for 2L+ than 1L', async () => {
-      const firstLine = await calculateMarketSizing(
-        makeInput({ patient_segment: 'first-line treatment naive' })
-      );
-      const secondLine = await calculateMarketSizing(
-        makeInput({ patient_segment: '2L relapsed refractory' })
-      );
+      const firstLine = await calculateMarketSizing(makeInput({ patient_segment: 'first-line treatment naive' }));
+      const secondLine = await calculateMarketSizing(makeInput({ patient_segment: '2L relapsed refractory' }));
 
-      expect(secondLine.patient_funnel.addressable).toBeLessThan(
-        firstLine.patient_funnel.addressable
-      );
+      expect(secondLine.patient_funnel.addressable).toBeLessThan(firstLine.patient_funnel.addressable);
     });
   });
 
   // ── Synonym resolution ──────────────────────────────────
   describe('indication synonym resolution', () => {
     it('should resolve "NSCLC" to the same output as "Non-Small Cell Lung Cancer"', async () => {
-      const byName = await calculateMarketSizing(
-        makeInput({ indication: 'Non-Small Cell Lung Cancer' })
-      );
-      const bySynonym = await calculateMarketSizing(
-        makeInput({ indication: 'NSCLC' })
-      );
+      const byName = await calculateMarketSizing(makeInput({ indication: 'Non-Small Cell Lung Cancer' }));
+      const bySynonym = await calculateMarketSizing(makeInput({ indication: 'NSCLC' }));
 
       expect(byName.patient_funnel.us_prevalence).toBe(bySynonym.patient_funnel.us_prevalence);
     });
@@ -319,20 +298,125 @@ describe('calculateMarketSizing', () => {
   // ── Different therapy areas ─────────────────────────────
   describe('across different therapy areas', () => {
     it('should successfully analyze a neurology indication', async () => {
-      const result = await calculateMarketSizing(
-        makeInput({ indication: "Alzheimer's Disease" })
-      );
+      const result = await calculateMarketSizing(makeInput({ indication: "Alzheimer's Disease" }));
       expect(result.summary.tam_us.value).toBeGreaterThan(0);
       expect(result.patient_funnel.us_prevalence).toBeGreaterThan(100000);
     });
 
     it('should successfully analyze a rare disease indication', async () => {
-      const result = await calculateMarketSizing(
-        makeInput({ indication: 'Duchenne Muscular Dystrophy' })
-      );
+      const result = await calculateMarketSizing(makeInput({ indication: 'Duchenne Muscular Dystrophy' }));
       expect(result.summary.tam_us.value).toBeGreaterThan(0);
       // Rare disease has smaller patient population
       expect(result.patient_funnel.us_prevalence).toBeLessThan(50000);
+    });
+  });
+
+  // ── Risk adjustment (LoA + eNPV) ─────────────────────────
+  describe('risk adjustment', () => {
+    it('should include risk adjustment with probability of success', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      expect(result.risk_adjustment).toBeDefined();
+      expect(result.risk_adjustment!.probability_of_success).toBeGreaterThan(0);
+      expect(result.risk_adjustment!.probability_of_success).toBeLessThanOrEqual(1);
+      expect(result.risk_adjustment!.therapy_area).toBeDefined();
+      expect(result.risk_adjustment!.development_stage).toBe('phase2');
+      expect(result.risk_adjustment!.discount_rate).toBeGreaterThan(0);
+    });
+
+    it('should produce risk-adjusted peak sales lower than unadjusted', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      expect(result.risk_adjustment!.risk_adjusted_peak_sales.base).toBeLessThan(
+        result.summary.peak_sales_estimate.base,
+      );
+    });
+
+    it('should include a risk-adjusted NPV', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      expect(result.risk_adjustment!.risk_adjusted_npv_m).toBeGreaterThan(0);
+    });
+  });
+
+  // ── Sensitivity analysis ──────────────────────────────────
+  describe('sensitivity analysis', () => {
+    it('should include sensitivity analysis drivers', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      expect(result.sensitivity_analysis).toBeDefined();
+      expect(result.sensitivity_analysis).toBeInstanceOf(Array);
+      expect(result.sensitivity_analysis!.length).toBeGreaterThan(0);
+    });
+  });
+
+  // ── IRA impact modeling ───────────────────────────────────
+  describe('IRA impact modeling', () => {
+    it('should include IRA impact analysis (may be undefined for short projections)', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      // IRA impact may or may not apply depending on launch year + product type
+      // Just verify the field exists on the output (even if undefined)
+      expect('ira_impact' in result).toBe(true);
+    });
+  });
+
+  // ── Biosimilar erosion curve ──────────────────────────────
+  describe('biosimilar erosion modeling', () => {
+    it('should include biosimilar erosion curve', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      expect(result.biosimilar_erosion).toBeDefined();
+    });
+  });
+
+  // ── Payer mix evolution ───────────────────────────────────
+  describe('payer mix evolution', () => {
+    it('should include payer mix evolution model', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      expect(result.payer_mix_evolution).toBeDefined();
+      expect(result.payer_mix_evolution).toBeInstanceOf(Array);
+      expect(result.payer_mix_evolution!.length).toBeGreaterThan(0);
+    });
+  });
+
+  // ── Patient dynamics ──────────────────────────────────────
+  describe('patient dynamics', () => {
+    it('should include patient dynamics model', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      expect(result.patient_dynamics).toBeDefined();
+    });
+  });
+
+  // ── Integrated projection ─────────────────────────────────
+  describe('integrated projection', () => {
+    it('should include integrated revenue projection', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      expect(result.integrated_projection).toBeDefined();
+      expect(result.integrated_projection).toBeInstanceOf(Array);
+      expect(result.integrated_projection!.length).toBeGreaterThan(0);
+    });
+  });
+
+  // ── Cross-engine signals ──────────────────────────────────
+  describe('cross-engine signals', () => {
+    it('should include cross-engine signals', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      expect(result.cross_engine_signals).toBeDefined();
+    });
+  });
+
+  // ── Percentile projections ────────────────────────────────
+  describe('percentile projections', () => {
+    it('should include percentile projections', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      expect(result.percentile_projections).toBeDefined();
+      expect(result.percentile_projections).toBeInstanceOf(Array);
+      expect(result.percentile_projections!.length).toBeGreaterThan(0);
+    });
+  });
+
+  // ── GTN evolution ─────────────────────────────────────────
+  describe('gross-to-net evolution', () => {
+    it('should include GTN evolution model', async () => {
+      const result = await calculateMarketSizing(makeInput());
+      expect(result.gtn_evolution).toBeDefined();
+      expect(result.gtn_evolution).toBeInstanceOf(Array);
+      expect(result.gtn_evolution!.length).toBeGreaterThan(0);
     });
   });
 });

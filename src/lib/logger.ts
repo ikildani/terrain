@@ -47,7 +47,7 @@ export const logger = {
 export async function withTiming<T>(
   label: string,
   fn: () => Promise<T>,
-  meta?: Record<string, unknown>
+  meta?: Record<string, unknown>,
 ): Promise<{ result: T; durationMs: number }> {
   const start = performance.now();
   const result = await fn();
@@ -59,12 +59,7 @@ export async function withTiming<T>(
 /**
  * Log an API request with common fields. Call at the start of a route handler.
  */
-export function logApiRequest(fields: {
-  route: string;
-  method: string;
-  userId?: string;
-  [key: string]: unknown;
-}) {
+export function logApiRequest(fields: { route: string; method: string; userId?: string; [key: string]: unknown }) {
   logger.info('api_request', fields);
 }
 
@@ -85,4 +80,15 @@ export function logApiResponse(fields: {
   } else {
     logger.info('api_response', fields);
   }
+}
+
+// ────────────────────────────────────────────────────────────
+// BUSINESS METRICS — structured events for dashboards/alerting
+// ────────────────────────────────────────────────────────────
+
+export function logBusinessEvent(
+  event: 'analysis_completed' | 'report_saved' | 'subscription_changed' | 'export_generated',
+  meta: Record<string, unknown>,
+) {
+  logger.info(`business:${event}`, { event, ...meta });
 }

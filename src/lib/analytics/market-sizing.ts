@@ -51,10 +51,10 @@ import { getLikelihoodOfApproval } from '@/lib/data/loa-tables';
 // ────────────────────────────────────────────────────────────
 const STAGE_SHARE = {
   preclinical: { low: 0.02, base: 0.05, high: 0.08 },
-  phase1:      { low: 0.03, base: 0.08, high: 0.12 },
-  phase2:      { low: 0.05, base: 0.12, high: 0.18 },
-  phase3:      { low: 0.08, base: 0.18, high: 0.28 },
-  approved:    { low: 0.12, base: 0.25, high: 0.40 },
+  phase1: { low: 0.03, base: 0.08, high: 0.12 },
+  phase2: { low: 0.05, base: 0.12, high: 0.18 },
+  phase3: { low: 0.08, base: 0.18, high: 0.28 },
+  approved: { low: 0.12, base: 0.25, high: 0.4 },
 };
 
 // ────────────────────────────────────────────────────────────
@@ -63,18 +63,18 @@ const STAGE_SHARE = {
 // p = innovation coefficient, q = imitation coefficient
 // ────────────────────────────────────────────────────────────
 const S_CURVE_PARAMS: Record<string, { p: number; q: number }> = {
-  oncology:       { p: 0.03, q: 0.38 },  // Fast adoption
-  rare_disease:   { p: 0.05, q: 0.45 },  // Faster (small population, high unmet need)
-  neurology:      { p: 0.02, q: 0.25 },  // Slow adoption
+  oncology: { p: 0.03, q: 0.38 }, // Fast adoption
+  rare_disease: { p: 0.05, q: 0.45 }, // Faster (small population, high unmet need)
+  neurology: { p: 0.02, q: 0.25 }, // Slow adoption
   cardiovascular: { p: 0.02, q: 0.28 },
-  immunology:     { p: 0.025, q: 0.30 },
-  hematology:     { p: 0.035, q: 0.40 },
-  ophthalmology:  { p: 0.03, q: 0.32 },
-  metabolic:      { p: 0.025, q: 0.30 },
+  immunology: { p: 0.025, q: 0.3 },
+  hematology: { p: 0.035, q: 0.4 },
+  ophthalmology: { p: 0.03, q: 0.32 },
+  metabolic: { p: 0.025, q: 0.3 },
   infectious_disease: { p: 0.03, q: 0.35 },
-  pulmonology:    { p: 0.025, q: 0.28 },
-  nephrology:     { p: 0.02, q: 0.25 },
-  dermatology:    { p: 0.03, q: 0.30 },
+  pulmonology: { p: 0.025, q: 0.28 },
+  nephrology: { p: 0.02, q: 0.25 },
+  dermatology: { p: 0.03, q: 0.3 },
 };
 const DEFAULT_S_CURVE = { p: 0.025, q: 0.32 };
 
@@ -95,10 +95,10 @@ function buildSCurveRamp(therapyArea: string, years: number = 10): number[] {
 
   // Normalize so peak = 1.0
   const peak = Math.max(...raw);
-  const normalized = raw.map(v => v / peak);
+  const normalized = raw.map((v) => v / peak);
 
   // Apply LOE decline for final years
-  for (let i = 0; i < LOE_DECLINE.length && (years - LOE_DECLINE.length + i) >= 0; i++) {
+  for (let i = 0; i < LOE_DECLINE.length && years - LOE_DECLINE.length + i >= 0; i++) {
     const yearIdx = years - LOE_DECLINE.length + i;
     normalized[yearIdx] = Math.min(normalized[yearIdx], normalized[yearIdx] * LOE_DECLINE[i]);
   }
@@ -107,7 +107,7 @@ function buildSCurveRamp(therapyArea: string, years: number = 10): number[] {
 }
 
 // Fallback for backward compatibility
-const PHARMA_REVENUE_RAMP = [0.05, 0.15, 0.35, 0.60, 0.85, 1.0, 1.0, 0.95, 0.85, 0.70];
+const PHARMA_REVENUE_RAMP = [0.05, 0.15, 0.35, 0.6, 0.85, 1.0, 1.0, 0.95, 0.85, 0.7];
 
 // ────────────────────────────────────────────────────────────
 // COMPETITION-ADJUSTED MARKET SHARE
@@ -123,7 +123,7 @@ function adjustShareForCompetition(
   if (excessCompetitors === 0) return shareRange;
 
   // Each excess competitor reduces share by 5% multiplicative, capped at 40%
-  const reductionFactor = Math.max(0.60, Math.pow(0.95, excessCompetitors));
+  const reductionFactor = Math.max(0.6, Math.pow(0.95, excessCompetitors));
 
   return {
     low: shareRange.low * reductionFactor,
@@ -138,10 +138,10 @@ function adjustShareForCompetition(
 // ────────────────────────────────────────────────────────────
 
 const IRA_PARAMS = {
-  small_molecule_negotiation_year: 9,   // Years post-launch
+  small_molecule_negotiation_year: 9, // Years post-launch
   biologic_negotiation_year: 13,
-  medicare_revenue_share: 0.35,          // ~35% of US revenue is Medicare
-  price_reduction_range: { low: 0.25, base: 0.40, high: 0.60 },
+  medicare_revenue_share: 0.35, // ~35% of US revenue is Medicare
+  price_reduction_range: { low: 0.25, base: 0.4, high: 0.6 },
 };
 
 function computeIRAImpact(
@@ -149,25 +149,23 @@ function computeIRAImpact(
   revenueProjection: RevenueProjectionYear[],
   productType: 'small_molecule' | 'biologic' = 'small_molecule',
 ): IRAImpact | undefined {
-  const negotiationYear = productType === 'biologic'
-    ? IRA_PARAMS.biologic_negotiation_year
-    : IRA_PARAMS.small_molecule_negotiation_year;
+  const negotiationYear =
+    productType === 'biologic' ? IRA_PARAMS.biologic_negotiation_year : IRA_PARAMS.small_molecule_negotiation_year;
 
   const negotiationCalendarYear = launchYear + negotiationYear;
 
   // Only applies if negotiation year falls within projection window
-  const affectedYears = revenueProjection
-    .filter(yr => yr.year >= negotiationCalendarYear)
-    .map(yr => yr.year);
+  const affectedYears = revenueProjection.filter((yr) => yr.year >= negotiationCalendarYear).map((yr) => yr.year);
 
   if (affectedYears.length === 0) return undefined;
 
   // Estimate annual impact at base scenario
   const affectedRevenue = revenueProjection
-    .filter(yr => yr.year >= negotiationCalendarYear)
+    .filter((yr) => yr.year >= negotiationCalendarYear)
     .reduce((sum, yr) => sum + yr.base, 0);
 
-  const annualImpact = (affectedRevenue * IRA_PARAMS.medicare_revenue_share * IRA_PARAMS.price_reduction_range.base) /
+  const annualImpact =
+    (affectedRevenue * IRA_PARAMS.medicare_revenue_share * IRA_PARAMS.price_reduction_range.base) /
     affectedYears.length;
 
   return {
@@ -180,11 +178,8 @@ function computeIRAImpact(
   };
 }
 
-function applyIRAToProjection(
-  projection: RevenueProjectionYear[],
-  iraImpact: IRAImpact,
-): RevenueProjectionYear[] {
-  return projection.map(yr => {
+function applyIRAToProjection(projection: RevenueProjectionYear[], iraImpact: IRAImpact): RevenueProjectionYear[] {
+  return projection.map((yr) => {
     if (yr.year >= iraImpact.negotiation_year) {
       const reduction = iraImpact.medicare_revenue_share * iraImpact.price_reduction_pct;
       return {
@@ -216,8 +211,8 @@ function buildSensitivityAnalysis(
   const drivers: SensitivityDriver[] = [];
 
   // 1. Market Share: ±30%
-  const shareLow = baseSomM * 0.70;
-  const shareHigh = baseSomM * 1.30;
+  const shareLow = baseSomM * 0.7;
+  const shareHigh = baseSomM * 1.3;
   drivers.push({
     variable: 'Market Share',
     low_som_m: Math.round(shareLow),
@@ -239,12 +234,12 @@ function buildSensitivityAnalysis(
   });
 
   // 3. Addressability: ±30%
-  const addrLowPts = Math.round(addressablePts * 0.70 / addressabilityFactor * addressabilityFactor * 0.70);
-  const addrHighPts = Math.round(addressablePts * 1.30 / addressabilityFactor * addressabilityFactor * 1.30);
+  const _addrLowPts = Math.round(((addressablePts * 0.7) / addressabilityFactor) * addressabilityFactor * 0.7);
+  const _addrHighPts = Math.round(((addressablePts * 1.3) / addressabilityFactor) * addressabilityFactor * 1.3);
   drivers.push({
     variable: 'Addressable Population',
-    low_som_m: Math.round(baseSomM * 0.70),
-    high_som_m: Math.round(baseSomM * 1.30),
+    low_som_m: Math.round(baseSomM * 0.7),
+    high_som_m: Math.round(baseSomM * 1.3),
     base_som_m: Math.round(baseSomM),
     swing_pct: 30,
   });
@@ -261,8 +256,8 @@ function buildSensitivityAnalysis(
   });
 
   // 5. Gross-to-Net: ±25% (inverse — higher GTN = lower revenue)
-  const gtnLow = baseSomM * (1 + grossToNet * 0.25);  // Lower GTN = more revenue
-  const gtnHigh = baseSomM * (1 - grossToNet * 0.25);  // Higher GTN = less revenue
+  const gtnLow = baseSomM * (1 + grossToNet * 0.25); // Lower GTN = more revenue
+  const gtnHigh = baseSomM * (1 - grossToNet * 0.25); // Higher GTN = less revenue
   drivers.push({
     variable: 'Gross-to-Net Discount',
     low_som_m: Math.round(Math.min(gtnLow, gtnHigh)),
@@ -290,9 +285,9 @@ function buildSensitivityAnalysis(
 
 const COMPETITIVE_ENTRY_SCHEDULE: Record<string, number[]> = {
   // Expected new entrants per year post-launch (10 years), by crowding level
-  low:    [0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
+  low: [0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
   moderate: [0, 0, 1, 0, 1, 1, 0, 1, 0, 0],
-  high:   [0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+  high: [0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
   very_high: [1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
 };
 
@@ -319,10 +314,10 @@ function buildCompetitiveResponse(
   return baseProjection.map((yr, i) => {
     const newEntrants = schedule[i] ?? 0;
     cumulativeEntrants += newEntrants;
-    cumulativePriceErosion = Math.min(0.40, cumulativeEntrants * priceErosionPerEntrant);
-    cumulativeShareErosion = Math.min(0.30, cumulativeEntrants * shareErosionPerEntrant);
+    cumulativePriceErosion = Math.min(0.4, cumulativeEntrants * priceErosionPerEntrant);
+    cumulativeShareErosion = Math.min(0.3, cumulativeEntrants * shareErosionPerEntrant);
     const totalErosion = 1 - cumulativePriceErosion - cumulativeShareErosion;
-    const adjustedRevenue = Math.round(yr.base * Math.max(0.40, totalErosion));
+    const adjustedRevenue = Math.round(yr.base * Math.max(0.4, totalErosion));
 
     return {
       year: yr.year,
@@ -352,7 +347,8 @@ function buildBiosimilarErosionCurve(
       share_retained_pct: [100, 92, 78, 65, 55, 48],
       product_type: productType,
       erosion_model: 'protected',
-      narrative: 'Orphan drug exclusivity provides 7-year protection. Post-LOE erosion is gradual due to limited generic/biosimilar interest in small patient populations and complex manufacturing for biologics.',
+      narrative:
+        'Orphan drug exclusivity provides 7-year protection. Post-LOE erosion is gradual due to limited generic/biosimilar interest in small patient populations and complex manufacturing for biologics.',
     };
   }
 
@@ -362,7 +358,8 @@ function buildBiosimilarErosionCurve(
       share_retained_pct: [100, 82, 55, 38, 28, 22],
       product_type: 'biologic',
       erosion_model: 'gradual',
-      narrative: 'Biologic LOE erosion follows a gradual curve. Biosimilar uptake is slower than generic small molecules due to physician switching hesitancy, interchangeability requirements, and rebate dynamics. Expect 60-80% share loss within 3 years of first biosimilar entry.',
+      narrative:
+        'Biologic LOE erosion follows a gradual curve. Biosimilar uptake is slower than generic small molecules due to physician switching hesitancy, interchangeability requirements, and rebate dynamics. Expect 60-80% share loss within 3 years of first biosimilar entry.',
     };
   }
 
@@ -372,7 +369,8 @@ function buildBiosimilarErosionCurve(
     share_retained_pct: [100, 40, 18, 10, 8, 5],
     product_type: 'small_molecule',
     erosion_model: 'rapid',
-    narrative: 'Small molecule generics erode branded share rapidly. Paragraph IV challenges may enable day-1 generic entry. Expect 80-95% share loss within 2 years. Authorized generics provide partial mitigation.',
+    narrative:
+      'Small molecule generics erode branded share rapidly. Paragraph IV challenges may enable day-1 generic entry. Expect 80-95% share loss within 2 years. Authorized generics provide partial mitigation.',
   };
 }
 
@@ -383,56 +381,104 @@ function buildBiosimilarErosionCurve(
 // patient population ages; MEAs reduce effective pricing.
 // ────────────────────────────────────────────────────────────
 
-const PAYER_MIX_PROFILES: Record<string, {
-  yr1_commercial: number; yr1_medicare: number; yr1_medicaid: number; yr1_va: number;
-  yr10_commercial: number; yr10_medicare: number; yr10_medicaid: number; yr10_va: number;
-  mea_penetration_yr5: number; mea_discount: number;
-}> = {
+const PAYER_MIX_PROFILES: Record<
+  string,
+  {
+    yr1_commercial: number;
+    yr1_medicare: number;
+    yr1_medicaid: number;
+    yr1_va: number;
+    yr10_commercial: number;
+    yr10_medicare: number;
+    yr10_medicaid: number;
+    yr10_va: number;
+    mea_penetration_yr5: number;
+    mea_discount: number;
+  }
+> = {
   oncology: {
-    yr1_commercial: 0.45, yr1_medicare: 0.40, yr1_medicaid: 0.10, yr1_va: 0.05,
-    yr10_commercial: 0.35, yr10_medicare: 0.48, yr10_medicaid: 0.12, yr10_va: 0.05,
-    mea_penetration_yr5: 0.15, mea_discount: 0.10,
+    yr1_commercial: 0.45,
+    yr1_medicare: 0.4,
+    yr1_medicaid: 0.1,
+    yr1_va: 0.05,
+    yr10_commercial: 0.35,
+    yr10_medicare: 0.48,
+    yr10_medicaid: 0.12,
+    yr10_va: 0.05,
+    mea_penetration_yr5: 0.15,
+    mea_discount: 0.1,
   },
   rare_disease: {
-    yr1_commercial: 0.55, yr1_medicare: 0.20, yr1_medicaid: 0.20, yr1_va: 0.05,
-    yr10_commercial: 0.48, yr10_medicare: 0.28, yr10_medicaid: 0.18, yr10_va: 0.06,
-    mea_penetration_yr5: 0.25, mea_discount: 0.15,
+    yr1_commercial: 0.55,
+    yr1_medicare: 0.2,
+    yr1_medicaid: 0.2,
+    yr1_va: 0.05,
+    yr10_commercial: 0.48,
+    yr10_medicare: 0.28,
+    yr10_medicaid: 0.18,
+    yr10_va: 0.06,
+    mea_penetration_yr5: 0.25,
+    mea_discount: 0.15,
   },
   neurology: {
-    yr1_commercial: 0.40, yr1_medicare: 0.42, yr1_medicaid: 0.12, yr1_va: 0.06,
-    yr10_commercial: 0.30, yr10_medicare: 0.52, yr10_medicaid: 0.12, yr10_va: 0.06,
-    mea_penetration_yr5: 0.20, mea_discount: 0.12,
+    yr1_commercial: 0.4,
+    yr1_medicare: 0.42,
+    yr1_medicaid: 0.12,
+    yr1_va: 0.06,
+    yr10_commercial: 0.3,
+    yr10_medicare: 0.52,
+    yr10_medicaid: 0.12,
+    yr10_va: 0.06,
+    mea_penetration_yr5: 0.2,
+    mea_discount: 0.12,
   },
   immunology: {
-    yr1_commercial: 0.55, yr1_medicare: 0.25, yr1_medicaid: 0.15, yr1_va: 0.05,
-    yr10_commercial: 0.45, yr10_medicare: 0.32, yr10_medicaid: 0.18, yr10_va: 0.05,
-    mea_penetration_yr5: 0.30, mea_discount: 0.18,
+    yr1_commercial: 0.55,
+    yr1_medicare: 0.25,
+    yr1_medicaid: 0.15,
+    yr1_va: 0.05,
+    yr10_commercial: 0.45,
+    yr10_medicare: 0.32,
+    yr10_medicaid: 0.18,
+    yr10_va: 0.05,
+    mea_penetration_yr5: 0.3,
+    mea_discount: 0.18,
   },
   cardiovascular: {
-    yr1_commercial: 0.35, yr1_medicare: 0.48, yr1_medicaid: 0.12, yr1_va: 0.05,
-    yr10_commercial: 0.25, yr10_medicare: 0.56, yr10_medicaid: 0.14, yr10_va: 0.05,
-    mea_penetration_yr5: 0.20, mea_discount: 0.12,
+    yr1_commercial: 0.35,
+    yr1_medicare: 0.48,
+    yr1_medicaid: 0.12,
+    yr1_va: 0.05,
+    yr10_commercial: 0.25,
+    yr10_medicare: 0.56,
+    yr10_medicaid: 0.14,
+    yr10_va: 0.05,
+    mea_penetration_yr5: 0.2,
+    mea_discount: 0.12,
   },
   default: {
-    yr1_commercial: 0.45, yr1_medicare: 0.35, yr1_medicaid: 0.14, yr1_va: 0.06,
-    yr10_commercial: 0.38, yr10_medicare: 0.42, yr10_medicaid: 0.14, yr10_va: 0.06,
-    mea_penetration_yr5: 0.18, mea_discount: 0.12,
+    yr1_commercial: 0.45,
+    yr1_medicare: 0.35,
+    yr1_medicaid: 0.14,
+    yr1_va: 0.06,
+    yr10_commercial: 0.38,
+    yr10_medicare: 0.42,
+    yr10_medicaid: 0.14,
+    yr10_va: 0.06,
+    mea_penetration_yr5: 0.18,
+    mea_discount: 0.12,
   },
 };
 
 // Net price multipliers by payer type (vs. commercial = 1.0)
 const PAYER_NET_PRICE_FACTOR = {
   commercial: 1.0,
-  medicare: 0.78,    // ASP+6% for Part B, Part D negotiation
-  medicaid: 0.55,    // Best price requirement
-  va_dod: 0.52,      // FSS pricing
+  medicare: 0.78, // ASP+6% for Part B, Part D negotiation
+  medicaid: 0.55, // Best price requirement
+  va_dod: 0.52, // FSS pricing
 };
 
-function buildPayerMixEvolution(
-  launchYear: number,
-  therapyArea: string,
-  years: number = 10,
-): PayerMixEvolution[] {
+function buildPayerMixEvolution(launchYear: number, therapyArea: string, years: number = 10): PayerMixEvolution[] {
   const profile = PAYER_MIX_PROFILES[therapyArea.toLowerCase()] ?? PAYER_MIX_PROFILES.default;
 
   return Array.from({ length: years }, (_, i) => {
@@ -448,12 +494,12 @@ function buildPayerMixEvolution(
     const meaImpact = meaPenetration * profile.mea_discount;
 
     // Blended net price factor
-    const blended = (
-      commercial * PAYER_NET_PRICE_FACTOR.commercial +
-      medicare * PAYER_NET_PRICE_FACTOR.medicare +
-      medicaid * PAYER_NET_PRICE_FACTOR.medicaid +
-      va * PAYER_NET_PRICE_FACTOR.va_dod
-    ) * (1 - meaImpact);
+    const blended =
+      (commercial * PAYER_NET_PRICE_FACTOR.commercial +
+        medicare * PAYER_NET_PRICE_FACTOR.medicare +
+        medicaid * PAYER_NET_PRICE_FACTOR.medicaid +
+        va * PAYER_NET_PRICE_FACTOR.va_dod) *
+      (1 - meaImpact);
 
     return {
       year: launchYear + i,
@@ -482,10 +528,9 @@ function buildPatientDynamics(
   const switchingSources: PatientSwitchingModel[] = [];
 
   // Determine if market is additive or cannibalistic based on therapy area characteristics
-  const isHighUnmetNeed = indication.treatment_rate < 0.50;
-  const isNewMechanism = mechanism && !competitors.some(c =>
-    c.toLowerCase().includes(mechanism.toLowerCase().split(' ')[0])
-  );
+  const isHighUnmetNeed = indication.treatment_rate < 0.5;
+  const isNewMechanism =
+    mechanism && !competitors.some((c) => c.toLowerCase().includes(mechanism.toLowerCase().split(' ')[0]));
 
   let totalAdditive = 0;
   let totalCannibalistic = 0;
@@ -508,7 +553,8 @@ function buildPatientDynamics(
       competitor: 'Treatment-experienced patients',
       share_source: 'cannibalistic',
       share_captured_pct: 35,
-      rationale: 'Novel mechanism attracts patients failing current standard of care. Significant switching from existing therapies expected.',
+      rationale:
+        'Novel mechanism attracts patients failing current standard of care. Significant switching from existing therapies expected.',
     });
     switchingSources.push({
       competitor: 'Previously untreated patients',
@@ -536,14 +582,12 @@ function buildPatientDynamics(
     });
   }
 
-  const netExpansion = therapyArea === 'rare_disease' ? 15
-    : isHighUnmetNeed ? 12
-    : isNewMechanism ? 8
-    : 3;
+  const netExpansion = therapyArea === 'rare_disease' ? 15 : isHighUnmetNeed ? 12 : isNewMechanism ? 8 : 3;
 
-  const narrative = totalAdditive >= 50
-    ? `This market has significant untreated patient potential (treatment rate: ${(indication.treatment_rate * 100).toFixed(0)}%). New entrants primarily expand the treated population rather than cannibalize incumbents. Net market expansion estimated at ${netExpansion}%.`
-    : `Established treatment paradigm with high treatment penetration (${(indication.treatment_rate * 100).toFixed(0)}%). New entrants primarily displace existing therapies. ${isNewMechanism ? 'Novel mechanism may attract some previously untreated patients.' : 'Same-mechanism competition is predominantly cannibalistic.'} Net market expansion estimated at ${netExpansion}%.`;
+  const narrative =
+    totalAdditive >= 50
+      ? `This market has significant untreated patient potential (treatment rate: ${(indication.treatment_rate * 100).toFixed(0)}%). New entrants primarily expand the treated population rather than cannibalize incumbents. Net market expansion estimated at ${netExpansion}%.`
+      : `Established treatment paradigm with high treatment penetration (${(indication.treatment_rate * 100).toFixed(0)}%). New entrants primarily displace existing therapies. ${isNewMechanism ? 'Novel mechanism may attract some previously untreated patients.' : 'Same-mechanism competition is predominantly cannibalistic.'} Net market expansion estimated at ${netExpansion}%.`;
 
   return {
     total_share_additive_pct: totalAdditive,
@@ -561,37 +605,67 @@ function buildPatientDynamics(
 
 const BIOMARKER_PREVALENCE: Record<string, Record<string, number>> = {
   'non-small cell lung cancer': {
-    egfr: 0.15, kras_g12c: 0.13, alk: 0.05, ros1: 0.02, braf_v600e: 0.02,
-    ret: 0.02, met_ex14: 0.03, ntrk: 0.01, her2: 0.03, 'pd-l1_high': 0.30,
+    egfr: 0.15,
+    kras_g12c: 0.13,
+    alk: 0.05,
+    ros1: 0.02,
+    braf_v600e: 0.02,
+    ret: 0.02,
+    met_ex14: 0.03,
+    ntrk: 0.01,
+    her2: 0.03,
+    'pd-l1_high': 0.3,
   },
   nsclc: {
-    egfr: 0.15, kras_g12c: 0.13, alk: 0.05, ros1: 0.02, braf_v600e: 0.02,
-    ret: 0.02, met_ex14: 0.03, ntrk: 0.01, her2: 0.03, 'pd-l1_high': 0.30,
+    egfr: 0.15,
+    kras_g12c: 0.13,
+    alk: 0.05,
+    ros1: 0.02,
+    braf_v600e: 0.02,
+    ret: 0.02,
+    met_ex14: 0.03,
+    ntrk: 0.01,
+    her2: 0.03,
+    'pd-l1_high': 0.3,
   },
   'breast cancer': {
-    her2: 0.20, 'triple_negative': 0.15, 'hr_positive': 0.70,
-    brca: 0.05, pik3ca: 0.40,
+    her2: 0.2,
+    triple_negative: 0.15,
+    hr_positive: 0.7,
+    brca: 0.05,
+    pik3ca: 0.4,
   },
   'colorectal cancer': {
-    kras: 0.45, braf_v600e: 0.08, 'msi_h': 0.15, her2: 0.03, ntrk: 0.01,
+    kras: 0.45,
+    braf_v600e: 0.08,
+    msi_h: 0.15,
+    her2: 0.03,
+    ntrk: 0.01,
   },
   melanoma: {
-    braf_v600: 0.50, nras: 0.25, 'pd-l1_high': 0.40,
+    braf_v600: 0.5,
+    nras: 0.25,
+    'pd-l1_high': 0.4,
   },
   'gastric cancer': {
-    her2: 0.20, 'pd-l1_high': 0.35, 'msi_h': 0.05,
+    her2: 0.2,
+    'pd-l1_high': 0.35,
+    msi_h: 0.05,
   },
   'bladder cancer': {
-    fgfr: 0.20, 'pd-l1_high': 0.30,
+    fgfr: 0.2,
+    'pd-l1_high': 0.3,
   },
   'hepatocellular carcinoma': {
     'pd-l1_high': 0.25,
   },
   'ovarian cancer': {
-    brca: 0.20, 'hrd': 0.50,
+    brca: 0.2,
+    hrd: 0.5,
   },
   'prostate cancer': {
-    brca: 0.12, 'hrd': 0.25,
+    brca: 0.12,
+    hrd: 0.25,
   },
 };
 
@@ -604,16 +678,16 @@ const GROSS_TO_NET: Record<string, number> = {
   immunology: 0.45,
   neurology: 0.25,
   cardiovascular: 0.55,
-  metabolic: 0.60,
+  metabolic: 0.6,
   rare_disease: 0.12,
   infectious_disease: 0.35,
-  ophthalmology: 0.20,
+  ophthalmology: 0.2,
   hematology: 0.22,
-  pulmonology: 0.40,
-  nephrology: 0.30,
+  pulmonology: 0.4,
+  nephrology: 0.3,
   dermatology: 0.45,
 };
-const DEFAULT_GTN = 0.30;
+const DEFAULT_GTN = 0.3;
 
 // ────────────────────────────────────────────────────────────
 // DEFAULT WAC FALLBACKS (when no comparables found)
@@ -636,17 +710,14 @@ const DEFAULT_WAC_FALLBACK = 80000;
 // ────────────────────────────────────────────────────────────
 // MAIN PHARMA CALCULATION FUNCTION
 // ────────────────────────────────────────────────────────────
-export async function calculateMarketSizing(
-  input: MarketSizingInput
-): Promise<MarketSizingOutput> {
-
+export async function calculateMarketSizing(input: MarketSizingInput): Promise<MarketSizingOutput> {
   // Step 1: Indication lookup
   const indication = findIndicationByName(input.indication);
   if (!indication) {
     throw new Error(
       `Indication not found: "${input.indication}". ` +
-      `Try a more common name or check spelling. ` +
-      `Terrain covers ${INDICATION_DATA.length} indications across oncology, neurology, immunology, rare disease, and more.`
+        `Try a more common name or check spelling. ` +
+        `Terrain covers ${INDICATION_DATA.length} indications across oncology, neurology, immunology, rare disease, and more.`,
     );
   }
 
@@ -691,9 +762,7 @@ export async function calculateMarketSizing(
   const us_som_high = (addressable * shareRange.high * netPrice) / 1e9;
 
   // Step 5: Geography breakdown
-  const geographyBreakdown = buildGeographyBreakdown(
-    input.geography, us_tam_value, indication
-  );
+  const geographyBreakdown = buildGeographyBreakdown(input.geography, us_tam_value, indication);
 
   // Step 6: Global TAM
   const globalTAM = geographyBreakdown.reduce((sum, t) => {
@@ -703,7 +772,11 @@ export async function calculateMarketSizing(
 
   // Step 7: Revenue projection (values in $M) — S-curve adoption
   let revenueProjection = buildRevenueProjection(
-    input.launch_year, us_som_low, us_som_base, us_som_high, indication.therapy_area
+    input.launch_year,
+    us_som_low,
+    us_som_base,
+    us_som_high,
+    indication.therapy_area,
   );
 
   // Step 7b: IRA impact modeling
@@ -721,7 +794,7 @@ export async function calculateMarketSizing(
 
   // Step 8b: Risk adjustment (LoA + eNPV) — now with indication-specific calibration
   const loa = getLikelihoodOfApproval(indication.therapy_area, input.development_stage, input.indication);
-  const discountRate = 0.10; // Standard pharma 10% WACC
+  const discountRate = 0.1; // Standard pharma 10% WACC
   const riskAdjustedNPV = revenueProjection.reduce((npv, yr, i) => {
     return npv + (yr.base * loa) / Math.pow(1 + discountRate, i + 1);
   }, 0);
@@ -751,12 +824,11 @@ export async function calculateMarketSizing(
   );
 
   // Step 8d: Dynamic competitive response model
-  const competitiveResponse = buildCompetitiveResponse(
-    revenueProjection, competitorCount, indication.therapy_area
-  );
+  const competitiveResponse = buildCompetitiveResponse(revenueProjection, competitorCount, indication.therapy_area);
 
   // Step 8e: Biosimilar/LOE erosion curve
-  const isBiologic = input.mechanism?.toLowerCase().includes('antibod') ||
+  const isBiologic =
+    input.mechanism?.toLowerCase().includes('antibod') ||
     input.mechanism?.toLowerCase().includes('biologic') ||
     input.mechanism?.toLowerCase().includes('mab') ||
     input.mechanism?.toLowerCase().includes('adc') ||
@@ -770,9 +842,7 @@ export async function calculateMarketSizing(
   );
 
   // Step 8f: Payer mix evolution
-  const payerMixEvolution = buildPayerMixEvolution(
-    input.launch_year, indication.therapy_area
-  );
+  const payerMixEvolution = buildPayerMixEvolution(input.launch_year, indication.therapy_area);
 
   // Step 8g: Patient switching dynamics
   const patientDynamics = buildPatientDynamics(indication, input.mechanism);
@@ -788,36 +858,19 @@ export async function calculateMarketSizing(
   );
 
   // Step 8i: Sensitivity interactions (two-variable)
-  const sensitivityInteractions = buildSensitivityInteractions(
-    us_som_base * 1000,
-    sensitivityAnalysis,
-  );
+  const sensitivityInteractions = buildSensitivityInteractions(us_som_base * 1000, sensitivityAnalysis);
 
   // Step 8j: Cross-engine signals
-  const crossEngineSignals = buildCrossEngineSignals(
-    competitorCount,
-    input.development_stage,
-    loa,
-  );
+  const crossEngineSignals = buildCrossEngineSignals(competitorCount, input.development_stage, loa);
 
   // Step 8k: Percentile projections (P10/P25/P50/P75/P90)
-  const percentileProjections = buildPercentileProjections(
-    revenueProjection,
-    sensitivityAnalysis,
-  );
+  const percentileProjections = buildPercentileProjections(revenueProjection, sensitivityAnalysis);
 
   // Step 8l: Treatment line model (1L/2L/3L+)
-  const treatmentLineModel = buildTreatmentLineModel(
-    indication.therapy_area,
-    addressable,
-    input.patient_segment,
-  );
+  const treatmentLineModel = buildTreatmentLineModel(indication.therapy_area, addressable, input.patient_segment);
 
   // Step 8m: Non-linear competitive erosion
-  const nonLinearCompetitiveErosion = buildNonLinearCompetitiveErosion(
-    competitorCount,
-    input.mechanism,
-  );
+  const nonLinearCompetitiveErosion = buildNonLinearCompetitiveErosion(competitorCount, input.mechanism);
 
   // Step 8n: GTN evolution (year-by-year gross-to-net)
   const gtnEvolution = buildGTNEvolution(
@@ -855,10 +908,7 @@ export async function calculateMarketSizing(
       sam_us: toMetric(us_sam_value, addressabilityFactor > 0.4 ? 'high' : 'medium'),
       som_us: {
         ...toMetric(us_som_base, 'medium'),
-        range: [
-          parseFloat(us_som_low.toFixed(2)),
-          parseFloat(us_som_high.toFixed(2)),
-        ],
+        range: [parseFloat(us_som_low.toFixed(2)), parseFloat(us_som_high.toFixed(2))],
       },
       global_tam: toMetric(globalTAM, geographyBreakdown.length > 1 ? 'medium' : 'low'),
       peak_sales_estimate: peakSales,
@@ -870,7 +920,16 @@ export async function calculateMarketSizing(
     pricing_analysis: pricingAnalysis,
     revenue_projection: revenueProjection,
     competitive_context: competitiveContext,
-    methodology: buildMethodology(input, indication, shareRange, therapyGTN, netPrice, loa, patientDynamics, isBiologic),
+    methodology: buildMethodology(
+      input,
+      indication,
+      shareRange,
+      therapyGTN,
+      netPrice,
+      loa,
+      patientDynamics,
+      isBiologic,
+    ),
     assumptions: buildAssumptions(input, indication, addressabilityFactor, therapyGTN, loa),
     data_sources: buildDataSources(indication),
     generated_at: new Date().toISOString(),
@@ -898,7 +957,7 @@ export async function calculateMarketSizing(
 // ADDRESSABILITY FACTOR
 // ────────────────────────────────────────────────────────────
 function estimateAddressabilityFactor(input: MarketSizingInput): number {
-  if (!input.patient_segment && !input.subtype) return 0.60;
+  if (!input.patient_segment && !input.subtype) return 0.6;
 
   const text = `${input.patient_segment ?? ''} ${input.subtype ?? ''}`.toLowerCase();
   const indicationLower = input.indication.toLowerCase();
@@ -911,7 +970,7 @@ function estimateAddressabilityFactor(input: MarketSizingInput): number {
       if (new RegExp(markerNorm, 'i').test(text)) {
         // Apply line-of-therapy modifier on top of biomarker prevalence
         if (/\b(2l|3l|4l|second.line|third.line|relapsed|refractory|r\/r)\b/.test(text)) {
-          return prevalence * 0.60; // Later line narrows further
+          return prevalence * 0.6; // Later line narrows further
         }
         return prevalence;
       }
@@ -919,8 +978,11 @@ function estimateAddressabilityFactor(input: MarketSizingInput): number {
   }
 
   // Step 2: Generic biomarker-selected = narrow population
-  if (/\b(egfr|kras|her2|brca|alk|braf|ntrk|ros1|ret|met|fgfr|pik3ca|msi.h|tmb.h|pd.l1)\b/.test(text) ||
-      text.includes('biomarker') || text.includes('mutation')) {
+  if (
+    /\b(egfr|kras|her2|brca|alk|braf|ntrk|ros1|ret|met|fgfr|pik3ca|msi.h|tmb.h|pd.l1)\b/.test(text) ||
+    text.includes('biomarker') ||
+    text.includes('mutation')
+  ) {
     return 0.15;
   }
   // Later line of therapy = narrow
@@ -932,7 +994,7 @@ function estimateAddressabilityFactor(input: MarketSizingInput): number {
     return 0.55;
   }
   // Subtype specified but no other qualifier
-  if (input.subtype) return 0.40;
+  if (input.subtype) return 0.4;
   return 0.45;
 }
 
@@ -950,19 +1012,15 @@ function toMetric(valueBillions: number, confidence: ConfidenceLevel): MarketMet
 // ────────────────────────────────────────────────────────────
 // PRICING ANALYSIS
 // ────────────────────────────────────────────────────────────
-function buildPricingAnalysis(
-  input: MarketSizingInput,
-  therapyArea: string
-): PricingAnalysis {
+function buildPricingAnalysis(input: MarketSizingInput, therapyArea: string): PricingAnalysis {
   // Find comparables: first by therapy_area, then narrow by mechanism if possible
-  let comparables = PRICING_BENCHMARKS.filter(
-    b => b.therapy_area.toLowerCase() === therapyArea.toLowerCase()
-  );
+  let comparables = PRICING_BENCHMARKS.filter((b) => b.therapy_area.toLowerCase() === therapyArea.toLowerCase());
 
   if (input.mechanism) {
     const mechanismMatches = comparables.filter(
-      b => b.mechanism_class.toLowerCase().includes(input.mechanism!.toLowerCase()) ||
-           input.mechanism!.toLowerCase().includes(b.mechanism_class.toLowerCase())
+      (b) =>
+        b.mechanism_class.toLowerCase().includes(input.mechanism!.toLowerCase()) ||
+        input.mechanism!.toLowerCase().includes(b.mechanism_class.toLowerCase()),
     );
     if (mechanismMatches.length >= 3) comparables = mechanismMatches;
   }
@@ -972,13 +1030,14 @@ function buildPricingAnalysis(
   const topComparables = comparables.slice(0, 8);
 
   // Percentile-based pricing
-  const wacs = comparables.map(c => c.us_launch_wac_annual).sort((a, b) => a - b);
+  const wacs = comparables.map((c) => c.us_launch_wac_annual).sort((a, b) => a - b);
   const fallbackWAC = DEFAULT_WAC[therapyArea] ?? DEFAULT_WAC_FALLBACK;
 
   const pctl = (arr: number[], p: number) => {
     if (arr.length === 0) return fallbackWAC;
     const idx = (p / 100) * (arr.length - 1);
-    const lo = Math.floor(idx), hi = Math.ceil(idx);
+    const lo = Math.floor(idx),
+      hi = Math.ceil(idx);
     return lo === hi ? arr[lo] : arr[lo] + (arr[hi] - arr[lo]) * (idx - lo);
   };
 
@@ -988,7 +1047,7 @@ function buildPricingAnalysis(
 
   const gtn = GROSS_TO_NET[therapyArea] ?? DEFAULT_GTN;
 
-  const comparableDrugs: ComparableDrug[] = topComparables.map(c => ({
+  const comparableDrugs: ComparableDrug[] = topComparables.map((c) => ({
     name: c.drug_name,
     company: c.company,
     launch_year: c.launch_year,
@@ -1021,19 +1080,30 @@ function buildPricingAnalysis(
 
 function buildPayerDynamics(therapyArea: string): string {
   const d: Record<string, string> = {
-    oncology: 'Oncology retains strong pricing power. Part B buy-and-bill faces ASP+6% constraints; Part D oral oncology faces IRA negotiation risk after 9 years. Prior auth rare for first-in-class.',
-    immunology: 'Highly competitive. Biosimilar pressure on biologics. Step-through requirements and 40-55% gross-to-net spreads. Formulary positioning critical.',
-    neurology: 'Moderate payer restrictions. Specialty products may face CED requirements. Step therapy common for non-orphan indications.',
-    rare_disease: 'Favorable pricing. Limited payer pushback due to small populations. Value-based agreements growing. Patient assistance programs essential.',
-    cardiovascular: 'Mature, generic-heavy. Novel agents face generic step-through. Value-based pricing tied to CV outcomes data.',
+    oncology:
+      'Oncology retains strong pricing power. Part B buy-and-bill faces ASP+6% constraints; Part D oral oncology faces IRA negotiation risk after 9 years. Prior auth rare for first-in-class.',
+    immunology:
+      'Highly competitive. Biosimilar pressure on biologics. Step-through requirements and 40-55% gross-to-net spreads. Formulary positioning critical.',
+    neurology:
+      'Moderate payer restrictions. Specialty products may face CED requirements. Step therapy common for non-orphan indications.',
+    rare_disease:
+      'Favorable pricing. Limited payer pushback due to small populations. Value-based agreements growing. Patient assistance programs essential.',
+    cardiovascular:
+      'Mature, generic-heavy. Novel agents face generic step-through. Value-based pricing tied to CV outcomes data.',
     metabolic: 'GLP-1 class faces utilization management but strong demand. Insulin IRA caps at $35/month.',
     infectious_disease: 'Variable by sub-segment. Novel antibiotics supported by GAIN Act but low volumes.',
-    ophthalmology: 'Anti-VEGF dominated by buy-and-bill. Biosimilar entry disrupting. Gene therapy faces one-time payment challenges.',
-    hematology: 'Strong pricing for novel agents. CAR-T and bispecifics command $300K+. Factor replacement facing biosimilar competition.',
-    pulmonology: 'Competitive inhaler market with generic pressure. Biologics for severe asthma have moderate restrictions.',
+    ophthalmology:
+      'Anti-VEGF dominated by buy-and-bill. Biosimilar entry disrupting. Gene therapy faces one-time payment challenges.',
+    hematology:
+      'Strong pricing for novel agents. CAR-T and bispecifics command $300K+. Factor replacement facing biosimilar competition.',
+    pulmonology:
+      'Competitive inhaler market with generic pressure. Biologics for severe asthma have moderate restrictions.',
     nephrology: 'Growing market with novel agents. Dialysis products face Medicare bundled payment dynamics.',
   };
-  return d[therapyArea] ?? 'Standard commercial payer landscape. Coverage depends on clinical differentiation versus standard of care.';
+  return (
+    d[therapyArea] ??
+    'Standard commercial payer landscape. Coverage depends on clinical differentiation versus standard of care.'
+  );
 }
 
 // ────────────────────────────────────────────────────────────
@@ -1042,7 +1112,7 @@ function buildPayerDynamics(therapyArea: string): string {
 function buildGeographyBreakdown(
   geographies: string[],
   usTamBillions: number,
-  indication: NonNullable<ReturnType<typeof findIndicationByName>>
+  indication: NonNullable<ReturnType<typeof findIndicationByName>>,
 ): GeographyBreakdownItem[] {
   const usPopM = 336;
 
@@ -1061,25 +1131,27 @@ function buildGeographyBreakdown(
     RoW: 'Variable regulatory and pricing frameworks.',
   };
 
-  return geographies.map(geo => {
-    const territory = TERRITORY_MULTIPLIERS.find(t => t.code === geo || t.territory === geo);
-    const multiplier = territory?.multiplier ?? 0.5;
-    const popM = territory?.population_m ?? 50;
-    const prevalencePerM = indication.us_prevalence / usPopM;
+  return geographies
+    .map((geo) => {
+      const territory = TERRITORY_MULTIPLIERS.find((t) => t.code === geo || t.territory === geo);
+      const multiplier = territory?.multiplier ?? 0.5;
+      const popM = territory?.population_m ?? 50;
+      const prevalencePerM = indication.us_prevalence / usPopM;
 
-    return {
-      territory: territory?.territory ?? geo,
-      tam: toMetric(usTamBillions * multiplier, multiplier > 0.3 ? 'high' : 'medium'),
-      population: popM * 1_000_000,
-      prevalence_rate: parseFloat((prevalencePerM / 1_000_000).toFixed(6)),
-      market_multiplier: multiplier,
-      regulatory_status: regNotes[geo] ?? 'Country-specific regulatory framework.',
-    };
-  }).sort((a, b) => {
-    const aV = a.tam.unit === 'B' ? a.tam.value : a.tam.value / 1000;
-    const bV = b.tam.unit === 'B' ? b.tam.value : b.tam.value / 1000;
-    return bV - aV;
-  });
+      return {
+        territory: territory?.territory ?? geo,
+        tam: toMetric(usTamBillions * multiplier, multiplier > 0.3 ? 'high' : 'medium'),
+        population: popM * 1_000_000,
+        prevalence_rate: parseFloat((prevalencePerM / 1_000_000).toFixed(6)),
+        market_multiplier: multiplier,
+        regulatory_status: regNotes[geo] ?? 'Country-specific regulatory framework.',
+      };
+    })
+    .sort((a, b) => {
+      const aV = a.tam.unit === 'B' ? a.tam.value : a.tam.value / 1000;
+      const bV = b.tam.unit === 'B' ? b.tam.value : b.tam.value / 1000;
+      return bV - aV;
+    });
 }
 
 // ────────────────────────────────────────────────────────────
@@ -1106,9 +1178,7 @@ function buildRevenueProjection(
 // ────────────────────────────────────────────────────────────
 // COMPETITIVE CONTEXT
 // ────────────────────────────────────────────────────────────
-function buildCompetitiveContext(
-  indication: NonNullable<ReturnType<typeof findIndicationByName>>
-) {
+function buildCompetitiveContext(indication: NonNullable<ReturnType<typeof findIndicationByName>>) {
   const count = indication.major_competitors.length;
 
   let crowdingScore: number;
@@ -1119,11 +1189,12 @@ function buildCompetitiveContext(
   else if (count <= 12) crowdingScore = 8;
   else crowdingScore = 9;
 
-  const note = count <= 2
-    ? 'Low competition creates significant first/second-mover advantage.'
-    : count <= 5
-    ? 'Moderate competition. Mechanism differentiation and superior data will be key.'
-    : 'Highly competitive. Requires clear differentiation on efficacy, safety, or convenience.';
+  const note =
+    count <= 2
+      ? 'Low competition creates significant first/second-mover advantage.'
+      : count <= 5
+        ? 'Moderate competition. Mechanism differentiation and superior data will be key.'
+        : 'Highly competitive. Requires clear differentiation on efficacy, safety, or convenience.';
 
   return {
     approved_products: Math.max(1, Math.round(count * 0.6)),
@@ -1150,22 +1221,24 @@ function buildMethodology(
     `Market sizing for "${input.indication}" calculated using a patient funnel-based approach with risk-adjusted revenue modeling.`,
     '',
     `Epidemiology: US prevalence ${indication.us_prevalence.toLocaleString()} patients, ` +
-    `diagnosis rate ${(indication.diagnosis_rate * 100).toFixed(0)}%, ` +
-    `treatment rate ${(indication.treatment_rate * 100).toFixed(0)}%. ` +
-    `Source: ${indication.prevalence_source}.`,
+      `diagnosis rate ${(indication.diagnosis_rate * 100).toFixed(0)}%, ` +
+      `treatment rate ${(indication.treatment_rate * 100).toFixed(0)}%. ` +
+      `Source: ${indication.prevalence_source}.`,
     '',
     `Patient Funnel: Prevalence → diagnosed → treated → addressable (segment filter${input.patient_segment ? `: "${input.patient_segment}"` : ': broad'}) → capturable. Biomarker-specific prevalence applied where available.`,
     '',
-    `Pricing: WAC benchmarked against ${indication.therapy_area} comparables from Terrain drug pricing database (${PRICING_BENCHMARKS.filter(b => b.therapy_area === indication.therapy_area).length} drugs). ` +
-    `Net price $${Math.round(netPrice).toLocaleString()} after ${(grossToNet * 100).toFixed(0)}% gross-to-net.`,
+    `Pricing: WAC benchmarked against ${indication.therapy_area} comparables from Terrain drug pricing database (${PRICING_BENCHMARKS.filter((b) => b.therapy_area === indication.therapy_area).length} drugs). ` +
+      `Net price $${Math.round(netPrice).toLocaleString()} after ${(grossToNet * 100).toFixed(0)}% gross-to-net.`,
     '',
     `Market Share: ${(shareRange.low * 100).toFixed(1)}-${(shareRange.high * 100).toFixed(1)}% peak range for ${input.development_stage} stage, ` +
-    `competition-adjusted for ${indication.major_competitors.length} known competitors (share reduced when >3 competitors). ` +
-    `Calibrated to historical ${indication.therapy_area} outcomes.`,
+      `competition-adjusted for ${indication.major_competitors.length} known competitors (share reduced when >3 competitors). ` +
+      `Calibrated to historical ${indication.therapy_area} outcomes.`,
     '',
     `Revenue: 10-year Bass diffusion S-curve model calibrated to ${indication.therapy_area} adoption dynamics. LOE decline modeled years 8-10. Three scenarios: bear/base/bull.`,
     '',
-    loa !== undefined ? `Risk Adjustment: Probability of success ${(loa * 100).toFixed(0)}% (${indication.therapy_area} LoA at ${input.development_stage} stage, BIO/Informa benchmarks). Risk-adjusted NPV calculated at 10% WACC.` : '',
+    loa !== undefined
+      ? `Risk Adjustment: Probability of success ${(loa * 100).toFixed(0)}% (${indication.therapy_area} LoA at ${input.development_stage} stage, BIO/Informa benchmarks). Risk-adjusted NPV calculated at 10% WACC.`
+      : '',
     '',
     `Sensitivity: Tornado analysis on 5 key drivers (market share, pricing, addressable population, diagnosis rate, gross-to-net).`,
     '',
@@ -1180,7 +1253,9 @@ function buildMethodology(
     `Patient Dynamics: ${patientDyn.total_share_additive_pct}% additive / ${patientDyn.total_share_cannibalistic_pct}% cannibalistic share capture modeled. Net market expansion: ${patientDyn.net_market_expansion_pct}%.`,
     '',
     `Geography: US baseline scaled per territory using GDP-adjusted healthcare spend multipliers.`,
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 // ────────────────────────────────────────────────────────────
@@ -1219,7 +1294,6 @@ function buildAssumptions(
 
   return assumptions;
 }
-
 
 // ────────────────────────────────────────────────────────────
 // BIOMARKER NESTING
@@ -1299,7 +1373,7 @@ function buildBiomarkerNesting(
     const isFirstLine = /\b(1l|first.line|frontline|treatment.naive|newly.diagnosed)\b/.test(segmentText);
 
     if (isLaterLine) {
-      const lotFactor = 0.60;
+      const lotFactor = 0.6;
       const lotPatients = Math.round(biomarkerPatients * lotFactor);
       levels.push({
         name: 'Later-line (2L+/R/R)',
@@ -1326,36 +1400,39 @@ function buildBiomarkerNesting(
   const totalAddressable = finalLevel.addressable_patients;
 
   // Effective LoA = base LoA * product of all level modifiers
-  const effectiveLoa = Math.min(1.0, levels.reduce((loa, lvl) => loa * lvl.loa_modifier, baseLoa));
+  const effectiveLoa = Math.min(
+    1.0,
+    levels.reduce((loa, lvl) => loa * lvl.loa_modifier, baseLoa),
+  );
 
   // Build narrative
   const narrativeParts: string[] = [];
-  narrativeParts.push(`Starting from ${indication.name} (${addressablePatients.toLocaleString()} addressable patients).`);
+  narrativeParts.push(
+    `Starting from ${indication.name} (${addressablePatients.toLocaleString()} addressable patients).`,
+  );
 
   if (detectedBiomarker && levels.length > 1) {
     const bmLevel = levels[1];
     narrativeParts.push(
       `Biomarker nesting: ${bmLevel.name} represents ${bmLevel.prevalence_pct}% of the addressable population ` +
-      `(${bmLevel.addressable_patients.toLocaleString()} patients). ` +
-      `Biomarker-selected trial design boosts LoA by ${((bmLevel.loa_modifier - 1) * 100).toFixed(0)}% ` +
-      `and supports a ${bmLevel.pricing_premium_pct}% pricing premium.`
+        `(${bmLevel.addressable_patients.toLocaleString()} patients). ` +
+        `Biomarker-selected trial design boosts LoA by ${((bmLevel.loa_modifier - 1) * 100).toFixed(0)}% ` +
+        `and supports a ${bmLevel.pricing_premium_pct}% pricing premium.`,
     );
     if (levels.length > 2) {
       const lotLevel = levels[2];
       narrativeParts.push(
         `${lotLevel.name} further narrows to ${lotLevel.prevalence_pct}% of biomarker-positive patients ` +
-        `(${lotLevel.addressable_patients.toLocaleString()} patients).`
+          `(${lotLevel.addressable_patients.toLocaleString()} patients).`,
       );
     }
   } else {
-    narrativeParts.push(
-      'No biomarker nesting applied. Population addressed at the full indication level.'
-    );
+    narrativeParts.push('No biomarker nesting applied. Population addressed at the full indication level.');
   }
 
   narrativeParts.push(
     `Effective LoA after nesting: ${(effectiveLoa * 100).toFixed(1)}%. ` +
-    `Total addressable after nesting: ${totalAddressable.toLocaleString()} patients.`
+      `Total addressable after nesting: ${totalAddressable.toLocaleString()} patients.`,
   );
 
   return {
@@ -1396,14 +1473,12 @@ function buildIntegratedProjection(
     const grossRevenue = yr.base;
 
     // Payer mix factor for this year (fallback to 1.0 if missing)
-    const payerYear = payerMix.find(p => p.year === yr.year);
+    const payerYear = payerMix.find((p) => p.year === yr.year);
     const payerMixFactor = payerYear ? payerYear.blended_net_price_factor : 1.0;
 
     // Competitive erosion for this year
-    const compYear = competitiveResponse.find(c => c.year === yr.year);
-    const competitiveErosionPct = compYear
-      ? (compYear.price_erosion_pct + compYear.share_erosion_pct)
-      : 0;
+    const compYear = competitiveResponse.find((c) => c.year === yr.year);
+    const competitiveErosionPct = compYear ? compYear.price_erosion_pct + compYear.share_erosion_pct : 0;
 
     // IRA reduction for this year
     let iraReductionPct = 0;
@@ -1436,7 +1511,7 @@ function buildIntegratedProjection(
     // Cumulative patients treated: patient funnel addressable * share * adoption curve
     const adoptionFactor = adoptionRamp[i] ?? 0;
     const cumulativePatientsTreated = Math.round(
-      patientFunnel.addressable * shareRange.base * adoptionFactor * (i + 1)
+      patientFunnel.addressable * shareRange.base * adoptionFactor * (i + 1),
     );
 
     return {
@@ -1520,10 +1595,10 @@ function buildSensitivityInteractions(
 
 // Stage-based estimates of months from current stage to approval
 const STAGE_TO_APPROVAL_MONTHS: Record<string, number> = {
-  preclinical: 96,  // ~8 years
-  phase1: 72,       // ~6 years
-  phase2: 42,       // ~3.5 years
-  phase3: 18,       // ~1.5 years
+  preclinical: 96, // ~8 years
+  phase1: 72, // ~6 years
+  phase2: 42, // ~3.5 years
+  phase3: 18, // ~1.5 years
   approved: 0,
 };
 
@@ -1587,7 +1662,7 @@ function buildPercentileProjections(
     if (positiveDelta > maxPositiveSwing) maxPositiveSwing = positiveDelta;
   }
 
-  return revenueProjection.map(yr => {
+  return revenueProjection.map((yr) => {
     const base = yr.base;
     const p10 = Math.max(0, base * (1 - maxNegativeSwing * 1.5));
     const p25 = base * (1 - maxNegativeSwing * 0.75);
@@ -1611,17 +1686,72 @@ function buildPercentileProjections(
 // calibrated per therapy area.
 // ────────────────────────────────────────────────────────────
 
-const TREATMENT_LINE_ATTRITION: Record<string, {
-  '1L_to_2L': number; '2L_to_3L': number;
-  '1L_ceiling': number; '2L_ceiling': number; '3L_ceiling': number;
-  '2L_price_mult': number; '3L_price_mult': number;
-}> = {
-  oncology:       { '1L_to_2L': 0.50, '2L_to_3L': 0.60, '1L_ceiling': 0.30, '2L_ceiling': 0.20, '3L_ceiling': 0.12, '2L_price_mult': 1.0,  '3L_price_mult': 1.1  },
-  neurology:      { '1L_to_2L': 0.35, '2L_to_3L': 0.55, '1L_ceiling': 0.25, '2L_ceiling': 0.15, '3L_ceiling': 0.08, '2L_price_mult': 1.0,  '3L_price_mult': 1.05 },
-  rare_disease:   { '1L_to_2L': 0.25, '2L_to_3L': 0.45, '1L_ceiling': 0.35, '2L_ceiling': 0.25, '3L_ceiling': 0.15, '2L_price_mult': 1.05, '3L_price_mult': 1.15 },
-  immunology:     { '1L_to_2L': 0.40, '2L_to_3L': 0.50, '1L_ceiling': 0.20, '2L_ceiling': 0.15, '3L_ceiling': 0.08, '2L_price_mult': 1.0,  '3L_price_mult': 1.0  },
-  cardiovascular: { '1L_to_2L': 0.30, '2L_to_3L': 0.50, '1L_ceiling': 0.20, '2L_ceiling': 0.12, '3L_ceiling': 0.06, '2L_price_mult': 1.0,  '3L_price_mult': 1.0  },
-  default:        { '1L_to_2L': 0.40, '2L_to_3L': 0.55, '1L_ceiling': 0.25, '2L_ceiling': 0.15, '3L_ceiling': 0.10, '2L_price_mult': 1.0,  '3L_price_mult': 1.05 },
+const TREATMENT_LINE_ATTRITION: Record<
+  string,
+  {
+    '1L_to_2L': number;
+    '2L_to_3L': number;
+    '1L_ceiling': number;
+    '2L_ceiling': number;
+    '3L_ceiling': number;
+    '2L_price_mult': number;
+    '3L_price_mult': number;
+  }
+> = {
+  oncology: {
+    '1L_to_2L': 0.5,
+    '2L_to_3L': 0.6,
+    '1L_ceiling': 0.3,
+    '2L_ceiling': 0.2,
+    '3L_ceiling': 0.12,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.1,
+  },
+  neurology: {
+    '1L_to_2L': 0.35,
+    '2L_to_3L': 0.55,
+    '1L_ceiling': 0.25,
+    '2L_ceiling': 0.15,
+    '3L_ceiling': 0.08,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.05,
+  },
+  rare_disease: {
+    '1L_to_2L': 0.25,
+    '2L_to_3L': 0.45,
+    '1L_ceiling': 0.35,
+    '2L_ceiling': 0.25,
+    '3L_ceiling': 0.15,
+    '2L_price_mult': 1.05,
+    '3L_price_mult': 1.15,
+  },
+  immunology: {
+    '1L_to_2L': 0.4,
+    '2L_to_3L': 0.5,
+    '1L_ceiling': 0.2,
+    '2L_ceiling': 0.15,
+    '3L_ceiling': 0.08,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.0,
+  },
+  cardiovascular: {
+    '1L_to_2L': 0.3,
+    '2L_to_3L': 0.5,
+    '1L_ceiling': 0.2,
+    '2L_ceiling': 0.12,
+    '3L_ceiling': 0.06,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.0,
+  },
+  default: {
+    '1L_to_2L': 0.4,
+    '2L_to_3L': 0.55,
+    '1L_ceiling': 0.25,
+    '2L_ceiling': 0.15,
+    '3L_ceiling': 0.1,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.05,
+  },
 };
 
 function buildTreatmentLineModel(
@@ -1676,7 +1806,7 @@ function buildTreatmentLineModel(
   ];
 
   if (detectedLine) {
-    return allLines.filter(l => l.line === detectedLine);
+    return allLines.filter((l) => l.line === detectedLine);
   }
 
   return allLines;
@@ -1689,7 +1819,7 @@ function buildTreatmentLineModel(
 // ────────────────────────────────────────────────────────────
 
 const BASE_EROSION_PER_COMPETITOR = [0.22, 0.12, 0.08, 0.05, 0.03, 0.03, 0.02, 0.02];
-const MAX_CUMULATIVE_EROSION = 0.60;
+const MAX_CUMULATIVE_EROSION = 0.6;
 
 function buildNonLinearCompetitiveErosion(
   competitorCount: number,
@@ -1701,12 +1831,14 @@ function buildNonLinearCompetitiveErosion(
   const mechLower = (mechanism ?? '').toLowerCase();
 
   for (let i = 0; i < competitorCount; i++) {
-    const baseErosion = BASE_EROSION_PER_COMPETITOR[i] ?? BASE_EROSION_PER_COMPETITOR[BASE_EROSION_PER_COMPETITOR.length - 1];
+    const baseErosion =
+      BASE_EROSION_PER_COMPETITOR[i] ?? BASE_EROSION_PER_COMPETITOR[BASE_EROSION_PER_COMPETITOR.length - 1];
 
     // Check mechanism overlap
     let mechanismOverlap = false;
     if (mechLower && competitorMechanisms && competitorMechanisms[i]) {
-      mechanismOverlap = competitorMechanisms[i].toLowerCase().includes(mechLower) ||
+      mechanismOverlap =
+        competitorMechanisms[i].toLowerCase().includes(mechLower) ||
         mechLower.includes(competitorMechanisms[i].toLowerCase());
     }
 
@@ -1734,7 +1866,7 @@ const GTN_BASE_RATES: Record<string, number> = {
   oncology: 0.18,
   rare_disease: 0.08,
   neurology: 0.15,
-  immunology: 0.20,
+  immunology: 0.2,
   cardiovascular: 0.22,
   default: 0.18,
 };
@@ -1769,9 +1901,7 @@ function buildGTNEvolution(
     let threeFourtyBPressure = 0;
     if (yearNum > 2) {
       const yearsOf340B = yearNum - 2;
-      threeFourtyBPressure = is340BOnco
-        ? yearsOf340B * 0.008
-        : yearsOf340B * 0.005;
+      threeFourtyBPressure = is340BOnco ? yearsOf340B * 0.008 : yearsOf340B * 0.005;
     }
 
     // Part B vs D mix effect
@@ -1801,7 +1931,9 @@ function buildGTNEvolution(
       narrativeParts.push(`340B pressure adds ${(threeFourtyBPressure * 100).toFixed(1)}pp`);
     }
     if (partBvsDMix > 0) {
-      narrativeParts.push(`${productType === 'biologic' ? 'Part B ASP erosion' : 'Part D competition'} adds ${(partBvsDMix * 100).toFixed(1)}pp`);
+      narrativeParts.push(
+        `${productType === 'biologic' ? 'Part B ASP erosion' : 'Part D competition'} adds ${(partBvsDMix * 100).toFixed(1)}pp`,
+      );
     }
     if (effectiveGTN >= 0.45) {
       narrativeParts.push('(capped at 45%)');
@@ -1834,7 +1966,8 @@ const EFFICACY_PRECEDENTS: Record<string, string[]> = {
   me_too: ['Later-line checkpoint inhibitors', '5th+ TKI in indication'],
 };
 
-const BIOMARKER_TERMS = /\b(egfr|kras|alk|her2|pd[- ]?l1|braf|ntrk|ros1|ret|met|fgfr|pik3ca|msi[- ]?h|tmb[- ]?h|brca|hrd)\b/i;
+const BIOMARKER_TERMS =
+  /\b(egfr|kras|alk|her2|pd[- ]?l1|braf|ntrk|ros1|ret|met|fgfr|pik3ca|msi[- ]?h|tmb[- ]?h|brca|hrd)\b/i;
 
 function buildEfficacyShareModifier(
   mechanism: string | undefined,
@@ -1870,7 +2003,7 @@ function buildEfficacyShareModifier(
     evidence = `${competitorCount} competitors in ${indication.name} — comparable to existing agents. Differentiation will depend on clinical data quality and label breadth.`;
   } else {
     tier = 'me_too';
-    multiplier = 0.80;
+    multiplier = 0.8;
     evidence = `Highly crowded space with ${competitorCount} competitors. Without clear differentiation, market share will be constrained by payer and physician switching inertia.`;
   }
 
@@ -1885,9 +2018,7 @@ function buildEfficacyShareModifier(
 // ────────────────────────────────────────────────────────────
 // DATA SOURCES
 // ────────────────────────────────────────────────────────────
-function buildDataSources(
-  indication: NonNullable<ReturnType<typeof findIndicationByName>>
-): DataSource[] {
+function buildDataSources(indication: NonNullable<ReturnType<typeof findIndicationByName>>): DataSource[] {
   return [
     { name: indication.prevalence_source.split(';')[0].trim(), type: 'public' },
     { name: 'WHO Global Burden of Disease 2024', type: 'public' },

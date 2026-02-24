@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { createClient } from '@/lib/supabase/client';
 import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js';
 
@@ -24,7 +25,9 @@ export function useUser(): UserState {
     // Get initial user
     async function getInitialUser() {
       const { data } = await supabase!.auth.getUser();
-      setUser(data.user ?? null);
+      const resolvedUser = data.user ?? null;
+      setUser(resolvedUser);
+      Sentry.setUser(resolvedUser ? { id: resolvedUser.id } : null);
       setIsLoading(false);
     }
     getInitialUser();
@@ -33,7 +36,9 @@ export function useUser(): UserState {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
-      setUser(session?.user ?? null);
+      const sessionUser = session?.user ?? null;
+      setUser(sessionUser);
+      Sentry.setUser(sessionUser ? { id: sessionUser.id } : null);
     });
 
     return () => subscription.unsubscribe();

@@ -1,17 +1,29 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { BarChart3 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import MarketSizingForm from '@/components/market-sizing/MarketSizingForm';
-import MarketSizingReport from '@/components/market-sizing/MarketSizingReport';
-import DeviceMarketSizingReport from '@/components/market-sizing/DeviceMarketSizingReport';
-import CDxMarketSizingReport from '@/components/market-sizing/CDxMarketSizingReport';
-import { PdfPreviewOverlay } from '@/components/shared/PdfPreviewOverlay';
 import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
-import type { MarketSizingOutput, MarketSizingInput, DeviceMarketSizingOutput, CDxOutput, DeviceMarketSizingInput, CDxMarketSizingInput } from '@/types';
+
+// Dynamic imports — heavy report components loaded on demand
+const MarketSizingReport = dynamic(() => import('@/components/market-sizing/MarketSizingReport'));
+const DeviceMarketSizingReport = dynamic(() => import('@/components/market-sizing/DeviceMarketSizingReport'));
+const CDxMarketSizingReport = dynamic(() => import('@/components/market-sizing/CDxMarketSizingReport'));
+const PdfPreviewOverlay = dynamic(() =>
+  import('@/components/shared/PdfPreviewOverlay').then((mod) => ({ default: mod.PdfPreviewOverlay })),
+);
+import type {
+  MarketSizingOutput,
+  MarketSizingInput,
+  DeviceMarketSizingOutput,
+  CDxOutput,
+  DeviceMarketSizingInput,
+  CDxMarketSizingInput,
+} from '@/types';
 
 type MarketSizingResult = MarketSizingOutput | DeviceMarketSizingOutput | CDxOutput;
 
@@ -52,13 +64,10 @@ function EmptyState() {
   return (
     <div className="card noise p-12 text-center flex flex-col items-center">
       <BarChart3 className="w-12 h-12 text-navy-600 mb-4" />
-      <h3 className="font-display text-lg text-white mb-2">
-        Run Your First Analysis
-      </h3>
+      <h3 className="font-display text-lg text-white mb-2">Run Your First Analysis</h3>
       <p className="text-sm text-slate-500 max-w-md">
-        Select a product category and configure your parameters to generate an
-        investor-grade market assessment with TAM, SAM, SOM, patient funnel,
-        geography breakdown, and 10-year revenue projections.
+        Select a product category and configure your parameters to generate an investor-grade market assessment with
+        TAM, SAM, SOM, patient funnel, geography breakdown, and 10-year revenue projections.
       </p>
     </div>
   );
@@ -70,7 +79,13 @@ export default function MarketSizingPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const mutation = useMutation({
-    mutationFn: async ({ productCategory: pc, formData }: { productCategory: string; formData: Record<string, unknown> }) => {
+    mutationFn: async ({
+      productCategory: pc,
+      formData,
+    }: {
+      productCategory: string;
+      formData: Record<string, unknown>;
+    }) => {
       const response = await fetch('/api/analyze/market', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -152,10 +167,7 @@ export default function MarketSizingPage() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left panel — Form */}
         <div className="w-full lg:w-[380px] lg:flex-shrink-0">
-          <MarketSizingForm
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-          />
+          <MarketSizingForm onSubmit={handleSubmit} isLoading={isLoading} />
         </div>
 
         {/* Right panel — Results */}
@@ -185,7 +197,13 @@ export default function MarketSizingPage() {
         reportSubtitle={productCategory !== 'pharmaceutical' ? productCategory.replace(/_/g, ' ') : undefined}
         filename={
           formInput
-            ? `terrain-${String((formInput as Record<string, unknown>).indication || (formInput as Record<string, unknown>).procedure_or_condition || 'report').toLowerCase().replace(/\s+/g, '-')}-market-sizing`
+            ? `terrain-${String(
+                (formInput as Record<string, unknown>).indication ||
+                  (formInput as Record<string, unknown>).procedure_or_condition ||
+                  'report',
+              )
+                .toLowerCase()
+                .replace(/\s+/g, '-')}-market-sizing`
             : 'terrain-market-sizing'
         }
       >

@@ -1,9 +1,8 @@
-import type { Plan } from '@/types';
-
 export const PLAN_LIMITS = {
   free: {
     market_sizing: 3,
     competitive: 1,
+    pipeline: 5,
     partners: 0,
     regulatory: 0,
     reports_saved: 3,
@@ -14,6 +13,7 @@ export const PLAN_LIMITS = {
   pro: {
     market_sizing: -1,
     competitive: -1,
+    pipeline: -1,
     partners: -1,
     regulatory: -1,
     reports_saved: -1,
@@ -24,6 +24,7 @@ export const PLAN_LIMITS = {
   team: {
     market_sizing: -1,
     competitive: -1,
+    pipeline: -1,
     partners: -1,
     regulatory: -1,
     reports_saved: -1,

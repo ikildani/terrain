@@ -9,7 +9,7 @@ import PipelineTable from './PipelineTable';
 import PipelineDistributionChart from './PipelineDistributionChart';
 import CompanyConcentrationChart from './CompanyConcentrationChart';
 import CompetitorCard from './CompetitorCard';
-import { SaveReportButton } from '@/components/shared/SaveReportButton';
+import { BookmarkCheck } from 'lucide-react';
 import { ExportButton } from '@/components/shared/ExportButton';
 
 interface CompetitiveLandscapeReportProps {
@@ -45,12 +45,7 @@ export default function CompetitiveLandscapeReport({
   const reportRef = useRef<HTMLDivElement>(null);
 
   const allCompetitorsRaw = useMemo<Competitor[]>(() => {
-    return [
-      ...data.approved_products,
-      ...data.late_stage_pipeline,
-      ...data.mid_stage_pipeline,
-      ...data.early_pipeline,
-    ];
+    return [...data.approved_products, ...data.late_stage_pipeline, ...data.mid_stage_pipeline, ...data.early_pipeline];
   }, [data]);
 
   const allCompetitors = useMemo<Competitor[]>(() => {
@@ -66,9 +61,7 @@ export default function CompetitiveLandscapeReport({
   }, [allCompetitorsRaw, phaseFilter, moaFilter]);
 
   const topCompetitors = useMemo<Competitor[]>(() => {
-    return [...allCompetitors]
-      .sort((a, b) => b.differentiation_score - a.differentiation_score)
-      .slice(0, 5);
+    return [...allCompetitors].sort((a, b) => b.differentiation_score - a.differentiation_score).slice(0, 5);
   }, [allCompetitors]);
 
   // CSV export data: flatten all competitors into a table-friendly format
@@ -142,25 +135,19 @@ export default function CompetitiveLandscapeReport({
 
         <div className="stat-card noise">
           <p className="label mb-1">Total Competitors</p>
-          <p className="font-mono text-2xl font-medium text-slate-100">
-            {allCompetitors.length}
-          </p>
+          <p className="font-mono text-2xl font-medium text-slate-100">{allCompetitors.length}</p>
           <p className="text-[11px] text-slate-500 mt-0.5">All phases</p>
         </div>
 
         <div className="stat-card noise">
           <p className="label mb-1">Approved Products</p>
-          <p className="font-mono text-2xl font-medium text-signal-green">
-            {data.approved_products.length}
-          </p>
+          <p className="font-mono text-2xl font-medium text-signal-green">{data.approved_products.length}</p>
           <p className="text-[11px] text-slate-500 mt-0.5">On market</p>
         </div>
 
         <div className="stat-card noise">
           <p className="label mb-1">Phase 3 Programs</p>
-          <p className="font-mono text-2xl font-medium text-teal-400">
-            {data.late_stage_pipeline.length}
-          </p>
+          <p className="font-mono text-2xl font-medium text-teal-400">{data.late_stage_pipeline.length}</p>
           <p className="text-[11px] text-slate-500 mt-0.5">Late stage</p>
         </div>
       </div>
@@ -169,7 +156,8 @@ export default function CompetitiveLandscapeReport({
       <div className="flex items-center gap-2 text-xs text-slate-500">
         <Clock className="w-3.5 h-3.5" />
         <span className="font-mono">
-          Generated {new Date(data.generated_at).toLocaleDateString('en-US', {
+          Generated{' '}
+          {new Date(data.generated_at).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -189,18 +177,15 @@ export default function CompetitiveLandscapeReport({
             <div className="bg-navy-800/60 rounded-lg px-4 py-3 border border-navy-700/40">
               <div className="flex items-center gap-1.5 mb-2">
                 <ShieldAlert className="h-3.5 w-3.5 text-signal-red" />
-                <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">
-                  Top Threat
-                </span>
+                <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">Top Threat</span>
               </div>
               <p className="text-sm text-slate-100 font-medium">
                 {topCompetitors[0].company} &mdash; {topCompetitors[0].asset_name}
               </p>
               <p className="text-xs text-slate-400 mt-0.5">
                 {topCompetitors[0].phase} &middot; Diff. Score{' '}
-                <span className="font-mono text-teal-400">{topCompetitors[0].differentiation_score}</span>
-                {' '}&middot; Evidence{' '}
-                <span className="font-mono text-teal-400">{topCompetitors[0].evidence_strength}</span>
+                <span className="font-mono text-teal-400">{topCompetitors[0].differentiation_score}</span> &middot;
+                Evidence <span className="font-mono text-teal-400">{topCompetitors[0].evidence_strength}</span>
               </p>
             </div>
           )}
@@ -210,13 +195,9 @@ export default function CompetitiveLandscapeReport({
             <div className="bg-navy-800/60 rounded-lg px-4 py-3 border border-teal-500/10">
               <div className="flex items-center gap-1.5 mb-2">
                 <Target className="h-3.5 w-3.5 text-teal-500" />
-                <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">
-                  Key Opportunity
-                </span>
+                <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">Key Opportunity</span>
               </div>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                {data.summary.white_space[0]}
-              </p>
+              <p className="text-sm text-slate-300 leading-relaxed">{data.summary.white_space[0]}</p>
             </div>
           )}
 
@@ -224,13 +205,9 @@ export default function CompetitiveLandscapeReport({
           <div className="bg-navy-800/60 rounded-lg px-4 py-3 border border-navy-700/40">
             <div className="flex items-center gap-1.5 mb-2">
               <Sparkles className="h-3.5 w-3.5 text-teal-500" />
-              <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">
-                Key Insight
-              </span>
+              <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">Key Insight</span>
             </div>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              {data.summary.key_insight}
-            </p>
+            <p className="text-sm text-slate-300 leading-relaxed">{data.summary.key_insight}</p>
           </div>
 
           {/* Differentiation Opportunity */}
@@ -242,9 +219,7 @@ export default function CompetitiveLandscapeReport({
                   Differentiation Opportunity
                 </span>
               </div>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                {data.summary.differentiation_opportunity}
-              </p>
+              <p className="text-sm text-slate-300 leading-relaxed">{data.summary.differentiation_opportunity}</p>
             </div>
           )}
         </div>
@@ -252,9 +227,7 @@ export default function CompetitiveLandscapeReport({
         {/* Additional white space items */}
         {data.summary.white_space.length > 1 && (
           <div className="mt-4 pt-4 border-t border-navy-700/30">
-            <p className="text-2xs uppercase tracking-wider text-slate-500 font-medium mb-2">
-              Additional White Space
-            </p>
+            <p className="text-2xs uppercase tracking-wider text-slate-500 font-medium mb-2">Additional White Space</p>
             <ul className="space-y-1.5">
               {data.summary.white_space.slice(1).map((item, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs text-slate-400">
@@ -307,11 +280,7 @@ export default function CompetitiveLandscapeReport({
               onClick={() => setActiveTab(tab.id)}
               className={`
                 relative px-4 py-2.5 text-sm font-medium transition-colors
-                ${
-                  activeTab === tab.id
-                    ? 'text-teal-400'
-                    : 'text-slate-500 hover:text-slate-300'
-                }
+                ${activeTab === tab.id ? 'text-teal-400' : 'text-slate-500 hover:text-slate-300'}
               `}
             >
               {tab.label}
@@ -336,11 +305,7 @@ export default function CompetitiveLandscapeReport({
         <h3 className="chart-title mb-4">Top Competitors by Differentiation</h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {topCompetitors.map((competitor, idx) => (
-            <CompetitorCard
-              key={competitor.id}
-              competitor={competitor}
-              rank={idx + 1}
-            />
+            <CompetitorCard key={competitor.id} competitor={competitor} rank={idx + 1} />
           ))}
         </div>
       </div>
@@ -358,7 +323,9 @@ export default function CompetitiveLandscapeReport({
                 <tr>
                   <th className="sticky left-0 bg-navy-900 z-10">Attribute</th>
                   {matrixColumns.map((col) => (
-                    <th key={col} className="whitespace-nowrap">{col}</th>
+                    <th key={col} className="whitespace-nowrap">
+                      {col}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -372,13 +339,14 @@ export default function CompetitiveLandscapeReport({
                       const val = row.competitors[col];
                       const isScoreRow = row.attribute === 'Differentiation' || row.attribute === 'Evidence Strength';
                       const numVal = typeof val === 'number' ? val : null;
-                      const scoreClass = isScoreRow && numVal !== null
-                        ? numVal >= 7
-                          ? 'text-teal-400 font-mono'
-                          : numVal >= 4
-                            ? 'text-signal-amber font-mono'
-                            : 'text-signal-red font-mono'
-                        : 'text-slate-400';
+                      const scoreClass =
+                        isScoreRow && numVal !== null
+                          ? numVal >= 7
+                            ? 'text-teal-400 font-mono'
+                            : numVal >= 4
+                              ? 'text-signal-amber font-mono'
+                              : 'text-signal-red font-mono'
+                          : 'text-slate-400';
                       return (
                         <td key={col} className={cn('text-xs max-w-[180px] truncate', scoreClass)}>
                           {val ?? '\u2014'}
@@ -396,15 +364,10 @@ export default function CompetitiveLandscapeReport({
       {/* ─── 9. Action Bar ─── */}
       {!previewMode && (
         <div className="flex items-center justify-end gap-3">
-          <SaveReportButton
-            reportData={{
-              title: `Competitive Landscape — ${data.summary.indication}`,
-              report_type: 'competitive',
-              indication: data.summary.indication,
-              inputs: { indication: data.summary.indication, mechanism: mechanism ?? '' },
-              outputs: data as unknown as Record<string, unknown>,
-            }}
-          />
+          <span className="flex items-center gap-1.5 text-xs text-emerald-400/80 font-medium px-2">
+            <BookmarkCheck className="w-3.5 h-3.5" />
+            Auto-saved
+          </span>
           <ExportButton
             format="pdf"
             onPdfExport={onPdfExport}
@@ -412,15 +375,8 @@ export default function CompetitiveLandscapeReport({
             reportTitle={`Competitive Landscape — ${data.summary.indication}`}
             filename={`competitive-landscape-${Date.now()}`}
           />
-          <ExportButton
-            format="csv"
-            data={csvData}
-            filename={`competitive-landscape-${Date.now()}`}
-          />
-          <ExportButton
-            format="email"
-            reportTitle={`Competitive Landscape — ${data.summary.indication}`}
-          />
+          <ExportButton format="csv" data={csvData} filename={`competitive-landscape-${Date.now()}`} />
+          <ExportButton format="email" reportTitle={`Competitive Landscape — ${data.summary.indication}`} />
         </div>
       )}
 
@@ -429,9 +385,7 @@ export default function CompetitiveLandscapeReport({
         <div className="card noise">
           <div className="flex items-center gap-2 mb-2">
             <Database className="h-3.5 w-3.5 text-slate-500" />
-            <h3 className="text-2xs uppercase tracking-wider text-slate-500 font-medium">
-              Data Sources
-            </h3>
+            <h3 className="text-2xs uppercase tracking-wider text-slate-500 font-medium">Data Sources</h3>
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1.5">
             {data.data_sources.map((source, i) => (
@@ -451,15 +405,11 @@ export default function CompetitiveLandscapeReport({
                     source.name
                   )}
                 </span>
-                <span className="text-slate-600 text-2xs font-mono">
-                  {source.last_updated}
-                </span>
+                <span className="text-slate-600 text-2xs font-mono">{source.last_updated}</span>
               </div>
             ))}
           </div>
-          <p className="text-2xs text-slate-600 mt-2 font-mono">
-            Generated {data.generated_at}
-          </p>
+          <p className="text-2xs text-slate-600 mt-2 font-mono">Generated {data.generated_at}</p>
         </div>
       )}
     </div>

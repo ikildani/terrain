@@ -41,26 +41,28 @@ function isNutraceutical(category: string): boolean {
 // ────────────────────────────────────────────────────────────
 
 const RequestSchema = z.object({
-  input: z.object({
-    // Pharma fields
-    indication: z.string().optional(),
-    mechanism: z.string().optional(),
+  input: z
+    .object({
+      // Pharma fields
+      indication: z.string().optional(),
+      mechanism: z.string().optional(),
 
-    // Device fields
-    procedure_or_condition: z.string().optional(),
-    device_category: z.string().optional(),
-    technology_type: z.string().optional(),
+      // Device fields
+      procedure_or_condition: z.string().optional(),
+      device_category: z.string().optional(),
+      technology_type: z.string().optional(),
 
-    // CDx fields
-    biomarker: z.string().optional(),
-    test_type: z.string().optional(),
-    linked_drug: z.string().optional(),
+      // CDx fields
+      biomarker: z.string().optional(),
+      test_type: z.string().optional(),
+      linked_drug: z.string().optional(),
 
-    // Nutraceutical fields
-    primary_ingredient: z.string().optional(),
-    health_focus: z.string().optional(),
-    ingredient_category: z.string().optional(),
-  }).passthrough(),
+      // Nutraceutical fields
+      primary_ingredient: z.string().optional(),
+      health_focus: z.string().optional(),
+      ingredient_category: z.string().optional(),
+    })
+    .passthrough(),
 
   product_category: z.string().default('pharmaceutical'),
   save: z.boolean().optional(),
@@ -76,19 +78,26 @@ export async function POST(request: NextRequest) {
   try {
     // ── Auth ──────────────────────────────────────────────────
     const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required.' } satisfies ApiResponse<never>,
-        { status: 401 },
-      );
+      return NextResponse.json({ success: false, error: 'Authentication required.' } satisfies ApiResponse<never>, {
+        status: 401,
+      });
     }
 
     // ── Rate limit ──────────────────────────────────────────
     const rl = await rateLimit(`competitive:${user.id}`, RATE_LIMITS.analysis_pro);
     if (!rl.success) {
-      logApiResponse({ route: '/api/analyze/competitive', status: 429, durationMs: Math.round(performance.now() - routeStart), userId: user.id });
+      logApiResponse({
+        route: '/api/analyze/competitive',
+        status: 429,
+        durationMs: Math.round(performance.now() - routeStart),
+        userId: user.id,
+      });
       return NextResponse.json(
         { success: false, error: 'Rate limit exceeded. Try again later.' } satisfies ApiResponse<never>,
         { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } },
@@ -129,14 +138,20 @@ export async function POST(request: NextRequest) {
     if (isPharma(product_category)) {
       if (!input.indication) {
         return NextResponse.json(
-          { success: false, error: 'Indication is required for pharmaceutical competitive analysis.' } satisfies ApiResponse<never>,
+          {
+            success: false,
+            error: 'Indication is required for pharmaceutical competitive analysis.',
+          } satisfies ApiResponse<never>,
           { status: 400 },
         );
       }
     } else if (isDevice(product_category)) {
       if (!input.procedure_or_condition) {
         return NextResponse.json(
-          { success: false, error: 'Procedure or condition is required for device competitive analysis.' } satisfies ApiResponse<never>,
+          {
+            success: false,
+            error: 'Procedure or condition is required for device competitive analysis.',
+          } satisfies ApiResponse<never>,
           { status: 400 },
         );
       }
@@ -150,57 +165,71 @@ export async function POST(request: NextRequest) {
     } else if (isNutraceutical(product_category)) {
       if (!input.primary_ingredient) {
         return NextResponse.json(
-          { success: false, error: 'Primary ingredient is required for nutraceutical competitive analysis.' } satisfies ApiResponse<never>,
+          {
+            success: false,
+            error: 'Primary ingredient is required for nutraceutical competitive analysis.',
+          } satisfies ApiResponse<never>,
           { status: 400 },
         );
       }
     } else {
       return NextResponse.json(
-        { success: false, error: `Unknown product_category: "${product_category}". Supported: pharmaceutical, medical_device/device, companion_diagnostic/cdx, nutraceutical.` } satisfies ApiResponse<never>,
+        {
+          success: false,
+          error: `Unknown product_category: "${product_category}". Supported: pharmaceutical, medical_device/device, companion_diagnostic/cdx, nutraceutical.`,
+        } satisfies ApiResponse<never>,
         { status: 400 },
       );
     }
 
-    const indication = input.indication || input.procedure_or_condition || input.biomarker || input.primary_ingredient || '';
+    const indication =
+      input.indication || input.procedure_or_condition || input.biomarker || input.primary_ingredient || '';
     logApiRequest({ route: '/api/analyze/competitive', method: 'POST', userId: user.id, indication });
 
     // ── Route to correct engine ─────────────────────────────
     let result: unknown;
 
     if (isPharma(product_category)) {
-      const engineResult = await withTiming('competitive_analysis_pharma', () =>
-        analyzeCompetitiveLandscape({ indication: input.indication!, mechanism: input.mechanism }),
+      const engineResult = await withTiming(
+        'competitive_analysis_pharma',
+        () => analyzeCompetitiveLandscape({ indication: input.indication!, mechanism: input.mechanism }),
         { indication: input.indication },
       );
       result = engineResult.result;
     } else if (isDevice(product_category)) {
-      const engineResult = await withTiming('competitive_analysis_device', async () =>
-        analyzeDeviceCompetitiveLandscape({
-          procedure_or_condition: input.procedure_or_condition!,
-          device_category: input.device_category as any,
-          technology_type: input.technology_type,
-        }),
+      const engineResult = await withTiming(
+        'competitive_analysis_device',
+        async () =>
+          analyzeDeviceCompetitiveLandscape({
+            procedure_or_condition: input.procedure_or_condition!,
+            device_category: input.device_category as any,
+            technology_type: input.technology_type,
+          }),
         { procedure: input.procedure_or_condition },
       );
       result = engineResult.result;
     } else if (isCDx(product_category)) {
-      const engineResult = await withTiming('competitive_analysis_cdx', async () =>
-        analyzeCDxCompetitiveLandscape({
-          biomarker: input.biomarker!,
-          indication: input.indication,
-          test_type: input.test_type as any,
-          linked_drug: input.linked_drug,
-        }),
+      const engineResult = await withTiming(
+        'competitive_analysis_cdx',
+        async () =>
+          analyzeCDxCompetitiveLandscape({
+            biomarker: input.biomarker!,
+            indication: input.indication,
+            test_type: input.test_type as any,
+            linked_drug: input.linked_drug,
+          }),
         { biomarker: input.biomarker },
       );
       result = engineResult.result;
     } else if (isNutraceutical(product_category)) {
-      const engineResult = await withTiming('competitive_analysis_nutra', async () =>
-        analyzeNutraceuticalCompetitiveLandscape({
-          primary_ingredient: input.primary_ingredient!,
-          health_focus: input.health_focus,
-          ingredient_category: input.ingredient_category as any,
-        }),
+      const engineResult = await withTiming(
+        'competitive_analysis_nutra',
+        async () =>
+          analyzeNutraceuticalCompetitiveLandscape({
+            primary_ingredient: input.primary_ingredient!,
+            health_focus: input.health_focus,
+            ingredient_category: input.ingredient_category as any,
+          }),
         { ingredient: input.primary_ingredient },
       );
       result = engineResult.result;
@@ -209,12 +238,41 @@ export async function POST(request: NextRequest) {
     // ── Record usage ────────────────────────────────────────
     await recordUsage(user.id, 'competitive', indication, { product_category });
 
+    // ── Auto-save report ──────────────────────────────────────
+    let reportId: string | undefined;
+    {
+      const title = indication ? `${indication} Competitive Landscape` : 'Competitive Landscape';
+      const { data: saved } = await supabase
+        .from('reports')
+        .insert({
+          user_id: user.id,
+          title,
+          report_type: 'competitive',
+          indication: indication || 'N/A',
+          inputs: input,
+          outputs: result as Record<string, unknown>,
+          status: 'final',
+          is_starred: false,
+          tags: [product_category],
+        })
+        .select('id')
+        .single();
+      if (saved) reportId = saved.id;
+    }
+
     // ── Success ─────────────────────────────────────────────
-    logApiResponse({ route: '/api/analyze/competitive', status: 200, durationMs: Math.round(performance.now() - routeStart), userId: user.id, indication });
+    logApiResponse({
+      route: '/api/analyze/competitive',
+      status: 200,
+      durationMs: Math.round(performance.now() - routeStart),
+      userId: user.id,
+      indication,
+    });
     return NextResponse.json(
       {
         success: true,
         data: result,
+        report_id: reportId,
         product_category,
         usage: {
           feature: 'competitive',
@@ -226,13 +284,16 @@ export async function POST(request: NextRequest) {
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } },
     );
   } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : 'Competitive analysis failed.';
-    logger.error('competitive_analysis_error', { error: message, stack: error instanceof Error ? error.stack : undefined });
-    logApiResponse({ route: '/api/analyze/competitive', status: 500, durationMs: Math.round(performance.now() - routeStart) });
-    return NextResponse.json(
-      { success: false, error: message } satisfies ApiResponse<never>,
-      { status: 500 },
-    );
+    const message = error instanceof Error ? error.message : 'Competitive analysis failed.';
+    logger.error('competitive_analysis_error', {
+      error: message,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    logApiResponse({
+      route: '/api/analyze/competitive',
+      status: 500,
+      durationMs: Math.round(performance.now() - routeStart),
+    });
+    return NextResponse.json({ success: false, error: message } satisfies ApiResponse<never>, { status: 500 });
   }
 }

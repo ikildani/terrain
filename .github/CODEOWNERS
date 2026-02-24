@@ -1,0 +1,8 @@
+# Global ownership
+* @ikildani
+
+# Critical paths
+/src/lib/stripe/ @ikildani
+/src/app/api/stripe/ @ikildani
+/.github/ @ikildani
+/supabase/ @ikildani

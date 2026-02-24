@@ -52,10 +52,7 @@ import type {
   NutraceuticalChannel,
 } from '@/types';
 
-import {
-  PHARMA_PARTNER_DATABASE,
-  type PharmaPartnerProfile,
-} from '@/lib/data/partner-database';
+import { PHARMA_PARTNER_DATABASE, type PharmaPartnerProfile } from '@/lib/data/partner-database';
 
 import {
   DEVICE_PARTNER_DATABASE_FULL as RAW_DEVICE_PARTNERS,
@@ -81,7 +78,8 @@ function inferDeviceGeography(hq: string): string[] {
   if (h.includes('uk') || h.includes('london') || h.includes('england')) geos.push('UK');
   if (h.includes('canada') || h.includes('toronto') || h.includes('montreal')) geos.push('Canada');
   if (h.includes('australia') || h.includes('sydney') || h.includes('melbourne')) geos.push('Australia');
-  if (h.includes('germany') || h.includes('munich') || h.includes('berlin') || h.includes('erlangen')) geos.push('Germany');
+  if (h.includes('germany') || h.includes('munich') || h.includes('berlin') || h.includes('erlangen'))
+    geos.push('Germany');
   if (h.includes('france') || h.includes('paris') || h.includes('lyon')) geos.push('France');
   if (h.includes('italy') || h.includes('milan') || h.includes('rome')) geos.push('Italy');
   if (h.includes('spain') || h.includes('madrid') || h.includes('barcelona')) geos.push('Spain');
@@ -119,9 +117,7 @@ function normalizeDevicePartner(dp: DevicePartnerProfile): PharmaPartnerProfile 
     const valueMatch = acq.match(/\$([0-9.]+)([BM])/i);
     let totalValueM = 0;
     if (valueMatch) {
-      totalValueM = valueMatch[2].toUpperCase() === 'B'
-        ? parseFloat(valueMatch[1]) * 1000
-        : parseFloat(valueMatch[1]);
+      totalValueM = valueMatch[2].toUpperCase() === 'B' ? parseFloat(valueMatch[1]) * 1000 : parseFloat(valueMatch[1]);
     }
     const yearMatch = acq.match(/(\d{4})/);
     const year = yearMatch ? parseInt(yearMatch[1], 10) : new Date().getFullYear();
@@ -146,7 +142,7 @@ function normalizeDevicePartner(dp: DevicePartnerProfile): PharmaPartnerProfile 
     market_cap_b: dp.market_cap_b ?? 5,
     revenue_b: dp.revenue_b ?? 1,
     // Estimate R&D spend as ~10% of revenue for large medtech, ~15% for mid/specialty
-    rd_spend_b: (dp.revenue_b ?? 1) * (dp.company_type === 'large_medtech' ? 0.10 : 0.15),
+    rd_spend_b: (dp.revenue_b ?? 1) * (dp.company_type === 'large_medtech' ? 0.1 : 0.15),
     therapeutic_areas: dp.primary_therapeutic_areas,
     pipeline_focus: [...dp.active_bd_interests, ...dp.key_divisions],
     strategic_priorities: dp.active_bd_interests,
@@ -159,8 +155,7 @@ function normalizeDevicePartner(dp: DevicePartnerProfile): PharmaPartnerProfile 
   };
 }
 
-const NORMALIZED_DEVICE_PARTNERS: PharmaPartnerProfile[] =
-  RAW_DEVICE_PARTNERS.map(normalizeDevicePartner);
+const NORMALIZED_DEVICE_PARTNERS: PharmaPartnerProfile[] = RAW_DEVICE_PARTNERS.map(normalizeDevicePartner);
 
 // ────────────────────────────────────────────────────────────
 // THERAPY AREA MAPPING
@@ -170,84 +165,251 @@ const NORMALIZED_DEVICE_PARTNERS: PharmaPartnerProfile[] =
 
 const THERAPY_AREA_KEYWORDS: Record<string, string[]> = {
   oncology: [
-    'cancer', 'tumor', 'carcinoma', 'lymphoma', 'leukemia', 'myeloma',
-    'sarcoma', 'melanoma', 'glioblastoma', 'glioma', 'nsclc', 'sclc',
-    'hcc', 'rcc', 'tnbc', 'aml', 'cll', 'cml', 'dlbcl', 'mds',
-    'mesothelioma', 'neuroblastoma', 'bladder', 'breast', 'lung',
-    'prostate', 'ovarian', 'pancreatic', 'colorectal', 'gastric',
-    'hepatocellular', 'cholangiocarcinoma', 'gist', 'net',
-    'immuno-oncology', 'io', 'adc', 'antibody-drug conjugate',
-    'car-t', 'bispecific', 'checkpoint', 'pd-1', 'pd-l1', 'ctla-4',
+    'cancer',
+    'tumor',
+    'carcinoma',
+    'lymphoma',
+    'leukemia',
+    'myeloma',
+    'sarcoma',
+    'melanoma',
+    'glioblastoma',
+    'glioma',
+    'nsclc',
+    'sclc',
+    'hcc',
+    'rcc',
+    'tnbc',
+    'aml',
+    'cll',
+    'cml',
+    'dlbcl',
+    'mds',
+    'mesothelioma',
+    'neuroblastoma',
+    'bladder',
+    'breast',
+    'lung',
+    'prostate',
+    'ovarian',
+    'pancreatic',
+    'colorectal',
+    'gastric',
+    'hepatocellular',
+    'cholangiocarcinoma',
+    'gist',
+    'net',
+    'immuno-oncology',
+    'io',
+    'adc',
+    'antibody-drug conjugate',
+    'car-t',
+    'bispecific',
+    'checkpoint',
+    'pd-1',
+    'pd-l1',
+    'ctla-4',
   ],
   immunology: [
-    'rheumatoid arthritis', 'lupus', 'sle', 'psoriasis', 'atopic dermatitis',
-    'eczema', 'psoriatic arthritis', 'ankylosing spondylitis', 'ibd',
-    'crohn', 'ulcerative colitis', 'uc', 'autoimmune', 'inflammation',
-    'il-17', 'il-23', 'jak', 'tyk2', 'tnf', 'anti-tnf',
-    'hidradenitis', 'alopecia areata', 'vitiligo',
+    'rheumatoid arthritis',
+    'lupus',
+    'sle',
+    'psoriasis',
+    'atopic dermatitis',
+    'eczema',
+    'psoriatic arthritis',
+    'ankylosing spondylitis',
+    'ibd',
+    'crohn',
+    'ulcerative colitis',
+    'uc',
+    'autoimmune',
+    'inflammation',
+    'il-17',
+    'il-23',
+    'jak',
+    'tyk2',
+    'tnf',
+    'anti-tnf',
+    'hidradenitis',
+    'alopecia areata',
+    'vitiligo',
   ],
   neuroscience: [
-    'alzheimer', 'parkinson', 'epilepsy', 'migraine', 'ms',
-    'multiple sclerosis', 'schizophrenia', 'depression', 'mdd',
-    'bipolar', 'adhd', 'huntington', 'als', 'amyotrophic',
-    'neuropathy', 'pain', 'cns', 'neurodegeneration', 'dementia',
-    'ptsd', 'anxiety', 'ocd', 'narcolepsy', 'sleep',
-    'spinal muscular atrophy', 'sma', 'tau', 'amyloid',
+    'alzheimer',
+    'parkinson',
+    'epilepsy',
+    'migraine',
+    'ms',
+    'multiple sclerosis',
+    'schizophrenia',
+    'depression',
+    'mdd',
+    'bipolar',
+    'adhd',
+    'huntington',
+    'als',
+    'amyotrophic',
+    'neuropathy',
+    'pain',
+    'cns',
+    'neurodegeneration',
+    'dementia',
+    'ptsd',
+    'anxiety',
+    'ocd',
+    'narcolepsy',
+    'sleep',
+    'spinal muscular atrophy',
+    'sma',
+    'tau',
+    'amyloid',
   ],
   cardiovascular: [
-    'heart failure', 'hypertension', 'atrial fibrillation', 'cad',
-    'coronary', 'pah', 'pulmonary arterial hypertension',
-    'atherosclerosis', 'cardiomyopathy', 'hcm', 'dcm', 'stroke',
-    'thrombosis', 'anticoagulant',
+    'heart failure',
+    'hypertension',
+    'atrial fibrillation',
+    'cad',
+    'coronary',
+    'pah',
+    'pulmonary arterial hypertension',
+    'atherosclerosis',
+    'cardiomyopathy',
+    'hcm',
+    'dcm',
+    'stroke',
+    'thrombosis',
+    'anticoagulant',
   ],
   rare_disease: [
-    'orphan', 'rare', 'ultra-rare', 'fabry', 'gaucher', 'pompe',
-    'hemophilia', 'sickle cell', 'scd', 'beta-thalassemia',
-    'cystic fibrosis', 'cf', 'duchenne', 'dmd', 'sma',
-    'pku', 'phenylketonuria', 'mps', 'mucopolysaccharidosis',
-    'friedreich', 'huntington',
+    'orphan',
+    'rare',
+    'ultra-rare',
+    'fabry',
+    'gaucher',
+    'pompe',
+    'hemophilia',
+    'sickle cell',
+    'scd',
+    'beta-thalassemia',
+    'cystic fibrosis',
+    'cf',
+    'duchenne',
+    'dmd',
+    'sma',
+    'pku',
+    'phenylketonuria',
+    'mps',
+    'mucopolysaccharidosis',
+    'friedreich',
+    'huntington',
   ],
   infectious_disease: [
-    'hiv', 'hepatitis', 'hbv', 'hcv', 'rsv', 'influenza', 'covid',
-    'bacterial', 'fungal', 'antiviral', 'antibiotic', 'vaccine',
-    'malaria', 'tuberculosis',
+    'hiv',
+    'hepatitis',
+    'hbv',
+    'hcv',
+    'rsv',
+    'influenza',
+    'covid',
+    'bacterial',
+    'fungal',
+    'antiviral',
+    'antibiotic',
+    'vaccine',
+    'malaria',
+    'tuberculosis',
   ],
   metabolic: [
-    'diabetes', 't2d', 't1d', 'obesity', 'nash', 'mash', 'nafld',
-    'glp-1', 'sglt2', 'metabolic', 'dyslipidemia', 'gout',
+    'diabetes',
+    't2d',
+    't1d',
+    'obesity',
+    'nash',
+    'mash',
+    'nafld',
+    'glp-1',
+    'sglt2',
+    'metabolic',
+    'dyslipidemia',
+    'gout',
   ],
   hematology: [
-    'anemia', 'hemophilia', 'itp', 'thrombocytopenia',
-    'myelofibrosis', 'polycythemia', 'sickle cell', 'thalassemia',
-    'von willebrand', 'hemolytic',
+    'anemia',
+    'hemophilia',
+    'itp',
+    'thrombocytopenia',
+    'myelofibrosis',
+    'polycythemia',
+    'sickle cell',
+    'thalassemia',
+    'von willebrand',
+    'hemolytic',
   ],
   ophthalmology: [
-    'macular degeneration', 'amd', 'diabetic retinopathy', 'glaucoma',
-    'dry eye', 'uveitis', 'retinal', 'geographic atrophy',
+    'macular degeneration',
+    'amd',
+    'diabetic retinopathy',
+    'glaucoma',
+    'dry eye',
+    'uveitis',
+    'retinal',
+    'geographic atrophy',
   ],
   dermatology: [
-    'psoriasis', 'atopic dermatitis', 'eczema', 'acne', 'rosacea',
-    'skin', 'dermatology', 'melanoma', 'cutaneous',
+    'psoriasis',
+    'atopic dermatitis',
+    'eczema',
+    'acne',
+    'rosacea',
+    'skin',
+    'dermatology',
+    'melanoma',
+    'cutaneous',
   ],
   nephrology: [
-    'kidney', 'renal', 'iga nephropathy', 'fsgs', 'ckd',
-    'dialysis', 'glomerulonephritis', 'nephrotic', 'hyperphosphatemia',
+    'kidney',
+    'renal',
+    'iga nephropathy',
+    'fsgs',
+    'ckd',
+    'dialysis',
+    'glomerulonephritis',
+    'nephrotic',
+    'hyperphosphatemia',
   ],
   respiratory: [
-    'asthma', 'copd', 'ipf', 'pulmonary fibrosis', 'cystic fibrosis',
-    'bronchitis', 'respiratory', 'lung disease',
+    'asthma',
+    'copd',
+    'ipf',
+    'pulmonary fibrosis',
+    'cystic fibrosis',
+    'bronchitis',
+    'respiratory',
+    'lung disease',
   ],
-  endocrinology: [
-    'thyroid', 'growth hormone', 'acromegaly', 'cushing',
-    'adrenal', 'hypoparathyroidism', 'endocrine',
-  ],
+  endocrinology: ['thyroid', 'growth hormone', 'acromegaly', 'cushing', 'adrenal', 'hypoparathyroidism', 'endocrine'],
   liver_disease: [
-    'liver', 'hepatic', 'cirrhosis', 'nash', 'mash', 'nafld',
-    'pbc', 'primary biliary', 'psc', 'fibrosis',
+    'liver',
+    'hepatic',
+    'cirrhosis',
+    'nash',
+    'mash',
+    'nafld',
+    'pbc',
+    'primary biliary',
+    'psc',
+    'fibrosis',
   ],
   gene_therapy: [
-    'gene therapy', 'aav', 'lentiviral', 'crispr', 'gene editing',
-    'base editing', 'rna editing', 'exon skipping',
+    'gene therapy',
+    'aav',
+    'lentiviral',
+    'crispr',
+    'gene editing',
+    'base editing',
+    'rna editing',
+    'exon skipping',
   ],
 };
 
@@ -257,7 +419,16 @@ const THERAPY_AREA_KEYWORDS: Record<string, string[]> = {
 // ────────────────────────────────────────────────────────────
 
 const MECHANISM_KEYWORDS: Record<string, string[]> = {
-  adc: ['adc', 'antibody-drug conjugate', 'antibody drug conjugate', 'deruxtecan', 'vedotin', 'govitecan', 'maytansine', 'monomethyl'],
+  adc: [
+    'adc',
+    'antibody-drug conjugate',
+    'antibody drug conjugate',
+    'deruxtecan',
+    'vedotin',
+    'govitecan',
+    'maytansine',
+    'monomethyl',
+  ],
   bispecific: ['bispecific', 'bispecific antibody', 'dual-targeting', 'duobody'],
   car_t: ['car-t', 'car t', 'chimeric antigen receptor', 'cell therapy', 'autologous', 'allogeneic'],
   checkpoint: ['pd-1', 'pd-l1', 'ctla-4', 'lag-3', 'tigit', 'tim-3', 'checkpoint inhibitor', 'immuno-oncology'],
@@ -278,26 +449,71 @@ const MECHANISM_KEYWORDS: Record<string, string[]> = {
 // ────────────────────────────────────────────────────────────
 
 const MAJOR_LOE_EVENTS: Record<string, { drug: string; loe_year: number; revenue_b: number }[]> = {
-  'merck': [{ drug: 'Keytruda', loe_year: 2028, revenue_b: 25 }],
-  'abbvie': [{ drug: 'Humira', loe_year: 2023, revenue_b: 21 }, { drug: 'Imbruvica', loe_year: 2029, revenue_b: 5 }],
-  'bristol-myers squibb': [{ drug: 'Eliquis', loe_year: 2026, revenue_b: 12 }, { drug: 'Opdivo', loe_year: 2028, revenue_b: 9 }],
-  'bms': [{ drug: 'Eliquis', loe_year: 2026, revenue_b: 12 }, { drug: 'Opdivo', loe_year: 2028, revenue_b: 9 }],
-  'pfizer': [{ drug: 'Ibrance', loe_year: 2027, revenue_b: 5 }, { drug: 'Eliquis', loe_year: 2026, revenue_b: 6 }],
-  'johnson & johnson': [{ drug: 'Stelara', loe_year: 2025, revenue_b: 11 }, { drug: 'Darzalex', loe_year: 2032, revenue_b: 10 }],
-  'janssen': [{ drug: 'Stelara', loe_year: 2025, revenue_b: 11 }, { drug: 'Darzalex', loe_year: 2032, revenue_b: 10 }],
-  'roche': [{ drug: 'Ocrevus', loe_year: 2028, revenue_b: 7 }, { drug: 'Hemlibra', loe_year: 2030, revenue_b: 4 }],
-  'novartis': [{ drug: 'Entresto', loe_year: 2026, revenue_b: 6 }, { drug: 'Kisqali', loe_year: 2029, revenue_b: 4 }],
-  'astrazeneca': [{ drug: 'Tagrisso', loe_year: 2032, revenue_b: 6 }, { drug: 'Farxiga', loe_year: 2025, revenue_b: 6 }],
-  'eli lilly': [{ drug: 'Trulicity', loe_year: 2027, revenue_b: 7 }, { drug: 'Verzenio', loe_year: 2032, revenue_b: 4 }],
-  'lilly': [{ drug: 'Trulicity', loe_year: 2027, revenue_b: 7 }, { drug: 'Verzenio', loe_year: 2032, revenue_b: 4 }],
-  'amgen': [{ drug: 'Enbrel', loe_year: 2023, revenue_b: 4 }, { drug: 'Prolia/Xgeva', loe_year: 2025, revenue_b: 4 }],
-  'gilead': [{ drug: 'Biktarvy', loe_year: 2033, revenue_b: 12 }, { drug: 'Veklury', loe_year: 2025, revenue_b: 2 }],
-  'sanofi': [{ drug: 'Dupixent', loe_year: 2031, revenue_b: 13 }],
-  'regeneron': [{ drug: 'Eylea', loe_year: 2024, revenue_b: 10 }, { drug: 'Dupixent', loe_year: 2031, revenue_b: 13 }],
-  'biogen': [{ drug: 'Tecfidera', loe_year: 2023, revenue_b: 4 }],
-  'vertex': [{ drug: 'Trikafta', loe_year: 2037, revenue_b: 9 }],
-  'gsk': [{ drug: 'Dovato/DTG', loe_year: 2027, revenue_b: 5 }, { drug: 'Shingrix', loe_year: 2029, revenue_b: 4 }],
-  'takeda': [{ drug: 'Entyvio', loe_year: 2026, revenue_b: 5 }],
+  merck: [{ drug: 'Keytruda', loe_year: 2028, revenue_b: 25 }],
+  abbvie: [
+    { drug: 'Humira', loe_year: 2023, revenue_b: 21 },
+    { drug: 'Imbruvica', loe_year: 2029, revenue_b: 5 },
+  ],
+  'bristol-myers squibb': [
+    { drug: 'Eliquis', loe_year: 2026, revenue_b: 12 },
+    { drug: 'Opdivo', loe_year: 2028, revenue_b: 9 },
+  ],
+  bms: [
+    { drug: 'Eliquis', loe_year: 2026, revenue_b: 12 },
+    { drug: 'Opdivo', loe_year: 2028, revenue_b: 9 },
+  ],
+  pfizer: [
+    { drug: 'Ibrance', loe_year: 2027, revenue_b: 5 },
+    { drug: 'Eliquis', loe_year: 2026, revenue_b: 6 },
+  ],
+  'johnson & johnson': [
+    { drug: 'Stelara', loe_year: 2025, revenue_b: 11 },
+    { drug: 'Darzalex', loe_year: 2032, revenue_b: 10 },
+  ],
+  janssen: [
+    { drug: 'Stelara', loe_year: 2025, revenue_b: 11 },
+    { drug: 'Darzalex', loe_year: 2032, revenue_b: 10 },
+  ],
+  roche: [
+    { drug: 'Ocrevus', loe_year: 2028, revenue_b: 7 },
+    { drug: 'Hemlibra', loe_year: 2030, revenue_b: 4 },
+  ],
+  novartis: [
+    { drug: 'Entresto', loe_year: 2026, revenue_b: 6 },
+    { drug: 'Kisqali', loe_year: 2029, revenue_b: 4 },
+  ],
+  astrazeneca: [
+    { drug: 'Tagrisso', loe_year: 2032, revenue_b: 6 },
+    { drug: 'Farxiga', loe_year: 2025, revenue_b: 6 },
+  ],
+  'eli lilly': [
+    { drug: 'Trulicity', loe_year: 2027, revenue_b: 7 },
+    { drug: 'Verzenio', loe_year: 2032, revenue_b: 4 },
+  ],
+  lilly: [
+    { drug: 'Trulicity', loe_year: 2027, revenue_b: 7 },
+    { drug: 'Verzenio', loe_year: 2032, revenue_b: 4 },
+  ],
+  amgen: [
+    { drug: 'Enbrel', loe_year: 2023, revenue_b: 4 },
+    { drug: 'Prolia/Xgeva', loe_year: 2025, revenue_b: 4 },
+  ],
+  gilead: [
+    { drug: 'Biktarvy', loe_year: 2033, revenue_b: 12 },
+    { drug: 'Veklury', loe_year: 2025, revenue_b: 2 },
+  ],
+  sanofi: [{ drug: 'Dupixent', loe_year: 2031, revenue_b: 13 }],
+  regeneron: [
+    { drug: 'Eylea', loe_year: 2024, revenue_b: 10 },
+    { drug: 'Dupixent', loe_year: 2031, revenue_b: 13 },
+  ],
+  biogen: [{ drug: 'Tecfidera', loe_year: 2023, revenue_b: 4 }],
+  vertex: [{ drug: 'Trikafta', loe_year: 2037, revenue_b: 9 }],
+  gsk: [
+    { drug: 'Dovato/DTG', loe_year: 2027, revenue_b: 5 },
+    { drug: 'Shingrix', loe_year: 2029, revenue_b: 4 },
+  ],
+  takeda: [{ drug: 'Entyvio', loe_year: 2026, revenue_b: 5 }],
   'novo nordisk': [{ drug: 'Ozempic', loe_year: 2032, revenue_b: 18 }],
   'boehringer ingelheim': [{ drug: 'Jardiance', loe_year: 2025, revenue_b: 7 }],
 };
@@ -356,10 +572,10 @@ function calculateCompetingPartnershipPenalty(
   const indicationTokens = tokenize(indication.toLowerCase());
 
   // Check recent deals for same-indication matches (within 3 years)
-  const recentSameIndication = partner.recent_deals.filter(d => {
+  const recentSameIndication = partner.recent_deals.filter((d) => {
     const isRecent = d.year >= currentYear - 3;
     const dealInd = d.indication.toLowerCase();
-    const indicationMatch = indicationTokens.some(t => dealInd.includes(t));
+    const indicationMatch = indicationTokens.some((t) => dealInd.includes(t));
     return isRecent && indicationMatch;
   });
 
@@ -371,9 +587,9 @@ function calculateCompetingPartnershipPenalty(
   if (mechanism) {
     const mechLower = mechanism.toLowerCase();
     const mechCategories = inferMechanismCategories(mechanism);
-    const hasMechConflict = partner.pipeline_focus.some(f => {
+    const hasMechConflict = partner.pipeline_focus.some((f) => {
       const fLower = f.toLowerCase();
-      return fLower.includes(mechLower) || mechCategories.some(mc => fLower.includes(mc));
+      return fLower.includes(mechLower) || mechCategories.some((mc) => fLower.includes(mc));
     });
     // Only penalize if they have BOTH indication AND mechanism overlap (true competing asset)
     if (hasMechConflict && recentSameIndication.length > 0) {
@@ -390,10 +606,7 @@ function calculateCompetingPartnershipPenalty(
 // with this specific mechanism class
 // ────────────────────────────────────────────────────────────
 
-function scoreMechanismExpertise(
-  partner: PharmaPartnerProfile,
-  mechanism?: string,
-): number {
+function scoreMechanismExpertise(partner: PharmaPartnerProfile, mechanism?: string): number {
   if (!mechanism) return 0;
 
   const mechLower = mechanism.toLowerCase();
@@ -404,8 +617,7 @@ function scoreMechanismExpertise(
   // Check recent deals for mechanism keyword matches
   for (const deal of partner.recent_deals) {
     const dealText = `${deal.indication} ${deal.asset} ${deal.deal_type}`.toLowerCase();
-    const hasMechMatch = dealText.includes(mechLower) ||
-      mechCategories.some(mc => dealText.includes(mc));
+    const hasMechMatch = dealText.includes(mechLower) || mechCategories.some((mc) => dealText.includes(mc));
     if (hasMechMatch) {
       score += 3;
       // Recency bonus
@@ -414,9 +626,9 @@ function scoreMechanismExpertise(
   }
 
   // Check pipeline_focus for mechanism presence
-  const hasPipelineMech = partner.pipeline_focus.some(f => {
+  const hasPipelineMech = partner.pipeline_focus.some((f) => {
     const fLower = f.toLowerCase();
-    return fLower.includes(mechLower) || mechCategories.some(mc => fLower.includes(mc));
+    return fLower.includes(mechLower) || mechCategories.some((mc) => fLower.includes(mc));
   });
   if (hasPipelineMech) score += 2;
 
@@ -431,41 +643,196 @@ function scoreMechanismExpertise(
 // "Successful" = asset advanced to next stage or generated milestone
 // ────────────────────────────────────────────────────────────
 
-const PARTNER_TRACK_RECORDS: Record<string, {
-  total_deals: number;
-  successful: number;
-  terminated: number;
-  avg_milestone_months: number;
-  notable_successes: string[];
-  notable_failures: string[];
-}> = {
-  'roche': { total_deals: 45, successful: 32, terminated: 5, avg_milestone_months: 18, notable_successes: ['Genentech acquisition ($46.8B)', 'Hemlibra co-development'], notable_failures: ['Multiple anti-amyloid setbacks'] },
-  'pfizer': { total_deals: 52, successful: 34, terminated: 8, avg_milestone_months: 20, notable_successes: ['BioNTech COVID-19 partnership', 'Seagen acquisition ($43B)'], notable_failures: ['Multiple CNS program terminations', 'Gene therapy wind-down'] },
-  'novartis': { total_deals: 40, successful: 28, terminated: 6, avg_milestone_months: 19, notable_successes: ['Zolgensma (AveXis acquisition)', 'Kisqali development'], notable_failures: ['Endocyte integration delays'] },
-  'merck': { total_deals: 35, successful: 26, terminated: 4, avg_milestone_months: 16, notable_successes: ['Keytruda development machine', 'Prometheus Biosciences ($10.8B)'], notable_failures: ['Vioxx post-market withdrawal'] },
-  'johnson & johnson': { total_deals: 38, successful: 25, terminated: 6, avg_milestone_months: 22, notable_successes: ['Darzalex (Genmab partnership)', 'Tremfya development'], notable_failures: ['Actelion pipeline attrition'] },
-  'janssen': { total_deals: 38, successful: 25, terminated: 6, avg_milestone_months: 22, notable_successes: ['Darzalex (Genmab partnership)', 'Tremfya development'], notable_failures: ['Actelion pipeline attrition'] },
-  'astrazeneca': { total_deals: 42, successful: 30, terminated: 5, avg_milestone_months: 17, notable_successes: ['Daiichi Sankyo ADC partnership ($6.9B+)', 'Enhertu development'], notable_failures: ['Multiple early-stage program terminations'] },
-  'bristol-myers squibb': { total_deals: 33, successful: 22, terminated: 5, avg_milestone_months: 19, notable_successes: ['Celgene acquisition ($74B)', 'Opdivo development'], notable_failures: ['Celgene integration challenges', 'Deucravacitinib launch stumble'] },
-  'bms': { total_deals: 33, successful: 22, terminated: 5, avg_milestone_months: 19, notable_successes: ['Celgene acquisition ($74B)', 'Opdivo development'], notable_failures: ['Celgene integration challenges'] },
-  'eli lilly': { total_deals: 30, successful: 23, terminated: 3, avg_milestone_months: 15, notable_successes: ['Mounjaro/Zepbound launch', 'LOXO Oncology acquisition'], notable_failures: ['Solanezumab Alzheimer\'s failures'] },
-  'lilly': { total_deals: 30, successful: 23, terminated: 3, avg_milestone_months: 15, notable_successes: ['Mounjaro/Zepbound launch', 'LOXO Oncology acquisition'], notable_failures: ['Solanezumab failures'] },
-  'abbvie': { total_deals: 35, successful: 24, terminated: 5, avg_milestone_months: 18, notable_successes: ['Allergan acquisition ($63B)', 'Imbruvica partnership'], notable_failures: ['ABBV-8E12 (tau antibody) failure', 'Rinvoq safety concerns'] },
-  'gilead': { total_deals: 28, successful: 18, terminated: 5, avg_milestone_months: 20, notable_successes: ['Kite Pharma acquisition (CAR-T)', 'Sovaldi/Harvoni HCV'], notable_failures: ['NASH program terminations', 'Immunomedics integration'] },
-  'sanofi': { total_deals: 32, successful: 21, terminated: 6, avg_milestone_months: 21, notable_successes: ['Dupixent co-development with Regeneron', 'Translate Bio mRNA'], notable_failures: ['Multiple oncology setbacks', 'Principia Bio integration'] },
-  'amgen': { total_deals: 25, successful: 17, terminated: 4, avg_milestone_months: 19, notable_successes: ['Horizon Therapeutics acquisition ($28B)', 'Lumakras launch'], notable_failures: ['Otezla underwhelming performance post-acquisition'] },
-  'biogen': { total_deals: 22, successful: 12, terminated: 6, avg_milestone_months: 24, notable_successes: ['Aduhelm accelerated approval (controversial)', 'Leqembi partnership with Eisai'], notable_failures: ['Multiple pipeline terminations', 'Aduhelm commercial failure'] },
-  'regeneron': { total_deals: 18, successful: 14, terminated: 2, avg_milestone_months: 14, notable_successes: ['Dupixent franchise expansion', 'VelocImmune platform deals'], notable_failures: ['Limited — strong track record'] },
-  'vertex': { total_deals: 15, successful: 12, terminated: 1, avg_milestone_months: 13, notable_successes: ['Casgevy gene therapy (CRISPR collab)', 'CF franchise dominance'], notable_failures: ['Pain program delays'] },
-  'gsk': { total_deals: 30, successful: 18, terminated: 7, avg_milestone_months: 22, notable_successes: ['Shingrix development', 'Sierra Oncology acquisition'], notable_failures: ['Haleon demerger complexity', 'Multiple oncology failures'] },
-  'takeda': { total_deals: 28, successful: 16, terminated: 6, avg_milestone_months: 23, notable_successes: ['Shire acquisition ($62B)', 'Entyvio development'], notable_failures: ['Shire integration — divested many assets', 'R&D pipeline attrition'] },
-  'novo nordisk': { total_deals: 20, successful: 16, terminated: 2, avg_milestone_months: 15, notable_successes: ['Ozempic/Wegovy franchise', 'Dicerna acquisition (RNAi)'], notable_failures: ['Oral insulin challenges'] },
-  'boehringer ingelheim': { total_deals: 22, successful: 15, terminated: 3, avg_milestone_months: 18, notable_successes: ['Jardiance partnership with Lilly', 'Astellas IPF collaboration'], notable_failures: ['Respimat patent dispute'] },
+const PARTNER_TRACK_RECORDS: Record<
+  string,
+  {
+    total_deals: number;
+    successful: number;
+    terminated: number;
+    avg_milestone_months: number;
+    notable_successes: string[];
+    notable_failures: string[];
+  }
+> = {
+  roche: {
+    total_deals: 45,
+    successful: 32,
+    terminated: 5,
+    avg_milestone_months: 18,
+    notable_successes: ['Genentech acquisition ($46.8B)', 'Hemlibra co-development'],
+    notable_failures: ['Multiple anti-amyloid setbacks'],
+  },
+  pfizer: {
+    total_deals: 52,
+    successful: 34,
+    terminated: 8,
+    avg_milestone_months: 20,
+    notable_successes: ['BioNTech COVID-19 partnership', 'Seagen acquisition ($43B)'],
+    notable_failures: ['Multiple CNS program terminations', 'Gene therapy wind-down'],
+  },
+  novartis: {
+    total_deals: 40,
+    successful: 28,
+    terminated: 6,
+    avg_milestone_months: 19,
+    notable_successes: ['Zolgensma (AveXis acquisition)', 'Kisqali development'],
+    notable_failures: ['Endocyte integration delays'],
+  },
+  merck: {
+    total_deals: 35,
+    successful: 26,
+    terminated: 4,
+    avg_milestone_months: 16,
+    notable_successes: ['Keytruda development machine', 'Prometheus Biosciences ($10.8B)'],
+    notable_failures: ['Vioxx post-market withdrawal'],
+  },
+  'johnson & johnson': {
+    total_deals: 38,
+    successful: 25,
+    terminated: 6,
+    avg_milestone_months: 22,
+    notable_successes: ['Darzalex (Genmab partnership)', 'Tremfya development'],
+    notable_failures: ['Actelion pipeline attrition'],
+  },
+  janssen: {
+    total_deals: 38,
+    successful: 25,
+    terminated: 6,
+    avg_milestone_months: 22,
+    notable_successes: ['Darzalex (Genmab partnership)', 'Tremfya development'],
+    notable_failures: ['Actelion pipeline attrition'],
+  },
+  astrazeneca: {
+    total_deals: 42,
+    successful: 30,
+    terminated: 5,
+    avg_milestone_months: 17,
+    notable_successes: ['Daiichi Sankyo ADC partnership ($6.9B+)', 'Enhertu development'],
+    notable_failures: ['Multiple early-stage program terminations'],
+  },
+  'bristol-myers squibb': {
+    total_deals: 33,
+    successful: 22,
+    terminated: 5,
+    avg_milestone_months: 19,
+    notable_successes: ['Celgene acquisition ($74B)', 'Opdivo development'],
+    notable_failures: ['Celgene integration challenges', 'Deucravacitinib launch stumble'],
+  },
+  bms: {
+    total_deals: 33,
+    successful: 22,
+    terminated: 5,
+    avg_milestone_months: 19,
+    notable_successes: ['Celgene acquisition ($74B)', 'Opdivo development'],
+    notable_failures: ['Celgene integration challenges'],
+  },
+  'eli lilly': {
+    total_deals: 30,
+    successful: 23,
+    terminated: 3,
+    avg_milestone_months: 15,
+    notable_successes: ['Mounjaro/Zepbound launch', 'LOXO Oncology acquisition'],
+    notable_failures: ["Solanezumab Alzheimer's failures"],
+  },
+  lilly: {
+    total_deals: 30,
+    successful: 23,
+    terminated: 3,
+    avg_milestone_months: 15,
+    notable_successes: ['Mounjaro/Zepbound launch', 'LOXO Oncology acquisition'],
+    notable_failures: ['Solanezumab failures'],
+  },
+  abbvie: {
+    total_deals: 35,
+    successful: 24,
+    terminated: 5,
+    avg_milestone_months: 18,
+    notable_successes: ['Allergan acquisition ($63B)', 'Imbruvica partnership'],
+    notable_failures: ['ABBV-8E12 (tau antibody) failure', 'Rinvoq safety concerns'],
+  },
+  gilead: {
+    total_deals: 28,
+    successful: 18,
+    terminated: 5,
+    avg_milestone_months: 20,
+    notable_successes: ['Kite Pharma acquisition (CAR-T)', 'Sovaldi/Harvoni HCV'],
+    notable_failures: ['NASH program terminations', 'Immunomedics integration'],
+  },
+  sanofi: {
+    total_deals: 32,
+    successful: 21,
+    terminated: 6,
+    avg_milestone_months: 21,
+    notable_successes: ['Dupixent co-development with Regeneron', 'Translate Bio mRNA'],
+    notable_failures: ['Multiple oncology setbacks', 'Principia Bio integration'],
+  },
+  amgen: {
+    total_deals: 25,
+    successful: 17,
+    terminated: 4,
+    avg_milestone_months: 19,
+    notable_successes: ['Horizon Therapeutics acquisition ($28B)', 'Lumakras launch'],
+    notable_failures: ['Otezla underwhelming performance post-acquisition'],
+  },
+  biogen: {
+    total_deals: 22,
+    successful: 12,
+    terminated: 6,
+    avg_milestone_months: 24,
+    notable_successes: ['Aduhelm accelerated approval (controversial)', 'Leqembi partnership with Eisai'],
+    notable_failures: ['Multiple pipeline terminations', 'Aduhelm commercial failure'],
+  },
+  regeneron: {
+    total_deals: 18,
+    successful: 14,
+    terminated: 2,
+    avg_milestone_months: 14,
+    notable_successes: ['Dupixent franchise expansion', 'VelocImmune platform deals'],
+    notable_failures: ['Limited — strong track record'],
+  },
+  vertex: {
+    total_deals: 15,
+    successful: 12,
+    terminated: 1,
+    avg_milestone_months: 13,
+    notable_successes: ['Casgevy gene therapy (CRISPR collab)', 'CF franchise dominance'],
+    notable_failures: ['Pain program delays'],
+  },
+  gsk: {
+    total_deals: 30,
+    successful: 18,
+    terminated: 7,
+    avg_milestone_months: 22,
+    notable_successes: ['Shingrix development', 'Sierra Oncology acquisition'],
+    notable_failures: ['Haleon demerger complexity', 'Multiple oncology failures'],
+  },
+  takeda: {
+    total_deals: 28,
+    successful: 16,
+    terminated: 6,
+    avg_milestone_months: 23,
+    notable_successes: ['Shire acquisition ($62B)', 'Entyvio development'],
+    notable_failures: ['Shire integration — divested many assets', 'R&D pipeline attrition'],
+  },
+  'novo nordisk': {
+    total_deals: 20,
+    successful: 16,
+    terminated: 2,
+    avg_milestone_months: 15,
+    notable_successes: ['Ozempic/Wegovy franchise', 'Dicerna acquisition (RNAi)'],
+    notable_failures: ['Oral insulin challenges'],
+  },
+  'boehringer ingelheim': {
+    total_deals: 22,
+    successful: 15,
+    terminated: 3,
+    avg_milestone_months: 18,
+    notable_successes: ['Jardiance partnership with Lilly', 'Astellas IPF collaboration'],
+    notable_failures: ['Respimat patent dispute'],
+  },
 };
 
-function evaluatePartnerTrackRecord(
-  partner: PharmaPartnerProfile,
-): PartnerTrackRecord | undefined {
+function evaluatePartnerTrackRecord(partner: PharmaPartnerProfile): PartnerTrackRecord | undefined {
   const companyLower = partner.company.toLowerCase();
   const record = PARTNER_TRACK_RECORDS[companyLower];
   if (!record) return undefined;
@@ -474,7 +841,7 @@ function evaluatePartnerTrackRecord(
 
   let label: PartnerTrackRecord['track_record_label'];
   if (successRate >= 0.75) label = 'Excellent';
-  else if (successRate >= 0.60) label = 'Good';
+  else if (successRate >= 0.6) label = 'Good';
   else if (successRate >= 0.45) label = 'Mixed';
   else label = 'Poor';
 
@@ -495,11 +862,17 @@ function evaluatePartnerTrackRecord(
 // Stage × therapy area matrix used as fallback when sample < 3
 // ────────────────────────────────────────────────────────────
 
-const THERAPY_AREA_DEAL_BENCHMARKS: Record<string, Record<DevelopmentStage, {
-  avg_upfront_m: number;
-  avg_total_m: number;
-  royalty: string;
-}>> = {
+const THERAPY_AREA_DEAL_BENCHMARKS: Record<
+  string,
+  Record<
+    DevelopmentStage,
+    {
+      avg_upfront_m: number;
+      avg_total_m: number;
+      royalty: string;
+    }
+  >
+> = {
   oncology: {
     preclinical: { avg_upfront_m: 30, avg_total_m: 500, royalty: '3-6% tiered' },
     phase1: { avg_upfront_m: 75, avg_total_m: 900, royalty: '6-12% tiered' },
@@ -545,12 +918,12 @@ const THERAPY_AREA_DEAL_BENCHMARKS: Record<string, Record<DevelopmentStage, {
 // ────────────────────────────────────────────────────────────
 
 const DEAL_FAILURE_RATES: Record<string, Record<string, number>> = {
-  oncology: { preclinical: 0.35, phase1: 0.28, phase2: 0.20, phase3: 0.12, approved: 0.05 },
-  rare_disease: { preclinical: 0.30, phase1: 0.22, phase2: 0.15, phase3: 0.08, approved: 0.03 },
-  immunology: { preclinical: 0.32, phase1: 0.25, phase2: 0.18, phase3: 0.10, approved: 0.04 },
-  neurology: { preclinical: 0.40, phase1: 0.32, phase2: 0.25, phase3: 0.15, approved: 0.06 },
-  cardiovascular: { preclinical: 0.38, phase1: 0.30, phase2: 0.22, phase3: 0.12, approved: 0.05 },
-  default: { preclinical: 0.35, phase1: 0.28, phase2: 0.20, phase3: 0.12, approved: 0.05 },
+  oncology: { preclinical: 0.35, phase1: 0.28, phase2: 0.2, phase3: 0.12, approved: 0.05 },
+  rare_disease: { preclinical: 0.3, phase1: 0.22, phase2: 0.15, phase3: 0.08, approved: 0.03 },
+  immunology: { preclinical: 0.32, phase1: 0.25, phase2: 0.18, phase3: 0.1, approved: 0.04 },
+  neurology: { preclinical: 0.4, phase1: 0.32, phase2: 0.25, phase3: 0.15, approved: 0.06 },
+  cardiovascular: { preclinical: 0.38, phase1: 0.3, phase2: 0.22, phase3: 0.12, approved: 0.05 },
+  default: { preclinical: 0.35, phase1: 0.28, phase2: 0.2, phase3: 0.12, approved: 0.05 },
 };
 
 // ────────────────────────────────────────────────────────────
@@ -560,18 +933,63 @@ const DEAL_FAILURE_RATES: Record<string, Record<string, number>> = {
 
 // Known short indication/mechanism abbreviations that should NOT be filtered out
 const KNOWN_ABBREVIATIONS = new Set([
-  'aml', 'cll', 'sma', 'itp', 'mds', 'cml', 'all', 'nhl', 'rcc', 'hcc',
-  'gbm', 'ipf', 'tnbc', 'dlbcl', 'nsclc', 'sclc', 'adc', 'her2', 'egfr',
-  'kras', 'alk', 'ret', 'met', 'btk', 'jak', 'pah', 'ckd', 'ibd', 'sle',
-  'mdd', 'als', 'cns', 'dmd', 'pku', 'hiv', 'hbv', 'hcv', 'rsv', 'gist',
-  'nash', 'mash', 'amd', 'pfa', 'tka', 'tavr', 'dbs', 'drg', 'ivd', 'cdx',
+  'aml',
+  'cll',
+  'sma',
+  'itp',
+  'mds',
+  'cml',
+  'all',
+  'nhl',
+  'rcc',
+  'hcc',
+  'gbm',
+  'ipf',
+  'tnbc',
+  'dlbcl',
+  'nsclc',
+  'sclc',
+  'adc',
+  'her2',
+  'egfr',
+  'kras',
+  'alk',
+  'ret',
+  'met',
+  'btk',
+  'jak',
+  'pah',
+  'ckd',
+  'ibd',
+  'sle',
+  'mdd',
+  'als',
+  'cns',
+  'dmd',
+  'pku',
+  'hiv',
+  'hbv',
+  'hcv',
+  'rsv',
+  'gist',
+  'nash',
+  'mash',
+  'amd',
+  'pfa',
+  'tka',
+  'tavr',
+  'dbs',
+  'drg',
+  'ivd',
+  'cdx',
 ]);
 
 /** Tokenize indication/mechanism text, keeping known abbreviations */
 function tokenize(text: string): string[] {
-  return text.toLowerCase().split(/\s+/).filter(
-    (t) => t.length > 3 || KNOWN_ABBREVIATIONS.has(t)
-  );
+  return text
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((t) => t.length > 3 || KNOWN_ABBREVIATIONS.has(t));
 }
 
 function matchesDealType(partnerDealType: string, userDealTypes: string[]): boolean {
@@ -581,7 +999,12 @@ function matchesDealType(partnerDealType: string, userDealTypes: string[]): bool
       case 'licensing':
         return normalized.includes('licens') || normalized.includes('license') || normalized.includes('rights');
       case 'co-development':
-        return normalized.includes('co-develop') || normalized.includes('collaboration') || normalized.includes('co-promote') || normalized.includes('research');
+        return (
+          normalized.includes('co-develop') ||
+          normalized.includes('collaboration') ||
+          normalized.includes('co-promote') ||
+          normalized.includes('research')
+        );
       case 'acquisition':
         return normalized.includes('acqui') || normalized.includes('merger') || normalized.includes('full company');
       case 'co-promotion':
@@ -647,27 +1070,25 @@ function scoreTherapeuticAlignment(
   const partnerFocus = partner.pipeline_focus.map((f) => f.toLowerCase());
 
   // Direct therapy area match (up to 12 pts) — normalized exact-match
-  const normalize = (a: string) => a.toLowerCase().replace(/[\s\-]+/g, '_').replace(/[^a-z0-9_]/g, '');
-  const areaOverlap = userTherapyAreas.filter((ua) =>
-    partnerAreas.some((pa) => normalize(pa) === normalize(ua))
-  );
+  const normalize = (a: string) =>
+    a
+      .toLowerCase()
+      .replace(/[\s\-]+/g, '_')
+      .replace(/[^a-z0-9_]/g, '');
+  const areaOverlap = userTherapyAreas.filter((ua) => partnerAreas.some((pa) => normalize(pa) === normalize(ua)));
   score += Math.min(12, areaOverlap.length * 6);
 
   // Indication keyword match in pipeline focus (up to 8 pts)
   const indicationLower = indication.toLowerCase();
   const indicationTokens = tokenize(indicationLower);
-  const focusMatch = partnerFocus.some((f) =>
-    indicationTokens.some((t) => f.includes(t))
-  );
+  const focusMatch = partnerFocus.some((f) => indicationTokens.some((t) => f.includes(t)));
   if (focusMatch) score += 8;
 
   // Mechanism match in pipeline focus (up to 5 pts)
   if (mechanism) {
     const mechLower = mechanism.toLowerCase();
     const mechCategories = inferMechanismCategories(mechanism);
-    const mechMatch = partnerFocus.some((f) =>
-      f.includes(mechLower) || mechCategories.some((mc) => f.includes(mc))
-    );
+    const mechMatch = partnerFocus.some((f) => f.includes(mechLower) || mechCategories.some((mc) => f.includes(mc)));
     if (mechMatch) score += 5;
   }
 
@@ -690,25 +1111,30 @@ function scorePipelineGap(
   const indicationTokens = tokenize(indicationLower);
 
   // Strategic priority match (up to 15 pts)
-  const priorityMatch = priorities.some((p) =>
-    userTherapyAreas.some((ua) => p.includes(ua)) ||
-    indicationTokens.some((t) => p.includes(t))
+  const priorityMatch = priorities.some(
+    (p) => userTherapyAreas.some((ua) => p.includes(ua)) || indicationTokens.some((t) => p.includes(t)),
   );
   if (priorityMatch) score += 15;
 
   // Check if they mention LOE / patent cliff / pipeline gap in priorities (up to 5 pts)
   const gapSignals = ['loe', 'patent cliff', 'rebuild', 'gap', 'pipeline build', 'expansion', 'entry', 'seeking'];
-  const hasGapSignal = priorities.some((p) =>
-    gapSignals.some((gs) => p.includes(gs))
-  );
+  const hasGapSignal = priorities.some((p) => gapSignals.some((gs) => p.includes(gs)));
   if (hasGapSignal) score += 5;
 
   // BD activity level bonus (up to 5 pts)
   switch (partner.bd_activity) {
-    case 'very_active': score += 5; break;
-    case 'active': score += 3; break;
-    case 'moderate': score += 1; break;
-    case 'selective': score += 0; break;
+    case 'very_active':
+      score += 5;
+      break;
+    case 'active':
+      score += 3;
+      break;
+    case 'moderate':
+      score += 1;
+      break;
+    case 'selective':
+      score += 0;
+      break;
   }
 
   return Math.min(25, score);
@@ -739,15 +1165,14 @@ function scoreDealHistory(
   // Recent deals in relevant therapy area (up to 6 pts)
   const relevantDeals = deals.filter((d) => {
     const dealInd = d.indication.toLowerCase();
-    return userTherapyAreas.some((ua) => dealInd.includes(ua)) ||
-      tokenize(indicationLower).some((t) => dealInd.includes(t));
+    return (
+      userTherapyAreas.some((ua) => dealInd.includes(ua)) || tokenize(indicationLower).some((t) => dealInd.includes(t))
+    );
   });
   score += Math.min(6, relevantDeals.length * 2);
 
   // Deal type match (up to 4 pts)
-  const hasMatchingDealType = deals.some((d) =>
-    matchesDealType(d.deal_type, dealTypes)
-  );
+  const hasMatchingDealType = deals.some((d) => matchesDealType(d.deal_type, dealTypes));
   if (hasMatchingDealType) score += 4;
 
   // Recent activity bonus — deals in last 2 years (up to 4 pts)
@@ -761,10 +1186,7 @@ function scoreDealHistory(
  * Geography fit score (0-15)
  * Do the rights being offered match the partner's geographic presence?
  */
-function scoreGeographyFit(
-  partner: PharmaPartnerProfile,
-  geographyRights: string[],
-): number {
+function scoreGeographyFit(partner: PharmaPartnerProfile, geographyRights: string[]): number {
   let score = 0;
   const partnerGeo = partner.geography_footprint.map((g) => g.toLowerCase());
 
@@ -776,7 +1198,7 @@ function scoreGeographyFit(
 
   // Count matching geographies
   const matchedGeos = geographyRights.filter((g) =>
-    partnerGeo.some((pg) => pg.toLowerCase() === g.toLowerCase() || pg.includes(g.toLowerCase()))
+    partnerGeo.some((pg) => pg.toLowerCase() === g.toLowerCase() || pg.includes(g.toLowerCase())),
   );
 
   const matchRatio = matchedGeos.length / Math.max(1, geographyRights.length);
@@ -789,23 +1211,20 @@ function scoreGeographyFit(
  * Financial capacity score (0-15)
  * Can this partner afford a deal at the expected scale?
  */
-function scoreFinancialCapacity(
-  partner: PharmaPartnerProfile,
-  developmentStage: DevelopmentStage,
-): number {
+function scoreFinancialCapacity(partner: PharmaPartnerProfile, developmentStage: DevelopmentStage): number {
   // Expected deal size by stage
   const stageMinCapacity: Record<DevelopmentStage, number> = {
-    preclinical: 0.1,   // $100M market cap minimum
-    phase1: 0.5,         // $500M market cap minimum
-    phase2: 2,           // $2B market cap minimum
-    phase3: 5,           // $5B market cap minimum
-    approved: 10,        // $10B market cap minimum
+    preclinical: 0.1, // $100M market cap minimum
+    phase1: 0.5, // $500M market cap minimum
+    phase2: 2, // $2B market cap minimum
+    phase3: 5, // $5B market cap minimum
+    approved: 10, // $10B market cap minimum
   };
 
   const minCap = stageMinCapacity[developmentStage] || 0.5;
   const partnerCap = partner.market_cap_b;
 
-  if (partnerCap >= minCap * 10) return 15;  // Far exceeds requirement
+  if (partnerCap >= minCap * 10) return 15; // Far exceeds requirement
   if (partnerCap >= minCap * 5) return 12;
   if (partnerCap >= minCap * 2) return 9;
   if (partnerCap >= minCap) return 6;
@@ -831,9 +1250,7 @@ function computeDealBenchmarks(
   therapyArea?: string,
 ): DealBenchmark {
   // Filter to meaningful deals (non-zero values)
-  const validDeals = relevantDeals.filter(
-    (d) => d.upfront_m > 0 && d.total_value_m > 0
-  );
+  const validDeals = relevantDeals.filter((d) => d.upfront_m > 0 && d.total_value_m > 0);
 
   // If sample too small, use therapy-area benchmarks as fallback
   if (validDeals.length < 3 && therapyArea) {
@@ -845,7 +1262,7 @@ function computeDealBenchmarks(
       // Compute failure-adjusted values
       const taKeyFail = taLower.replace(/[\s\-]+/g, '_');
       const failRates = DEAL_FAILURE_RATES[taKeyFail] ?? DEAL_FAILURE_RATES.default;
-      const failRate = failRates[developmentStage] ?? 0.20;
+      const failRate = failRates[developmentStage] ?? 0.2;
       const failAdjVal = Math.round(stageBenchmark.avg_total_m * (1 - failRate));
 
       return {
@@ -853,7 +1270,7 @@ function computeDealBenchmarks(
         avg_upfront_m: stageBenchmark.avg_upfront_m,
         median_upfront_m: Math.round(stageBenchmark.avg_upfront_m * 0.85), // Median typically lower
         avg_total_value_m: stageBenchmark.avg_total_m,
-        median_total_value_m: Math.round(stageBenchmark.avg_total_m * 0.80),
+        median_total_value_m: Math.round(stageBenchmark.avg_total_m * 0.8),
         typical_royalty_range: stageBenchmark.royalty,
         sample_size: validDeals.length,
         therapy_area: therapyArea,
@@ -867,7 +1284,7 @@ function computeDealBenchmarks(
   if (validDeals.length === 0) {
     const zTaKey = (therapyArea || 'default').toLowerCase().replace(/[\s\-]+/g, '_');
     const zFailRates = DEAL_FAILURE_RATES[zTaKey] ?? DEAL_FAILURE_RATES.default;
-    const zFailRate = zFailRates[developmentStage] ?? 0.20;
+    const zFailRate = zFailRates[developmentStage] ?? 0.2;
 
     return {
       stage: developmentStage,
@@ -896,7 +1313,7 @@ function computeDealBenchmarks(
   const avgTotalForFail = Math.round(avg(totals));
   const fTaKey = (therapyArea || 'default').toLowerCase().replace(/[\s\-]+/g, '_');
   const fRates = DEAL_FAILURE_RATES[fTaKey] ?? DEAL_FAILURE_RATES.default;
-  const fRate = fRates[developmentStage] ?? 0.20;
+  const fRate = fRates[developmentStage] ?? 0.2;
   const fAdjVal = Math.round(avgTotalForFail * (1 - fRate));
 
   return {
@@ -938,13 +1355,17 @@ function generateRationale(
 
   const topDimension = dimensions[0];
   // Scale descriptor to actual score vs max for that dimension
-  const dimMaxes: Record<string, number> = { therapeutic_alignment: 25, pipeline_gap: 25, deal_history: 20, geography_fit: 15, financial_capacity: 15 };
+  const dimMaxes: Record<string, number> = {
+    therapeutic_alignment: 25,
+    pipeline_gap: 25,
+    deal_history: 20,
+    geography_fit: 15,
+    financial_capacity: 15,
+  };
   const topRatio = topDimension.score / (dimMaxes[topDimension.key] || 25);
   const descriptor = topRatio >= 0.7 ? 'strong' : topRatio >= 0.4 ? 'notable' : 'relevant';
 
-  parts.push(
-    `${partner.company} is a ${companyType} with ${descriptor} ${topDimension.label} for this opportunity.`
-  );
+  parts.push(`${partner.company} is a ${companyType} with ${descriptor} ${topDimension.label} for this opportunity.`);
 
   // Therapeutic presence
   if (scores.therapeutic_alignment >= 15) {
@@ -957,13 +1378,14 @@ function generateRationale(
     const recentDeals = partner.recent_deals.filter((d) => d.year >= new Date().getFullYear() - 2);
     if (recentDeals.length > 0) {
       const totalValue = recentDeals.reduce((sum, d) => sum + (d.total_value_m || 0), 0);
-      const valueStr = totalValue >= 1000
-        ? `~$${(totalValue / 1000).toFixed(1)}B`
-        : totalValue > 0
-          ? `~$${Math.round(totalValue)}M`
-          : '';
+      const valueStr =
+        totalValue >= 1000
+          ? `~$${(totalValue / 1000).toFixed(1)}B`
+          : totalValue > 0
+            ? `~$${Math.round(totalValue)}M`
+            : '';
       parts.push(
-        `${recentDeals.length} deal${recentDeals.length > 1 ? 's' : ''} in related therapeutic areas in the last 2 years${valueStr ? ` totaling ${valueStr} in aggregate value` : ''}.`
+        `${recentDeals.length} deal${recentDeals.length > 1 ? 's' : ''} in related therapeutic areas in the last 2 years${valueStr ? ` totaling ${valueStr} in aggregate value` : ''}.`,
       );
     }
   }
@@ -996,7 +1418,10 @@ function generateWatchSignals(
 
   // LOE / patent cliff
   const hasLOE = partner.strategic_priorities.some(
-    (p) => p.toLowerCase().includes('loe') || p.toLowerCase().includes('patent cliff') || p.toLowerCase().includes('rebuild')
+    (p) =>
+      p.toLowerCase().includes('loe') ||
+      p.toLowerCase().includes('patent cliff') ||
+      p.toLowerCase().includes('rebuild'),
   );
   if (hasLOE) {
     signals.push('Facing key product LOE — actively rebuilding pipeline');
@@ -1009,16 +1434,18 @@ function generateWatchSignals(
 
   // Recent large deal capacity
   const largeRecent = partner.recent_deals.filter(
-    (d) => d.year >= new Date().getFullYear() - 2 && d.total_value_m >= 1000
+    (d) => d.year >= new Date().getFullYear() - 2 && d.total_value_m >= 1000,
   );
   if (largeRecent.length > 0) {
-    signals.push(`Recently closed ${largeRecent.length} deal(s) >$1B — demonstrated capacity for significant transactions`);
+    signals.push(
+      `Recently closed ${largeRecent.length} deal(s) >$1B — demonstrated capacity for significant transactions`,
+    );
   }
 
   // Strategic priority alignment
   const indicationTokens = tokenize(indication);
   const matchingPriority = partner.strategic_priorities.find((p) =>
-    indicationTokens.some((t) => p.toLowerCase().includes(t))
+    indicationTokens.some((t) => p.toLowerCase().includes(t)),
   );
   if (matchingPriority) {
     signals.push(`Stated strategic priority aligns with this asset`);
@@ -1039,16 +1466,20 @@ function generateWatchSignals(
 // HELPERS
 // ────────────────────────────────────────────────────────────
 
-function formatCompanyType(
-  type: PharmaPartnerProfile['company_type']
-): PartnerMatch['company_type'] {
+function formatCompanyType(type: PharmaPartnerProfile['company_type']): PartnerMatch['company_type'] {
   switch (type) {
-    case 'big_pharma': return 'Big Pharma';
-    case 'mid_pharma': return 'Mid-Size Pharma';
-    case 'specialty_pharma': return 'Specialty Pharma';
-    case 'biotech': return 'Biotech';
-    case 'generics': return 'Specialty Pharma';
-    default: return 'Specialty Pharma';
+    case 'big_pharma':
+      return 'Big Pharma';
+    case 'mid_pharma':
+      return 'Mid-Size Pharma';
+    case 'specialty_pharma':
+      return 'Specialty Pharma';
+    case 'biotech':
+      return 'Biotech';
+    case 'generics':
+      return 'Specialty Pharma';
+    default:
+      return 'Specialty Pharma';
   }
 }
 
@@ -1062,9 +1493,7 @@ function formatDealTermsBenchmark(
   partner: PharmaPartnerProfile,
   developmentStage: DevelopmentStage,
 ): PartnerMatch['deal_terms_benchmark'] {
-  const validDeals = partner.recent_deals.filter(
-    (d) => d.upfront_m > 0 && d.total_value_m > 0
-  );
+  const validDeals = partner.recent_deals.filter((d) => d.upfront_m > 0 && d.total_value_m > 0);
 
   if (validDeals.length === 0) {
     const benchmarks = STAGE_BENCHMARKS[developmentStage] || { royalty: '5-15%' };
@@ -1098,10 +1527,7 @@ function inferDealStage(deal: PharmaPartnerProfile['recent_deals'][0]): Developm
   return 'preclinical';
 }
 
-function convertToPartnerDeal(
-  deal: PharmaPartnerProfile['recent_deals'][0],
-  partnerCompany: string,
-): PartnerDeal {
+function convertToPartnerDeal(deal: PharmaPartnerProfile['recent_deals'][0], partnerCompany: string): PartnerDeal {
   return {
     partner_company: partnerCompany,
     licensed_to: deal.partner,
@@ -1123,146 +1549,155 @@ function convertToPartnerDeal(
 // Source: Ambrosia proprietary scoring, public annual reports 2024
 // ────────────────────────────────────────────────────────────
 
-const PARTNER_GEOGRAPHIC_STRENGTHS: Record<string, Record<string, {
-  commercial: number; regulatory: number; kol: number; reimbursement: number;
-}>> = {
-  'pfizer': {
-    'US': { commercial: 10, regulatory: 10, kol: 9, reimbursement: 9 },
-    'EU': { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 6, regulatory: 5, kol: 4, reimbursement: 4 },
+const PARTNER_GEOGRAPHIC_STRENGTHS: Record<
+  string,
+  Record<
+    string,
+    {
+      commercial: number;
+      regulatory: number;
+      kol: number;
+      reimbursement: number;
+    }
+  >
+> = {
+  pfizer: {
+    US: { commercial: 10, regulatory: 10, kol: 9, reimbursement: 9 },
+    EU: { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 6, regulatory: 5, kol: 4, reimbursement: 4 },
   },
-  'roche': {
-    'US': { commercial: 9, regulatory: 10, kol: 10, reimbursement: 9 },
-    'EU': { commercial: 10, regulatory: 10, kol: 10, reimbursement: 9 },
-    'Japan': { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
-    'China': { commercial: 7, regulatory: 6, kol: 5, reimbursement: 5 },
+  roche: {
+    US: { commercial: 9, regulatory: 10, kol: 10, reimbursement: 9 },
+    EU: { commercial: 10, regulatory: 10, kol: 10, reimbursement: 9 },
+    Japan: { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
+    China: { commercial: 7, regulatory: 6, kol: 5, reimbursement: 5 },
   },
-  'novartis': {
-    'US': { commercial: 9, regulatory: 9, kol: 9, reimbursement: 8 },
-    'EU': { commercial: 10, regulatory: 10, kol: 9, reimbursement: 9 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
+  novartis: {
+    US: { commercial: 9, regulatory: 9, kol: 9, reimbursement: 8 },
+    EU: { commercial: 10, regulatory: 10, kol: 9, reimbursement: 9 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
   },
-  'merck': {
-    'US': { commercial: 10, regulatory: 10, kol: 10, reimbursement: 9 },
-    'EU': { commercial: 8, regulatory: 9, kol: 8, reimbursement: 8 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 7, regulatory: 6, kol: 5, reimbursement: 5 },
+  merck: {
+    US: { commercial: 10, regulatory: 10, kol: 10, reimbursement: 9 },
+    EU: { commercial: 8, regulatory: 9, kol: 8, reimbursement: 8 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 7, regulatory: 6, kol: 5, reimbursement: 5 },
   },
   'merck & co': {
-    'US': { commercial: 10, regulatory: 10, kol: 10, reimbursement: 9 },
-    'EU': { commercial: 8, regulatory: 9, kol: 8, reimbursement: 8 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 7, regulatory: 6, kol: 5, reimbursement: 5 },
+    US: { commercial: 10, regulatory: 10, kol: 10, reimbursement: 9 },
+    EU: { commercial: 8, regulatory: 9, kol: 8, reimbursement: 8 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 7, regulatory: 6, kol: 5, reimbursement: 5 },
   },
   'johnson & johnson': {
-    'US': { commercial: 10, regulatory: 9, kol: 9, reimbursement: 9 },
-    'EU': { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 6, regulatory: 5, kol: 4, reimbursement: 4 },
+    US: { commercial: 10, regulatory: 9, kol: 9, reimbursement: 9 },
+    EU: { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 6, regulatory: 5, kol: 4, reimbursement: 4 },
   },
-  'janssen': {
-    'US': { commercial: 10, regulatory: 9, kol: 9, reimbursement: 9 },
-    'EU': { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 6, regulatory: 5, kol: 4, reimbursement: 4 },
+  janssen: {
+    US: { commercial: 10, regulatory: 9, kol: 9, reimbursement: 9 },
+    EU: { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 6, regulatory: 5, kol: 4, reimbursement: 4 },
   },
-  'astrazeneca': {
-    'US': { commercial: 9, regulatory: 9, kol: 9, reimbursement: 8 },
-    'EU': { commercial: 9, regulatory: 9, kol: 9, reimbursement: 8 },
-    'Japan': { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
-    'China': { commercial: 9, regulatory: 8, kol: 7, reimbursement: 6 },
+  astrazeneca: {
+    US: { commercial: 9, regulatory: 9, kol: 9, reimbursement: 8 },
+    EU: { commercial: 9, regulatory: 9, kol: 9, reimbursement: 8 },
+    Japan: { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
+    China: { commercial: 9, regulatory: 8, kol: 7, reimbursement: 6 },
   },
   'bristol-myers squibb': {
-    'US': { commercial: 9, regulatory: 10, kol: 9, reimbursement: 8 },
-    'EU': { commercial: 8, regulatory: 8, kol: 8, reimbursement: 7 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 5, regulatory: 5, kol: 4, reimbursement: 4 },
+    US: { commercial: 9, regulatory: 10, kol: 9, reimbursement: 8 },
+    EU: { commercial: 8, regulatory: 8, kol: 8, reimbursement: 7 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 5, regulatory: 5, kol: 4, reimbursement: 4 },
   },
-  'bms': {
-    'US': { commercial: 9, regulatory: 10, kol: 9, reimbursement: 8 },
-    'EU': { commercial: 8, regulatory: 8, kol: 8, reimbursement: 7 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 5, regulatory: 5, kol: 4, reimbursement: 4 },
+  bms: {
+    US: { commercial: 9, regulatory: 10, kol: 9, reimbursement: 8 },
+    EU: { commercial: 8, regulatory: 8, kol: 8, reimbursement: 7 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 5, regulatory: 5, kol: 4, reimbursement: 4 },
   },
   'eli lilly': {
-    'US': { commercial: 10, regulatory: 10, kol: 9, reimbursement: 9 },
-    'EU': { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
-    'Japan': { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
-    'China': { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
+    US: { commercial: 10, regulatory: 10, kol: 9, reimbursement: 9 },
+    EU: { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
+    Japan: { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
+    China: { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
   },
-  'lilly': {
-    'US': { commercial: 10, regulatory: 10, kol: 9, reimbursement: 9 },
-    'EU': { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
-    'Japan': { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
-    'China': { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
+  lilly: {
+    US: { commercial: 10, regulatory: 10, kol: 9, reimbursement: 9 },
+    EU: { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
+    Japan: { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
+    China: { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
   },
-  'abbvie': {
-    'US': { commercial: 10, regulatory: 9, kol: 9, reimbursement: 9 },
-    'EU': { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 5, regulatory: 5, kol: 4, reimbursement: 4 },
+  abbvie: {
+    US: { commercial: 10, regulatory: 9, kol: 9, reimbursement: 9 },
+    EU: { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 5, regulatory: 5, kol: 4, reimbursement: 4 },
   },
-  'gilead': {
-    'US': { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
-    'EU': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'Japan': { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
-    'China': { commercial: 5, regulatory: 4, kol: 3, reimbursement: 3 },
+  gilead: {
+    US: { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
+    EU: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    Japan: { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
+    China: { commercial: 5, regulatory: 4, kol: 3, reimbursement: 3 },
   },
-  'sanofi': {
-    'US': { commercial: 8, regulatory: 8, kol: 8, reimbursement: 8 },
-    'EU': { commercial: 10, regulatory: 10, kol: 9, reimbursement: 9 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 7, regulatory: 6, kol: 5, reimbursement: 5 },
+  sanofi: {
+    US: { commercial: 8, regulatory: 8, kol: 8, reimbursement: 8 },
+    EU: { commercial: 10, regulatory: 10, kol: 9, reimbursement: 9 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 7, regulatory: 6, kol: 5, reimbursement: 5 },
   },
-  'amgen': {
-    'US': { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
-    'EU': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 5 },
-    'China': { commercial: 4, regulatory: 4, kol: 3, reimbursement: 3 },
+  amgen: {
+    US: { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
+    EU: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 5 },
+    China: { commercial: 4, regulatory: 4, kol: 3, reimbursement: 3 },
   },
-  'biogen': {
-    'US': { commercial: 8, regulatory: 8, kol: 8, reimbursement: 7 },
-    'EU': { commercial: 7, regulatory: 7, kol: 7, reimbursement: 6 },
-    'Japan': { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
-    'China': { commercial: 3, regulatory: 3, kol: 2, reimbursement: 2 },
+  biogen: {
+    US: { commercial: 8, regulatory: 8, kol: 8, reimbursement: 7 },
+    EU: { commercial: 7, regulatory: 7, kol: 7, reimbursement: 6 },
+    Japan: { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
+    China: { commercial: 3, regulatory: 3, kol: 2, reimbursement: 2 },
   },
-  'regeneron': {
-    'US': { commercial: 9, regulatory: 9, kol: 9, reimbursement: 8 },
-    'EU': { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
-    'Japan': { commercial: 4, regulatory: 4, kol: 3, reimbursement: 3 },
-    'China': { commercial: 3, regulatory: 3, kol: 2, reimbursement: 2 },
+  regeneron: {
+    US: { commercial: 9, regulatory: 9, kol: 9, reimbursement: 8 },
+    EU: { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
+    Japan: { commercial: 4, regulatory: 4, kol: 3, reimbursement: 3 },
+    China: { commercial: 3, regulatory: 3, kol: 2, reimbursement: 2 },
   },
-  'vertex': {
-    'US': { commercial: 9, regulatory: 9, kol: 9, reimbursement: 8 },
-    'EU': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'Japan': { commercial: 4, regulatory: 4, kol: 3, reimbursement: 3 },
-    'China': { commercial: 3, regulatory: 3, kol: 2, reimbursement: 2 },
+  vertex: {
+    US: { commercial: 9, regulatory: 9, kol: 9, reimbursement: 8 },
+    EU: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    Japan: { commercial: 4, regulatory: 4, kol: 3, reimbursement: 3 },
+    China: { commercial: 3, regulatory: 3, kol: 2, reimbursement: 2 },
   },
-  'gsk': {
-    'US': { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
-    'EU': { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
+  gsk: {
+    US: { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
+    EU: { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
   },
-  'takeda': {
-    'US': { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
-    'EU': { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
-    'Japan': { commercial: 10, regulatory: 10, kol: 10, reimbursement: 10 },
-    'China': { commercial: 5, regulatory: 5, kol: 4, reimbursement: 4 },
+  takeda: {
+    US: { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
+    EU: { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
+    Japan: { commercial: 10, regulatory: 10, kol: 10, reimbursement: 10 },
+    China: { commercial: 5, regulatory: 5, kol: 4, reimbursement: 4 },
   },
   'novo nordisk': {
-    'US': { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
-    'EU': { commercial: 9, regulatory: 9, kol: 9, reimbursement: 9 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
+    US: { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
+    EU: { commercial: 9, regulatory: 9, kol: 9, reimbursement: 9 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
   },
   'boehringer ingelheim': {
-    'US': { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
-    'EU': { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
-    'Japan': { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
-    'China': { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
+    US: { commercial: 8, regulatory: 8, kol: 7, reimbursement: 7 },
+    EU: { commercial: 9, regulatory: 9, kol: 8, reimbursement: 8 },
+    Japan: { commercial: 7, regulatory: 7, kol: 6, reimbursement: 6 },
+    China: { commercial: 6, regulatory: 6, kol: 5, reimbursement: 5 },
   },
 };
 
@@ -1273,10 +1708,7 @@ const PARTNER_GEOGRAPHIC_STRENGTHS: Record<string, Record<string, {
 // pipeline focus, and strategic priorities.
 // ────────────────────────────────────────────────────────────
 
-function assessPortfolioAppetite(
-  partner: PharmaPartnerProfile,
-  mechanism?: string,
-): PortfolioAppetite[] {
+function assessPortfolioAppetite(partner: PharmaPartnerProfile, mechanism?: string): PortfolioAppetite[] {
   const results: PortfolioAppetite[] = [];
   if (!mechanism) return results;
 
@@ -1380,10 +1812,7 @@ function assessPortfolioAppetite(
 // the user's offered geography rights.
 // ────────────────────────────────────────────────────────────
 
-function getGeographicStrengths(
-  partner: PharmaPartnerProfile,
-  geographyRights: string[],
-): GeographicStrength[] {
+function getGeographicStrengths(partner: PharmaPartnerProfile, geographyRights: string[]): GeographicStrength[] {
   const companyLower = partner.company.toLowerCase();
   const strengths = PARTNER_GEOGRAPHIC_STRENGTHS[companyLower];
 
@@ -1446,7 +1875,15 @@ function getGeographicStrengths(
       const regionPenalty = region !== 'US' ? -1 : 0;
       const adj = (v: number) => Math.max(1, v + regionPenalty);
 
-      const overall = Math.round(((adj(baseScores.commercial) + adj(baseScores.regulatory) + adj(baseScores.kol) + adj(baseScores.reimbursement)) / 4) * 10) / 10;
+      const overall =
+        Math.round(
+          ((adj(baseScores.commercial) +
+            adj(baseScores.regulatory) +
+            adj(baseScores.kol) +
+            adj(baseScores.reimbursement)) /
+            4) *
+            10,
+        ) / 10;
       results.push({
         region,
         commercial_strength: adj(baseScores.commercial),
@@ -1493,7 +1930,7 @@ function buildDealStructureModel(
   // Upfront % of total by stage
   const UPFRONT_PCT: Record<DevelopmentStage, number> = {
     preclinical: 0.07,
-    phase1: 0.10,
+    phase1: 0.1,
     phase2: 0.15,
     phase3: 0.22,
     approved: 0.32,
@@ -1502,9 +1939,9 @@ function buildDealStructureModel(
   // Milestone split by stage (clinical_pct / commercial_pct)
   const MILESTONE_SPLIT: Record<DevelopmentStage, { clinical: number; commercial: number }> = {
     preclinical: { clinical: 0.65, commercial: 0.35 },
-    phase1: { clinical: 0.60, commercial: 0.40 },
+    phase1: { clinical: 0.6, commercial: 0.4 },
     phase2: { clinical: 0.55, commercial: 0.45 },
-    phase3: { clinical: 0.40, commercial: 0.60 },
+    phase3: { clinical: 0.4, commercial: 0.6 },
     approved: { clinical: 0.25, commercial: 0.75 },
   };
 
@@ -1512,7 +1949,7 @@ function buildDealStructureModel(
   const OPT_PROBABILITY: Record<DevelopmentStage, number> = {
     preclinical: 0.65,
     phase1: 0.55,
-    phase2: 0.40,
+    phase2: 0.4,
     phase3: 0.15,
     approved: 0.05,
   };
@@ -1524,7 +1961,7 @@ function buildDealStructureModel(
   const commercial_milestones_pct = parseFloat((milestonePct * split.commercial).toFixed(3));
 
   const optProbability = OPT_PROBABILITY[developmentStage];
-  const has_opt_in_opt_out = optProbability > 0.30;
+  const has_opt_in_opt_out = optProbability > 0.3;
   let opt_in_stage: string | undefined;
   if (has_opt_in_opt_out) {
     if (developmentStage === 'preclinical' || developmentStage === 'phase1') {
@@ -1567,13 +2004,19 @@ function buildDealStructureModel(
 
   const narrativeParts: string[] = [];
   narrativeParts.push(
-    `At the ${developmentStage} stage, typical deal structure allocates ~${Math.round(upfront_pct_of_total * 100)}% upfront with the remainder split between clinical milestones (~${Math.round(clinical_milestones_pct * 100)}%) and commercial milestones (~${Math.round(commercial_milestones_pct * 100)}%).`
+    `At the ${developmentStage} stage, typical deal structure allocates ~${Math.round(upfront_pct_of_total * 100)}% upfront with the remainder split between clinical milestones (~${Math.round(clinical_milestones_pct * 100)}%) and commercial milestones (~${Math.round(commercial_milestones_pct * 100)}%).`,
   );
   if (has_opt_in_opt_out && opt_in_stage) {
-    narrativeParts.push(`Opt-in/opt-out clauses are common at this stage (${Math.round(optProbability * 100)}% probability), typically triggered at ${opt_in_stage}.`);
+    narrativeParts.push(
+      `Opt-in/opt-out clauses are common at this stage (${Math.round(optProbability * 100)}% probability), typically triggered at ${opt_in_stage}.`,
+    );
   }
-  narrativeParts.push(`Governance with ${partner.company} (${partner.company_type.replace('_', ' ')}) is expected to be ${governance_complexity}.`);
-  narrativeParts.push(`Based on ${dealsInTA} recent deal(s) in this therapy area, this structure benchmarks at the ${benchmark_percentile}th percentile.`);
+  narrativeParts.push(
+    `Governance with ${partner.company} (${partner.company_type.replace('_', ' ')}) is expected to be ${governance_complexity}.`,
+  );
+  narrativeParts.push(
+    `Based on ${dealsInTA} recent deal(s) in this therapy area, this structure benchmarks at the ${benchmark_percentile}th percentile.`,
+  );
 
   return {
     upfront_pct_of_total,
@@ -1594,42 +2037,40 @@ function buildDealStructureModel(
 
 const PARTNER_DEVELOPMENT_SUCCESS_RATES: Record<string, { p1_p2: number; p2_p3: number; p3_app: number }> = {
   pfizer: { p1_p2: 0.58, p2_p3: 0.48, p3_app: 0.72 },
-  roche: { p1_p2: 0.65, p2_p3: 0.55, p3_app: 0.80 },
-  novartis: { p1_p2: 0.58, p2_p3: 0.52, p3_app: 0.70 },
-  merck: { p1_p2: 0.60, p2_p3: 0.50, p3_app: 0.75 },
+  roche: { p1_p2: 0.65, p2_p3: 0.55, p3_app: 0.8 },
+  novartis: { p1_p2: 0.58, p2_p3: 0.52, p3_app: 0.7 },
+  merck: { p1_p2: 0.6, p2_p3: 0.5, p3_app: 0.75 },
   'johnson & johnson': { p1_p2: 0.55, p2_p3: 0.48, p3_app: 0.68 },
   janssen: { p1_p2: 0.55, p2_p3: 0.48, p3_app: 0.68 },
-  astrazeneca: { p1_p2: 0.57, p2_p3: 0.50, p3_app: 0.73 },
-  bms: { p1_p2: 0.55, p2_p3: 0.47, p3_app: 0.70 },
+  astrazeneca: { p1_p2: 0.57, p2_p3: 0.5, p3_app: 0.73 },
+  bms: { p1_p2: 0.55, p2_p3: 0.47, p3_app: 0.7 },
   'eli lilly': { p1_p2: 0.62, p2_p3: 0.53, p3_app: 0.78 },
   lilly: { p1_p2: 0.62, p2_p3: 0.53, p3_app: 0.78 },
-  abbvie: { p1_p2: 0.56, p2_p3: 0.50, p3_app: 0.72 },
+  abbvie: { p1_p2: 0.56, p2_p3: 0.5, p3_app: 0.72 },
   gilead: { p1_p2: 0.54, p2_p3: 0.46, p3_app: 0.68 },
   sanofi: { p1_p2: 0.52, p2_p3: 0.45, p3_app: 0.65 },
-  amgen: { p1_p2: 0.58, p2_p3: 0.50, p3_app: 0.72 },
-  biogen: { p1_p2: 0.50, p2_p3: 0.40, p3_app: 0.45 },
+  amgen: { p1_p2: 0.58, p2_p3: 0.5, p3_app: 0.72 },
+  biogen: { p1_p2: 0.5, p2_p3: 0.4, p3_app: 0.45 },
   regeneron: { p1_p2: 0.63, p2_p3: 0.55, p3_app: 0.82 },
   vertex: { p1_p2: 0.65, p2_p3: 0.58, p3_app: 0.85 },
   gsk: { p1_p2: 0.52, p2_p3: 0.45, p3_app: 0.65 },
   takeda: { p1_p2: 0.53, p2_p3: 0.46, p3_app: 0.67 },
-  'novo nordisk': { p1_p2: 0.60, p2_p3: 0.55, p3_app: 0.80 },
-  'boehringer ingelheim': { p1_p2: 0.55, p2_p3: 0.48, p3_app: 0.70 },
-  daiichi: { p1_p2: 0.55, p2_p3: 0.50, p3_app: 0.72 },
-  'daiichi sankyo': { p1_p2: 0.55, p2_p3: 0.50, p3_app: 0.72 },
+  'novo nordisk': { p1_p2: 0.6, p2_p3: 0.55, p3_app: 0.8 },
+  'boehringer ingelheim': { p1_p2: 0.55, p2_p3: 0.48, p3_app: 0.7 },
+  daiichi: { p1_p2: 0.55, p2_p3: 0.5, p3_app: 0.72 },
+  'daiichi sankyo': { p1_p2: 0.55, p2_p3: 0.5, p3_app: 0.72 },
   seagen: { p1_p2: 0.52, p2_p3: 0.45, p3_app: 0.65 },
-  incyte: { p1_p2: 0.50, p2_p3: 0.42, p3_app: 0.60 },
+  incyte: { p1_p2: 0.5, p2_p3: 0.42, p3_app: 0.6 },
 };
 
 const COMPANY_TYPE_SUCCESS_DEFAULTS: Record<string, { p1_p2: number; p2_p3: number; p3_app: number }> = {
-  big_pharma: { p1_p2: 0.56, p2_p3: 0.48, p3_app: 0.70 },
-  mid_pharma: { p1_p2: 0.50, p2_p3: 0.42, p3_app: 0.62 },
+  big_pharma: { p1_p2: 0.56, p2_p3: 0.48, p3_app: 0.7 },
+  mid_pharma: { p1_p2: 0.5, p2_p3: 0.42, p3_app: 0.62 },
   specialty_pharma: { p1_p2: 0.45, p2_p3: 0.38, p3_app: 0.55 },
   biotech: { p1_p2: 0.45, p2_p3: 0.38, p3_app: 0.55 },
 };
 
-function buildPartnerPhaseSuccessRates(
-  partner: PharmaPartnerProfile,
-): PartnerPhaseSuccessRates {
+function buildPartnerPhaseSuccessRates(partner: PharmaPartnerProfile): PartnerPhaseSuccessRates {
   const companyLower = partner.company.toLowerCase();
 
   // Try exact match first
@@ -1654,17 +2095,21 @@ function buildPartnerPhaseSuccessRates(
 
   const narrativeParts: string[] = [];
   narrativeParts.push(
-    `${partner.company}'s historical development success rates: Phase 1→2 ${Math.round(rates.p1_p2 * 100)}%, Phase 2→3 ${Math.round(rates.p2_p3 * 100)}%, Phase 3→Approval ${Math.round(rates.p3_app * 100)}%.`
+    `${partner.company}'s historical development success rates: Phase 1→2 ${Math.round(rates.p1_p2 * 100)}%, Phase 2→3 ${Math.round(rates.p2_p3 * 100)}%, Phase 3→Approval ${Math.round(rates.p3_app * 100)}%.`,
   );
   narrativeParts.push(
-    `Overall probability of advancing from Phase 1 to approval: ${(overall_success_rate * 100).toFixed(1)}%.`
+    `Overall probability of advancing from Phase 1 to approval: ${(overall_success_rate * 100).toFixed(1)}%.`,
   );
   if (overall_success_rate > 0.25) {
-    narrativeParts.push('This is above-average development execution, indicating strong clinical operations and regulatory capabilities.');
+    narrativeParts.push(
+      'This is above-average development execution, indicating strong clinical operations and regulatory capabilities.',
+    );
   } else if (overall_success_rate > 0.15) {
     narrativeParts.push('This represents average industry development execution.');
   } else {
-    narrativeParts.push('Below-average development success rate — factor this into risk assessment for partnered assets.');
+    narrativeParts.push(
+      'Below-average development success rate — factor this into risk assessment for partnered assets.',
+    );
   }
 
   return {
@@ -1718,8 +2163,12 @@ function assessNegotiationLeverage(
 
   // Factor 3: Differentiation
   const mechText = (input.mechanism || '').toLowerCase();
-  const hasDifferentiation = mechText.includes('first') || mechText.includes('biomarker') ||
-    mechText.includes('novel') || mechText.includes('selective') || mechText.includes('precision');
+  const hasDifferentiation =
+    mechText.includes('first') ||
+    mechText.includes('biomarker') ||
+    mechText.includes('novel') ||
+    mechText.includes('selective') ||
+    mechText.includes('precision');
   const diffScore = hasDifferentiation ? 8 : 4;
   factors.push({
     factor: 'Mechanism differentiation',
@@ -1743,9 +2192,10 @@ function assessNegotiationLeverage(
     factor: 'Seller time pressure',
     direction: sellerPressureScore > 5 ? 'weakens' : 'strengthens',
     weight: 1.0,
-    narrative: sellerPressureScore > 5
-      ? `${input.development_stage} stage creates urgency to close — partners may sense time pressure.`
-      : `${input.development_stage} stage affords time to run a proper process without appearing desperate.`,
+    narrative:
+      sellerPressureScore > 5
+        ? `${input.development_stage} stage creates urgency to close — partners may sense time pressure.`
+        : `${input.development_stage} stage affords time to run a proper process without appearing desperate.`,
   });
 
   // Factor 5: Buyer time pressure (LOE-driven)
@@ -1769,16 +2219,17 @@ function assessNegotiationLeverage(
     factor: 'Competitive dynamics',
     direction: compDynamicsScore > 5 ? 'strengthens' : 'weakens',
     weight: 1.0,
-    narrative: compDynamicsScore > 5
-      ? 'Hot therapeutic space with many competitors drives bidder interest and urgency.'
-      : 'Less competitive space may reduce the number of motivated acquirers.',
+    narrative:
+      compDynamicsScore > 5
+        ? 'Hot therapeutic space with many competitors drives bidder interest and urgency.'
+        : 'Less competitive space may reduce the number of motivated acquirers.',
   });
 
   // Weighted average
   const totalWeight = factors.reduce((s, f) => s + f.weight, 0);
   const scores = [biddersScore, scarcityScore, diffScore, sellerPressureScore, buyerPressureScore, compDynamicsScore];
   const leverage_score = parseFloat(
-    (factors.reduce((s, f, i) => s + scores[i] * f.weight, 0) / totalWeight).toFixed(2)
+    (factors.reduce((s, f, i) => s + scores[i] * f.weight, 0) / totalWeight).toFixed(2),
   );
 
   let overall_leverage: NegotiationLeverage['overall_leverage'];
@@ -1788,7 +2239,8 @@ function assessNegotiationLeverage(
 
   const estimated_competing_bidders = Math.round(qualifiedPartnerCount * 0.4);
 
-  const narrative = `Overall negotiation leverage is ${overall_leverage} (score: ${leverage_score}/10). ` +
+  const narrative =
+    `Overall negotiation leverage is ${overall_leverage} (score: ${leverage_score}/10). ` +
     `An estimated ${estimated_competing_bidders} active bidders may compete for this asset. ` +
     (overall_leverage === 'strong'
       ? 'Conditions favor the seller — consider structured auction process to maximize terms.'
@@ -1840,7 +2292,7 @@ function buildLOEGapAnalysis(
   // Find the year of maximum revenue exposure
   const revenue_gap_year = upcomingLOE.reduce(
     (max, e) => (e.revenue_b > max.revenue_b ? e : max),
-    upcomingLOE[0]
+    upcomingLOE[0],
   ).loe_year;
 
   // Determine gap severity based on max revenue at risk
@@ -1853,18 +2305,22 @@ function buildLOEGapAnalysis(
 
   // Check if user's asset launch fills the gap: within [-1, +3] of any LOE drug's loe_year
   const user_asset_fills_gap = upcomingLOE.some(
-    (e) => userLaunchYear >= e.loe_year - 1 && userLaunchYear <= e.loe_year + 3
+    (e) => userLaunchYear >= e.loe_year - 1 && userLaunchYear <= e.loe_year + 3,
   );
 
   const narrativeParts: string[] = [];
   narrativeParts.push(
-    `${partner.company} faces ${gap_severity} LOE exposure with ${upcoming_loe_drugs.length} drug(s) losing exclusivity: ${upcoming_loe_drugs.map((d) => `${d.drug} (${d.loe_year}, $${d.revenue_at_risk_b}B)`).join('; ')}.`
+    `${partner.company} faces ${gap_severity} LOE exposure with ${upcoming_loe_drugs.length} drug(s) losing exclusivity: ${upcoming_loe_drugs.map((d) => `${d.drug} (${d.loe_year}, $${d.revenue_at_risk_b}B)`).join('; ')}.`,
   );
   narrativeParts.push(`Peak revenue gap expected in ${revenue_gap_year}.`);
   if (user_asset_fills_gap) {
-    narrativeParts.push(`Your asset's projected launch in ${userLaunchYear} is well-positioned to fill this revenue gap, creating strong strategic alignment for a partnership.`);
+    narrativeParts.push(
+      `Your asset's projected launch in ${userLaunchYear} is well-positioned to fill this revenue gap, creating strong strategic alignment for a partnership.`,
+    );
   } else {
-    narrativeParts.push(`Your asset's projected launch in ${userLaunchYear} does not directly overlap with the LOE gap window, reducing the strategic urgency for ${partner.company}.`);
+    narrativeParts.push(
+      `Your asset's projected launch in ${userLaunchYear} does not directly overlap with the LOE gap window, reducing the strategic urgency for ${partner.company}.`,
+    );
   }
 
   return {
@@ -1897,31 +2353,231 @@ interface MedtechAcquirerStats {
 }
 
 const MEDTECH_SERIAL_ACQUIRER_STATS: MedtechAcquirerStats[] = [
-  { company: 'Medtronic', acquisitions_last_3yr: 8, acquisitions_last_5yr: 12, avg_deal_size_m: 800, preferred_categories: ['cardiovascular', 'neurology', 'diabetes_metabolic'], revenue_b: 32, organic_growth_pct: 4.5 },
-  { company: 'Abbott', acquisitions_last_3yr: 5, acquisitions_last_5yr: 8, avg_deal_size_m: 1200, preferred_categories: ['cardiovascular', 'ivd_oncology', 'ivd_cardiology', 'ivd_infectious'], revenue_b: 40, organic_growth_pct: 5.0 },
-  { company: 'Boston Scientific', acquisitions_last_3yr: 10, acquisitions_last_5yr: 15, avg_deal_size_m: 600, preferred_categories: ['cardiovascular', 'endoscopy_gi', 'urology', 'neurology'], revenue_b: 15, organic_growth_pct: 7.0 },
-  { company: 'Stryker', acquisitions_last_3yr: 7, acquisitions_last_5yr: 10, avg_deal_size_m: 1500, preferred_categories: ['orthopedic', 'neurology', 'general_surgery'], revenue_b: 20, organic_growth_pct: 6.5 },
-  { company: 'Johnson & Johnson MedTech', acquisitions_last_3yr: 4, acquisitions_last_5yr: 6, avg_deal_size_m: 2000, preferred_categories: ['orthopedic', 'general_surgery', 'cardiovascular'], revenue_b: 30, organic_growth_pct: 3.5 },
-  { company: 'Edwards Lifesciences', acquisitions_last_3yr: 3, acquisitions_last_5yr: 4, avg_deal_size_m: 400, preferred_categories: ['cardiovascular'], revenue_b: 6.4, organic_growth_pct: 8.0 },
-  { company: 'Zimmer Biomet', acquisitions_last_3yr: 3, acquisitions_last_5yr: 5, avg_deal_size_m: 500, preferred_categories: ['orthopedic'], revenue_b: 7.4, organic_growth_pct: 3.0 },
-  { company: 'Intuitive Surgical', acquisitions_last_3yr: 2, acquisitions_last_5yr: 3, avg_deal_size_m: 200, preferred_categories: ['general_surgery'], revenue_b: 7.1, organic_growth_pct: 14.0 },
-  { company: 'Becton Dickinson (BD)', acquisitions_last_3yr: 2, acquisitions_last_5yr: 4, avg_deal_size_m: 1000, preferred_categories: ['ivd_infectious', 'general_surgery', 'vascular'], revenue_b: 20, organic_growth_pct: 4.0 },
-  { company: 'Hologic', acquisitions_last_3yr: 4, acquisitions_last_5yr: 6, avg_deal_size_m: 300, preferred_categories: ['ivd_oncology', 'ivd_genetics', 'ivd_infectious'], revenue_b: 4.0, organic_growth_pct: 3.5 },
-  { company: 'Danaher (Beckman Coulter)', acquisitions_last_3yr: 4, acquisitions_last_5yr: 8, avg_deal_size_m: 2000, preferred_categories: ['ivd_oncology', 'ivd_infectious', 'ivd_genetics'], revenue_b: 24, organic_growth_pct: 5.0 },
-  { company: 'Baxter International', acquisitions_last_3yr: 2, acquisitions_last_5yr: 3, avg_deal_size_m: 4000, preferred_categories: ['renal_dialysis', 'general_surgery'], revenue_b: 15, organic_growth_pct: 2.0 },
-  { company: 'Teleflex', acquisitions_last_3yr: 3, acquisitions_last_5yr: 5, avg_deal_size_m: 400, preferred_categories: ['vascular', 'urology', 'general_surgery'], revenue_b: 2.9, organic_growth_pct: 5.5 },
-  { company: 'Smith+Nephew', acquisitions_last_3yr: 2, acquisitions_last_5yr: 4, avg_deal_size_m: 600, preferred_categories: ['orthopedic', 'wound_care'], revenue_b: 5.6, organic_growth_pct: 3.0 },
-  { company: 'Philips', acquisitions_last_3yr: 3, acquisitions_last_5yr: 5, avg_deal_size_m: 1500, preferred_categories: ['imaging_radiology', 'cardiovascular'], revenue_b: 18, organic_growth_pct: 2.5 },
-  { company: 'GE HealthCare', acquisitions_last_3yr: 3, acquisitions_last_5yr: 5, avg_deal_size_m: 300, preferred_categories: ['imaging_radiology', 'cardiovascular'], revenue_b: 19.6, organic_growth_pct: 4.0 },
-  { company: 'Siemens Healthineers', acquisitions_last_3yr: 2, acquisitions_last_5yr: 4, avg_deal_size_m: 5000, preferred_categories: ['imaging_radiology', 'oncology_radiation', 'ivd_oncology'], revenue_b: 22, organic_growth_pct: 5.0 },
-  { company: 'Globus Medical', acquisitions_last_3yr: 2, acquisitions_last_5yr: 3, avg_deal_size_m: 1500, preferred_categories: ['orthopedic'], revenue_b: 2.4, organic_growth_pct: 8.0 },
-  { company: 'Roche Diagnostics', acquisitions_last_3yr: 3, acquisitions_last_5yr: 5, avg_deal_size_m: 800, preferred_categories: ['ivd_oncology', 'ivd_infectious', 'ivd_genetics'], revenue_b: 17, organic_growth_pct: 4.0 },
-  { company: 'Illumina', acquisitions_last_3yr: 1, acquisitions_last_5yr: 3, avg_deal_size_m: 3000, preferred_categories: ['ivd_genetics', 'ivd_oncology'], revenue_b: 4.5, organic_growth_pct: 2.0 },
-  { company: 'Alcon', acquisitions_last_3yr: 3, acquisitions_last_5yr: 5, avg_deal_size_m: 500, preferred_categories: ['ophthalmology'], revenue_b: 9.4, organic_growth_pct: 6.0 },
-  { company: 'ResMed', acquisitions_last_3yr: 2, acquisitions_last_5yr: 4, avg_deal_size_m: 500, preferred_categories: ['respiratory'], revenue_b: 4.2, organic_growth_pct: 8.0 },
-  { company: 'Coloplast', acquisitions_last_3yr: 2, acquisitions_last_5yr: 4, avg_deal_size_m: 1200, preferred_categories: ['wound_care', 'urology'], revenue_b: 3.0, organic_growth_pct: 5.0 },
-  { company: 'Olympus Corporation', acquisitions_last_3yr: 2, acquisitions_last_5yr: 3, avg_deal_size_m: 200, preferred_categories: ['endoscopy_gi', 'general_surgery', 'urology'], revenue_b: 7.5, organic_growth_pct: 5.0 },
-  { company: 'Terumo Corporation', acquisitions_last_3yr: 2, acquisitions_last_5yr: 3, avg_deal_size_m: 300, preferred_categories: ['cardiovascular', 'vascular'], revenue_b: 6.8, organic_growth_pct: 5.5 },
+  {
+    company: 'Medtronic',
+    acquisitions_last_3yr: 8,
+    acquisitions_last_5yr: 12,
+    avg_deal_size_m: 800,
+    preferred_categories: ['cardiovascular', 'neurology', 'diabetes_metabolic'],
+    revenue_b: 32,
+    organic_growth_pct: 4.5,
+  },
+  {
+    company: 'Abbott',
+    acquisitions_last_3yr: 5,
+    acquisitions_last_5yr: 8,
+    avg_deal_size_m: 1200,
+    preferred_categories: ['cardiovascular', 'ivd_oncology', 'ivd_cardiology', 'ivd_infectious'],
+    revenue_b: 40,
+    organic_growth_pct: 5.0,
+  },
+  {
+    company: 'Boston Scientific',
+    acquisitions_last_3yr: 10,
+    acquisitions_last_5yr: 15,
+    avg_deal_size_m: 600,
+    preferred_categories: ['cardiovascular', 'endoscopy_gi', 'urology', 'neurology'],
+    revenue_b: 15,
+    organic_growth_pct: 7.0,
+  },
+  {
+    company: 'Stryker',
+    acquisitions_last_3yr: 7,
+    acquisitions_last_5yr: 10,
+    avg_deal_size_m: 1500,
+    preferred_categories: ['orthopedic', 'neurology', 'general_surgery'],
+    revenue_b: 20,
+    organic_growth_pct: 6.5,
+  },
+  {
+    company: 'Johnson & Johnson MedTech',
+    acquisitions_last_3yr: 4,
+    acquisitions_last_5yr: 6,
+    avg_deal_size_m: 2000,
+    preferred_categories: ['orthopedic', 'general_surgery', 'cardiovascular'],
+    revenue_b: 30,
+    organic_growth_pct: 3.5,
+  },
+  {
+    company: 'Edwards Lifesciences',
+    acquisitions_last_3yr: 3,
+    acquisitions_last_5yr: 4,
+    avg_deal_size_m: 400,
+    preferred_categories: ['cardiovascular'],
+    revenue_b: 6.4,
+    organic_growth_pct: 8.0,
+  },
+  {
+    company: 'Zimmer Biomet',
+    acquisitions_last_3yr: 3,
+    acquisitions_last_5yr: 5,
+    avg_deal_size_m: 500,
+    preferred_categories: ['orthopedic'],
+    revenue_b: 7.4,
+    organic_growth_pct: 3.0,
+  },
+  {
+    company: 'Intuitive Surgical',
+    acquisitions_last_3yr: 2,
+    acquisitions_last_5yr: 3,
+    avg_deal_size_m: 200,
+    preferred_categories: ['general_surgery'],
+    revenue_b: 7.1,
+    organic_growth_pct: 14.0,
+  },
+  {
+    company: 'Becton Dickinson (BD)',
+    acquisitions_last_3yr: 2,
+    acquisitions_last_5yr: 4,
+    avg_deal_size_m: 1000,
+    preferred_categories: ['ivd_infectious', 'general_surgery', 'vascular'],
+    revenue_b: 20,
+    organic_growth_pct: 4.0,
+  },
+  {
+    company: 'Hologic',
+    acquisitions_last_3yr: 4,
+    acquisitions_last_5yr: 6,
+    avg_deal_size_m: 300,
+    preferred_categories: ['ivd_oncology', 'ivd_genetics', 'ivd_infectious'],
+    revenue_b: 4.0,
+    organic_growth_pct: 3.5,
+  },
+  {
+    company: 'Danaher (Beckman Coulter)',
+    acquisitions_last_3yr: 4,
+    acquisitions_last_5yr: 8,
+    avg_deal_size_m: 2000,
+    preferred_categories: ['ivd_oncology', 'ivd_infectious', 'ivd_genetics'],
+    revenue_b: 24,
+    organic_growth_pct: 5.0,
+  },
+  {
+    company: 'Baxter International',
+    acquisitions_last_3yr: 2,
+    acquisitions_last_5yr: 3,
+    avg_deal_size_m: 4000,
+    preferred_categories: ['renal_dialysis', 'general_surgery'],
+    revenue_b: 15,
+    organic_growth_pct: 2.0,
+  },
+  {
+    company: 'Teleflex',
+    acquisitions_last_3yr: 3,
+    acquisitions_last_5yr: 5,
+    avg_deal_size_m: 400,
+    preferred_categories: ['vascular', 'urology', 'general_surgery'],
+    revenue_b: 2.9,
+    organic_growth_pct: 5.5,
+  },
+  {
+    company: 'Smith+Nephew',
+    acquisitions_last_3yr: 2,
+    acquisitions_last_5yr: 4,
+    avg_deal_size_m: 600,
+    preferred_categories: ['orthopedic', 'wound_care'],
+    revenue_b: 5.6,
+    organic_growth_pct: 3.0,
+  },
+  {
+    company: 'Philips',
+    acquisitions_last_3yr: 3,
+    acquisitions_last_5yr: 5,
+    avg_deal_size_m: 1500,
+    preferred_categories: ['imaging_radiology', 'cardiovascular'],
+    revenue_b: 18,
+    organic_growth_pct: 2.5,
+  },
+  {
+    company: 'GE HealthCare',
+    acquisitions_last_3yr: 3,
+    acquisitions_last_5yr: 5,
+    avg_deal_size_m: 300,
+    preferred_categories: ['imaging_radiology', 'cardiovascular'],
+    revenue_b: 19.6,
+    organic_growth_pct: 4.0,
+  },
+  {
+    company: 'Siemens Healthineers',
+    acquisitions_last_3yr: 2,
+    acquisitions_last_5yr: 4,
+    avg_deal_size_m: 5000,
+    preferred_categories: ['imaging_radiology', 'oncology_radiation', 'ivd_oncology'],
+    revenue_b: 22,
+    organic_growth_pct: 5.0,
+  },
+  {
+    company: 'Globus Medical',
+    acquisitions_last_3yr: 2,
+    acquisitions_last_5yr: 3,
+    avg_deal_size_m: 1500,
+    preferred_categories: ['orthopedic'],
+    revenue_b: 2.4,
+    organic_growth_pct: 8.0,
+  },
+  {
+    company: 'Roche Diagnostics',
+    acquisitions_last_3yr: 3,
+    acquisitions_last_5yr: 5,
+    avg_deal_size_m: 800,
+    preferred_categories: ['ivd_oncology', 'ivd_infectious', 'ivd_genetics'],
+    revenue_b: 17,
+    organic_growth_pct: 4.0,
+  },
+  {
+    company: 'Illumina',
+    acquisitions_last_3yr: 1,
+    acquisitions_last_5yr: 3,
+    avg_deal_size_m: 3000,
+    preferred_categories: ['ivd_genetics', 'ivd_oncology'],
+    revenue_b: 4.5,
+    organic_growth_pct: 2.0,
+  },
+  {
+    company: 'Alcon',
+    acquisitions_last_3yr: 3,
+    acquisitions_last_5yr: 5,
+    avg_deal_size_m: 500,
+    preferred_categories: ['ophthalmology'],
+    revenue_b: 9.4,
+    organic_growth_pct: 6.0,
+  },
+  {
+    company: 'ResMed',
+    acquisitions_last_3yr: 2,
+    acquisitions_last_5yr: 4,
+    avg_deal_size_m: 500,
+    preferred_categories: ['respiratory'],
+    revenue_b: 4.2,
+    organic_growth_pct: 8.0,
+  },
+  {
+    company: 'Coloplast',
+    acquisitions_last_3yr: 2,
+    acquisitions_last_5yr: 4,
+    avg_deal_size_m: 1200,
+    preferred_categories: ['wound_care', 'urology'],
+    revenue_b: 3.0,
+    organic_growth_pct: 5.0,
+  },
+  {
+    company: 'Olympus Corporation',
+    acquisitions_last_3yr: 2,
+    acquisitions_last_5yr: 3,
+    avg_deal_size_m: 200,
+    preferred_categories: ['endoscopy_gi', 'general_surgery', 'urology'],
+    revenue_b: 7.5,
+    organic_growth_pct: 5.0,
+  },
+  {
+    company: 'Terumo Corporation',
+    acquisitions_last_3yr: 2,
+    acquisitions_last_5yr: 3,
+    avg_deal_size_m: 300,
+    preferred_categories: ['cardiovascular', 'vascular'],
+    revenue_b: 6.8,
+    organic_growth_pct: 5.5,
+  },
 ];
 
 /**
@@ -1934,7 +2590,7 @@ function buildDeviceAcquisitionProbability(
 ): DeviceAcquisitionProbability {
   const companyLower = partner.company.toLowerCase();
   const stats = MEDTECH_SERIAL_ACQUIRER_STATS.find(
-    (s) => companyLower.includes(s.company.toLowerCase()) || s.company.toLowerCase().includes(companyLower)
+    (s) => companyLower.includes(s.company.toLowerCase()) || s.company.toLowerCase().includes(companyLower),
   );
 
   // Defaults for unknown companies
@@ -1942,7 +2598,7 @@ function buildDeviceAcquisitionProbability(
   const acq5yr = stats?.acquisitions_last_5yr ?? (partner.company_type === 'large_medtech' ? 5 : 2);
   const avgDealSizeM = stats?.avg_deal_size_m ?? 300;
   const preferredCats = stats?.preferred_categories ?? [];
-  const revenueB = stats?.revenue_b ?? (partner.revenue_b ?? 1);
+  const revenueB = stats?.revenue_b ?? partner.revenue_b ?? 1;
   const organicGrowthPct = stats?.organic_growth_pct ?? 4.0;
 
   // 1) Serial acquirer score (0-10 based on 5yr deal frequency)
@@ -1983,9 +2639,7 @@ function buildDeviceAcquisitionProbability(
   }
 
   // Category deal frequency (how many past deals in this category per year)
-  const categoryDealFrequency = preferredCats.includes(deviceCategory)
-    ? parseFloat((acq5yr / 5).toFixed(1))
-    : 0;
+  const categoryDealFrequency = preferredCats.includes(deviceCategory) ? parseFloat((acq5yr / 5).toFixed(1)) : 0;
 
   // 4) Financial capacity (0-10)
   let financialCapacity: number;
@@ -2014,9 +2668,10 @@ function buildDeviceAcquisitionProbability(
   if (acq3yr >= 5) keySignals.push(`Accelerating deal pace: ${acq3yr} acquisitions in last 3 years`);
   if (organicGrowthPct < 4) keySignals.push(`Low organic growth (${organicGrowthPct}%) increases M&A dependency`);
 
-  const narrative = `${partner.company} has completed ${acq5yr} acquisitions in the last 5 years (avg $${avgDealSizeM}M). `
-    + `Organic growth of ${organicGrowthPct}% vs. ${growthTargetPct}% target creates a $${revenueGapToFillB.toFixed(1)}B annual revenue gap to fill through M&A. `
-    + (categoryRelevance >= 8
+  const narrative =
+    `${partner.company} has completed ${acq5yr} acquisitions in the last 5 years (avg $${avgDealSizeM}M). ` +
+    `Organic growth of ${organicGrowthPct}% vs. ${growthTargetPct}% target creates a $${revenueGapToFillB.toFixed(1)}B annual revenue gap to fill through M&A. ` +
+    (categoryRelevance >= 8
       ? `Historically active in ${deviceCategory}, making this a strong category fit.`
       : `Not historically focused on ${deviceCategory}, which may lower deal priority.`);
 
@@ -2049,43 +2704,241 @@ interface MedtechRegulatoryRecord {
 }
 
 const MEDTECH_REGULATORY_TRACK_RECORDS: MedtechRegulatoryRecord[] = [
-  { company: 'Medtronic', total_510k_clearances: 520, total_pma_approvals: 85, avg_510k_review_days: 155, avg_pma_review_months: 11, fda_warning_letters_5yr: 2, breakthrough_designations: 12 },
-  { company: 'Abbott', total_510k_clearances: 360, total_pma_approvals: 55, avg_510k_review_days: 160, avg_pma_review_months: 12, fda_warning_letters_5yr: 1, breakthrough_designations: 8 },
-  { company: 'Boston Scientific', total_510k_clearances: 310, total_pma_approvals: 48, avg_510k_review_days: 165, avg_pma_review_months: 13, fda_warning_letters_5yr: 1, breakthrough_designations: 10 },
-  { company: 'Johnson & Johnson MedTech', total_510k_clearances: 420, total_pma_approvals: 62, avg_510k_review_days: 170, avg_pma_review_months: 13, fda_warning_letters_5yr: 3, breakthrough_designations: 6 },
-  { company: 'Stryker', total_510k_clearances: 260, total_pma_approvals: 22, avg_510k_review_days: 150, avg_pma_review_months: 10, fda_warning_letters_5yr: 0, breakthrough_designations: 4 },
-  { company: 'Edwards Lifesciences', total_510k_clearances: 85, total_pma_approvals: 18, avg_510k_review_days: 145, avg_pma_review_months: 14, fda_warning_letters_5yr: 0, breakthrough_designations: 6 },
-  { company: 'Zimmer Biomet', total_510k_clearances: 280, total_pma_approvals: 15, avg_510k_review_days: 165, avg_pma_review_months: 12, fda_warning_letters_5yr: 2, breakthrough_designations: 2 },
-  { company: 'Intuitive Surgical', total_510k_clearances: 120, total_pma_approvals: 5, avg_510k_review_days: 140, avg_pma_review_months: 10, fda_warning_letters_5yr: 0, breakthrough_designations: 3 },
-  { company: 'Becton Dickinson (BD)', total_510k_clearances: 350, total_pma_approvals: 20, avg_510k_review_days: 158, avg_pma_review_months: 11, fda_warning_letters_5yr: 1, breakthrough_designations: 3 },
-  { company: 'Hologic', total_510k_clearances: 180, total_pma_approvals: 15, avg_510k_review_days: 150, avg_pma_review_months: 12, fda_warning_letters_5yr: 0, breakthrough_designations: 4 },
-  { company: 'Danaher (Beckman Coulter)', total_510k_clearances: 400, total_pma_approvals: 30, avg_510k_review_days: 155, avg_pma_review_months: 11, fda_warning_letters_5yr: 1, breakthrough_designations: 5 },
-  { company: 'Baxter International', total_510k_clearances: 250, total_pma_approvals: 18, avg_510k_review_days: 168, avg_pma_review_months: 13, fda_warning_letters_5yr: 2, breakthrough_designations: 2 },
-  { company: 'Teleflex', total_510k_clearances: 190, total_pma_approvals: 8, avg_510k_review_days: 155, avg_pma_review_months: 11, fda_warning_letters_5yr: 0, breakthrough_designations: 2 },
-  { company: 'Smith+Nephew', total_510k_clearances: 200, total_pma_approvals: 10, avg_510k_review_days: 162, avg_pma_review_months: 12, fda_warning_letters_5yr: 1, breakthrough_designations: 3 },
-  { company: 'Philips', total_510k_clearances: 300, total_pma_approvals: 25, avg_510k_review_days: 170, avg_pma_review_months: 14, fda_warning_letters_5yr: 3, breakthrough_designations: 5 },
-  { company: 'GE HealthCare', total_510k_clearances: 350, total_pma_approvals: 20, avg_510k_review_days: 165, avg_pma_review_months: 13, fda_warning_letters_5yr: 1, breakthrough_designations: 4 },
-  { company: 'Siemens Healthineers', total_510k_clearances: 320, total_pma_approvals: 22, avg_510k_review_days: 168, avg_pma_review_months: 13, fda_warning_letters_5yr: 1, breakthrough_designations: 5 },
-  { company: 'Globus Medical', total_510k_clearances: 140, total_pma_approvals: 4, avg_510k_review_days: 148, avg_pma_review_months: 10, fda_warning_letters_5yr: 0, breakthrough_designations: 2 },
-  { company: 'Roche Diagnostics', total_510k_clearances: 280, total_pma_approvals: 35, avg_510k_review_days: 160, avg_pma_review_months: 12, fda_warning_letters_5yr: 0, breakthrough_designations: 6 },
-  { company: 'Illumina', total_510k_clearances: 60, total_pma_approvals: 8, avg_510k_review_days: 175, avg_pma_review_months: 15, fda_warning_letters_5yr: 0, breakthrough_designations: 3 },
-  { company: 'Alcon', total_510k_clearances: 220, total_pma_approvals: 18, avg_510k_review_days: 155, avg_pma_review_months: 12, fda_warning_letters_5yr: 0, breakthrough_designations: 3 },
-  { company: 'ResMed', total_510k_clearances: 130, total_pma_approvals: 5, avg_510k_review_days: 148, avg_pma_review_months: 10, fda_warning_letters_5yr: 0, breakthrough_designations: 2 },
-  { company: 'Coloplast', total_510k_clearances: 110, total_pma_approvals: 6, avg_510k_review_days: 165, avg_pma_review_months: 13, fda_warning_letters_5yr: 0, breakthrough_designations: 1 },
-  { company: 'Olympus Corporation', total_510k_clearances: 180, total_pma_approvals: 8, avg_510k_review_days: 170, avg_pma_review_months: 14, fda_warning_letters_5yr: 2, breakthrough_designations: 2 },
-  { company: 'Terumo Corporation', total_510k_clearances: 140, total_pma_approvals: 10, avg_510k_review_days: 160, avg_pma_review_months: 12, fda_warning_letters_5yr: 0, breakthrough_designations: 3 },
+  {
+    company: 'Medtronic',
+    total_510k_clearances: 520,
+    total_pma_approvals: 85,
+    avg_510k_review_days: 155,
+    avg_pma_review_months: 11,
+    fda_warning_letters_5yr: 2,
+    breakthrough_designations: 12,
+  },
+  {
+    company: 'Abbott',
+    total_510k_clearances: 360,
+    total_pma_approvals: 55,
+    avg_510k_review_days: 160,
+    avg_pma_review_months: 12,
+    fda_warning_letters_5yr: 1,
+    breakthrough_designations: 8,
+  },
+  {
+    company: 'Boston Scientific',
+    total_510k_clearances: 310,
+    total_pma_approvals: 48,
+    avg_510k_review_days: 165,
+    avg_pma_review_months: 13,
+    fda_warning_letters_5yr: 1,
+    breakthrough_designations: 10,
+  },
+  {
+    company: 'Johnson & Johnson MedTech',
+    total_510k_clearances: 420,
+    total_pma_approvals: 62,
+    avg_510k_review_days: 170,
+    avg_pma_review_months: 13,
+    fda_warning_letters_5yr: 3,
+    breakthrough_designations: 6,
+  },
+  {
+    company: 'Stryker',
+    total_510k_clearances: 260,
+    total_pma_approvals: 22,
+    avg_510k_review_days: 150,
+    avg_pma_review_months: 10,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 4,
+  },
+  {
+    company: 'Edwards Lifesciences',
+    total_510k_clearances: 85,
+    total_pma_approvals: 18,
+    avg_510k_review_days: 145,
+    avg_pma_review_months: 14,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 6,
+  },
+  {
+    company: 'Zimmer Biomet',
+    total_510k_clearances: 280,
+    total_pma_approvals: 15,
+    avg_510k_review_days: 165,
+    avg_pma_review_months: 12,
+    fda_warning_letters_5yr: 2,
+    breakthrough_designations: 2,
+  },
+  {
+    company: 'Intuitive Surgical',
+    total_510k_clearances: 120,
+    total_pma_approvals: 5,
+    avg_510k_review_days: 140,
+    avg_pma_review_months: 10,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 3,
+  },
+  {
+    company: 'Becton Dickinson (BD)',
+    total_510k_clearances: 350,
+    total_pma_approvals: 20,
+    avg_510k_review_days: 158,
+    avg_pma_review_months: 11,
+    fda_warning_letters_5yr: 1,
+    breakthrough_designations: 3,
+  },
+  {
+    company: 'Hologic',
+    total_510k_clearances: 180,
+    total_pma_approvals: 15,
+    avg_510k_review_days: 150,
+    avg_pma_review_months: 12,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 4,
+  },
+  {
+    company: 'Danaher (Beckman Coulter)',
+    total_510k_clearances: 400,
+    total_pma_approvals: 30,
+    avg_510k_review_days: 155,
+    avg_pma_review_months: 11,
+    fda_warning_letters_5yr: 1,
+    breakthrough_designations: 5,
+  },
+  {
+    company: 'Baxter International',
+    total_510k_clearances: 250,
+    total_pma_approvals: 18,
+    avg_510k_review_days: 168,
+    avg_pma_review_months: 13,
+    fda_warning_letters_5yr: 2,
+    breakthrough_designations: 2,
+  },
+  {
+    company: 'Teleflex',
+    total_510k_clearances: 190,
+    total_pma_approvals: 8,
+    avg_510k_review_days: 155,
+    avg_pma_review_months: 11,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 2,
+  },
+  {
+    company: 'Smith+Nephew',
+    total_510k_clearances: 200,
+    total_pma_approvals: 10,
+    avg_510k_review_days: 162,
+    avg_pma_review_months: 12,
+    fda_warning_letters_5yr: 1,
+    breakthrough_designations: 3,
+  },
+  {
+    company: 'Philips',
+    total_510k_clearances: 300,
+    total_pma_approvals: 25,
+    avg_510k_review_days: 170,
+    avg_pma_review_months: 14,
+    fda_warning_letters_5yr: 3,
+    breakthrough_designations: 5,
+  },
+  {
+    company: 'GE HealthCare',
+    total_510k_clearances: 350,
+    total_pma_approvals: 20,
+    avg_510k_review_days: 165,
+    avg_pma_review_months: 13,
+    fda_warning_letters_5yr: 1,
+    breakthrough_designations: 4,
+  },
+  {
+    company: 'Siemens Healthineers',
+    total_510k_clearances: 320,
+    total_pma_approvals: 22,
+    avg_510k_review_days: 168,
+    avg_pma_review_months: 13,
+    fda_warning_letters_5yr: 1,
+    breakthrough_designations: 5,
+  },
+  {
+    company: 'Globus Medical',
+    total_510k_clearances: 140,
+    total_pma_approvals: 4,
+    avg_510k_review_days: 148,
+    avg_pma_review_months: 10,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 2,
+  },
+  {
+    company: 'Roche Diagnostics',
+    total_510k_clearances: 280,
+    total_pma_approvals: 35,
+    avg_510k_review_days: 160,
+    avg_pma_review_months: 12,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 6,
+  },
+  {
+    company: 'Illumina',
+    total_510k_clearances: 60,
+    total_pma_approvals: 8,
+    avg_510k_review_days: 175,
+    avg_pma_review_months: 15,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 3,
+  },
+  {
+    company: 'Alcon',
+    total_510k_clearances: 220,
+    total_pma_approvals: 18,
+    avg_510k_review_days: 155,
+    avg_pma_review_months: 12,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 3,
+  },
+  {
+    company: 'ResMed',
+    total_510k_clearances: 130,
+    total_pma_approvals: 5,
+    avg_510k_review_days: 148,
+    avg_pma_review_months: 10,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 2,
+  },
+  {
+    company: 'Coloplast',
+    total_510k_clearances: 110,
+    total_pma_approvals: 6,
+    avg_510k_review_days: 165,
+    avg_pma_review_months: 13,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 1,
+  },
+  {
+    company: 'Olympus Corporation',
+    total_510k_clearances: 180,
+    total_pma_approvals: 8,
+    avg_510k_review_days: 170,
+    avg_pma_review_months: 14,
+    fda_warning_letters_5yr: 2,
+    breakthrough_designations: 2,
+  },
+  {
+    company: 'Terumo Corporation',
+    total_510k_clearances: 140,
+    total_pma_approvals: 10,
+    avg_510k_review_days: 160,
+    avg_pma_review_months: 12,
+    fda_warning_letters_5yr: 0,
+    breakthrough_designations: 3,
+  },
 ];
 
 /**
  * Function 2: buildDeviceRegulatoryTrackRecord
  * FDA clearance/approval track record scoring for medtech companies.
  */
-function buildDeviceRegulatoryTrackRecord(
-  partner: DevicePartnerProfile,
-): DeviceRegulatoryTrackRecord {
+function buildDeviceRegulatoryTrackRecord(partner: DevicePartnerProfile): DeviceRegulatoryTrackRecord {
   const companyLower = partner.company.toLowerCase();
   const record = MEDTECH_REGULATORY_TRACK_RECORDS.find(
-    (r) => companyLower.includes(r.company.toLowerCase()) || r.company.toLowerCase().includes(companyLower)
+    (r) => companyLower.includes(r.company.toLowerCase()) || r.company.toLowerCase().includes(companyLower),
   );
 
   if (record) {
@@ -2120,14 +2973,16 @@ function buildDeviceRegulatoryTrackRecord(
     else if (record.breakthrough_designations >= 2) breakthroughScore = 1;
     else breakthroughScore = 0.5;
 
-    const capabilityScore = Math.round((clearanceVolumeScore + reviewSpeedScore + complianceScore + breakthroughScore) * 10) / 10;
+    const capabilityScore =
+      Math.round((clearanceVolumeScore + reviewSpeedScore + complianceScore + breakthroughScore) * 10) / 10;
 
-    const narrative = `${partner.company} has ${record.total_510k_clearances}+ 510(k) clearances and ${record.total_pma_approvals}+ PMA approvals. `
-      + `Average 510(k) review: ${record.avg_510k_review_days} days (vs. industry median ~174). `
-      + (record.fda_warning_letters_5yr === 0
+    const narrative =
+      `${partner.company} has ${record.total_510k_clearances}+ 510(k) clearances and ${record.total_pma_approvals}+ PMA approvals. ` +
+      `Average 510(k) review: ${record.avg_510k_review_days} days (vs. industry median ~174). ` +
+      (record.fda_warning_letters_5yr === 0
         ? 'Clean compliance record with no FDA warning letters in 5 years. '
-        : `${record.fda_warning_letters_5yr} FDA warning letter(s) in 5 years. `)
-      + `${record.breakthrough_designations} breakthrough device designations secured.`;
+        : `${record.fda_warning_letters_5yr} FDA warning letter(s) in 5 years. `) +
+      `${record.breakthrough_designations} breakthrough device designations secured.`;
 
     return {
       total_510k_clearances: record.total_510k_clearances,
@@ -2142,14 +2997,25 @@ function buildDeviceRegulatoryTrackRecord(
   }
 
   // Fallback for unknown companies based on company_type
-  const typeDefaults: Record<string, { clearances: number; pmas: number; days: number; months: number; warnings: number; breakthroughs: number; score: number }> = {
-    large_medtech:      { clearances: 200, pmas: 20, days: 165, months: 12, warnings: 1, breakthroughs: 4, score: 7 },
-    mid_medtech:        { clearances: 80, pmas: 5, days: 170, months: 13, warnings: 0, breakthroughs: 1, score: 5 },
-    specialty_medtech:  { clearances: 30, pmas: 2, days: 175, months: 14, warnings: 0, breakthroughs: 1, score: 4 },
-    diagnostics_major:  { clearances: 150, pmas: 15, days: 165, months: 12, warnings: 0, breakthroughs: 3, score: 5 },
+  const typeDefaults: Record<
+    string,
+    {
+      clearances: number;
+      pmas: number;
+      days: number;
+      months: number;
+      warnings: number;
+      breakthroughs: number;
+      score: number;
+    }
+  > = {
+    large_medtech: { clearances: 200, pmas: 20, days: 165, months: 12, warnings: 1, breakthroughs: 4, score: 7 },
+    mid_medtech: { clearances: 80, pmas: 5, days: 170, months: 13, warnings: 0, breakthroughs: 1, score: 5 },
+    specialty_medtech: { clearances: 30, pmas: 2, days: 175, months: 14, warnings: 0, breakthroughs: 1, score: 4 },
+    diagnostics_major: { clearances: 150, pmas: 15, days: 165, months: 12, warnings: 0, breakthroughs: 3, score: 5 },
     diagnostics_specialty: { clearances: 40, pmas: 3, days: 175, months: 14, warnings: 0, breakthroughs: 1, score: 4 },
-    diagnostics_company:{ clearances: 40, pmas: 3, days: 175, months: 14, warnings: 0, breakthroughs: 1, score: 4 },
-    digital_health:     { clearances: 15, pmas: 1, days: 180, months: 15, warnings: 0, breakthroughs: 1, score: 3 },
+    diagnostics_company: { clearances: 40, pmas: 3, days: 175, months: 14, warnings: 0, breakthroughs: 1, score: 4 },
+    digital_health: { clearances: 15, pmas: 1, days: 180, months: 15, warnings: 0, breakthroughs: 1, score: 3 },
   };
   const defaults = typeDefaults[partner.company_type] ?? typeDefaults.mid_medtech;
 
@@ -2182,31 +3048,231 @@ interface MedtechDistributionProfile {
 }
 
 const MEDTECH_DISTRIBUTION_PROFILES: MedtechDistributionProfile[] = [
-  { company: 'Medtronic', hospital_direct_sales: 10, asc_coverage: 7, office_channel: 5, lab_channel: 2, gpo_relationships: ['Vizient', 'Premier', 'HealthTrust', 'Intalere'], estimated_us_field_reps: 12000 },
-  { company: 'Abbott', hospital_direct_sales: 9, asc_coverage: 8, office_channel: 7, lab_channel: 8, gpo_relationships: ['Vizient', 'Premier'], estimated_us_field_reps: 10000 },
-  { company: 'Boston Scientific', hospital_direct_sales: 9, asc_coverage: 8, office_channel: 4, lab_channel: 1, gpo_relationships: ['Vizient', 'Premier', 'HealthTrust'], estimated_us_field_reps: 8000 },
-  { company: 'Stryker', hospital_direct_sales: 10, asc_coverage: 6, office_channel: 3, lab_channel: 0, gpo_relationships: ['Vizient', 'Premier'], estimated_us_field_reps: 9000 },
-  { company: 'Johnson & Johnson MedTech', hospital_direct_sales: 10, asc_coverage: 7, office_channel: 5, lab_channel: 3, gpo_relationships: ['Vizient', 'Premier', 'HealthTrust', 'Intalere'], estimated_us_field_reps: 11000 },
-  { company: 'Edwards Lifesciences', hospital_direct_sales: 9, asc_coverage: 3, office_channel: 1, lab_channel: 0, gpo_relationships: ['Vizient', 'Premier'], estimated_us_field_reps: 2500 },
-  { company: 'Zimmer Biomet', hospital_direct_sales: 9, asc_coverage: 6, office_channel: 3, lab_channel: 0, gpo_relationships: ['Vizient', 'Premier', 'HealthTrust'], estimated_us_field_reps: 7000 },
-  { company: 'Intuitive Surgical', hospital_direct_sales: 8, asc_coverage: 5, office_channel: 1, lab_channel: 0, gpo_relationships: ['Vizient', 'Premier'], estimated_us_field_reps: 3000 },
-  { company: 'Becton Dickinson (BD)', hospital_direct_sales: 9, asc_coverage: 5, office_channel: 6, lab_channel: 7, gpo_relationships: ['Vizient', 'Premier', 'HealthTrust'], estimated_us_field_reps: 6000 },
-  { company: 'Hologic', hospital_direct_sales: 7, asc_coverage: 4, office_channel: 6, lab_channel: 8, gpo_relationships: ['Vizient', 'Premier'], estimated_us_field_reps: 3500 },
-  { company: 'Danaher (Beckman Coulter)', hospital_direct_sales: 6, asc_coverage: 2, office_channel: 2, lab_channel: 10, gpo_relationships: ['Premier'], estimated_us_field_reps: 4000 },
-  { company: 'Roche Diagnostics', hospital_direct_sales: 7, asc_coverage: 3, office_channel: 2, lab_channel: 10, gpo_relationships: ['Vizient'], estimated_us_field_reps: 5000 },
-  { company: 'Baxter International', hospital_direct_sales: 9, asc_coverage: 5, office_channel: 3, lab_channel: 2, gpo_relationships: ['Vizient', 'Premier', 'HealthTrust'], estimated_us_field_reps: 5000 },
-  { company: 'Teleflex', hospital_direct_sales: 8, asc_coverage: 6, office_channel: 3, lab_channel: 1, gpo_relationships: ['Vizient', 'Premier'], estimated_us_field_reps: 3000 },
-  { company: 'Smith+Nephew', hospital_direct_sales: 8, asc_coverage: 7, office_channel: 4, lab_channel: 0, gpo_relationships: ['Vizient', 'Premier'], estimated_us_field_reps: 4500 },
-  { company: 'Philips', hospital_direct_sales: 9, asc_coverage: 4, office_channel: 3, lab_channel: 4, gpo_relationships: ['Vizient', 'Premier', 'HealthTrust'], estimated_us_field_reps: 5000 },
-  { company: 'GE HealthCare', hospital_direct_sales: 9, asc_coverage: 4, office_channel: 2, lab_channel: 3, gpo_relationships: ['Vizient', 'Premier'], estimated_us_field_reps: 5000 },
-  { company: 'Siemens Healthineers', hospital_direct_sales: 9, asc_coverage: 3, office_channel: 2, lab_channel: 8, gpo_relationships: ['Vizient', 'Premier'], estimated_us_field_reps: 4500 },
-  { company: 'Globus Medical', hospital_direct_sales: 7, asc_coverage: 5, office_channel: 2, lab_channel: 0, gpo_relationships: ['Vizient'], estimated_us_field_reps: 2000 },
-  { company: 'Illumina', hospital_direct_sales: 4, asc_coverage: 1, office_channel: 1, lab_channel: 10, gpo_relationships: ['Vizient'], estimated_us_field_reps: 2000 },
-  { company: 'Alcon', hospital_direct_sales: 8, asc_coverage: 8, office_channel: 9, lab_channel: 1, gpo_relationships: ['Vizient', 'Premier'], estimated_us_field_reps: 4000 },
-  { company: 'ResMed', hospital_direct_sales: 6, asc_coverage: 3, office_channel: 5, lab_channel: 0, gpo_relationships: ['Vizient'], estimated_us_field_reps: 2500 },
-  { company: 'Coloplast', hospital_direct_sales: 6, asc_coverage: 3, office_channel: 5, lab_channel: 0, gpo_relationships: ['Premier'], estimated_us_field_reps: 2000 },
-  { company: 'Olympus Corporation', hospital_direct_sales: 8, asc_coverage: 7, office_channel: 4, lab_channel: 1, gpo_relationships: ['Vizient', 'Premier'], estimated_us_field_reps: 3000 },
-  { company: 'Terumo Corporation', hospital_direct_sales: 8, asc_coverage: 5, office_channel: 2, lab_channel: 1, gpo_relationships: ['Vizient'], estimated_us_field_reps: 2500 },
+  {
+    company: 'Medtronic',
+    hospital_direct_sales: 10,
+    asc_coverage: 7,
+    office_channel: 5,
+    lab_channel: 2,
+    gpo_relationships: ['Vizient', 'Premier', 'HealthTrust', 'Intalere'],
+    estimated_us_field_reps: 12000,
+  },
+  {
+    company: 'Abbott',
+    hospital_direct_sales: 9,
+    asc_coverage: 8,
+    office_channel: 7,
+    lab_channel: 8,
+    gpo_relationships: ['Vizient', 'Premier'],
+    estimated_us_field_reps: 10000,
+  },
+  {
+    company: 'Boston Scientific',
+    hospital_direct_sales: 9,
+    asc_coverage: 8,
+    office_channel: 4,
+    lab_channel: 1,
+    gpo_relationships: ['Vizient', 'Premier', 'HealthTrust'],
+    estimated_us_field_reps: 8000,
+  },
+  {
+    company: 'Stryker',
+    hospital_direct_sales: 10,
+    asc_coverage: 6,
+    office_channel: 3,
+    lab_channel: 0,
+    gpo_relationships: ['Vizient', 'Premier'],
+    estimated_us_field_reps: 9000,
+  },
+  {
+    company: 'Johnson & Johnson MedTech',
+    hospital_direct_sales: 10,
+    asc_coverage: 7,
+    office_channel: 5,
+    lab_channel: 3,
+    gpo_relationships: ['Vizient', 'Premier', 'HealthTrust', 'Intalere'],
+    estimated_us_field_reps: 11000,
+  },
+  {
+    company: 'Edwards Lifesciences',
+    hospital_direct_sales: 9,
+    asc_coverage: 3,
+    office_channel: 1,
+    lab_channel: 0,
+    gpo_relationships: ['Vizient', 'Premier'],
+    estimated_us_field_reps: 2500,
+  },
+  {
+    company: 'Zimmer Biomet',
+    hospital_direct_sales: 9,
+    asc_coverage: 6,
+    office_channel: 3,
+    lab_channel: 0,
+    gpo_relationships: ['Vizient', 'Premier', 'HealthTrust'],
+    estimated_us_field_reps: 7000,
+  },
+  {
+    company: 'Intuitive Surgical',
+    hospital_direct_sales: 8,
+    asc_coverage: 5,
+    office_channel: 1,
+    lab_channel: 0,
+    gpo_relationships: ['Vizient', 'Premier'],
+    estimated_us_field_reps: 3000,
+  },
+  {
+    company: 'Becton Dickinson (BD)',
+    hospital_direct_sales: 9,
+    asc_coverage: 5,
+    office_channel: 6,
+    lab_channel: 7,
+    gpo_relationships: ['Vizient', 'Premier', 'HealthTrust'],
+    estimated_us_field_reps: 6000,
+  },
+  {
+    company: 'Hologic',
+    hospital_direct_sales: 7,
+    asc_coverage: 4,
+    office_channel: 6,
+    lab_channel: 8,
+    gpo_relationships: ['Vizient', 'Premier'],
+    estimated_us_field_reps: 3500,
+  },
+  {
+    company: 'Danaher (Beckman Coulter)',
+    hospital_direct_sales: 6,
+    asc_coverage: 2,
+    office_channel: 2,
+    lab_channel: 10,
+    gpo_relationships: ['Premier'],
+    estimated_us_field_reps: 4000,
+  },
+  {
+    company: 'Roche Diagnostics',
+    hospital_direct_sales: 7,
+    asc_coverage: 3,
+    office_channel: 2,
+    lab_channel: 10,
+    gpo_relationships: ['Vizient'],
+    estimated_us_field_reps: 5000,
+  },
+  {
+    company: 'Baxter International',
+    hospital_direct_sales: 9,
+    asc_coverage: 5,
+    office_channel: 3,
+    lab_channel: 2,
+    gpo_relationships: ['Vizient', 'Premier', 'HealthTrust'],
+    estimated_us_field_reps: 5000,
+  },
+  {
+    company: 'Teleflex',
+    hospital_direct_sales: 8,
+    asc_coverage: 6,
+    office_channel: 3,
+    lab_channel: 1,
+    gpo_relationships: ['Vizient', 'Premier'],
+    estimated_us_field_reps: 3000,
+  },
+  {
+    company: 'Smith+Nephew',
+    hospital_direct_sales: 8,
+    asc_coverage: 7,
+    office_channel: 4,
+    lab_channel: 0,
+    gpo_relationships: ['Vizient', 'Premier'],
+    estimated_us_field_reps: 4500,
+  },
+  {
+    company: 'Philips',
+    hospital_direct_sales: 9,
+    asc_coverage: 4,
+    office_channel: 3,
+    lab_channel: 4,
+    gpo_relationships: ['Vizient', 'Premier', 'HealthTrust'],
+    estimated_us_field_reps: 5000,
+  },
+  {
+    company: 'GE HealthCare',
+    hospital_direct_sales: 9,
+    asc_coverage: 4,
+    office_channel: 2,
+    lab_channel: 3,
+    gpo_relationships: ['Vizient', 'Premier'],
+    estimated_us_field_reps: 5000,
+  },
+  {
+    company: 'Siemens Healthineers',
+    hospital_direct_sales: 9,
+    asc_coverage: 3,
+    office_channel: 2,
+    lab_channel: 8,
+    gpo_relationships: ['Vizient', 'Premier'],
+    estimated_us_field_reps: 4500,
+  },
+  {
+    company: 'Globus Medical',
+    hospital_direct_sales: 7,
+    asc_coverage: 5,
+    office_channel: 2,
+    lab_channel: 0,
+    gpo_relationships: ['Vizient'],
+    estimated_us_field_reps: 2000,
+  },
+  {
+    company: 'Illumina',
+    hospital_direct_sales: 4,
+    asc_coverage: 1,
+    office_channel: 1,
+    lab_channel: 10,
+    gpo_relationships: ['Vizient'],
+    estimated_us_field_reps: 2000,
+  },
+  {
+    company: 'Alcon',
+    hospital_direct_sales: 8,
+    asc_coverage: 8,
+    office_channel: 9,
+    lab_channel: 1,
+    gpo_relationships: ['Vizient', 'Premier'],
+    estimated_us_field_reps: 4000,
+  },
+  {
+    company: 'ResMed',
+    hospital_direct_sales: 6,
+    asc_coverage: 3,
+    office_channel: 5,
+    lab_channel: 0,
+    gpo_relationships: ['Vizient'],
+    estimated_us_field_reps: 2500,
+  },
+  {
+    company: 'Coloplast',
+    hospital_direct_sales: 6,
+    asc_coverage: 3,
+    office_channel: 5,
+    lab_channel: 0,
+    gpo_relationships: ['Premier'],
+    estimated_us_field_reps: 2000,
+  },
+  {
+    company: 'Olympus Corporation',
+    hospital_direct_sales: 8,
+    asc_coverage: 7,
+    office_channel: 4,
+    lab_channel: 1,
+    gpo_relationships: ['Vizient', 'Premier'],
+    estimated_us_field_reps: 3000,
+  },
+  {
+    company: 'Terumo Corporation',
+    hospital_direct_sales: 8,
+    asc_coverage: 5,
+    office_channel: 2,
+    lab_channel: 1,
+    gpo_relationships: ['Vizient'],
+    estimated_us_field_reps: 2500,
+  },
 ];
 
 type TargetSettingType = 'hospital_inpatient' | 'hospital_outpatient' | 'asc' | 'office' | 'lab' | 'home';
@@ -2221,7 +3287,7 @@ function buildDistributionStrength(
 ): DistributionStrengthAssessment {
   const companyLower = partner.company.toLowerCase();
   const profile = MEDTECH_DISTRIBUTION_PROFILES.find(
-    (p) => companyLower.includes(p.company.toLowerCase()) || p.company.toLowerCase().includes(companyLower)
+    (p) => companyLower.includes(p.company.toLowerCase()) || p.company.toLowerCase().includes(companyLower),
   );
 
   // Defaults for unknown companies
@@ -2237,27 +3303,47 @@ function buildDistributionStrength(
 
   switch (targetSetting) {
     case 'hospital_inpatient':
-      overallScore = hospitalDirect * 0.60 + ascCov * 0.10 + officeCh * 0.05 + labCh * 0.05 + Math.min(10, gpoRels.length * 2.5) * 0.20;
+      overallScore =
+        hospitalDirect * 0.6 + ascCov * 0.1 + officeCh * 0.05 + labCh * 0.05 + Math.min(10, gpoRels.length * 2.5) * 0.2;
       break;
     case 'hospital_outpatient':
-      overallScore = hospitalDirect * 0.40 + ascCov * 0.30 + officeCh * 0.10 + labCh * 0.05 + Math.min(10, gpoRels.length * 2.5) * 0.15;
+      overallScore =
+        hospitalDirect * 0.4 + ascCov * 0.3 + officeCh * 0.1 + labCh * 0.05 + Math.min(10, gpoRels.length * 2.5) * 0.15;
       break;
     case 'asc':
-      overallScore = hospitalDirect * 0.15 + ascCov * 0.55 + officeCh * 0.10 + labCh * 0.05 + Math.min(10, gpoRels.length * 2.5) * 0.15;
+      overallScore =
+        hospitalDirect * 0.15 +
+        ascCov * 0.55 +
+        officeCh * 0.1 +
+        labCh * 0.05 +
+        Math.min(10, gpoRels.length * 2.5) * 0.15;
       break;
     case 'office':
-      overallScore = hospitalDirect * 0.10 + ascCov * 0.10 + officeCh * 0.55 + labCh * 0.05 + Math.min(10, gpoRels.length * 2.5) * 0.20;
+      overallScore =
+        hospitalDirect * 0.1 + ascCov * 0.1 + officeCh * 0.55 + labCh * 0.05 + Math.min(10, gpoRels.length * 2.5) * 0.2;
       break;
     case 'lab':
-      overallScore = hospitalDirect * 0.05 + ascCov * 0.05 + officeCh * 0.05 + labCh * 0.65 + Math.min(10, gpoRels.length * 2.5) * 0.20;
+      overallScore =
+        hospitalDirect * 0.05 +
+        ascCov * 0.05 +
+        officeCh * 0.05 +
+        labCh * 0.65 +
+        Math.min(10, gpoRels.length * 2.5) * 0.2;
       break;
     case 'home':
       // Home/remote monitoring: special scoring — office + digital distribution capability
       const digitalCapability = Math.min(10, fieldReps / 1000); // Proxy: more reps = better remote coverage
-      overallScore = hospitalDirect * 0.05 + ascCov * 0.05 + officeCh * 0.30 + labCh * 0.05 + digitalCapability * 0.40 + Math.min(10, gpoRels.length * 2.5) * 0.15;
+      overallScore =
+        hospitalDirect * 0.05 +
+        ascCov * 0.05 +
+        officeCh * 0.3 +
+        labCh * 0.05 +
+        digitalCapability * 0.4 +
+        Math.min(10, gpoRels.length * 2.5) * 0.15;
       break;
     default:
-      overallScore = hospitalDirect * 0.40 + ascCov * 0.20 + officeCh * 0.15 + labCh * 0.10 + Math.min(10, gpoRels.length * 2.5) * 0.15;
+      overallScore =
+        hospitalDirect * 0.4 + ascCov * 0.2 + officeCh * 0.15 + labCh * 0.1 + Math.min(10, gpoRels.length * 2.5) * 0.15;
   }
 
   overallScore = Math.round(overallScore * 10) / 10;
@@ -2271,11 +3357,12 @@ function buildDistributionStrength(
     home: 'home/remote monitoring',
   };
 
-  const narrative = `${partner.company} distribution assessment for ${settingLabels[targetSetting]} setting: `
-    + `Hospital direct sales ${hospitalDirect}/10, ASC coverage ${ascCov}/10, Office ${officeCh}/10, Lab ${labCh}/10. `
-    + `GPO relationships: ${gpoRels.join(', ')}. `
-    + `Estimated ${fieldReps.toLocaleString()} US field representatives. `
-    + `Overall distribution alignment score: ${overallScore.toFixed(1)}/10.`;
+  const narrative =
+    `${partner.company} distribution assessment for ${settingLabels[targetSetting]} setting: ` +
+    `Hospital direct sales ${hospitalDirect}/10, ASC coverage ${ascCov}/10, Office ${officeCh}/10, Lab ${labCh}/10. ` +
+    `GPO relationships: ${gpoRels.join(', ')}. ` +
+    `Estimated ${fieldReps.toLocaleString()} US field representatives. ` +
+    `Overall distribution alignment score: ${overallScore.toFixed(1)}/10.`;
 
   return {
     hospital_direct_sales: hospitalDirect,
@@ -2295,7 +3382,13 @@ function buildDistributionStrength(
 // Source: MedTech Strategist deal database, EY deal survey 2024
 // ────────────────────────────────────────────────────────────
 
-type DeviceDevelopmentStage = 'concept' | 'preclinical' | 'clinical_trial' | 'fda_submitted' | 'cleared_approved' | 'commercial';
+type DeviceDevelopmentStage =
+  | 'concept'
+  | 'preclinical'
+  | 'clinical_trial'
+  | 'fda_submitted'
+  | 'cleared_approved'
+  | 'commercial';
 
 interface DeviceDealStructureTemplate {
   stage: DeviceDevelopmentStage;
@@ -2315,10 +3408,10 @@ const DEVICE_DEAL_STRUCTURES: DeviceDealStructureTemplate[] = [
     typical_upfront_pct: 10,
     royalty_range: [3, 8],
     milestones: [
-      { milestone: 'Technical feasibility demonstrated', typical_value_m: 2, probability: 0.60 },
-      { milestone: 'First-in-human study initiated', typical_value_m: 5, probability: 0.40 },
-      { milestone: 'IDE approval', typical_value_m: 8, probability: 0.30 },
-      { milestone: 'FDA clearance/approval', typical_value_m: 15, probability: 0.20 },
+      { milestone: 'Technical feasibility demonstrated', typical_value_m: 2, probability: 0.6 },
+      { milestone: 'First-in-human study initiated', typical_value_m: 5, probability: 0.4 },
+      { milestone: 'IDE approval', typical_value_m: 8, probability: 0.3 },
+      { milestone: 'FDA clearance/approval', typical_value_m: 15, probability: 0.2 },
     ],
     governance_complexity: 'high',
     comparable_deal_count: 45,
@@ -2345,7 +3438,7 @@ const DEVICE_DEAL_STRUCTURES: DeviceDealStructureTemplate[] = [
     milestones: [
       { milestone: 'Enrollment complete', typical_value_m: 8, probability: 0.65 },
       { milestone: 'Primary endpoint data readout', typical_value_m: 15, probability: 0.55 },
-      { milestone: 'FDA submission', typical_value_m: 10, probability: 0.50 },
+      { milestone: 'FDA submission', typical_value_m: 10, probability: 0.5 },
       { milestone: 'FDA clearance/approval', typical_value_m: 25, probability: 0.45 },
     ],
     governance_complexity: 'moderate',
@@ -2359,8 +3452,8 @@ const DEVICE_DEAL_STRUCTURES: DeviceDealStructureTemplate[] = [
     margin_structure: { low_pct: 40, high_pct: 50 },
     milestones: [
       { milestone: 'FDA clearance/approval', typical_value_m: 30, probability: 0.75 },
-      { milestone: 'First commercial sale', typical_value_m: 10, probability: 0.70 },
-      { milestone: 'Revenue milestone ($50M)', typical_value_m: 20, probability: 0.50 },
+      { milestone: 'First commercial sale', typical_value_m: 10, probability: 0.7 },
+      { milestone: 'Revenue milestone ($50M)', typical_value_m: 20, probability: 0.5 },
     ],
     governance_complexity: 'moderate',
     comparable_deal_count: 55,
@@ -2372,7 +3465,7 @@ const DEVICE_DEAL_STRUCTURES: DeviceDealStructureTemplate[] = [
     royalty_range: [10, 18],
     margin_structure: { low_pct: 40, high_pct: 55 },
     milestones: [
-      { milestone: 'Revenue milestone ($25M)', typical_value_m: 15, probability: 0.70 },
+      { milestone: 'Revenue milestone ($25M)', typical_value_m: 15, probability: 0.7 },
       { milestone: 'Revenue milestone ($100M)', typical_value_m: 30, probability: 0.45 },
       { milestone: 'Revenue milestone ($250M)', typical_value_m: 50, probability: 0.25 },
     ],
@@ -2386,9 +3479,9 @@ const DEVICE_DEAL_STRUCTURES: DeviceDealStructureTemplate[] = [
     royalty_range: [0, 0],
     margin_structure: { low_pct: 45, high_pct: 55 },
     milestones: [
-      { milestone: 'Revenue earnout (Year 1)', typical_value_m: 20, probability: 0.80 },
+      { milestone: 'Revenue earnout (Year 1)', typical_value_m: 20, probability: 0.8 },
       { milestone: 'Revenue earnout (Year 2)', typical_value_m: 30, probability: 0.65 },
-      { milestone: 'Revenue earnout (Year 3)', typical_value_m: 40, probability: 0.50 },
+      { milestone: 'Revenue earnout (Year 3)', typical_value_m: 40, probability: 0.5 },
     ],
     governance_complexity: 'low',
     comparable_deal_count: 150,
@@ -2409,8 +3502,9 @@ function buildDeviceDealStructureModel(
   developmentStage: DeviceDevelopmentStage,
   productCategory: ProductCategory,
 ): DeviceDealStructureModel {
-  const template = DEVICE_DEAL_STRUCTURES.find((t) => t.stage === developmentStage)
-    ?? DEVICE_DEAL_STRUCTURES.find((t) => t.stage === 'clinical_trial')!;
+  const template =
+    DEVICE_DEAL_STRUCTURES.find((t) => t.stage === developmentStage) ??
+    DEVICE_DEAL_STRUCTURES.find((t) => t.stage === 'clinical_trial')!;
 
   // Adjust based on partner type
   let upfrontAdj = 0;
@@ -2454,20 +3548,32 @@ function buildDeviceDealStructureModel(
   const isLateStage = developmentStage === 'cleared_approved' || developmentStage === 'commercial';
   const isEarlyStage = developmentStage === 'concept' || developmentStage === 'preclinical';
 
-  let narrativeParts: string[] = [];
-  narrativeParts.push(`For a ${developmentStage.replace(/_/g, ' ')} stage ${productCategory.replace(/_/g, ' ')} product, the recommended deal structure is ${template.deal_type_recommended.toLowerCase()}.`);
+  const narrativeParts: string[] = [];
+  narrativeParts.push(
+    `For a ${developmentStage.replace(/_/g, ' ')} stage ${productCategory.replace(/_/g, ' ')} product, the recommended deal structure is ${template.deal_type_recommended.toLowerCase()}.`,
+  );
 
   if (isLateStage && template.margin_structure) {
-    narrativeParts.push(`Distribution deals at this stage typically involve ${template.margin_structure.low_pct}-${template.margin_structure.high_pct}% gross profit margin structures rather than royalties.`);
+    narrativeParts.push(
+      `Distribution deals at this stage typically involve ${template.margin_structure.low_pct}-${template.margin_structure.high_pct}% gross profit margin structures rather than royalties.`,
+    );
     narrativeParts.push(`Acquisition multiples for commercial-stage devices typically range from 3-5x revenue.`);
   } else if (isEarlyStage) {
-    narrativeParts.push(`Early-stage device deals feature heavier milestone-based structures with ${adjustedRoyalty[0]}-${adjustedRoyalty[1]}% royalties.`);
-    narrativeParts.push(`Governance is typically complex, with joint steering committees and co-development IP sharing.`);
+    narrativeParts.push(
+      `Early-stage device deals feature heavier milestone-based structures with ${adjustedRoyalty[0]}-${adjustedRoyalty[1]}% royalties.`,
+    );
+    narrativeParts.push(
+      `Governance is typically complex, with joint steering committees and co-development IP sharing.`,
+    );
   } else {
-    narrativeParts.push(`Mid-stage licensing typically includes ${adjustedUpfrontPct}% upfront with ${adjustedRoyalty[0]}-${adjustedRoyalty[1]}% royalties on net sales.`);
+    narrativeParts.push(
+      `Mid-stage licensing typically includes ${adjustedUpfrontPct}% upfront with ${adjustedRoyalty[0]}-${adjustedRoyalty[1]}% royalties on net sales.`,
+    );
   }
 
-  narrativeParts.push(`Based on ${template.comparable_deal_count} comparable transactions in the MedTech Strategist database.`);
+  narrativeParts.push(
+    `Based on ${template.comparable_deal_count} comparable transactions in the MedTech Strategist database.`,
+  );
 
   return {
     deal_type_recommended: template.deal_type_recommended,
@@ -2489,19 +3595,24 @@ function buildDeviceDealStructureModel(
 /** Map DevicePartnerProfile company_type to DevicePartnerMatch company_type */
 function formatDeviceCompanyType(type: string): DevicePartnerMatch['company_type'] {
   switch (type) {
-    case 'large_medtech': return 'Large Medtech';
-    case 'mid_medtech': return 'Mid-Size Medtech';
-    case 'diagnostics_major': return 'Diagnostics Company';
-    case 'diagnostics_specialty': return 'Diagnostics Company';
-    case 'diagnostics_company': return 'Diagnostics Company';
-    case 'digital_health': return 'Mid-Size Medtech';
-    default: return 'Mid-Size Medtech';
+    case 'large_medtech':
+      return 'Large Medtech';
+    case 'mid_medtech':
+      return 'Mid-Size Medtech';
+    case 'diagnostics_major':
+      return 'Diagnostics Company';
+    case 'diagnostics_specialty':
+      return 'Diagnostics Company';
+    case 'diagnostics_company':
+      return 'Diagnostics Company';
+    case 'digital_health':
+      return 'Mid-Size Medtech';
+    default:
+      return 'Mid-Size Medtech';
   }
 }
 
-export async function analyzeDevicePartners(
-  input: DevicePartnerDiscoveryInput,
-): Promise<{
+export async function analyzeDevicePartners(input: DevicePartnerDiscoveryInput): Promise<{
   ranked_partners: DevicePartnerMatch[];
   summary: {
     total_screened: number;
@@ -2526,9 +3637,7 @@ export async function analyzeDevicePartners(
 
   // Filter excluded companies and optionally by target partner type
   const excludeSet = new Set(exclude_companies.map((c) => c.toLowerCase()));
-  let candidates = RAW_DEVICE_PARTNERS.filter(
-    (p) => !excludeSet.has(p.company.toLowerCase())
-  );
+  let candidates = RAW_DEVICE_PARTNERS.filter((p) => !excludeSet.has(p.company.toLowerCase()));
 
   // Optional: filter by target partner type
   if (target_partner_type && target_partner_type.length > 0) {
@@ -2537,7 +3646,11 @@ export async function analyzeDevicePartners(
       const pType = p.company_type;
       if (typeSet.has('large_medtech') && pType === 'large_medtech') return true;
       if (typeSet.has('mid_medtech') && (pType === 'mid_medtech' || pType === 'specialty_medtech')) return true;
-      if (typeSet.has('diagnostics_company') && (pType === 'diagnostics_major' || pType === 'diagnostics_specialty' || pType === 'diagnostics_company')) return true;
+      if (
+        typeSet.has('diagnostics_company') &&
+        (pType === 'diagnostics_major' || pType === 'diagnostics_specialty' || pType === 'diagnostics_company')
+      )
+        return true;
       if (typeSet.has('pharma_device_division') && pType === 'large_medtech') return true;
       if (typeSet.has('strategic_investor')) return true; // All types potentially invest
       return false;
@@ -2595,13 +3708,20 @@ export async function analyzeDevicePartners(
     // Map device deal types to pharma deal types for scoring
     const pharmaDeals = deal_types.map((dt) => {
       switch (dt) {
-        case 'distribution': return 'licensing';
-        case 'licensing': return 'licensing';
-        case 'acquisition': return 'acquisition';
-        case 'oem': return 'licensing';
-        case 'co_development': return 'co-development';
-        case 'strategic_investment': return 'acquisition';
-        default: return 'licensing';
+        case 'distribution':
+          return 'licensing';
+        case 'licensing':
+          return 'licensing';
+        case 'acquisition':
+          return 'acquisition';
+        case 'oem':
+          return 'licensing';
+        case 'co_development':
+          return 'co-development';
+        case 'strategic_investment':
+          return 'acquisition';
+        default:
+          return 'licensing';
       }
     });
 
@@ -2635,7 +3755,18 @@ export async function analyzeDevicePartners(
     const baseTotal = therapeutic_alignment + pipeline_gap + deal_history + geography_fit + financial_capacity;
     const total = Math.max(0, baseTotal + categoryBonus + strategicBonus);
 
-    return { dp, normalized, total, therapeutic_alignment, pipeline_gap, deal_history, geography_fit, financial_capacity, categoryBonus, strategicBonus };
+    return {
+      dp,
+      normalized,
+      total,
+      therapeutic_alignment,
+      pipeline_gap,
+      deal_history,
+      geography_fit,
+      financial_capacity,
+      categoryBonus,
+      strategicBonus,
+    };
   });
 
   // Sort by total score descending
@@ -2657,7 +3788,17 @@ export async function analyzeDevicePartners(
 
   // Build ranked DevicePartnerMatch objects
   const rankedPartners: DevicePartnerMatch[] = topPartners.map((item, index) => {
-    const { dp, total, therapeutic_alignment, pipeline_gap, deal_history, geography_fit, financial_capacity, categoryBonus, strategicBonus } = item;
+    const {
+      dp,
+      total,
+      therapeutic_alignment,
+      pipeline_gap,
+      deal_history,
+      geography_fit,
+      financial_capacity,
+      categoryBonus,
+      strategicBonus,
+    } = item;
 
     // Parse recent acquisitions into deal records
     const recentDeals = dp.recent_acquisitions.slice(0, 3).map((acq) => {
@@ -2710,7 +3851,9 @@ export async function analyzeDevicePartners(
       rationaleLines.push(`Recent deals: ${dp.recent_acquisitions[0]}.`);
     }
     if (acquisitionProbability.acquisition_probability_pct >= 50) {
-      rationaleLines.push(`High acquisition probability (${acquisitionProbability.acquisition_probability_pct}%) based on serial acquirer analysis.`);
+      rationaleLines.push(
+        `High acquisition probability (${acquisitionProbability.acquisition_probability_pct}%) based on serial acquirer analysis.`,
+      );
     }
 
     const partnerMatch: DevicePartnerMatch = {
@@ -2718,7 +3861,9 @@ export async function analyzeDevicePartners(
       company: dp.company,
       company_type: companyType,
       hq_location: dp.hq,
-      market_cap: dp.market_cap_b ? `$${dp.market_cap_b >= 100 ? Math.round(dp.market_cap_b) : dp.market_cap_b}B` : undefined,
+      market_cap: dp.market_cap_b
+        ? `$${dp.market_cap_b >= 100 ? Math.round(dp.market_cap_b) : dp.market_cap_b}B`
+        : undefined,
       device_divisions: dp.key_divisions,
       match_score: total,
       score_breakdown: {
@@ -2727,7 +3872,7 @@ export async function analyzeDevicePartners(
         deal_history: deal_history,
         financial_capacity: financial_capacity,
         geographic_footprint: geography_fit,
-        strategic_priority: Math.round((categoryBonus + strategicBonus) / 15 * 15),
+        strategic_priority: Math.round(((categoryBonus + strategicBonus) / 15) * 15),
       },
       recent_deals: recentDeals,
       deal_terms_benchmark: {
@@ -2751,9 +3896,10 @@ export async function analyzeDevicePartners(
   // Summary
   const matchedCount = qualified.length;
   const topTierCount = qualified.filter((q) => q.total >= 60).length;
-  const avgScore = rankedPartners.length > 0
-    ? Math.round(rankedPartners.reduce((s, p) => s + p.match_score, 0) / rankedPartners.length)
-    : 0;
+  const avgScore =
+    rankedPartners.length > 0
+      ? Math.round(rankedPartners.reduce((s, p) => s + p.match_score, 0) / rankedPartners.length)
+      : 0;
 
   const methodology = [
     `Screened ${candidates.length} medtech, diagnostics, and device companies against device profile.`,
@@ -2764,7 +3910,11 @@ export async function analyzeDevicePartners(
 
   const dataSources: DataSource[] = [
     { name: 'SEC EDGAR Filings', type: 'public', url: 'https://www.sec.gov/edgar/searchedgar/companysearch' },
-    { name: 'FDA CDRH 510(k) & PMA Databases', type: 'public', url: 'https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm' },
+    {
+      name: 'FDA CDRH 510(k) & PMA Databases',
+      type: 'public',
+      url: 'https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm',
+    },
     { name: 'MedTech Strategist Deal Database', type: 'licensed' },
     { name: 'Company Annual Reports & 10-K Filings (2020-2025)', type: 'public' },
     { name: 'Ambrosia Ventures Proprietary MedTech Intelligence', type: 'proprietary' },
@@ -2788,9 +3938,7 @@ export async function analyzeDevicePartners(
 // MAIN EXPORT: analyzePartners()
 // ────────────────────────────────────────────────────────────
 
-export async function analyzePartners(
-  input: PartnerDiscoveryInput,
-): Promise<PartnerDiscoveryOutput> {
+export async function analyzePartners(input: PartnerDiscoveryInput): Promise<PartnerDiscoveryOutput> {
   const {
     indication,
     mechanism,
@@ -2805,37 +3953,30 @@ export async function analyzePartners(
   const userTherapyAreas = inferTherapyAreas(indication, mechanism);
 
   // Merge pharma + device partner databases
-  const allPartners: PharmaPartnerProfile[] = [
-    ...PHARMA_PARTNER_DATABASE,
-    ...NORMALIZED_DEVICE_PARTNERS,
-  ];
+  const allPartners: PharmaPartnerProfile[] = [...PHARMA_PARTNER_DATABASE, ...NORMALIZED_DEVICE_PARTNERS];
 
   // Filter excluded companies
   const excludeSet = new Set(exclude_companies.map((c) => c.toLowerCase()));
-  const candidates = allPartners.filter(
-    (p) => !excludeSet.has(p.company.toLowerCase())
-  );
+  const candidates = allPartners.filter((p) => !excludeSet.has(p.company.toLowerCase()));
 
   // Determine therapy area and estimated launch year for scoring functions
   const indicationDataForScoring = findIndicationByName(indication);
   const therapyAreaForScoring = indicationDataForScoring?.therapy_area || userTherapyAreas[0] || 'general';
   // Estimate launch year from development stage (no launch_year in PartnerDiscoveryInput)
   const STAGE_TO_LAUNCH_OFFSET: Record<DevelopmentStage, number> = {
-    preclinical: 8, phase1: 6, phase2: 4, phase3: 2, approved: 0,
+    preclinical: 8,
+    phase1: 6,
+    phase2: 4,
+    phase3: 2,
+    approved: 0,
   };
   const estimatedLaunchYear = 2026 + (STAGE_TO_LAUNCH_OFFSET[developmentStage] ?? 4);
 
   // Score all candidates
   const scored = candidates.map((partner) => {
-    const therapeutic_alignment = scoreTherapeuticAlignment(
-      partner, userTherapyAreas, indication, mechanism
-    );
-    const pipeline_gap = scorePipelineGap(
-      partner, userTherapyAreas, developmentStage, indication
-    );
-    const deal_history = scoreDealHistory(
-      partner, developmentStage, dealTypes, userTherapyAreas, indication
-    );
+    const therapeutic_alignment = scoreTherapeuticAlignment(partner, userTherapyAreas, indication, mechanism);
+    const pipeline_gap = scorePipelineGap(partner, userTherapyAreas, developmentStage, indication);
+    const deal_history = scoreDealHistory(partner, developmentStage, dealTypes, userTherapyAreas, indication);
     const geography_fit = scoreGeographyFit(partner, geographyRights);
     const financial_capacity = scoreFinancialCapacity(partner, developmentStage);
 
@@ -2893,7 +4034,20 @@ export async function analyzePartners(
 
     const totalWithUrgency = Math.max(0, total + competitive_urgency_bonus + loeGapBonus);
 
-    return { partner, total: totalWithUrgency, breakdown, patentCliffNarrative: patentCliff.narrative, mechExpertise, trackRecord, portfolioAppetite, geoStrengths, competitive_urgency_bonus, dealStructure, phaseSuccessRates, loeGap };
+    return {
+      partner,
+      total: totalWithUrgency,
+      breakdown,
+      patentCliffNarrative: patentCliff.narrative,
+      mechExpertise,
+      trackRecord,
+      portfolioAppetite,
+      geoStrengths,
+      competitive_urgency_bonus,
+      dealStructure,
+      phaseSuccessRates,
+      loeGap,
+    };
   });
 
   // Sort by total score descending
@@ -2905,26 +4059,41 @@ export async function analyzePartners(
 
   // Build ranked partner matches
   const rankedPartners: PartnerMatch[] = topPartners.map((item, index) => {
-    const { partner, total, breakdown, patentCliffNarrative, mechExpertise, trackRecord, portfolioAppetite, geoStrengths, dealStructure, phaseSuccessRates, loeGap } = item;
+    const {
+      partner,
+      total,
+      breakdown,
+      patentCliffNarrative,
+      mechExpertise,
+      trackRecord,
+      portfolioAppetite,
+      geoStrengths,
+      dealStructure,
+      phaseSuccessRates,
+      loeGap,
+    } = item;
 
     // Get relevant deals (those matching indication or therapy area)
     const indicationLower = indication.toLowerCase();
     const relevantDeals = partner.recent_deals
       .filter((d) => {
         const dealInd = d.indication.toLowerCase();
-        return userTherapyAreas.some((ua) => dealInd.includes(ua)) ||
-          tokenize(indicationLower).some((t) => dealInd.includes(t));
+        return (
+          userTherapyAreas.some((ua) => dealInd.includes(ua)) ||
+          tokenize(indicationLower).some((t) => dealInd.includes(t))
+        );
       })
       .slice(0, 3)
       .map((d) => convertToPartnerDeal(d, partner.company));
 
     // If no relevant deals, just show most recent
-    const dealsToShow = relevantDeals.length > 0
-      ? relevantDeals
-      : partner.recent_deals
-          .sort((a, b) => b.year - a.year)
-          .slice(0, 2)
-          .map((d) => convertToPartnerDeal(d, partner.company));
+    const dealsToShow =
+      relevantDeals.length > 0
+        ? relevantDeals
+        : partner.recent_deals
+            .sort((a, b) => b.year - a.year)
+            .slice(0, 2)
+            .map((d) => convertToPartnerDeal(d, partner.company));
 
     const watchSignals = generateWatchSignals(partner, indication, developmentStage);
     // Add patent cliff urgency to watch signals if present
@@ -2961,7 +4130,7 @@ export async function analyzePartners(
     p.recent_deals.filter((d) => {
       const dealInd = d.indication.toLowerCase();
       return userTherapyAreas.some((ua) => dealInd.includes(ua));
-    })
+    }),
   );
 
   // Determine therapy area for deal benchmarks
@@ -2975,9 +4144,10 @@ export async function analyzePartners(
   // Summary stats
   const matchedCount = qualified.length;
   const topTierCount = qualified.filter((q) => q.total >= 60).length;
-  const avgScore = rankedPartners.length > 0
-    ? Math.round(rankedPartners.reduce((s, p) => s + p.match_score, 0) / rankedPartners.length)
-    : 0;
+  const avgScore =
+    rankedPartners.length > 0
+      ? Math.round(rankedPartners.reduce((s, p) => s + p.match_score, 0) / rankedPartners.length)
+      : 0;
 
   const methodology = [
     `Screened ${candidates.length} biopharma companies against asset profile.`,
@@ -3075,14 +4245,9 @@ function scoreNutraCategoryAlignment(
 }
 
 /** Score channel fit (0-25) */
-function scoreNutraChannelFit(
-  partner: NutraceuticalPartnerProfile,
-  inputChannels: NutraceuticalChannel[],
-): number {
+function scoreNutraChannelFit(partner: NutraceuticalPartnerProfile, inputChannels: NutraceuticalChannel[]): number {
   if (inputChannels.length === 0) return 0;
-  const overlapCount = inputChannels.filter((ch) =>
-    partner.channels_served.includes(ch),
-  ).length;
+  const overlapCount = inputChannels.filter((ch) => partner.channels_served.includes(ch)).length;
   return Math.round((overlapCount / inputChannels.length) * 25);
 }
 
@@ -3109,19 +4274,14 @@ function scoreNutraCapabilityMatch(
   // Check if the partner's capabilities overlap with preferred type keywords
   const preferredKeywords = preferred.map((t) => t.replace(/_/g, ' '));
   const capabilitiesStr = partner.capabilities.join(' ').toLowerCase();
-  const hasPartialCapability = preferredKeywords.some((kw) =>
-    capabilitiesStr.includes(kw.replace(/_/g, ' ')),
-  );
+  const hasPartialCapability = preferredKeywords.some((kw) => capabilitiesStr.includes(kw.replace(/_/g, ' ')));
   if (hasPartialCapability) return 10;
 
   return 10; // Baseline partial score — every partner has some transferable capability
 }
 
 /** Score scale appropriateness (0-15) */
-function scoreNutraScaleAppropriateness(
-  partner: NutraceuticalPartnerProfile,
-  estimatedRevenueM?: number,
-): number {
+function scoreNutraScaleAppropriateness(partner: NutraceuticalPartnerProfile, estimatedRevenueM?: number): number {
   if (!partner.revenue_b) return 10; // No revenue data — default
   if (estimatedRevenueM === undefined) return 10;
 
@@ -3143,10 +4303,7 @@ function scoreNutraScaleAppropriateness(
 }
 
 /** Score geographic fit (0-15) */
-function scoreNutraGeographicFit(
-  partner: NutraceuticalPartnerProfile,
-  geographyRights: string[],
-): number {
+function scoreNutraGeographicFit(partner: NutraceuticalPartnerProfile, geographyRights: string[]): number {
   if (geographyRights.length === 0) return 8; // No geography specified — neutral
 
   const hqLower = partner.hq.toLowerCase();
@@ -3228,7 +4385,9 @@ function generateNutraRationale(
 
   // Channel insight
   if (breakdown.channel_fit >= 20) {
-    lines.push(`Strong channel overlap across ${input.channels.length > 1 ? 'multiple' : 'the target'} distribution channel${input.channels.length > 1 ? 's' : ''}.`);
+    lines.push(
+      `Strong channel overlap across ${input.channels.length > 1 ? 'multiple' : 'the target'} distribution channel${input.channels.length > 1 ? 's' : ''}.`,
+    );
   } else if (breakdown.channel_fit >= 10) {
     lines.push('Partial channel coverage with expansion potential.');
   }
@@ -3264,9 +4423,7 @@ function generateNutraRationale(
   return lines.join(' ');
 }
 
-export async function analyzeNutraceuticalPartners(
-  input: NutraceuticalPartnerDiscoveryInput,
-): Promise<{
+export async function analyzeNutraceuticalPartners(input: NutraceuticalPartnerDiscoveryInput): Promise<{
   ranked_partners: NutraceuticalPartnerMatch[];
   summary: {
     total_screened: number;
@@ -3347,9 +4504,10 @@ export async function analyzeNutraceuticalPartners(
   // ── Step 5: Summary statistics ─────────────────────────────
   const matchedCount = scored.length;
   const topTierCount = scored.filter((s) => s.total >= 60).length;
-  const avgScore = rankedPartners.length > 0
-    ? Math.round(rankedPartners.reduce((s, p) => s + p.match_score, 0) / rankedPartners.length)
-    : 0;
+  const avgScore =
+    rankedPartners.length > 0
+      ? Math.round(rankedPartners.reduce((s, p) => s + p.match_score, 0) / rankedPartners.length)
+      : 0;
 
   const methodology = [
     `Screened ${candidates.length} nutraceutical industry partners against product profile.`,
@@ -3365,7 +4523,11 @@ export async function analyzeNutraceuticalPartners(
   const dataSources: { name: string; type: 'public' | 'proprietary' | 'licensed'; url?: string }[] = [
     { name: 'SEC EDGAR Filings', type: 'public', url: 'https://www.sec.gov/edgar/searchedgar/companysearch' },
     { name: 'NIH Dietary Supplement Label Database', type: 'public', url: 'https://dsld.od.nih.gov' },
-    { name: 'FDA Dietary Supplement Adverse Event Reporting', type: 'public', url: 'https://www.fda.gov/food/dietary-supplements' },
+    {
+      name: 'FDA Dietary Supplement Adverse Event Reporting',
+      type: 'public',
+      url: 'https://www.fda.gov/food/dietary-supplements',
+    },
     { name: 'Nutrition Business Journal Market Reports', type: 'licensed' },
     { name: 'SPINS / IRI Retail Scanner Data', type: 'licensed' },
     { name: 'Ambrosia Ventures Proprietary Nutraceutical Intelligence', type: 'proprietary' },
