@@ -33,7 +33,7 @@ const nextConfig = {
           },
           {
             key: 'Access-Control-Allow-Origin',
-            value: 'https://terrain.ambrosiaventures.co',
+            value: process.env.NEXT_PUBLIC_APP_URL || 'https://terrain.ambrosiaventures.co',
           },
         ],
       },

@@ -46,7 +46,17 @@ function PathwayBadge({ pathway }: { pathway: string }) {
   );
 }
 
-function MetricCard({ label, value, sublabel, color }: { label: string; value: string | number; sublabel?: string; color?: string }) {
+function MetricCard({
+  label,
+  value,
+  sublabel,
+  color,
+}: {
+  label: string;
+  value: string | number;
+  sublabel?: string;
+  color?: string;
+}) {
   return (
     <div className="card noise p-4">
       <p className="text-2xs text-slate-500 uppercase tracking-wider">{label}</p>
@@ -64,8 +74,12 @@ function DeviceRow({ device }: { device: DeviceCompetitor }) {
         <div className="text-2xs text-slate-500">{device.company}</div>
       </td>
       <td className="px-3 py-2.5 text-2xs text-slate-400">{device.technology_type}</td>
-      <td className="px-3 py-2.5"><StatusBadge status={device.regulatory_status} /></td>
-      <td className="px-3 py-2.5"><PathwayBadge pathway={device.pathway} /></td>
+      <td className="px-3 py-2.5">
+        <StatusBadge status={device.regulatory_status} />
+      </td>
+      <td className="px-3 py-2.5">
+        <PathwayBadge pathway={device.pathway} />
+      </td>
       <td className="px-3 py-2.5 font-mono text-sm text-white text-right">
         {device.estimated_market_share_pct != null ? `${device.estimated_market_share_pct}%` : '—'}
       </td>
@@ -76,7 +90,10 @@ function DeviceRow({ device }: { device: DeviceCompetitor }) {
       <td className="px-3 py-2.5">
         <div className="flex items-center gap-1">
           <div className="w-12 h-1.5 rounded-full bg-navy-700 overflow-hidden">
-            <div className="h-full rounded-full bg-teal-500" style={{ width: `${device.differentiation_score * 10}%` }} />
+            <div
+              className="h-full rounded-full bg-teal-500"
+              style={{ width: `${device.differentiation_score * 10}%` }}
+            />
           </div>
           <span className="font-mono text-2xs text-slate-400">{device.differentiation_score}</span>
         </div>
@@ -104,11 +121,7 @@ export default function DeviceCompetitiveLandscapeReport({ data }: Props) {
           value={data.cleared_approved_devices.length}
           sublabel="devices on market"
         />
-        <MetricCard
-          label="Pipeline"
-          value={data.pipeline_devices.length}
-          sublabel="in development"
-        />
+        <MetricCard label="Pipeline" value={data.pipeline_devices.length} sublabel="in development" />
         <MetricCard
           label="Concentration"
           value={data.market_share_distribution.concentration_label}
@@ -136,7 +149,10 @@ export default function DeviceCompetitiveLandscapeReport({ data }: Props) {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {summary.white_space.map((ws, i) => (
-              <div key={i} className="flex items-start gap-2 text-sm text-slate-400 bg-navy-800/50 rounded px-3 py-2">
+              <div
+                key={`ws-${ws}-${i}`}
+                className="flex items-start gap-2 text-sm text-slate-400 bg-navy-800/50 rounded px-3 py-2"
+              >
                 <span className="text-teal-500 mt-0.5 flex-shrink-0">&#9679;</span>
                 {ws}
               </div>
@@ -165,19 +181,26 @@ export default function DeviceCompetitiveLandscapeReport({ data }: Props) {
               </thead>
               <tbody>
                 {data.technology_landscape.map((tech, i) => (
-                  <tr key={i} className="border-b border-navy-700/50">
+                  <tr key={`${tech.technology_type}-${i}`} className="border-b border-navy-700/50">
                     <td className="px-3 py-2 text-white font-medium">{tech.technology_type}</td>
                     <td className="px-3 py-2">
-                      <span className="text-2xs px-1.5 py-0.5 rounded bg-navy-700 text-slate-300">{tech.readiness}</span>
+                      <span className="text-2xs px-1.5 py-0.5 rounded bg-navy-700 text-slate-300">
+                        {tech.readiness}
+                      </span>
                     </td>
                     <td className="px-3 py-2 text-center font-mono text-white">{tech.competitor_count}</td>
                     <td className="px-3 py-2 text-slate-400">{tech.representative_device}</td>
                     <td className="px-3 py-2">
-                      <span className={cn('text-2xs font-medium', {
-                        'text-signal-green': tech.growth_trajectory === 'emerging' || tech.growth_trajectory === 'growing',
-                        'text-slate-400': tech.growth_trajectory === 'mature',
-                        'text-signal-red': tech.growth_trajectory === 'declining',
-                      })}>{tech.growth_trajectory}</span>
+                      <span
+                        className={cn('text-2xs font-medium', {
+                          'text-signal-green':
+                            tech.growth_trajectory === 'emerging' || tech.growth_trajectory === 'growing',
+                          'text-slate-400': tech.growth_trajectory === 'mature',
+                          'text-signal-red': tech.growth_trajectory === 'declining',
+                        })}
+                      >
+                        {tech.growth_trajectory}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -199,7 +222,7 @@ export default function DeviceCompetitiveLandscapeReport({ data }: Props) {
             .sort((a, b) => b.estimated_share_pct - a.estimated_share_pct)
             .slice(0, 10)
             .map((comp, i) => (
-              <div key={i} className="flex items-center gap-3">
+              <div key={`${comp.name}-${i}`} className="flex items-center gap-3">
                 <span className="text-sm text-slate-400 w-40 truncate">{comp.name}</span>
                 <div className="flex-1 h-4 rounded bg-navy-700 overflow-hidden">
                   <div
@@ -235,7 +258,9 @@ export default function DeviceCompetitiveLandscapeReport({ data }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {data.cleared_approved_devices.map((d, i) => <DeviceRow key={i} device={d} />)}
+                {data.cleared_approved_devices.map((d, i) => (
+                  <DeviceRow key={`${d.device_name}-${d.company}-${i}`} device={d} />
+                ))}
               </tbody>
             </table>
           </div>
@@ -264,7 +289,9 @@ export default function DeviceCompetitiveLandscapeReport({ data }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {data.pipeline_devices.map((d, i) => <DeviceRow key={i} device={d} />)}
+                {data.pipeline_devices.map((d, i) => (
+                  <DeviceRow key={`${d.device_name}-${d.company}-${i}`} device={d} />
+                ))}
               </tbody>
             </table>
           </div>
@@ -280,14 +307,18 @@ export default function DeviceCompetitiveLandscapeReport({ data }: Props) {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {data.switching_cost_analysis.map((sc, i) => (
-              <div key={i} className="bg-navy-800/50 rounded-md p-3">
+              <div key={`${sc.factor}-${i}`} className="bg-navy-800/50 rounded-md p-3">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium text-white">{sc.factor.replace(/_/g, ' ')}</span>
-                  <span className={cn('text-2xs font-mono px-1.5 py-0.5 rounded', {
-                    'bg-signal-green/10 text-signal-green': sc.severity === 'low',
-                    'bg-signal-amber/10 text-signal-amber': sc.severity === 'moderate',
-                    'bg-signal-red/10 text-signal-red': sc.severity === 'high',
-                  })}>{sc.severity}</span>
+                  <span
+                    className={cn('text-2xs font-mono px-1.5 py-0.5 rounded', {
+                      'bg-signal-green/10 text-signal-green': sc.severity === 'low',
+                      'bg-signal-amber/10 text-signal-amber': sc.severity === 'moderate',
+                      'bg-signal-red/10 text-signal-red': sc.severity === 'high',
+                    })}
+                  >
+                    {sc.severity}
+                  </span>
                 </div>
                 <p className="text-2xs text-slate-500">{sc.narrative}</p>
               </div>
@@ -316,12 +347,14 @@ export default function DeviceCompetitiveLandscapeReport({ data }: Props) {
               </thead>
               <tbody>
                 {data.predicate_device_map.map((pd, i) => (
-                  <tr key={i} className="border-b border-navy-700/50">
+                  <tr key={`${pd.device_name}-${pd.k_number}-${i}`} className="border-b border-navy-700/50">
                     <td className="px-3 py-2 text-white">{pd.device_name}</td>
                     <td className="px-3 py-2 text-slate-400">{pd.company}</td>
                     <td className="px-3 py-2 font-mono text-2xs text-slate-400">{pd.k_number}</td>
                     <td className="px-3 py-2 font-mono text-2xs text-slate-400">{pd.clearance_date}</td>
-                    <td className="px-3 py-2 text-slate-400">{pd.predicate_device_name || pd.predicate_k_number || '—'}</td>
+                    <td className="px-3 py-2 text-slate-400">
+                      {pd.predicate_device_name || pd.predicate_k_number || '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -340,11 +373,15 @@ export default function DeviceCompetitiveLandscapeReport({ data }: Props) {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="bg-navy-800/50 rounded p-3 text-center">
               <p className="text-2xs text-slate-500">Median Revenue Multiple</p>
-              <p className="font-mono text-xl text-teal-400">{data.deal_benchmark.median_revenue_multiple.toFixed(1)}x</p>
+              <p className="font-mono text-xl text-teal-400">
+                {data.deal_benchmark.median_revenue_multiple.toFixed(1)}x
+              </p>
             </div>
             <div className="bg-navy-800/50 rounded p-3 text-center">
               <p className="text-2xs text-slate-500">Median Deal Value</p>
-              <p className="font-mono text-xl text-white">${(data.deal_benchmark.median_deal_value_m / 1000).toFixed(1)}B</p>
+              <p className="font-mono text-xl text-white">
+                ${(data.deal_benchmark.median_deal_value_m / 1000).toFixed(1)}B
+              </p>
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -360,7 +397,7 @@ export default function DeviceCompetitiveLandscapeReport({ data }: Props) {
               </thead>
               <tbody>
                 {data.deal_benchmark.recent_deals.map((deal, i) => (
-                  <tr key={i} className="border-b border-navy-700/50">
+                  <tr key={`${deal.target}-${deal.acquirer}-${i}`} className="border-b border-navy-700/50">
                     <td className="px-3 py-2 text-white">{deal.target}</td>
                     <td className="px-3 py-2 text-slate-400">{deal.acquirer}</td>
                     <td className="px-3 py-2 font-mono text-white text-right">${deal.value_m.toLocaleString()}</td>
@@ -379,7 +416,10 @@ export default function DeviceCompetitiveLandscapeReport({ data }: Props) {
         <h3 className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Data Sources</h3>
         <div className="flex flex-wrap gap-2">
           {data.data_sources.map((src, i) => (
-            <span key={i} className="text-2xs bg-navy-800 text-slate-400 px-2 py-1 rounded border border-navy-700">
+            <span
+              key={`${src.name}-${i}`}
+              className="text-2xs bg-navy-800 text-slate-400 px-2 py-1 rounded border border-navy-700"
+            >
               {src.name}
             </span>
           ))}

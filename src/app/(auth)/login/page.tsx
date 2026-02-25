@@ -1,9 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+
+const MAX_ATTEMPTS = 10;
+const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -12,11 +15,22 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const attempts = useRef<number[]>([]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Client-side rate limiting (defense in depth — Supabase also rate limits server-side)
+    const now = Date.now();
+    attempts.current = attempts.current.filter((t) => now - t < WINDOW_MS);
+    if (attempts.current.length >= MAX_ATTEMPTS) {
+      setError('Too many login attempts. Please wait a few minutes and try again.');
+      setLoading(false);
+      return;
+    }
+    attempts.current.push(now);
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -37,18 +51,12 @@ export default function LoginPage() {
     <div className="min-h-screen bg-navy-950 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-display text-3xl text-slate-100 mb-2">
-            Terrain
-          </h1>
-          <p className="text-slate-400 text-sm">
-            Market Opportunity Intelligence
-          </p>
+          <h1 className="font-display text-3xl text-slate-100 mb-2">Terrain</h1>
+          <p className="text-slate-400 text-sm">Market Opportunity Intelligence</p>
         </div>
 
         <div className="card p-8">
-          <h2 className="font-display text-xl text-slate-100 mb-6">
-            Sign in to your account
-          </h2>
+          <h2 className="font-display text-xl text-slate-100 mb-6">Sign in to your account</h2>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
@@ -71,10 +79,7 @@ export default function LoginPage() {
                 <label htmlFor="password" className="input-label">
                   Password
                 </label>
-                <Link
-                  href="/reset-password"
-                  className="text-xs text-teal-400 hover:text-teal-300 transition-colors"
-                >
+                <Link href="/reset-password" className="text-xs text-teal-400 hover:text-teal-300 transition-colors">
                   Forgot password?
                 </Link>
               </div>
@@ -95,11 +100,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary w-full btn-lg"
-            >
+            <button type="submit" disabled={loading} className="btn btn-primary w-full btn-lg">
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>

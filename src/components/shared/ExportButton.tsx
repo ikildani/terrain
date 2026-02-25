@@ -33,11 +33,9 @@ function exportCSV(data: Record<string, unknown>[], filename: string) {
         .map((h) => {
           const val = row[h];
           const str = val == null ? '' : String(val);
-          return str.includes(',') || str.includes('"') || str.includes('\n')
-            ? `"${str.replace(/"/g, '""')}"`
-            : str;
+          return str.includes(',') || str.includes('"') || str.includes('\n') ? `"${str.replace(/"/g, '""')}"` : str;
         })
-        .join(',')
+        .join(','),
     ),
   ];
   const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
@@ -102,11 +100,8 @@ export function ExportButton({
           toast.error(result.error || 'Failed to send email');
         }
       }
-    } catch (err) {
-      if (format === 'email') {
-        toast.error('Failed to send email');
-      }
-      console.error('Export failed:', err);
+    } catch {
+      toast.error(format === 'email' ? 'Failed to send email' : 'Export failed. Please try again.');
     } finally {
       setTimeout(() => setIsExporting(false), 800);
     }
@@ -132,11 +127,7 @@ export function ExportButton({
       disabled={isExporting || (format === 'csv' && (!data || data.length === 0))}
       className={cn('btn btn-secondary', className)}
     >
-      {isExporting ? (
-        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-      ) : (
-        <Icon className="w-3.5 h-3.5" />
-      )}
+      {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Icon className="w-3.5 h-3.5" />}
       {isExporting ? loadingLabel : label}
     </button>
   );

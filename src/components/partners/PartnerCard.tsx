@@ -16,14 +16,16 @@ function CompanyTypeBadge({ type }: { type: PartnerMatch['company_type'] }) {
     'Big Pharma': 'bg-teal-500/10 text-teal-400 border-teal-500/20',
     'Mid-Size Pharma': 'bg-slate-500/10 text-slate-300 border-slate-500/20',
     'Specialty Pharma': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    'Biotech': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    Biotech: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   };
 
   return (
-    <span className={cn(
-      'inline-flex text-2xs font-mono uppercase tracking-wider px-2 py-0.5 rounded border',
-      styles[type] || 'bg-navy-700 text-slate-400 border-navy-600'
-    )}>
+    <span
+      className={cn(
+        'inline-flex text-2xs font-mono uppercase tracking-wider px-2 py-0.5 rounded border',
+        styles[type] || 'bg-navy-700 text-slate-400 border-navy-600',
+      )}
+    >
       {type}
     </span>
   );
@@ -38,17 +40,13 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
       <div className="flex items-start gap-4">
         {/* Rank Badge */}
         <div className="w-8 h-8 rounded-md bg-navy-700 flex items-center justify-center shrink-0">
-          <span className="font-mono text-sm text-slate-300">
-            {partner.rank}
-          </span>
+          <span className="font-mono text-sm text-slate-300">{partner.rank}</span>
         </div>
 
         {/* Company Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-display text-base text-white truncate">
-              {partner.company}
-            </h3>
+            <h3 className="font-display text-base text-white truncate">{partner.company}</h3>
             <CompanyTypeBadge type={partner.company_type} />
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
@@ -72,16 +70,14 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
       </div>
 
       {/* Rationale */}
-      <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-        {partner.rationale}
-      </p>
+      <p className="text-xs text-slate-400 mt-3 leading-relaxed">{partner.rationale}</p>
 
       {/* Watch Signals */}
       {partner.watch_signals.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-3">
           {partner.watch_signals.map((signal, i) => (
             <span
-              key={i}
+              key={`${signal}-${i}`}
               className="inline-flex items-center gap-1 text-2xs text-amber-400 bg-amber-500/10 border border-amber-500/15 rounded px-2 py-0.5"
             >
               <Zap className="w-2.5 h-2.5" />
@@ -95,15 +91,11 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
       <div className="grid grid-cols-3 gap-2 mt-4 p-2.5 bg-navy-800/50 rounded-md">
         <div className="text-center">
           <p className="text-2xs text-slate-600 uppercase tracking-wider">Typical Upfront</p>
-          <p className="font-mono text-xs text-teal-400 mt-0.5">
-            {partner.deal_terms_benchmark.typical_upfront}
-          </p>
+          <p className="font-mono text-xs text-teal-400 mt-0.5">{partner.deal_terms_benchmark.typical_upfront}</p>
         </div>
         <div className="text-center border-x border-navy-700/50">
           <p className="text-2xs text-slate-600 uppercase tracking-wider">Milestones</p>
-          <p className="font-mono text-xs text-slate-300 mt-0.5">
-            {partner.deal_terms_benchmark.typical_milestones}
-          </p>
+          <p className="font-mono text-xs text-slate-300 mt-0.5">{partner.deal_terms_benchmark.typical_milestones}</p>
         </div>
         <div className="text-center">
           <p className="text-2xs text-slate-600 uppercase tracking-wider">Royalty</p>
@@ -116,9 +108,7 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
       {/* Recent Deals (compact) */}
       {partner.recent_deals.length > 0 && (
         <div className="mt-3">
-          <p className="text-2xs text-slate-600 uppercase tracking-wider mb-1.5">
-            Recent Relevant Deals
-          </p>
+          <p className="text-2xs text-slate-600 uppercase tracking-wider mb-1.5">Recent Relevant Deals</p>
           <DealHistoryTable deals={partner.recent_deals} compact />
         </div>
       )}
@@ -147,24 +137,17 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
         <div className="mt-4 space-y-4 animate-fade-in">
           {/* Full Score Breakdown */}
           <div>
-            <p className="text-2xs text-slate-500 uppercase tracking-wider mb-2">
-              Why this score
-            </p>
-            <PartnerMatchScore
-              score={partner.match_score}
-              breakdown={partner.score_breakdown}
-            />
+            <p className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Why this score</p>
+            <PartnerMatchScore score={partner.match_score} breakdown={partner.score_breakdown} />
           </div>
 
           {/* BD Focus / Strategic Priorities */}
           {partner.bd_focus.length > 0 && (
             <div>
-              <p className="text-2xs text-slate-600 uppercase tracking-wider mb-1.5">
-                Strategic Priorities
-              </p>
+              <p className="text-2xs text-slate-600 uppercase tracking-wider mb-1.5">Strategic Priorities</p>
               <ul className="space-y-1">
                 {partner.bd_focus.map((focus, i) => (
-                  <li key={i} className="flex items-start gap-2 text-xs text-slate-400">
+                  <li key={`${focus}-${i}`} className="flex items-start gap-2 text-xs text-slate-400">
                     <TrendingUp className="w-3 h-3 text-teal-500 mt-0.5 shrink-0" />
                     <span>{focus}</span>
                   </li>
@@ -176,9 +159,7 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
           {/* Full Deal History Table */}
           {partner.recent_deals.length > 0 && (
             <div>
-              <p className="text-2xs text-slate-600 uppercase tracking-wider mb-1.5">
-                Deal History (Detail)
-              </p>
+              <p className="text-2xs text-slate-600 uppercase tracking-wider mb-1.5">Deal History (Detail)</p>
               <DealHistoryTable deals={partner.recent_deals} />
             </div>
           )}

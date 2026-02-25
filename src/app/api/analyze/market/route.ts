@@ -99,23 +99,14 @@ function isNutraceutical(category: string): boolean {
 // ────────────────────────────────────────────────────────────
 
 // ────────────────────────────────────────────────────────────
-// DEMO RATE LIMITING (in-memory, resets on cold start)
+// DEMO RATE LIMITING (distributed via Upstash Redis)
 // ────────────────────────────────────────────────────────────
 
-const demoRequests = new Map<string, number>();
+const DEMO_RATE_LIMIT = { limit: 3, windowMs: 60 * 1000 } as const; // 3 per minute per IP
 
-function isDemoRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const lastRequest = demoRequests.get(ip);
-  if (lastRequest && now - lastRequest < 60_000) return true; // 1 per minute per IP
-  demoRequests.set(ip, now);
-  // Clean old entries every 100 requests
-  if (demoRequests.size > 500) {
-    demoRequests.forEach((time, key) => {
-      if (now - time > 300_000) demoRequests.delete(key);
-    });
-  }
-  return false;
+async function isDemoRateLimited(ip: string): Promise<boolean> {
+  const rl = await rateLimit(`demo:${ip}`, DEMO_RATE_LIMIT);
+  return !rl.success;
 }
 
 export async function POST(request: NextRequest) {
@@ -129,8 +120,9 @@ export async function POST(request: NextRequest) {
 
     if (isDemo) {
       // Rate limit demo requests by IP
-      const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-      if (isDemoRateLimited(ip)) {
+      const ip =
+        request.headers.get('x-real-ip') || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+      if (await isDemoRateLimited(ip)) {
         return NextResponse.json(
           {
             success: false,
@@ -154,8 +146,20 @@ export async function POST(request: NextRequest) {
       }
       user = authUser;
 
-      // ── Rate limit authenticated users ────────────────────────
-      const rl = await rateLimit(`market:${authUser.id}`, RATE_LIMITS.analysis_pro);
+      // ── Rate limit authenticated users (plan-aware) ────────────
+      const { data: subForRl } = await supabase
+        .from('subscriptions')
+        .select('plan')
+        .eq('user_id', authUser.id)
+        .single();
+      const userPlan = (subForRl?.plan as string) || 'free';
+      const rlConfig =
+        userPlan === 'team'
+          ? RATE_LIMITS.analysis_team
+          : userPlan === 'pro'
+            ? RATE_LIMITS.analysis_pro
+            : RATE_LIMITS.analysis_free;
+      const rl = await rateLimit(`market:${authUser.id}`, rlConfig);
       if (!rl.success) {
         logApiResponse({
           route: '/api/analyze/market',

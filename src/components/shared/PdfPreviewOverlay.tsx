@@ -4,6 +4,7 @@ import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { X, Download, Loader2, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
+import DOMPurify from 'dompurify';
 import { PDF_LAYOUT } from '@/lib/export-pdf';
 
 interface PdfPreviewOverlayProps {
@@ -87,7 +88,7 @@ export function PdfPreviewOverlay({
       const footerHeightPx = PDF_LAYOUT.footerHeight * mmToPx;
       const totalPages = Math.max(1, Math.ceil(el.scrollHeight / contentHeightPx));
 
-      setContentHTML(el.innerHTML);
+      setContentHTML(DOMPurify.sanitize(el.innerHTML));
       setMetrics({ totalPages, contentHeightPx, headerHeightPx, footerHeightPx });
     };
 

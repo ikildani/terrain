@@ -20,6 +20,8 @@ import {
   Info,
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { UpgradeGate } from '@/components/shared/UpgradeGate';
+import { useSubscription } from '@/hooks/useSubscription';
 import { IndicationAutocomplete } from '@/components/ui/IndicationAutocomplete';
 import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
 import { useMutation } from '@tanstack/react-query';
@@ -74,6 +76,7 @@ const GEOGRAPHIES: { value: RegulatoryAgency; label: string; flag: string }[] = 
   { value: 'FDA', label: 'FDA (US)', flag: 'US' },
   { value: 'EMA', label: 'EMA (EU)', flag: 'EU' },
   { value: 'PMDA', label: 'PMDA (Japan)', flag: 'JP' },
+  { value: 'NMPA', label: 'NMPA (China)', flag: 'CN' },
 ];
 
 const UNMET_NEED_OPTIONS: { value: 'high' | 'medium' | 'low'; label: string; description: string }[] = [
@@ -89,7 +92,7 @@ const UNMET_NEED_OPTIONS: { value: 'high' | 'medium' | 'low'; label: string; des
 function ResultsSkeleton() {
   return (
     <div className="space-y-4 animate-fade-in">
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
           <SkeletonMetric key={i} />
         ))}
@@ -110,13 +113,10 @@ function EmptyState() {
   return (
     <div className="card noise p-12 text-center flex flex-col items-center">
       <Shield className="w-12 h-12 text-navy-600 mb-4" />
-      <h3 className="font-display text-lg text-white mb-2">
-        Analyze Your Regulatory Strategy
-      </h3>
+      <h3 className="font-display text-lg text-white mb-2">Analyze Your Regulatory Strategy</h3>
       <p className="text-sm text-slate-500 max-w-md">
-        Enter your product profile to receive pathway recommendations,
-        designation eligibility assessment, timeline estimates, comparable
-        approval precedents, and risk analysis.
+        Enter your product profile to receive pathway recommendations, designation eligibility assessment, timeline
+        estimates, comparable approval precedents, and risk analysis.
       </p>
     </div>
   );
@@ -126,13 +126,7 @@ function EmptyState() {
 // FORM COMPONENT
 // ────────────────────────────────────────────────────────────
 
-function RegulatoryForm({
-  onSubmit,
-  isLoading,
-}: {
-  onSubmit: (data: RegulatoryFormData) => void;
-  isLoading: boolean;
-}) {
+function RegulatoryForm({ onSubmit, isLoading }: { onSubmit: (data: RegulatoryFormData) => void; isLoading: boolean }) {
   const {
     setValue,
     watch,
@@ -159,9 +153,7 @@ function RegulatoryForm({
 
   const toggleGeography = useCallback(
     (agency: RegulatoryAgency) => {
-      const next = geography.includes(agency)
-        ? geography.filter((g) => g !== agency)
-        : [...geography, agency];
+      const next = geography.includes(agency) ? geography.filter((g) => g !== agency) : [...geography, agency];
       setValue('geography', next, { shouldValidate: true });
     },
     [geography, setValue],
@@ -263,9 +255,7 @@ function RegulatoryForm({
               </button>
             ))}
           </div>
-          {errors.geography?.message && (
-            <p className="mt-1.5 text-xs text-signal-red">{errors.geography.message}</p>
-          )}
+          {errors.geography?.message && <p className="mt-1.5 text-xs text-signal-red">{errors.geography.message}</p>}
         </div>
 
         {/* Unmet Need */}
@@ -360,9 +350,7 @@ function PathwayCard({
     <div
       className={cn(
         'border rounded-lg p-4 transition-all noise',
-        isPrimary
-          ? 'bg-teal-900/20 border-teal-500/30'
-          : 'bg-navy-900 border-navy-700 hover:border-navy-600',
+        isPrimary ? 'bg-teal-900/20 border-teal-500/30' : 'bg-navy-900 border-navy-700 hover:border-navy-600',
       )}
     >
       <button
@@ -371,13 +359,9 @@ function PathwayCard({
         className="flex items-center justify-between w-full text-left"
       >
         <div className="flex items-center gap-3">
-          {isPrimary && (
-            <span className="badge badge-teal text-2xs">Recommended</span>
-          )}
+          {isPrimary && <span className="badge badge-teal text-2xs">Recommended</span>}
           <h4 className="text-sm font-medium text-white">{pathway.name}</h4>
-          <span className="metric text-xs text-slate-400">
-            {pathway.typical_review_months}mo review
-          </span>
+          <span className="metric text-xs text-slate-400">{pathway.typical_review_months}mo review</span>
         </div>
         {expanded ? (
           <ChevronDown className="w-4 h-4 text-slate-500" />
@@ -556,7 +540,7 @@ function TimelineBar({ data }: { data: RegulatoryOutput['timeline_estimate'] }) 
       <h3 className="chart-title">Timeline to Approval</h3>
 
       {/* Summary metrics */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="text-center">
           <p className="label mb-1">Optimistic</p>
           <p className="metric text-lg text-signal-green">{formatMonths(optimistic)}</p>
@@ -579,10 +563,7 @@ function TimelineBar({ data }: { data: RegulatoryOutput['timeline_estimate'] }) 
           style={{ width: `${pctPessimistic}%` }}
         />
         {/* Realistic range */}
-        <div
-          className="absolute inset-y-0 left-0 bg-navy-600/60 rounded-md"
-          style={{ width: `${pctRealistic}%` }}
-        />
+        <div className="absolute inset-y-0 left-0 bg-navy-600/60 rounded-md" style={{ width: `${pctRealistic}%` }} />
         {/* Optimistic range */}
         <div
           className="absolute inset-y-0 left-0 bg-signal-green/20 rounded-md"
@@ -590,18 +571,9 @@ function TimelineBar({ data }: { data: RegulatoryOutput['timeline_estimate'] }) 
         />
 
         {/* Markers */}
-        <div
-          className="absolute top-0 bottom-0 w-0.5 bg-signal-green"
-          style={{ left: `${pctOptimistic}%` }}
-        />
-        <div
-          className="absolute top-0 bottom-0 w-0.5 bg-white"
-          style={{ left: `${pctRealistic}%` }}
-        />
-        <div
-          className="absolute top-0 bottom-0 w-0.5 bg-signal-amber"
-          style={{ left: `${pctPessimistic}%` }}
-        />
+        <div className="absolute top-0 bottom-0 w-0.5 bg-signal-green" style={{ left: `${pctOptimistic}%` }} />
+        <div className="absolute top-0 bottom-0 w-0.5 bg-white" style={{ left: `${pctRealistic}%` }} />
+        <div className="absolute top-0 bottom-0 w-0.5 bg-signal-amber" style={{ left: `${pctPessimistic}%` }} />
 
         {/* Labels on bar */}
         <div
@@ -681,10 +653,12 @@ function ComparableApprovalsTable({ approvals }: { approvals: ComparableApproval
                 <td className="text-xs">{a.company}</td>
                 <td className="text-xs max-w-[160px] truncate">{a.indication}</td>
                 <td>
-                  <span className={cn(
-                    'text-2xs font-mono px-1.5 py-0.5 rounded',
-                    a.accelerated ? 'bg-signal-green/10 text-signal-green' : 'bg-navy-700 text-slate-400',
-                  )}>
+                  <span
+                    className={cn(
+                      'text-2xs font-mono px-1.5 py-0.5 rounded',
+                      a.accelerated ? 'bg-signal-green/10 text-signal-green' : 'bg-navy-700 text-slate-400',
+                    )}
+                  >
                     {a.pathway}
                   </span>
                 </td>
@@ -696,9 +670,7 @@ function ComparableApprovalsTable({ approvals }: { approvals: ComparableApproval
                       </span>
                     ))}
                     {a.designations.length > 3 && (
-                      <span className="badge badge-slate text-[9px] py-0.5 px-1.5">
-                        +{a.designations.length - 3}
-                      </span>
+                      <span className="badge badge-slate text-[9px] py-0.5 px-1.5">+{a.designations.length - 3}</span>
                     )}
                   </div>
                 </td>
@@ -806,9 +778,7 @@ function MethodologySection({ data }: { data: RegulatoryOutput }) {
           {/* Rationale */}
           <div>
             <h4 className="label mb-2">Analysis Rationale</h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              {data.recommended_pathway.rationale}
-            </p>
+            <p className="text-xs text-slate-400 leading-relaxed">{data.recommended_pathway.rationale}</p>
           </div>
 
           {/* Review Division */}
@@ -816,8 +786,7 @@ function MethodologySection({ data }: { data: RegulatoryOutput }) {
             <div className="flex items-center gap-2 text-xs bg-navy-800 border border-navy-700 rounded px-3 py-2">
               <Info className="w-3.5 h-3.5 text-slate-500 shrink-0" />
               <span className="text-slate-400">
-                <span className="text-slate-300 font-medium">Review Division:</span>{' '}
-                {data.review_division}
+                <span className="text-slate-300 font-medium">Review Division:</span> {data.review_division}
               </span>
             </div>
           )}
@@ -878,12 +847,10 @@ function RegulatoryResults({ data }: { data: RegulatoryOutput }) {
   return (
     <div className="space-y-4 animate-fade-in">
       {/* Summary stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="stat-card noise">
           <p className="label mb-1">Primary Pathway</p>
-          <p className="text-sm font-medium text-white leading-tight">
-            {data.recommended_pathway.primary.name}
-          </p>
+          <p className="text-sm font-medium text-white leading-tight">{data.recommended_pathway.primary.name}</p>
           <p className="metric text-xs text-slate-400 mt-1">
             {data.recommended_pathway.primary.typical_review_months}mo review
           </p>
@@ -954,6 +921,7 @@ function RegulatoryResults({ data }: { data: RegulatoryOutput }) {
 // ────────────────────────────────────────────────────────────
 
 export default function RegulatoryPage() {
+  const { isPro } = useSubscription();
   const mutation = useMutation({
     mutationFn: async (formData: RegulatoryFormData) => {
       const response = await apiPost<RegulatoryOutput>('/api/analyze/regulatory', {
@@ -988,6 +956,29 @@ export default function RegulatoryPage() {
     mutation.mutate(formData);
   }
 
+  const content = (
+    <div className="flex flex-col lg:flex-row gap-6">
+      {/* Left panel - Form */}
+      <div className="w-full lg:w-[380px] lg:flex-shrink-0">
+        <RegulatoryForm onSubmit={handleSubmit} isLoading={isLoading} />
+      </div>
+
+      {/* Right panel - Results */}
+      <div className="flex-1 min-w-0">
+        {isLoading && <ResultsSkeleton />}
+        {!isLoading && error && (
+          <div className="card noise p-8 text-center">
+            <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
+              {error}
+            </p>
+          </div>
+        )}
+        {!isLoading && !error && !results && <EmptyState />}
+        {!isLoading && !error && results && <RegulatoryResults data={results} />}
+      </div>
+    </div>
+  );
+
   return (
     <>
       <PageHeader
@@ -995,26 +986,7 @@ export default function RegulatoryPage() {
         subtitle="Pathway analysis, designation opportunities, and timeline modeling."
         badge="Pro"
       />
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left panel - Form */}
-        <div className="w-full lg:w-[380px] lg:flex-shrink-0">
-          <RegulatoryForm onSubmit={handleSubmit} isLoading={isLoading} />
-        </div>
-
-        {/* Right panel - Results */}
-        <div className="flex-1 min-w-0">
-          {isLoading && <ResultsSkeleton />}
-          {!isLoading && error && (
-            <div className="card noise p-8 text-center">
-              <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
-                {error}
-              </p>
-            </div>
-          )}
-          {!isLoading && !error && !results && <EmptyState />}
-          {!isLoading && !error && results && <RegulatoryResults data={results} />}
-        </div>
-      </div>
+      {isPro ? content : <UpgradeGate feature="Regulatory Intelligence">{content}</UpgradeGate>}
     </>
   );
 }

@@ -153,11 +153,7 @@ export default function PipelineTable({ competitors, title, noCard }: PipelineTa
           <thead>
             <tr>
               {COLUMNS.map((col) => (
-                <th
-                  key={col.key}
-                  onClick={() => handleSort(col.key)}
-                  className={col.className}
-                >
+                <th key={col.key} onClick={() => handleSort(col.key)} className={col.className}>
                   {col.label}
                   <SortIcon field={col.key} />
                 </th>
@@ -171,9 +167,7 @@ export default function PipelineTable({ competitors, title, noCard }: PipelineTa
                   onClick={() => handleRowClick(competitor.id)}
                   className="cursor-pointer hover:bg-navy-800/50 transition-colors"
                 >
-                  <td className="text-slate-100 font-medium whitespace-nowrap">
-                    {competitor.company}
-                  </td>
+                  <td className="text-slate-100 font-medium whitespace-nowrap">{competitor.company}</td>
                   <td className="text-teal-400 whitespace-nowrap">{competitor.asset_name}</td>
                   <td>
                     <span className={`phase-badge ${PHASE_CLASSES[competitor.phase] ?? 'phase-preclinical'}`}>
@@ -181,18 +175,10 @@ export default function PipelineTable({ competitors, title, noCard }: PipelineTa
                     </span>
                   </td>
                   <td className="max-w-[160px] truncate">{competitor.mechanism}</td>
-                  <td className="max-w-[160px] truncate text-slate-400">
-                    {competitor.primary_endpoint || '\u2014'}
-                  </td>
-                  <td className="max-w-[200px] truncate text-slate-400">
-                    {competitor.key_data || '\u2014'}
-                  </td>
-                  <td className="text-slate-400 whitespace-nowrap">
-                    {competitor.partner || '\u2014'}
-                  </td>
-                  <td className="numeric font-mono text-xs">
-                    {competitor.partnership_deal_value || '\u2014'}
-                  </td>
+                  <td className="max-w-[160px] truncate text-slate-400">{competitor.primary_endpoint || '\u2014'}</td>
+                  <td className="max-w-[200px] truncate text-slate-400">{competitor.key_data || '\u2014'}</td>
+                  <td className="text-slate-400 whitespace-nowrap">{competitor.partner || '\u2014'}</td>
+                  <td className="numeric font-mono text-xs">{competitor.partnership_deal_value || '\u2014'}</td>
                   <td className={`numeric font-mono text-xs ${getScoreColorClass(competitor.differentiation_score)}`}>
                     {competitor.differentiation_score}
                   </td>
@@ -225,7 +211,10 @@ export default function PipelineTable({ competitors, title, noCard }: PipelineTa
                             {competitor.strengths.length > 0 ? (
                               <ul className="space-y-1">
                                 {competitor.strengths.map((s, i) => (
-                                  <li key={i} className="flex items-start gap-1.5 text-xs text-slate-300">
+                                  <li
+                                    key={`strength-${s}-${i}`}
+                                    className="flex items-start gap-1.5 text-xs text-slate-300"
+                                  >
                                     <span className="mt-1 w-1.5 h-1.5 rounded-full bg-signal-green flex-shrink-0" />
                                     <span>{s}</span>
                                   </li>
@@ -242,7 +231,10 @@ export default function PipelineTable({ competitors, title, noCard }: PipelineTa
                             {competitor.weaknesses.length > 0 ? (
                               <ul className="space-y-1">
                                 {competitor.weaknesses.map((w, i) => (
-                                  <li key={i} className="flex items-start gap-1.5 text-xs text-slate-300">
+                                  <li
+                                    key={`weakness-${w}-${i}`}
+                                    className="flex items-start gap-1.5 text-xs text-slate-300"
+                                  >
                                     <span className="mt-1 w-1.5 h-1.5 rounded-full bg-signal-red flex-shrink-0" />
                                     <span>{w}</span>
                                   </li>
@@ -311,9 +303,5 @@ export default function PipelineTable({ competitors, title, noCard }: PipelineTa
 
   if (noCard) return <div>{tableContent}</div>;
 
-  return (
-    <div className="card noise overflow-hidden">
-      {tableContent}
-    </div>
-  );
+  return <div className="card noise overflow-hidden">{tableContent}</div>;
 }

@@ -230,7 +230,7 @@ export default function CompetitiveLandscapeReport({
             <p className="text-2xs uppercase tracking-wider text-slate-500 font-medium mb-2">Additional White Space</p>
             <ul className="space-y-1.5">
               {data.summary.white_space.slice(1).map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs text-slate-400">
+                <li key={`whitespace-${item}-${i}`} className="flex items-start gap-2 text-xs text-slate-400">
                   <span className="mt-1 w-1.5 h-1.5 rounded-full bg-signal-green flex-shrink-0" />
                   <span>{item}</span>
                 </li>
@@ -331,7 +331,7 @@ export default function CompetitiveLandscapeReport({
               </thead>
               <tbody>
                 {data.comparison_matrix.map((row, i) => (
-                  <tr key={i}>
+                  <tr key={`${row.attribute}-${i}`}>
                     <td className="sticky left-0 bg-navy-900 z-10 text-slate-100 font-medium whitespace-nowrap">
                       {row.attribute}
                     </td>
@@ -389,7 +389,7 @@ export default function CompetitiveLandscapeReport({
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1.5">
             {data.data_sources.map((source, i) => (
-              <div key={i} className="flex items-center gap-1.5 text-xs text-slate-400">
+              <div key={`${source.name}-${i}`} className="flex items-center gap-1.5 text-xs text-slate-400">
                 <span className="w-1 h-1 rounded-full bg-slate-600" />
                 <span>
                   {source.url ? (

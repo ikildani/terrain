@@ -20,27 +20,33 @@ export async function GET(_request: NextRequest, context: RouteContext) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: 'Authentication required.' },
-      { status: 401 }
-    );
+    return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
   }
 
-  const { data: report, error } = await supabase
-    .from('reports')
-    .select('*')
-    .eq('id', id)
-    .eq('user_id', user.id)
+  // Check ownership first
+  const { data: ownReport } = await supabase.from('reports').select('*').eq('id', id).eq('user_id', user.id).single();
+
+  if (ownReport) {
+    return NextResponse.json({ success: true, data: ownReport });
+  }
+
+  // Check shared access (RLS also enforces this, but explicit check for clarity)
+  const { data: share } = await supabase
+    .from('report_shares')
+    .select('permission')
+    .eq('report_id', id)
+    .eq('shared_with_user_id', user.id)
     .single();
 
-  if (error || !report) {
-    return NextResponse.json(
-      { success: false, error: 'Report not found.' },
-      { status: 404 }
-    );
+  if (share) {
+    const { data: sharedReport } = await supabase.from('reports').select('*').eq('id', id).single();
+
+    if (sharedReport) {
+      return NextResponse.json({ success: true, data: sharedReport });
+    }
   }
 
-  return NextResponse.json({ success: true, data: report });
+  return NextResponse.json({ success: false, error: 'Report not found.' }, { status: 404 });
 }
 
 export async function DELETE(_request: NextRequest, context: RouteContext) {
@@ -52,23 +58,13 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: 'Authentication required.' },
-      { status: 401 }
-    );
+    return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
   }
 
-  const { error } = await supabase
-    .from('reports')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user.id);
+  const { error } = await supabase.from('reports').delete().eq('id', id).eq('user_id', user.id);
 
   if (error) {
-    return NextResponse.json(
-      { success: false, error: 'Report not found or already deleted.' },
-      { status: 404 }
-    );
+    return NextResponse.json({ success: false, error: 'Report not found or already deleted.' }, { status: 404 });
   }
 
   return NextResponse.json({ success: true });
@@ -83,10 +79,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json(
-      { success: false, error: 'Authentication required.' },
-      { status: 401 }
-    );
+    return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
   }
 
   try {
@@ -94,10 +87,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const parsed = patchSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { success: false, error: 'Validation failed.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Validation failed.' }, { status: 400 });
     }
 
     const updates = { ...parsed.data, updated_at: new Date().toISOString() };
@@ -111,17 +101,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       .single();
 
     if (error || !report) {
-      return NextResponse.json(
-        { success: false, error: 'Report not found.' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: 'Report not found.' }, { status: 404 });
     }
 
     return NextResponse.json({ success: true, data: report });
   } catch {
-    return NextResponse.json(
-      { success: false, error: 'Invalid request body.' },
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, error: 'Invalid request body.' }, { status: 400 });
   }
 }

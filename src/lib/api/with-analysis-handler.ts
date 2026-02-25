@@ -92,8 +92,16 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
       // ── Sentry enrichment ──────────────────────────────────
       Sentry.setUser({ id: user.id });
 
-      // ── Rate limit ────────────────────────────────────────
-      const rl = await rateLimit(`${config.rateKey}:${user.id}`, RATE_LIMITS.analysis_pro);
+      // ── Rate limit (plan-aware) ──────────────────────────
+      const { data: subForRl } = await supabase.from('subscriptions').select('plan').eq('user_id', user.id).single();
+      const userPlan = (subForRl?.plan as string) || 'free';
+      const rlConfig =
+        userPlan === 'team'
+          ? RATE_LIMITS.analysis_team
+          : userPlan === 'pro'
+            ? RATE_LIMITS.analysis_pro
+            : RATE_LIMITS.analysis_free;
+      const rl = await rateLimit(`${config.rateKey}:${user.id}`, rlConfig);
       if (!rl.success) {
         logApiResponse({
           route: config.route,
@@ -145,6 +153,16 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
       }
 
       const validatedBody = parsed.data;
+
+      // Guard against oversized payloads stored in reports table
+      const inputSize = Buffer.byteLength(JSON.stringify(validatedBody));
+      if (inputSize > 100_000) {
+        return NextResponse.json(
+          { success: false, error: 'Input payload too large (max 100KB).' } satisfies ApiResponse<never>,
+          { status: 413 },
+        );
+      }
+
       const indication = config.extractIndication(validatedBody);
 
       Sentry.setContext('analysis', { feature: config.feature, indication });
@@ -170,8 +188,11 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
             cacheHit = true;
             logger.info(`${config.timingLabel}_cache_hit`, { indication });
           }
-        } catch {
-          // Cache miss or error — proceed to compute
+        } catch (cacheErr) {
+          logger.warn(`${config.timingLabel}_cache_read_error`, {
+            error: cacheErr instanceof Error ? cacheErr.message : String(cacheErr),
+            indication,
+          });
         }
       }
 
@@ -184,7 +205,11 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
 
         // Store in cache (fire and forget)
         if (cacheKey && redis && result) {
-          redis.set(cacheKey, result, { ex: CACHE_TTL_SECONDS }).catch(() => {});
+          redis.set(cacheKey, result, { ex: CACHE_TTL_SECONDS }).catch((cacheErr) => {
+            logger.warn(`${config.timingLabel}_cache_write_error`, {
+              error: cacheErr instanceof Error ? cacheErr.message : String(cacheErr),
+            });
+          });
         }
       }
 
@@ -269,7 +294,8 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
  * Used for cache keys — same input always produces the same key.
  */
 function stableHash(obj: unknown): string {
-  const str = JSON.stringify(obj, Object.keys(obj as Record<string, unknown>).sort());
+  const keys = obj && typeof obj === 'object' && !Array.isArray(obj) ? Object.keys(obj).sort() : undefined;
+  const str = JSON.stringify(obj, keys);
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);

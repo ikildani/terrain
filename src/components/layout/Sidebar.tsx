@@ -7,6 +7,8 @@ import {
   Network,
   Users,
   Shield,
+  FlaskConical,
+  Bell,
   FileText,
   Settings,
   CreditCard,
@@ -36,13 +38,13 @@ const NAV_SECTIONS: { section: string; items: NavItem[] }[] = [
       { label: 'Competitive Landscape', href: '/competitive', icon: Network },
       { label: 'Partner Discovery', href: '/partners', icon: Users, pro: true },
       { label: 'Regulatory Intel', href: '/regulatory', icon: Shield, pro: true },
+      { label: 'Pipeline Intelligence', href: '/pipeline', icon: FlaskConical, pro: true },
+      { label: 'Deal Alerts', href: '/alerts', icon: Bell, pro: true },
     ],
   },
   {
     section: 'Workspace',
-    items: [
-      { label: 'Saved Reports', href: '/reports', icon: FileText },
-    ],
+    items: [{ label: 'Saved Reports', href: '/reports', icon: FileText }],
   },
 ];
 
@@ -73,19 +75,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <>
       {/* Mobile backdrop */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
+      {isOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onClose} />}
 
-      <aside
-        className={cn(
-          'sidebar',
-          isOpen && 'open'
-        )}
-      >
+      <aside className={cn('sidebar', isOpen && 'open')}>
         {/* Logo + mobile close */}
         <div className="sidebar-logo flex items-center justify-between">
           <Link href="/dashboard" className="block">
@@ -121,14 +113,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             const hasActive = sectionHasActive(section.items);
             return (
               <div key={section.section}>
-                <div
-                  className={cn(
-                    'sidebar-section-label',
-                    hasActive && 'text-slate-300'
-                  )}
-                >
-                  {section.section}
-                </div>
+                <div className={cn('sidebar-section-label', hasActive && 'text-slate-300')}>{section.section}</div>
                 {section.items.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.href);
@@ -157,14 +142,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Settings submenu */}
           <div>
-            <div
-              className={cn(
-                'sidebar-section-label',
-                settingsActive && 'text-slate-300'
-              )}
-            >
-              Settings
-            </div>
+            <div className={cn('sidebar-section-label', settingsActive && 'text-slate-300')}>Settings</div>
             {SETTINGS_ITEMS.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
@@ -209,10 +187,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 ? 'Unlock partner discovery, regulatory intel, and export capabilities.'
                 : `Add ${PLAN_DISPLAY.team.name} features: ${PLAN_DISPLAY.team.tagline}`}
             </p>
-            <Link
-              href="/settings/billing"
-              className="btn btn-primary btn-sm w-full mt-3"
-            >
+            <Link href="/settings/billing" className="btn btn-primary btn-sm w-full mt-3">
               {plan === 'free' ? 'View Plans' : 'Manage Plan'}
             </Link>
           </div>

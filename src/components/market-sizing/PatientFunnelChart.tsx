@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Cell,
-  LabelList,
-  CartesianGrid,
-  Tooltip,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList, CartesianGrid, Tooltip } from 'recharts';
 import { formatNumber, formatPercent } from '@/lib/utils/format';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import type { PatientFunnel } from '@/types';
@@ -63,9 +53,7 @@ export default function PatientFunnelChart({ funnel }: PatientFunnelChartProps) 
                   <div className="text-slate-300 font-medium mb-1">{d.stage}</div>
                   <div className="metric text-white">{formatNumber(d.count)}</div>
                   {d.rate < 1 && (
-                    <div className="text-slate-500 mt-1">
-                      {formatPercent(d.rate * 100, 0)} of prior stage
-                    </div>
+                    <div className="text-slate-500 mt-1">{formatPercent(d.rate * 100, 0)} of prior stage</div>
                   )}
                 </div>
               );
@@ -87,10 +75,8 @@ export default function PatientFunnelChart({ funnel }: PatientFunnelChartProps) 
       {/* Conversion rates */}
       <div className="flex justify-around mt-1 px-12">
         {data.slice(1).map((d, i) => (
-          <div key={i} className="text-center">
-            <span className="text-2xs font-mono text-teal-500">
-              {formatPercent(d.rate * 100, 0)}
-            </span>
+          <div key={`${d.stage}-rate-${i}`} className="text-center">
+            <span className="text-2xs font-mono text-teal-500">{formatPercent(d.rate * 100, 0)}</span>
           </div>
         ))}
       </div>

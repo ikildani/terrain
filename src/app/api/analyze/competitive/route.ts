@@ -89,8 +89,16 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // ── Rate limit ──────────────────────────────────────────
-    const rl = await rateLimit(`competitive:${user.id}`, RATE_LIMITS.analysis_pro);
+    // ── Rate limit (plan-aware) ──────────────────────────────
+    const { data: subForRl } = await supabase.from('subscriptions').select('plan').eq('user_id', user.id).single();
+    const userPlan = (subForRl?.plan as string) || 'free';
+    const rlConfig =
+      userPlan === 'team'
+        ? RATE_LIMITS.analysis_team
+        : userPlan === 'pro'
+          ? RATE_LIMITS.analysis_pro
+          : RATE_LIMITS.analysis_free;
+    const rl = await rateLimit(`competitive:${user.id}`, rlConfig);
     if (!rl.success) {
       logApiResponse({
         route: '/api/analyze/competitive',

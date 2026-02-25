@@ -47,7 +47,17 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function MetricCard({ label, value, sublabel, color }: { label: string; value: string | number; sublabel?: string; color?: string }) {
+function MetricCard({
+  label,
+  value,
+  sublabel,
+  color,
+}: {
+  label: string;
+  value: string | number;
+  sublabel?: string;
+  color?: string;
+}) {
   return (
     <div className="card noise p-4">
       <p className="text-2xs text-slate-500 uppercase tracking-wider">{label}</p>
@@ -64,8 +74,12 @@ function CDxRow({ test }: { test: CDxCompetitor }) {
         <div className="font-medium text-sm text-white">{test.test_name}</div>
         <div className="text-2xs text-slate-500">{test.company}</div>
       </td>
-      <td className="px-3 py-2.5"><PlatformBadge platform={test.platform} /></td>
-      <td className="px-3 py-2.5"><StatusBadge status={test.regulatory_status} /></td>
+      <td className="px-3 py-2.5">
+        <PlatformBadge platform={test.platform} />
+      </td>
+      <td className="px-3 py-2.5">
+        <StatusBadge status={test.regulatory_status} />
+      </td>
       <td className="px-3 py-2.5 font-mono text-sm text-white text-right">
         {test.genes_in_panel != null ? test.genes_in_panel.toLocaleString() : '—'}
       </td>
@@ -75,9 +89,7 @@ function CDxRow({ test }: { test: CDxCompetitor }) {
       <td className="px-3 py-2.5 font-mono text-sm text-white text-right">
         {test.test_price_estimate != null ? `$${test.test_price_estimate.toLocaleString()}` : '—'}
       </td>
-      <td className="px-3 py-2.5 text-2xs text-slate-400">
-        {test.sample_type.join(', ')}
-      </td>
+      <td className="px-3 py-2.5 text-2xs text-slate-400">{test.sample_type.join(', ')}</td>
       <td className="px-3 py-2.5">
         <div className="flex items-center gap-1">
           <div className="w-12 h-1.5 rounded-full bg-navy-700 overflow-hidden">
@@ -104,16 +116,8 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
           sublabel={summary.crowding_label}
           color={getCrowdingColor(summary.crowding_score)}
         />
-        <MetricCard
-          label="Approved Tests"
-          value={data.approved_tests.length}
-          sublabel="FDA approved/cleared"
-        />
-        <MetricCard
-          label="Pipeline/LDT"
-          value={data.pipeline_tests.length}
-          sublabel="in development or LDT"
-        />
+        <MetricCard label="Approved Tests" value={data.approved_tests.length} sublabel="FDA approved/cleared" />
+        <MetricCard label="Pipeline/LDT" value={data.pipeline_tests.length} sublabel="in development or LDT" />
         <MetricCard
           label="Dominant Platform"
           value={summary.platform_dominant.replace(/_/g, ' ')}
@@ -141,7 +145,10 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {summary.white_space.map((ws, i) => (
-              <div key={i} className="flex items-start gap-2 text-sm text-slate-400 bg-navy-800/50 rounded px-3 py-2">
+              <div
+                key={`ws-${ws}-${i}`}
+                className="flex items-start gap-2 text-sm text-slate-400 bg-navy-800/50 rounded px-3 py-2"
+              >
                 <span className="text-teal-500 mt-0.5 flex-shrink-0">&#9679;</span>
                 {ws}
               </div>
@@ -170,17 +177,24 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
               </thead>
               <tbody>
                 {data.biomarker_competition_matrix.map((bm, i) => (
-                  <tr key={i} className="border-b border-navy-700/50">
+                  <tr key={`${bm.biomarker}-${i}`} className="border-b border-navy-700/50">
                     <td className="px-3 py-2 font-medium text-white">{bm.biomarker}</td>
                     <td className="px-3 py-2 text-center font-mono text-white">{bm.tests_detecting.length}</td>
-                    <td className="px-3 py-2 text-slate-400 text-2xs">{bm.linked_drugs_approved.slice(0, 3).join(', ') || '—'}</td>
+                    <td className="px-3 py-2 text-slate-400 text-2xs">
+                      {bm.linked_drugs_approved.slice(0, 3).join(', ') || '—'}
+                    </td>
                     <td className="px-3 py-2 font-mono text-white text-right">{bm.testing_rate_pct}%</td>
                     <td className="px-3 py-2">
-                      <span className={cn('text-2xs font-mono px-1.5 py-0.5 rounded', {
-                        'bg-signal-green/10 text-signal-green': bm.competitive_intensity === 'low',
-                        'bg-signal-amber/10 text-signal-amber': bm.competitive_intensity === 'moderate',
-                        'bg-signal-red/10 text-signal-red': bm.competitive_intensity === 'high' || bm.competitive_intensity === 'very_high',
-                      })}>{bm.competitive_intensity.replace(/_/g, ' ')}</span>
+                      <span
+                        className={cn('text-2xs font-mono px-1.5 py-0.5 rounded', {
+                          'bg-signal-green/10 text-signal-green': bm.competitive_intensity === 'low',
+                          'bg-signal-amber/10 text-signal-amber': bm.competitive_intensity === 'moderate',
+                          'bg-signal-red/10 text-signal-red':
+                            bm.competitive_intensity === 'high' || bm.competitive_intensity === 'very_high',
+                        })}
+                      >
+                        {bm.competitive_intensity.replace(/_/g, ' ')}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -211,18 +225,26 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
               </thead>
               <tbody>
                 {data.platform_comparison.map((pc, i) => (
-                  <tr key={i} className="border-b border-navy-700/50">
-                    <td className="px-3 py-2"><PlatformBadge platform={pc.platform} /></td>
+                  <tr key={`${pc.platform}-${i}`} className="border-b border-navy-700/50">
+                    <td className="px-3 py-2">
+                      <PlatformBadge platform={pc.platform} />
+                    </td>
                     <td className="px-3 py-2 text-center font-mono text-white">{pc.test_count}</td>
                     <td className="px-3 py-2 font-mono text-white text-right">{pc.avg_turnaround_days.toFixed(0)}d</td>
-                    <td className="px-3 py-2 font-mono text-white text-right">${pc.avg_price_estimate.toLocaleString()}</td>
+                    <td className="px-3 py-2 font-mono text-white text-right">
+                      ${pc.avg_price_estimate.toLocaleString()}
+                    </td>
                     <td className="px-3 py-2 text-slate-400">{pc.biomarker_breadth}</td>
                     <td className="px-3 py-2">
-                      <span className={cn('text-2xs font-medium', {
-                        'text-signal-green': pc.trend === 'growing',
-                        'text-slate-400': pc.trend === 'stable',
-                        'text-signal-red': pc.trend === 'declining',
-                      })}>{pc.trend}</span>
+                      <span
+                        className={cn('text-2xs font-medium', {
+                          'text-signal-green': pc.trend === 'growing',
+                          'text-slate-400': pc.trend === 'stable',
+                          'text-signal-red': pc.trend === 'declining',
+                        })}
+                      >
+                        {pc.trend}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -258,7 +280,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
         </div>
         <div className="space-y-2">
           {data.testing_landscape.by_platform.map((bp, i) => (
-            <div key={i} className="flex items-center gap-3">
+            <div key={`${bp.platform}-${i}`} className="flex items-center gap-3">
               <span className="text-sm text-slate-400 w-28">{bp.platform.replace(/_/g, ' ')}</span>
               <div className="flex-1 h-4 rounded bg-navy-700 overflow-hidden">
                 <div className="h-full rounded bg-teal-500/70" style={{ width: `${bp.share_pct}%` }} />
@@ -290,20 +312,26 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
               </thead>
               <tbody>
                 {data.linked_drug_dependency.map((dd, i) => (
-                  <tr key={i} className="border-b border-navy-700/50">
+                  <tr key={`${dd.drug_name}-${dd.drug_company}-${i}`} className="border-b border-navy-700/50">
                     <td className="px-3 py-2 text-white font-medium">{dd.drug_name}</td>
                     <td className="px-3 py-2 text-slate-400">{dd.drug_company}</td>
                     <td className="px-3 py-2 text-slate-400">{dd.drug_phase}</td>
                     <td className="px-3 py-2 font-mono text-white text-right">
-                      {dd.estimated_drug_revenue_m != null ? `$${(dd.estimated_drug_revenue_m / 1000).toFixed(1)}B` : '—'}
+                      {dd.estimated_drug_revenue_m != null
+                        ? `$${(dd.estimated_drug_revenue_m / 1000).toFixed(1)}B`
+                        : '—'}
                     </td>
                     <td className="px-3 py-2 font-mono text-white text-center">{dd.cdx_tests_linked.length}</td>
                     <td className="px-3 py-2">
-                      <span className={cn('text-2xs font-mono px-1.5 py-0.5 rounded', {
-                        'bg-signal-red/10 text-signal-red': dd.cdx_revenue_dependency === 'high',
-                        'bg-signal-amber/10 text-signal-amber': dd.cdx_revenue_dependency === 'moderate',
-                        'bg-signal-green/10 text-signal-green': dd.cdx_revenue_dependency === 'low',
-                      })}>{dd.cdx_revenue_dependency}</span>
+                      <span
+                        className={cn('text-2xs font-mono px-1.5 py-0.5 rounded', {
+                          'bg-signal-red/10 text-signal-red': dd.cdx_revenue_dependency === 'high',
+                          'bg-signal-amber/10 text-signal-amber': dd.cdx_revenue_dependency === 'moderate',
+                          'bg-signal-green/10 text-signal-green': dd.cdx_revenue_dependency === 'low',
+                        })}
+                      >
+                        {dd.cdx_revenue_dependency}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -335,7 +363,9 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {data.approved_tests.map((t, i) => <CDxRow key={i} test={t} />)}
+                {data.approved_tests.map((t, i) => (
+                  <CDxRow key={`${t.test_name}-${t.company}-${i}`} test={t} />
+                ))}
               </tbody>
             </table>
           </div>
@@ -364,7 +394,9 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {data.pipeline_tests.map((t, i) => <CDxRow key={i} test={t} />)}
+                {data.pipeline_tests.map((t, i) => (
+                  <CDxRow key={`${t.test_name}-${t.company}-${i}`} test={t} />
+                ))}
               </tbody>
             </table>
           </div>
@@ -397,7 +429,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
               </thead>
               <tbody>
                 {data.comparable_cdx_deals.deals.map((deal, i) => (
-                  <tr key={i} className="border-b border-navy-700/50">
+                  <tr key={`${deal.target}-${deal.acquirer}-${i}`} className="border-b border-navy-700/50">
                     <td className="px-3 py-2 text-white">{deal.target}</td>
                     <td className="px-3 py-2 text-slate-400">{deal.acquirer}</td>
                     <td className="px-3 py-2 font-mono text-white text-right">${deal.value_m.toLocaleString()}</td>
@@ -416,7 +448,10 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
         <h3 className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Data Sources</h3>
         <div className="flex flex-wrap gap-2">
           {data.data_sources.map((src, i) => (
-            <span key={i} className="text-2xs bg-navy-800 text-slate-400 px-2 py-1 rounded border border-navy-700">
+            <span
+              key={`${src.name}-${i}`}
+              className="text-2xs bg-navy-800 text-slate-400 px-2 py-1 rounded border border-navy-700"
+            >
               {src.name}
             </span>
           ))}

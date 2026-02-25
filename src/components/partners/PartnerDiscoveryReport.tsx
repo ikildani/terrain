@@ -202,7 +202,7 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
             <p className="text-2xs text-slate-600 uppercase tracking-wider mb-2">Data Sources</p>
             <div className="space-y-1">
               {data.data_sources.map((source, i) => (
-                <div key={i} className="flex items-center gap-2 text-xs">
+                <div key={`${source.name}-${i}`} className="flex items-center gap-2 text-xs">
                   <Database className="w-3 h-3 text-slate-600" />
                   <span className="text-slate-400">{source.name}</span>
                   <span

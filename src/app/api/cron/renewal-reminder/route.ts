@@ -6,17 +6,13 @@ import { logger } from '@/lib/logger';
 import { timingSafeEqual } from 'crypto';
 
 function createServiceClient() {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      cookies: {
-        get: () => undefined,
-        set: () => {},
-        remove: () => {},
-      },
-    }
-  );
+  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    cookies: {
+      get: () => undefined,
+      set: () => {},
+      remove: () => {},
+    },
+  });
 }
 
 function isAuthorized(request: NextRequest): boolean {
@@ -43,9 +39,11 @@ export async function GET(request: NextRequest) {
 
   const supabase = createServiceClient();
 
-  // Find subscriptions renewing in the next 7 days
+  // Find subscriptions renewing in 3 days (±12h window to avoid duplicates)
+  // Cron runs daily at 14:00 UTC — this targets renewals between 2.5 and 3.5 days out
   const now = new Date();
-  const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const windowStart = new Date(now.getTime() + 2.5 * 24 * 60 * 60 * 1000);
+  const windowEnd = new Date(now.getTime() + 3.5 * 24 * 60 * 60 * 1000);
 
   const { data: subscriptions, error } = await supabase
     .from('subscriptions')
@@ -53,8 +51,8 @@ export async function GET(request: NextRequest) {
     .eq('status', 'active')
     .eq('cancel_at_period_end', false)
     .neq('plan', 'free')
-    .gte('current_period_end', now.toISOString())
-    .lte('current_period_end', sevenDaysFromNow.toISOString());
+    .gte('current_period_end', windowStart.toISOString())
+    .lte('current_period_end', windowEnd.toISOString());
 
   if (error) {
     logger.error('renewal_reminder_query_failed', { error: error.message });
@@ -80,10 +78,11 @@ export async function GET(request: NextRequest) {
 
       const planName = sub.plan === 'team' ? 'Team' : 'Pro';
       const amount = sub.plan === 'team' ? '$499/mo' : '$149/mo';
-      const renewalDate = new Date(sub.current_period_end).toLocaleDateString(
-        'en-US',
-        { year: 'numeric', month: 'long', day: 'numeric' }
-      );
+      const renewalDate = new Date(sub.current_period_end).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
 
       await sendEmail({
         to: profile.email as string,

@@ -23,9 +23,7 @@ function ScoreBar({ value, label }: { value: number; label: string }) {
 
   return (
     <div className="flex items-center gap-2.5">
-      <span className="text-2xs uppercase tracking-wider text-slate-500 w-16 flex-shrink-0">
-        {label}
-      </span>
+      <span className="text-2xs uppercase tracking-wider text-slate-500 w-16 flex-shrink-0">{label}</span>
       <div className="flex-1 h-1.5 bg-navy-700 rounded-full overflow-hidden">
         <div
           className="h-full bg-teal-500 rounded-full transition-all duration-500"
@@ -51,29 +49,21 @@ export default function CompetitorCard({ competitor, rank }: CompetitorCardProps
             </span>
           )}
           <div className="min-w-0">
-            <p className="text-slate-100 font-medium text-[14px] leading-tight truncate">
-              {c.company}
-            </p>
+            <p className="text-slate-100 font-medium text-[14px] leading-tight truncate">{c.company}</p>
             <p className="text-teal-400 text-[13px] leading-tight mt-0.5 truncate">
               {c.asset_name}
-              {c.generic_name && (
-                <span className="text-slate-500 ml-1.5">({c.generic_name})</span>
-              )}
+              {c.generic_name && <span className="text-slate-500 ml-1.5">({c.generic_name})</span>}
             </p>
           </div>
         </div>
-        <span className={`phase-badge flex-shrink-0 ${PHASE_CLASSES[c.phase] ?? 'phase-preclinical'}`}>
-          {c.phase}
-        </span>
+        <span className={`phase-badge flex-shrink-0 ${PHASE_CLASSES[c.phase] ?? 'phase-preclinical'}`}>{c.phase}</span>
       </div>
 
       {/* Mechanism + Target */}
       <div className="mb-3">
         <p className="text-slate-400 text-xs">
           {c.mechanism}
-          {c.molecular_target && (
-            <span className="text-slate-500"> / {c.molecular_target}</span>
-          )}
+          {c.molecular_target && <span className="text-slate-500"> / {c.molecular_target}</span>}
         </p>
       </div>
 
@@ -100,37 +90,29 @@ export default function CompetitorCard({ competitor, rank }: CompetitorCardProps
         <div className="grid grid-cols-2 gap-4 mb-4">
           {/* Strengths */}
           <div>
-            <p className="text-2xs uppercase tracking-wider text-slate-500 mb-1.5">
-              Strengths
-            </p>
+            <p className="text-2xs uppercase tracking-wider text-slate-500 mb-1.5">Strengths</p>
             <ul className="space-y-1">
               {c.strengths.map((s, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-xs text-slate-300">
+                <li key={`strength-${s}-${i}`} className="flex items-start gap-1.5 text-xs text-slate-300">
                   <span className="mt-1 w-1.5 h-1.5 rounded-full bg-signal-green flex-shrink-0" />
                   <span>{s}</span>
                 </li>
               ))}
-              {c.strengths.length === 0 && (
-                <li className="text-xs text-slate-500">{'\u2014'}</li>
-              )}
+              {c.strengths.length === 0 && <li className="text-xs text-slate-500">{'\u2014'}</li>}
             </ul>
           </div>
 
           {/* Weaknesses */}
           <div>
-            <p className="text-2xs uppercase tracking-wider text-slate-500 mb-1.5">
-              Weaknesses
-            </p>
+            <p className="text-2xs uppercase tracking-wider text-slate-500 mb-1.5">Weaknesses</p>
             <ul className="space-y-1">
               {c.weaknesses.map((w, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-xs text-slate-300">
+                <li key={`weakness-${w}-${i}`} className="flex items-start gap-1.5 text-xs text-slate-300">
                   <span className="mt-1 w-1.5 h-1.5 rounded-full bg-signal-red flex-shrink-0" />
                   <span>{w}</span>
                 </li>
               ))}
-              {c.weaknesses.length === 0 && (
-                <li className="text-xs text-slate-500">{'\u2014'}</li>
-              )}
+              {c.weaknesses.length === 0 && <li className="text-xs text-slate-500">{'\u2014'}</li>}
             </ul>
           </div>
         </div>
@@ -169,9 +151,7 @@ export default function CompetitorCard({ competitor, rank }: CompetitorCardProps
             <span className="truncate">
               <span className="text-slate-500">Partner:</span> {c.partner}
               {c.partnership_deal_value && (
-                <span className="font-mono text-teal-400 ml-1">
-                  ({c.partnership_deal_value})
-                </span>
+                <span className="font-mono text-teal-400 ml-1">({c.partnership_deal_value})</span>
               )}
             </span>
           )}

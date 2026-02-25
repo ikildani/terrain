@@ -48,7 +48,7 @@ export default function TeamPage() {
         setInvitations(data.data.invitations);
       }
     } catch {
-      // silently fail
+      toast.error('Failed to load team data.');
     } finally {
       setLoading(false);
     }

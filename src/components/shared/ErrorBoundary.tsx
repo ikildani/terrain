@@ -25,7 +25,6 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('[ErrorBoundary]', error, errorInfo);
     Sentry.captureException(error, {
       extra: { componentStack: errorInfo.componentStack },
     });
@@ -47,21 +46,14 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="w-12 h-12 rounded-full bg-signal-red/10 flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6 text-signal-red" />
             </div>
-            <h2 className="font-display text-lg text-white mb-2">
-              Something went wrong
-            </h2>
+            <h2 className="font-display text-lg text-white mb-2">Something went wrong</h2>
             <p className="text-sm text-slate-400 mb-1 leading-relaxed">
               An unexpected error occurred while rendering this page.
             </p>
             {this.state.error && (
-              <p className="text-xs font-mono text-slate-600 mb-6 max-w-sm break-all">
-                {this.state.error.message}
-              </p>
+              <p className="text-xs font-mono text-slate-600 mb-6 max-w-sm break-all">{this.state.error.message}</p>
             )}
-            <button
-              onClick={this.handleRetry}
-              className="btn btn-primary text-sm"
-            >
+            <button onClick={this.handleRetry} className="btn btn-primary text-sm">
               <RefreshCw className="w-3.5 h-3.5" />
               Try Again
             </button>

@@ -600,7 +600,7 @@ export default function NutraceuticalMarketSizingReport({
             <p className="text-2xs text-slate-600 uppercase tracking-wider mb-2">Key Risks</p>
             <div className="space-y-2">
               {data.regulatory_assessment.key_risks.map((r, i) => (
-                <div key={i} className="flex items-start gap-2 text-xs">
+                <div key={`${r.risk}-${i}`} className="flex items-start gap-2 text-xs">
                   {riskBadge(r.severity)}
                   <div>
                     <span className="text-slate-300">{r.risk}</span>

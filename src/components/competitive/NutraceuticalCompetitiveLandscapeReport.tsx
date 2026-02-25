@@ -29,7 +29,17 @@ function TierBadge({ tier }: { tier: string }) {
   );
 }
 
-function MetricCard({ label, value, sublabel, color }: { label: string; value: string | number; sublabel?: string; color?: string }) {
+function MetricCard({
+  label,
+  value,
+  sublabel,
+  color,
+}: {
+  label: string;
+  value: string | number;
+  sublabel?: string;
+  color?: string;
+}) {
   return (
     <div className="card noise p-4">
       <p className="text-2xs text-slate-500 uppercase tracking-wider">{label}</p>
@@ -47,13 +57,11 @@ function BrandRow({ brand }: { brand: NutraBrandCompetitor }) {
         <div className="text-2xs text-slate-500">{brand.company}</div>
       </td>
       <td className="px-3 py-2.5 text-2xs text-slate-400">{brand.primary_ingredient}</td>
-      <td className="px-3 py-2.5"><TierBadge tier={brand.price_tier} /></td>
-      <td className="px-3 py-2.5 font-mono text-sm text-white text-right">
-        ${brand.estimated_revenue_m.toFixed(0)}M
+      <td className="px-3 py-2.5">
+        <TierBadge tier={brand.price_tier} />
       </td>
-      <td className="px-3 py-2.5 font-mono text-sm text-white text-right">
-        ${brand.price_per_unit.toFixed(2)}
-      </td>
+      <td className="px-3 py-2.5 font-mono text-sm text-white text-right">${brand.estimated_revenue_m.toFixed(0)}M</td>
+      <td className="px-3 py-2.5 font-mono text-sm text-white text-right">${brand.price_per_unit.toFixed(2)}</td>
       <td className="px-3 py-2.5 font-mono text-sm text-white text-right">
         {brand.amazon_rating != null ? brand.amazon_rating.toFixed(1) : '—'}
       </td>
@@ -63,7 +71,10 @@ function BrandRow({ brand }: { brand: NutraBrandCompetitor }) {
       <td className="px-3 py-2.5">
         <div className="flex items-center gap-1">
           <div className="w-12 h-1.5 rounded-full bg-navy-700 overflow-hidden">
-            <div className="h-full rounded-full bg-teal-500" style={{ width: `${brand.differentiation_score * 10}%` }} />
+            <div
+              className="h-full rounded-full bg-teal-500"
+              style={{ width: `${brand.differentiation_score * 10}%` }}
+            />
           </div>
           <span className="font-mono text-2xs text-slate-400">{brand.differentiation_score}</span>
         </div>
@@ -91,16 +102,8 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
           value={`$${summary.category_revenue_m.toFixed(0)}M`}
           sublabel="estimated annual"
         />
-        <MetricCard
-          label="Top Brands"
-          value={data.top_brands.length}
-          sublabel="market leaders"
-        />
-        <MetricCard
-          label="Emerging Brands"
-          value={data.emerging_brands.length}
-          sublabel="challengers"
-        />
+        <MetricCard label="Top Brands" value={data.top_brands.length} sublabel="market leaders" />
+        <MetricCard label="Emerging Brands" value={data.emerging_brands.length} sublabel="challengers" />
       </div>
 
       {/* ── Key Insight ──────────────────────────────────── */}
@@ -123,7 +126,10 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {summary.white_space.map((ws, i) => (
-              <div key={i} className="flex items-start gap-2 text-sm text-slate-400 bg-navy-800/50 rounded px-3 py-2">
+              <div
+                key={`ws-${ws}-${i}`}
+                className="flex items-start gap-2 text-sm text-slate-400 bg-navy-800/50 rounded px-3 py-2"
+              >
                 <span className="text-teal-500 mt-0.5 flex-shrink-0">&#9679;</span>
                 {ws}
               </div>
@@ -141,7 +147,7 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
           </h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {data.pricing_landscape.map((tier, i) => (
-              <div key={i} className="bg-navy-800/50 rounded-md p-3">
+              <div key={`${tier.tier}-${i}`} className="bg-navy-800/50 rounded-md p-3">
                 <TierBadge tier={tier.tier} />
                 <div className="mt-2">
                   <p className="font-mono text-sm text-white">
@@ -178,15 +184,21 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
           </div>
           <div className="bg-navy-800/50 rounded p-3 text-center">
             <p className="text-2xs text-slate-500">Avg Reviews</p>
-            <p className="font-mono text-lg text-white">{data.amazon_intelligence.avg_reviews_top_10.toLocaleString()}</p>
+            <p className="font-mono text-lg text-white">
+              {data.amazon_intelligence.avg_reviews_top_10.toLocaleString()}
+            </p>
           </div>
           <div className="bg-navy-800/50 rounded p-3 text-center">
             <p className="text-2xs text-slate-500">PPC Competition</p>
-            <p className={cn('font-mono text-lg', {
-              'text-signal-green': data.amazon_intelligence.ppc_competitiveness === 'low',
-              'text-signal-amber': data.amazon_intelligence.ppc_competitiveness === 'moderate',
-              'text-signal-red': data.amazon_intelligence.ppc_competitiveness === 'high',
-            })}>{data.amazon_intelligence.ppc_competitiveness}</p>
+            <p
+              className={cn('font-mono text-lg', {
+                'text-signal-green': data.amazon_intelligence.ppc_competitiveness === 'low',
+                'text-signal-amber': data.amazon_intelligence.ppc_competitiveness === 'moderate',
+                'text-signal-red': data.amazon_intelligence.ppc_competitiveness === 'high',
+              })}
+            >
+              {data.amazon_intelligence.ppc_competitiveness}
+            </p>
           </div>
         </div>
         <p className="text-sm text-slate-400">{data.amazon_intelligence.narrative}</p>
@@ -203,7 +215,7 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
             {data.channel_distribution
               .sort((a, b) => b.share_pct - a.share_pct)
               .map((ch, i) => (
-                <div key={i} className="flex items-center gap-3">
+                <div key={`${ch.channel}-${i}`} className="flex items-center gap-3">
                   <span className="text-sm text-slate-400 w-36 truncate">{ch.channel.replace(/_/g, ' ')}</span>
                   <div className="flex-1 h-4 rounded bg-navy-700 overflow-hidden">
                     <div className="h-full rounded bg-teal-500/70" style={{ width: `${ch.share_pct}%` }} />
@@ -239,7 +251,9 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
                 </tr>
               </thead>
               <tbody>
-                {data.top_brands.map((b, i) => <BrandRow key={i} brand={b} />)}
+                {data.top_brands.map((b, i) => (
+                  <BrandRow key={`${b.brand}-${b.company}-${i}`} brand={b} />
+                ))}
               </tbody>
             </table>
           </div>
@@ -266,12 +280,14 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
               </thead>
               <tbody>
                 {data.clinical_evidence_gaps.map((gap, i) => (
-                  <tr key={i} className="border-b border-navy-700/50">
+                  <tr key={`${gap.evidence_area}-${i}`} className="border-b border-navy-700/50">
                     <td className="px-3 py-2 text-white font-medium">{gap.evidence_area}</td>
                     <td className="px-3 py-2 font-mono text-white text-center">{gap.current_studies}</td>
                     <td className="px-3 py-2 text-slate-400">{gap.strongest_evidence}</td>
                     <td className="px-3 py-2 text-slate-400 text-2xs">{gap.opportunity}</td>
-                    <td className="px-3 py-2 text-slate-400 text-2xs">{gap.brands_with_evidence.slice(0, 3).join(', ') || '—'}</td>
+                    <td className="px-3 py-2 text-slate-400 text-2xs">
+                      {gap.brands_with_evidence.slice(0, 3).join(', ') || '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -300,16 +316,20 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
               </thead>
               <tbody>
                 {data.certification_matrix.map((cert, i) => (
-                  <tr key={i} className="border-b border-navy-700/50">
+                  <tr key={`${cert.certification}-${i}`} className="border-b border-navy-700/50">
                     <td className="px-3 py-2 text-white font-medium">{cert.certification}</td>
                     <td className="px-3 py-2 font-mono text-signal-green text-center">{cert.brands_with.length}</td>
                     <td className="px-3 py-2 font-mono text-signal-red text-center">{cert.brands_without.length}</td>
                     <td className="px-3 py-2">
-                      <span className={cn('text-2xs font-mono px-1.5 py-0.5 rounded', {
-                        'bg-signal-red/10 text-signal-red': cert.consumer_importance === 'high',
-                        'bg-signal-amber/10 text-signal-amber': cert.consumer_importance === 'moderate',
-                        'bg-signal-green/10 text-signal-green': cert.consumer_importance === 'low',
-                      })}>{cert.consumer_importance}</span>
+                      <span
+                        className={cn('text-2xs font-mono px-1.5 py-0.5 rounded', {
+                          'bg-signal-red/10 text-signal-red': cert.consumer_importance === 'high',
+                          'bg-signal-amber/10 text-signal-amber': cert.consumer_importance === 'moderate',
+                          'bg-signal-green/10 text-signal-green': cert.consumer_importance === 'low',
+                        })}
+                      >
+                        {cert.consumer_importance}
+                      </span>
                     </td>
                     <td className="px-3 py-2 font-mono text-white text-right">${cert.cost_to_obtain_k}K</td>
                   </tr>
@@ -325,7 +345,10 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
         <h3 className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Data Sources</h3>
         <div className="flex flex-wrap gap-2">
           {data.data_sources.map((src, i) => (
-            <span key={i} className="text-2xs bg-navy-800 text-slate-400 px-2 py-1 rounded border border-navy-700">
+            <span
+              key={`${src.name}-${i}`}
+              className="text-2xs bg-navy-800 text-slate-400 px-2 py-1 rounded border border-navy-700"
+            >
               {src.name}
             </span>
           ))}

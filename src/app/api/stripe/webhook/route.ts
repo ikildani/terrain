@@ -20,27 +20,29 @@ function createServiceClient() {
 }
 
 // ────────────────────────────────────────────────────────────
-// IDEMPOTENCY — Deduplicate events by Stripe event ID
-// In-memory set with TTL. Stripe retries events for up to 72h,
-// but we only need to dedup within a reasonable window.
+// IDEMPOTENCY — Deduplicate events via DB (survives cold starts)
+// Falls back to in-memory if DB insert fails.
 // ────────────────────────────────────────────────────────────
 
-const processedEvents = new Map<string, number>();
-const DEDUP_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+async function isDuplicate(eventId: string, supabase: ReturnType<typeof createServiceClient>): Promise<boolean> {
+  // Try DB-backed dedup first (survives cold starts)
+  try {
+    const { error } = await supabase
+      .from('stripe_events')
+      .insert({ event_id: eventId, processed_at: new Date().toISOString() });
 
-function isDuplicate(eventId: string): boolean {
-  const now = Date.now();
-
-  // Periodic cleanup — remove entries older than TTL
-  if (processedEvents.size > 1000) {
-    processedEvents.forEach((timestamp, key) => {
-      if (now - timestamp > DEDUP_TTL_MS) processedEvents.delete(key);
-    });
+    if (error) {
+      // Unique constraint violation = duplicate
+      if (error.code === '23505') return true;
+      // Other error — log and allow through (better to process twice than miss)
+      logger.warn('stripe_dedup_insert_error', { eventId, error: error.message });
+      return false;
+    }
+    return false;
+  } catch {
+    // DB unavailable — allow through
+    return false;
   }
-
-  if (processedEvents.has(eventId)) return true;
-  processedEvents.set(eventId, now);
-  return false;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -60,6 +62,22 @@ async function upsertSubscription(
     return;
   }
 
+  // Verify user exists in database before upserting subscription
+  const { data: existingUser, error: userError } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .single();
+
+  if (userError || !existingUser) {
+    logger.error('webhook_invalid_user_id', {
+      userId,
+      stripe_subscription_id: stripeSubscription.id,
+      error: userError?.message,
+    });
+    return;
+  }
+
   const planItem = stripeSubscription.items.data[0];
   const priceId = planItem?.price?.id;
 
@@ -67,9 +85,9 @@ async function upsertSubscription(
   if (priceId === process.env.STRIPE_PRO_PRICE_ID) plan = 'pro';
   if (priceId === process.env.STRIPE_TEAM_PRICE_ID) plan = 'team';
 
-  const { error } = await supabase
-    .from('subscriptions')
-    .update({
+  const { error } = await supabase.from('subscriptions').upsert(
+    {
+      user_id: userId,
       stripe_subscription_id: stripeSubscription.id,
       stripe_customer_id: stripeSubscription.customer as string,
       plan,
@@ -78,8 +96,9 @@ async function upsertSubscription(
       current_period_end: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
       cancel_at_period_end: stripeSubscription.cancel_at_period_end,
       updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', userId);
+    },
+    { onConflict: 'user_id' },
+  );
 
   if (error) {
     throw new Error(`Supabase upsert failed for user ${userId}: ${error.message}`);
@@ -112,16 +131,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature.' }, { status: 400 });
   }
 
-  // ── Idempotency check ──────────────────────────────────────
-  if (isDuplicate(event.id)) {
+  // ── Handle event ───────────────────────────────────────────
+  const supabase = createServiceClient();
+
+  // ── Idempotency check (DB-backed) ────────────────────────
+  if (await isDuplicate(event.id, supabase)) {
     logger.info('webhook_duplicate_skipped', { eventId: event.id, type: event.type });
     return NextResponse.json({ received: true, duplicate: true });
   }
 
   logger.info('webhook_received', { eventId: event.id, type: event.type });
-
-  // ── Handle event ───────────────────────────────────────────
-  const supabase = createServiceClient();
 
   try {
     switch (event.type) {
@@ -322,8 +341,8 @@ export async function POST(request: NextRequest) {
       eventType: event.type,
     });
 
-    // Remove from dedup set so retries can be processed
-    processedEvents.delete(event.id);
+    // Remove from dedup table so Stripe retries can be processed
+    await supabase.from('stripe_events').delete().eq('event_id', event.id);
 
     return NextResponse.json({ error: 'Webhook handler failed.' }, { status: 500 });
   }

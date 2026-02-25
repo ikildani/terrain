@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import type { ApiResponse } from '@/types';
+
+const TEAM_INVITE_RATE_LIMIT = { limit: 10, windowMs: 60 * 60 * 1000 } as const; // 10 invites/hour
 
 // ────────────────────────────────────────────────────────────
 // GET /api/team — List team members and pending invitations
@@ -68,10 +71,19 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  // Rate limit invites per user
+  const rl = await rateLimit(`team_invite:${user.id}`, TEAM_INVITE_RATE_LIMIT);
+  if (!rl.success) {
+    return NextResponse.json(
+      { success: false, error: 'Too many invitations. Try again later.' } satisfies ApiResponse<never>,
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } },
+    );
+  }
+
   const body = await request.json();
   const email = body.email?.trim()?.toLowerCase();
 
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
     return NextResponse.json({ success: false, error: 'Valid email address required.' } satisfies ApiResponse<never>, {
       status: 400,
     });
@@ -137,10 +149,22 @@ export async function POST(request: NextRequest) {
   }
 
   // Check if user already exists — auto-link them
-  const { data: existingProfile } = await supabase.from('profiles').select('id, email').eq('email', email).single();
+  const { data: existingProfile } = await supabase
+    .from('profiles')
+    .select('id, email, team_owner_id')
+    .eq('email', email)
+    .single();
 
   if (existingProfile) {
-    // User exists — link them to the team immediately
+    // Prevent stealing users from other teams
+    if (existingProfile.team_owner_id && existingProfile.team_owner_id !== user.id) {
+      return NextResponse.json(
+        { success: false, error: 'This user is already a member of another team.' } satisfies ApiResponse<never>,
+        { status: 409 },
+      );
+    }
+
+    // User exists and is not on another team — link them
     await supabase.from('profiles').update({ team_owner_id: user.id }).eq('id', existingProfile.id);
 
     await supabase
@@ -151,29 +175,29 @@ export async function POST(request: NextRequest) {
 
     logger.info('team_member_auto_linked', { inviter: user.id, member: existingProfile.id });
   } else {
-    // Send invite email (fire and forget)
-    (async () => {
-      try {
-        const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('id', user.id).single();
+    // Send invite email (awaited so failures are visible)
+    try {
+      const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('id', user.id).single();
+      const inviterName = String(profile?.full_name || '').slice(0, 100);
+      const inviterEmail = String(profile?.email || user.email || '').slice(0, 200);
 
-        const { sendEmail } = await import('@/lib/email');
-        const { TeamInviteEmail } = await import('@/emails/TeamInviteEmail');
+      const { sendEmail } = await import('@/lib/email');
+      const { TeamInviteEmail } = await import('@/emails/TeamInviteEmail');
 
-        await sendEmail({
-          to: email,
-          subject: `${profile?.full_name || profile?.email || 'Your colleague'} invited you to Terrain`,
-          react: TeamInviteEmail({
-            inviterName: (profile?.full_name as string) || '',
-            inviterEmail: (profile?.email as string) || user.email || '',
-          }),
-          tags: [{ name: 'type', value: 'team_invite' }],
-        });
-      } catch (emailErr) {
-        logger.error('team_invite_email_failed', {
-          error: emailErr instanceof Error ? emailErr.message : String(emailErr),
-        });
-      }
-    })();
+      await sendEmail({
+        to: email,
+        subject: `${inviterName || inviterEmail || 'Your colleague'} invited you to Terrain`,
+        react: TeamInviteEmail({
+          inviterName,
+          inviterEmail,
+        }),
+        tags: [{ name: 'type', value: 'team_invite' }],
+      });
+    } catch (emailErr) {
+      logger.error('team_invite_email_failed', {
+        error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+      });
+    }
   }
 
   return NextResponse.json({ success: true, data: { email, autoLinked: !!existingProfile } });

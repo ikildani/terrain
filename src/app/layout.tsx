@@ -62,6 +62,9 @@ export const metadata: Metadata = {
     description: 'TAM analysis, competitive landscapes, and partner matching for life sciences professionals.',
     creator: '@ambrosiavc',
   },
+  alternates: {
+    canonical: 'https://terrain.ambrosiaventures.co',
+  },
   robots: {
     index: true,
     follow: true,

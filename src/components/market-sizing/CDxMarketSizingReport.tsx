@@ -462,7 +462,7 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
               <h4 className="text-xs text-slate-300 font-medium mb-2">Post-Approval Requirements</h4>
               <ul className="space-y-1">
                 {regulatory.post_approval_requirements.map((req, i) => (
-                  <li key={i} className="text-xs text-slate-500 flex items-start gap-2">
+                  <li key={`req-${req}-${i}`} className="text-xs text-slate-500 flex items-start gap-2">
                     <span className="w-1 h-1 rounded-full bg-teal-500/60 mt-1.5 flex-shrink-0" />
                     {req}
                   </li>

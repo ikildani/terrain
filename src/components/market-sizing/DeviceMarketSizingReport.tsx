@@ -391,7 +391,7 @@ export default function DeviceMarketSizingReport({
               <h4 className="text-xs text-slate-300 font-medium mb-2">Key Differentiation Vectors</h4>
               <ul className="space-y-1">
                 {data.competitive_positioning.key_differentiation_vectors.map((v, i) => (
-                  <li key={i} className="text-xs text-slate-500 flex items-start gap-2">
+                  <li key={`diff-${v}-${i}`} className="text-xs text-slate-500 flex items-start gap-2">
                     <span className="w-1 h-1 rounded-full bg-teal-500/60 mt-1.5 flex-shrink-0" />
                     {v}
                   </li>

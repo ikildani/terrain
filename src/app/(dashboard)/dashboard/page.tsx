@@ -131,7 +131,8 @@ export default function DashboardPage() {
   const last7 = dailyActivity.slice(-7).reduce((s, d) => s + d.count, 0);
   const prior7 = dailyActivity.slice(-14, -7).reduce((s, d) => s + d.count, 0);
   const weekTrendPct = prior7 > 0 ? Math.round(((last7 - prior7) / prior7) * 100) : last7 > 0 ? 100 : 0;
-  const weekTrendLabel = weekTrendPct > 0 ? `+${weekTrendPct}% WoW` : weekTrendPct < 0 ? `${weekTrendPct}% WoW` : 'Flat WoW';
+  const weekTrendLabel =
+    weekTrendPct > 0 ? `+${weekTrendPct}% WoW` : weekTrendPct < 0 ? `${weekTrendPct}% WoW` : 'Flat WoW';
   const weekTrendDir: 'up' | 'down' | 'flat' = weekTrendPct > 0 ? 'up' : weekTrendPct < 0 ? 'down' : 'flat';
 
   return (
@@ -202,7 +203,7 @@ export default function DashboardPage() {
             trend={dailyActivity.length > 0 ? weekTrendLabel : undefined}
             trendDirection={dailyActivity.length > 0 ? weekTrendDir : undefined}
             source="Usage Tracking"
-            sparklineData={dailyActivity.length > 0 ? dailyActivity.map(d => d.count) : undefined}
+            sparklineData={dailyActivity.length > 0 ? dailyActivity.map((d) => d.count) : undefined}
           />
           <StatCard
             label="Reports Saved"
@@ -235,9 +236,7 @@ export default function DashboardPage() {
               </div>
               <div className="min-w-0">
                 <p className="text-2xs text-slate-500 uppercase tracking-wider">Most Used</p>
-                <p className="text-xs text-white font-medium truncate">
-                  {formatReportType(mostUsedModule.feature)}
-                </p>
+                <p className="text-xs text-white font-medium truncate">{formatReportType(mostUsedModule.feature)}</p>
                 <p className="text-2xs text-slate-500 font-mono">{mostUsedModule.count} uses</p>
               </div>
             </div>
@@ -249,9 +248,7 @@ export default function DashboardPage() {
               </div>
               <div className="min-w-0">
                 <p className="text-2xs text-slate-500 uppercase tracking-wider">Top Focus</p>
-                <p className="text-xs text-white font-medium truncate">
-                  {topIndication.indication}
-                </p>
+                <p className="text-xs text-white font-medium truncate">{topIndication.indication}</p>
                 <p className="text-2xs text-slate-500 font-mono">{topIndication.count} analyses</p>
               </div>
             </div>
@@ -349,21 +346,13 @@ export default function DashboardPage() {
               />
               <Progress
                 label="Competitive Analysis"
-                value={0}
+                value={reportsByType.find((r) => r.report_type === 'competitive')?.count ?? 0}
                 max={limits.competitive as number}
                 showValue
               />
-              <Progress
-                label="Saved Reports"
-                value={totalReports}
-                max={limits.reports_saved as number}
-                showValue
-              />
+              <Progress label="Saved Reports" value={totalReports} max={limits.reports_saved as number} showValue />
             </div>
-            <Link
-              href="/settings/billing"
-              className="btn btn-ghost btn-sm w-full mt-4 text-teal-500"
-            >
+            <Link href="/settings/billing" className="btn btn-ghost btn-sm w-full mt-4 text-teal-500">
               Upgrade for unlimited access
             </Link>
           </div>
@@ -396,14 +385,8 @@ export default function DashboardPage() {
         ) : recentReports.length > 0 ? (
           <div className="divide-y divide-navy-700/30">
             {recentReports.map((report) => (
-              <div
-                key={report.id}
-                className="flex items-center justify-between py-3 first:pt-0 last:pb-0 group"
-              >
-                <Link
-                  href={getReportHref(report)}
-                  className="flex items-center gap-3 min-w-0 flex-1"
-                >
+              <div key={report.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0 group">
+                <Link href={getReportHref(report)} className="flex items-center gap-3 min-w-0 flex-1">
                   <div className="w-8 h-8 rounded-md bg-navy-800 flex items-center justify-center shrink-0">
                     <FileText className="w-4 h-4 text-slate-500 group-hover:text-teal-500 transition-colors" />
                   </div>
@@ -419,11 +402,7 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
-                      {report.indication && (
-                        <span className="text-teal-500/80 font-medium">
-                          {report.indication}
-                        </span>
-                      )}
+                      {report.indication && <span className="text-teal-500/80 font-medium">{report.indication}</span>}
                       <span className="text-slate-600 font-mono text-2xs">
                         {new Date(report.created_at).toLocaleDateString('en-US', {
                           month: 'short',
@@ -445,9 +424,7 @@ export default function DashboardPage() {
                 >
                   <Star
                     className={`w-4 h-4 transition-colors ${
-                      report.is_starred
-                        ? 'fill-amber-400 text-amber-400'
-                        : 'text-slate-600 hover:text-slate-400'
+                      report.is_starred ? 'fill-amber-400 text-amber-400' : 'text-slate-600 hover:text-slate-400'
                     }`}
                   />
                 </button>
@@ -458,9 +435,7 @@ export default function DashboardPage() {
           <div className="flex flex-col items-center py-10 text-center">
             <FileText className="w-10 h-10 text-navy-600 mb-3" />
             <p className="text-sm text-slate-400 mb-1">No reports yet</p>
-            <p className="text-xs text-slate-600 mb-4">
-              Run your first market analysis to get started.
-            </p>
+            <p className="text-xs text-slate-600 mb-4">Run your first market analysis to get started.</p>
             <Link href="/market-sizing" className="btn btn-primary btn-sm">
               New Market Analysis
             </Link>

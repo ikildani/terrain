@@ -1,14 +1,73 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { PLAN_LIMITS, type PlanKey } from '@/lib/subscription';
+import type { ApiResponse } from '@/types';
 
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    data: {
-      market_sizing: { used: 0, limit: 3 },
-      competitive: { used: 0, limit: 1 },
-      partners: { used: 0, limit: 0 },
-      regulatory: { used: 0, limit: 0 },
-      reports_saved: { used: 0, limit: 3 },
-    },
-  });
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json({ success: false, error: 'Authentication required.' } satisfies ApiResponse<never>, {
+      status: 401,
+    });
+  }
+
+  // Get user's plan
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('plan, status')
+    .eq('user_id', user.id)
+    .single();
+
+  const plan: PlanKey =
+    subscription && (subscription.status === 'active' || subscription.status === 'trialing')
+      ? (subscription.plan as PlanKey)
+      : 'free';
+
+  const limits = PLAN_LIMITS[plan];
+
+  // Count usage this month per feature
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const { data: events } = await supabase
+    .from('usage_events')
+    .select('feature')
+    .eq('user_id', user.id)
+    .gte('created_at', startOfMonth.toISOString());
+
+  const counts: Record<string, number> = {};
+  if (events) {
+    for (const row of events) {
+      const feature = (row as { feature: string }).feature;
+      counts[feature] = (counts[feature] || 0) + 1;
+    }
+  }
+
+  // Count saved reports
+  const { count: reportCount } = await supabase
+    .from('reports')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id);
+
+  const FEATURES = ['market_sizing', 'competitive', 'pipeline', 'partners', 'regulatory'] as const;
+
+  const data: Record<string, { used: number; limit: number }> = {};
+  for (const feature of FEATURES) {
+    const limit = (limits as Record<string, number | boolean>)[feature];
+    const numLimit = typeof limit === 'number' ? limit : 0;
+    data[feature] = { used: counts[feature] ?? 0, limit: numLimit };
+  }
+
+  data.reports_saved = {
+    used: reportCount ?? 0,
+    limit: typeof limits.reports_saved === 'number' ? limits.reports_saved : 0,
+  };
+
+  return NextResponse.json({ success: true, data });
 }

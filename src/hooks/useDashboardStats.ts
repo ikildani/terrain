@@ -50,14 +50,7 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [
-    usageRes,
-    reportsRes,
-    dailyActivityRes,
-    moduleBreakdownRes,
-    topIndicationsRes,
-    reportsByTypeRes,
-  ] = await Promise.all([
+  const settled = await Promise.allSettled([
     // Existing: analyses this month
     supabase
       .from('usage_events')
@@ -66,10 +59,7 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
       .gte('created_at', monthStart),
 
     // Existing: total reports
-    supabase
-      .from('reports')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId),
+    supabase.from('reports').select('id', { count: 'exact', head: true }).eq('user_id', userId),
 
     // New: daily activity (last 30 days)
     supabase
@@ -80,24 +70,31 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
       .order('created_at', { ascending: true }),
 
     // New: module breakdown (all time)
-    supabase
-      .from('usage_events')
-      .select('feature')
-      .eq('user_id', userId),
+    supabase.from('usage_events').select('feature').eq('user_id', userId),
 
     // New: top indications
-    supabase
-      .from('usage_events')
-      .select('indication')
-      .eq('user_id', userId)
-      .not('indication', 'is', null),
+    supabase.from('usage_events').select('indication').eq('user_id', userId).not('indication', 'is', null),
 
     // New: reports by type
-    supabase
-      .from('reports')
-      .select('report_type')
-      .eq('user_id', userId),
+    supabase.from('reports').select('report_type').eq('user_id', userId),
   ]);
+
+  // Extract results with graceful fallbacks for failed queries
+  const unwrap = <T>(r: PromiseSettledResult<T>, fallback: T): T => (r.status === 'fulfilled' ? r.value : fallback);
+
+  const emptyQuery = { data: null, count: null, error: null, status: 0, statusText: '' } as const;
+  const usageRes = unwrap(
+    settled[0],
+    emptyQuery as (typeof settled)[0] extends PromiseSettledResult<infer U> ? U : never,
+  );
+  const reportsRes = unwrap(
+    settled[1],
+    emptyQuery as (typeof settled)[1] extends PromiseSettledResult<infer U> ? U : never,
+  );
+  const dailyActivityRes = unwrap(settled[2], { data: [] } as { data: { created_at: string }[] | null });
+  const moduleBreakdownRes = unwrap(settled[3], { data: [] } as { data: { feature: string }[] | null });
+  const topIndicationsRes = unwrap(settled[4], { data: [] } as { data: { indication: string }[] | null });
+  const reportsByTypeRes = unwrap(settled[5], { data: [] } as { data: { report_type: string }[] | null });
 
   // --- Process daily activity: group by day ---
   const dailyMap = new Map<string, number>();
@@ -134,7 +131,7 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
   const indicationMap = new Map<string, number>();
   if (topIndicationsRes.data) {
     for (const row of topIndicationsRes.data) {
-      const ind = row.indication as string;
+      const ind = typeof row.indication === 'string' ? row.indication : null;
       if (ind) {
         indicationMap.set(ind, (indicationMap.get(ind) ?? 0) + 1);
       }
