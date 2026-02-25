@@ -19,7 +19,7 @@ export interface ProcedureVolumeData {
   procedure_name: string;
   cpt_codes: string[];
   annual_us_procedures: number;
-  procedure_growth_rate: number;         // % CAGR
+  procedure_growth_rate: number; // % CAGR
   applicable_indications: string[];
   applicable_device_categories: ProductCategory[];
   current_standard_of_care: string;
@@ -32,7 +32,6 @@ export interface ProcedureVolumeData {
 }
 
 export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
-
   // ──────────────────────────────────────────
   // CARDIAC / CARDIOVASCULAR
   // ──────────────────────────────────────────
@@ -44,7 +43,7 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     applicable_indications: ['Aortic Stenosis', 'TAVR', 'structural heart disease'],
     applicable_device_categories: ['device_implantable'],
     current_standard_of_care: 'Open surgical aortic valve replacement (SAVR) or TAVR (Edwards, Medtronic)',
-    new_device_eligible_procedures: 25000,   // Share of procedures where new valve could compete
+    new_device_eligible_procedures: 25000, // Share of procedures where new valve could compete
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
     physician_specialty: ['Interventional Cardiology', 'Cardiac Surgery'],
@@ -61,7 +60,7 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     applicable_device_categories: ['device_implantable', 'device_surgical'],
     current_standard_of_care: 'Drug-eluting stents (Abbott, Medtronic, Boston Scientific)',
     new_device_eligible_procedures: 80000,
-    adoption_curve: 'slow',              // Established market; innovation incremental
+    adoption_curve: 'slow', // Established market; innovation incremental
     site_of_care: 'inpatient',
     physician_specialty: ['Interventional Cardiology'],
     source: 'CathPCI Registry / NCDR 2024; CMS Physician Supplier Procedure Summary',
@@ -77,7 +76,7 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     applicable_device_categories: ['device_surgical'],
     current_standard_of_care: 'Radiofrequency ablation (Abbott, Biosense Webster); Cryoablation (Medtronic)',
     new_device_eligible_procedures: 60000,
-    adoption_curve: 'rapid',             // PFA (pulsed field ablation) entering market
+    adoption_curve: 'rapid', // PFA (pulsed field ablation) entering market
     site_of_care: 'inpatient',
     physician_specialty: ['Electrophysiology', 'Cardiac Surgery'],
     source: 'AFIB Registry / ACC NCDR 2024; CMS Claims Data',
@@ -127,7 +126,7 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     applicable_indications: ['Osteoarthritis', 'Knee OA', 'rheumatoid arthritis knee', 'knee replacement'],
     applicable_device_categories: ['device_implantable'],
     current_standard_of_care: 'Zimmer Biomet, Stryker, DePuy Synthes, Smith+Nephew cemented systems',
-    new_device_eligible_procedures: 150000,  // Robotic/personalized segment
+    new_device_eligible_procedures: 150000, // Robotic/personalized segment
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
     physician_specialty: ['Orthopedic Surgery'],
@@ -156,7 +155,12 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['22600', '22612', '22630', '22551'],
     annual_us_procedures: 450000,
     procedure_growth_rate: 4.5,
-    applicable_indications: ['Degenerative Disc Disease', 'Spinal Stenosis', 'Spondylolisthesis', 'cervical myelopathy'],
+    applicable_indications: [
+      'Degenerative Disc Disease',
+      'Spinal Stenosis',
+      'Spondylolisthesis',
+      'cervical myelopathy',
+    ],
     applicable_device_categories: ['device_implantable', 'device_surgical'],
     current_standard_of_care: 'Cage/fixation systems (Medtronic, Stryker, DePuy Synthes, NuVasive)',
     new_device_eligible_procedures: 90000,
@@ -175,7 +179,13 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['61863', '61864', '61867', '61868', '61880', '61885', '61886'],
     annual_us_procedures: 8000,
     procedure_growth_rate: 6.5,
-    applicable_indications: ["Parkinson's Disease", 'Essential Tremor', 'Dystonia', 'OCD', 'Treatment-Resistant Depression'],
+    applicable_indications: [
+      "Parkinson's Disease",
+      'Essential Tremor',
+      'Dystonia',
+      'OCD',
+      'Treatment-Resistant Depression',
+    ],
     applicable_device_categories: ['device_implantable'],
     current_standard_of_care: 'Medtronic Percept PC, Abbott Infinity, Boston Scientific Vercise',
     new_device_eligible_procedures: 3000,
@@ -191,7 +201,12 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['63650', '63655', '63685', '63688'],
     annual_us_procedures: 55000,
     procedure_growth_rate: 8.0,
-    applicable_indications: ['Chronic Pain', 'Failed Back Surgery Syndrome', 'Complex Regional Pain Syndrome', 'Peripheral Vascular Disease'],
+    applicable_indications: [
+      'Chronic Pain',
+      'Failed Back Surgery Syndrome',
+      'Complex Regional Pain Syndrome',
+      'Peripheral Vascular Disease',
+    ],
     applicable_device_categories: ['device_implantable'],
     current_standard_of_care: 'Medtronic, Abbott (St. Jude), Boston Scientific, Nevro',
     new_device_eligible_procedures: 15000,
@@ -208,9 +223,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
   {
     procedure_name: 'Robotic-Assisted Surgery (Cancer Resection)',
     cpt_codes: ['Various — modifier -22 applied to primary procedure'],
-    annual_us_procedures: 1200000,         // All robotic procedures; oncology ~20%
+    annual_us_procedures: 1200000, // All robotic procedures; oncology ~20%
     procedure_growth_rate: 15.0,
-    applicable_indications: ['Prostate Cancer', 'Colorectal Cancer', 'Lung Cancer', 'Gynecologic Cancer', 'Gastric Cancer'],
+    applicable_indications: [
+      'Prostate Cancer',
+      'Colorectal Cancer',
+      'Lung Cancer',
+      'Gynecologic Cancer',
+      'Gastric Cancer',
+    ],
     applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
     current_standard_of_care: 'da Vinci Surgical System (Intuitive Surgical) — dominant at 75%+ market share',
     new_device_eligible_procedures: 300000,
@@ -248,7 +269,7 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     applicable_indications: ['Colorectal Cancer Screening', 'Colorectal Cancer', 'IBD surveillance', 'Polyp removal'],
     applicable_device_categories: ['device_surgical', 'device_capital_equipment', 'diagnostics_ivd'],
     current_standard_of_care: 'Olympus, Fujifilm, HOYA Pentax endoscopy systems; NovaBay AI-assisted detection',
-    new_device_eligible_procedures: 2000000,  // AI-enhanced adenoma detection opportunity
+    new_device_eligible_procedures: 2000000, // AI-enhanced adenoma detection opportunity
     adoption_curve: 'rapid',
     site_of_care: 'outpatient',
     physician_specialty: ['Gastroenterology'],
@@ -262,12 +283,13 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
   {
     procedure_name: 'Anti-VEGF Intravitreal Injection',
     cpt_codes: ['67028'],
-    annual_us_procedures: 9000000,         // Among highest volume ophthalmic procedures
+    annual_us_procedures: 9000000, // Among highest volume ophthalmic procedures
     procedure_growth_rate: 6.0,
     applicable_indications: ['Neovascular AMD', 'Diabetic Macular Edema', 'Retinal Vein Occlusion', 'DME'],
     applicable_device_categories: ['device_drug_delivery', 'device_implantable'],
-    current_standard_of_care: 'Bevacizumab (off-label), ranibizumab, aflibercept, faricimab; Susvimo port delivery (Roche)',
-    new_device_eligible_procedures: 3000000,  // Sustained-release delivery devices opportunity
+    current_standard_of_care:
+      'Bevacizumab (off-label), ranibizumab, aflibercept, faricimab; Susvimo port delivery (Roche)',
+    new_device_eligible_procedures: 3000000, // Sustained-release delivery devices opportunity
     adoption_curve: 'moderate',
     site_of_care: 'office',
     physician_specialty: ['Retinal Surgery', 'Ophthalmology'],
@@ -280,8 +302,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
   // ──────────────────────────────────────────
   {
     procedure_name: 'Continuous Glucose Monitoring (CGM) — Annual',
-    cpt_codes: ['95250', '95251'],         // Professional CGM; personal CGM supplies via DMEPOS
-    annual_us_procedures: 4500000,         // Patients on CGM annually
+    cpt_codes: ['95250', '95251'], // Professional CGM; personal CGM supplies via DMEPOS
+    annual_us_procedures: 4500000, // Patients on CGM annually
     procedure_growth_rate: 22.0,
     applicable_indications: ['Type 1 Diabetes', 'Type 2 Diabetes', 'Gestational Diabetes', 'Hypoglycemia'],
     applicable_device_categories: ['device_monitoring'],
@@ -302,9 +324,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['66984', '66982'],
     annual_us_procedures: 4000000,
     procedure_growth_rate: 3.5,
-    applicable_indications: ['Cataract', 'Age-Related Cataract', 'Posterior Subcapsular Cataract', 'Nuclear Sclerotic Cataract'],
+    applicable_indications: [
+      'Cataract',
+      'Age-Related Cataract',
+      'Posterior Subcapsular Cataract',
+      'Nuclear Sclerotic Cataract',
+    ],
     applicable_device_categories: ['device_implantable', 'device_capital_equipment'],
-    current_standard_of_care: 'Phacoemulsification with IOL implant (Alcon AcrySof, Johnson & Johnson TECNIS, Bausch + Lomb enVista)',
+    current_standard_of_care:
+      'Phacoemulsification with IOL implant (Alcon AcrySof, Johnson & Johnson TECNIS, Bausch + Lomb enVista)',
     new_device_eligible_procedures: 1200000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -337,9 +365,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['33206', '33207', '33208', '33212', '33213'],
     annual_us_procedures: 250000,
     procedure_growth_rate: 2.0,
-    applicable_indications: ['Bradycardia', 'Sick Sinus Syndrome', 'Atrioventricular Block', 'Heart Block', 'Chronotropic Incompetence'],
+    applicable_indications: [
+      'Bradycardia',
+      'Sick Sinus Syndrome',
+      'Atrioventricular Block',
+      'Heart Block',
+      'Chronotropic Incompetence',
+    ],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Transvenous pacemakers (Medtronic Azure, Abbott Assurity, Boston Scientific Accolade); Leadless (Medtronic Micra)',
+    current_standard_of_care:
+      'Transvenous pacemakers (Medtronic Azure, Abbott Assurity, Boston Scientific Accolade); Leadless (Medtronic Micra)',
     new_device_eligible_procedures: 60000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -353,9 +388,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['33224', '33225', '33226', '33249'],
     annual_us_procedures: 50000,
     procedure_growth_rate: 1.5,
-    applicable_indications: ['Heart Failure with Reduced Ejection Fraction', 'LBBB', 'Wide QRS Heart Failure', 'NYHA Class III-IV HF'],
+    applicable_indications: [
+      'Heart Failure with Reduced Ejection Fraction',
+      'LBBB',
+      'Wide QRS Heart Failure',
+      'NYHA Class III-IV HF',
+    ],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'CRT-D/CRT-P systems (Medtronic, Abbott, Boston Scientific); Conduction system pacing emerging',
+    current_standard_of_care:
+      'CRT-D/CRT-P systems (Medtronic, Abbott, Boston Scientific); Conduction system pacing emerging',
     new_device_eligible_procedures: 15000,
     adoption_curve: 'slow',
     site_of_care: 'inpatient',
@@ -369,9 +410,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['33418', '33419'],
     annual_us_procedures: 30000,
     procedure_growth_rate: 15.0,
-    applicable_indications: ['Degenerative Mitral Regurgitation', 'Functional Mitral Regurgitation', 'Tricuspid Regurgitation', 'Structural Heart Disease'],
+    applicable_indications: [
+      'Degenerative Mitral Regurgitation',
+      'Functional Mitral Regurgitation',
+      'Tricuspid Regurgitation',
+      'Structural Heart Disease',
+    ],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Abbott MitraClip G4; Edwards PASCAL system; open surgical mitral valve repair/replacement',
+    current_standard_of_care:
+      'Abbott MitraClip G4; Edwards PASCAL system; open surgical mitral valve repair/replacement',
     new_device_eligible_procedures: 20000,
     adoption_curve: 'rapid',
     site_of_care: 'inpatient',
@@ -385,7 +432,12 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['33340'],
     annual_us_procedures: 80000,
     procedure_growth_rate: 18.0,
-    applicable_indications: ['Atrial Fibrillation', 'Stroke Prevention in AFib', 'Anticoagulant Intolerance', 'Non-Valvular AFib'],
+    applicable_indications: [
+      'Atrial Fibrillation',
+      'Stroke Prevention in AFib',
+      'Anticoagulant Intolerance',
+      'Non-Valvular AFib',
+    ],
     applicable_device_categories: ['device_implantable'],
     current_standard_of_care: 'Boston Scientific WATCHMAN FLX; Abbott Amulet; oral anticoagulation (warfarin, DOACs)',
     new_device_eligible_procedures: 50000,
@@ -417,9 +469,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['37215', '37216', '37217'],
     annual_us_procedures: 15000,
     procedure_growth_rate: 2.5,
-    applicable_indications: ['Carotid Artery Stenosis', 'Stroke Prevention', 'Transient Ischemic Attack', 'Carotid Artery Disease'],
+    applicable_indications: [
+      'Carotid Artery Stenosis',
+      'Stroke Prevention',
+      'Transient Ischemic Attack',
+      'Carotid Artery Disease',
+    ],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Carotid endarterectomy (CEA); Stent systems (Abbott Acculink, Medtronic Protege, Silk Road TCAR)',
+    current_standard_of_care:
+      'Carotid endarterectomy (CEA); Stent systems (Abbott Acculink, Medtronic Protege, Silk Road TCAR)',
     new_device_eligible_procedures: 8000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -436,9 +494,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['23472', '23473', '23474'],
     annual_us_procedures: 130000,
     procedure_growth_rate: 9.0,
-    applicable_indications: ['Glenohumeral Osteoarthritis', 'Rotator Cuff Arthropathy', 'Proximal Humerus Fracture', 'Shoulder OA'],
+    applicable_indications: [
+      'Glenohumeral Osteoarthritis',
+      'Rotator Cuff Arthropathy',
+      'Proximal Humerus Fracture',
+      'Shoulder OA',
+    ],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Reverse shoulder (Zimmer Biomet Comprehensive, DePuy Synthes Delta Xtend, Stryker ReUnion)',
+    current_standard_of_care:
+      'Reverse shoulder (Zimmer Biomet Comprehensive, DePuy Synthes Delta Xtend, Stryker ReUnion)',
     new_device_eligible_procedures: 40000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -454,7 +518,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 3.0,
     applicable_indications: ['ACL Tear', 'Anterior Cruciate Ligament Injury', 'Knee Instability', 'Sports Knee Injury'],
     applicable_device_categories: ['device_implantable', 'device_surgical'],
-    current_standard_of_care: 'Autograft/allograft reconstruction with interference screws (Arthrex, Smith+Nephew, Stryker, ConMed)',
+    current_standard_of_care:
+      'Autograft/allograft reconstruction with interference screws (Arthrex, Smith+Nephew, Stryker, ConMed)',
     new_device_eligible_procedures: 60000,
     adoption_curve: 'slow',
     site_of_care: 'outpatient',
@@ -468,9 +533,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['29827', '29826', '23410', '23412'],
     annual_us_procedures: 300000,
     procedure_growth_rate: 3.5,
-    applicable_indications: ['Rotator Cuff Tear', 'Supraspinatus Tear', 'Shoulder Impingement', 'Full-Thickness Rotator Cuff Tear'],
+    applicable_indications: [
+      'Rotator Cuff Tear',
+      'Supraspinatus Tear',
+      'Shoulder Impingement',
+      'Full-Thickness Rotator Cuff Tear',
+    ],
     applicable_device_categories: ['device_surgical', 'device_implantable'],
-    current_standard_of_care: 'Arthroscopic repair with suture anchors (Arthrex, Smith+Nephew, Stryker); biologics augmentation emerging',
+    current_standard_of_care:
+      'Arthroscopic repair with suture anchors (Arthrex, Smith+Nephew, Stryker); biologics augmentation emerging',
     new_device_eligible_procedures: 80000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -484,9 +555,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['27702', '27703', '27870'],
     annual_us_procedures: 30000,
     procedure_growth_rate: 8.0,
-    applicable_indications: ['Ankle Osteoarthritis', 'End-Stage Ankle Arthritis', 'Post-Traumatic Ankle Arthritis', 'Rheumatoid Ankle Arthritis'],
+    applicable_indications: [
+      'Ankle Osteoarthritis',
+      'End-Stage Ankle Arthritis',
+      'Post-Traumatic Ankle Arthritis',
+      'Rheumatoid Ankle Arthritis',
+    ],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Total ankle arthroplasty (Stryker STAR, Zimmer Biomet Trabecular Metal, Integra Cadence/Salto)',
+    current_standard_of_care:
+      'Total ankle arthroplasty (Stryker STAR, Zimmer Biomet Trabecular Metal, Integra Cadence/Salto)',
     new_device_eligible_procedures: 15000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -519,9 +596,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['43775', '43644', '43645', '43770', '43659'],
     annual_us_procedures: 250000,
     procedure_growth_rate: 5.0,
-    applicable_indications: ['Morbid Obesity', 'BMI > 40', 'BMI > 35 with Comorbidities', 'Type 2 Diabetes with Obesity', 'Metabolic Syndrome'],
+    applicable_indications: [
+      'Morbid Obesity',
+      'BMI > 40',
+      'BMI > 35 with Comorbidities',
+      'Type 2 Diabetes with Obesity',
+      'Metabolic Syndrome',
+    ],
     applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
-    current_standard_of_care: 'Laparoscopic sleeve gastrectomy (dominant ~60%); RYGB; robotic-assisted (Intuitive da Vinci)',
+    current_standard_of_care:
+      'Laparoscopic sleeve gastrectomy (dominant ~60%); RYGB; robotic-assisted (Intuitive da Vinci)',
     new_device_eligible_procedures: 80000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -535,9 +619,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['49505', '49507', '49520', '49560', '49565', '49652', '49653'],
     annual_us_procedures: 1100000,
     procedure_growth_rate: 2.0,
-    applicable_indications: ['Inguinal Hernia', 'Ventral Hernia', 'Incisional Hernia', 'Umbilical Hernia', 'Hiatal Hernia'],
+    applicable_indications: [
+      'Inguinal Hernia',
+      'Ventral Hernia',
+      'Incisional Hernia',
+      'Umbilical Hernia',
+      'Hiatal Hernia',
+    ],
     applicable_device_categories: ['device_implantable', 'device_surgical'],
-    current_standard_of_care: 'Synthetic mesh repair (Medtronic/Covidien, BD/Bard, Gore, Atrium/Getinge); robotic-assisted increasing',
+    current_standard_of_care:
+      'Synthetic mesh repair (Medtronic/Covidien, BD/Bard, Gore, Atrium/Getinge); robotic-assisted increasing',
     new_device_eligible_procedures: 300000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -551,9 +642,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['47562', '47563', '47564'],
     annual_us_procedures: 750000,
     procedure_growth_rate: 1.5,
-    applicable_indications: ['Cholelithiasis', 'Gallstones', 'Cholecystitis', 'Biliary Dyskinesia', 'Gallbladder Polyps'],
+    applicable_indications: [
+      'Cholelithiasis',
+      'Gallstones',
+      'Cholecystitis',
+      'Biliary Dyskinesia',
+      'Gallbladder Polyps',
+    ],
     applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
-    current_standard_of_care: 'Laparoscopic cholecystectomy (Medtronic/Covidien, Ethicon, Olympus); robotic-assisted growing',
+    current_standard_of_care:
+      'Laparoscopic cholecystectomy (Medtronic/Covidien, Ethicon, Olympus); robotic-assisted growing',
     new_device_eligible_procedures: 100000,
     adoption_curve: 'slow',
     site_of_care: 'inpatient',
@@ -586,9 +684,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['58150', '58152', '58180', '58260', '58262', '58550', '58553', '58570', '58572'],
     annual_us_procedures: 500000,
     procedure_growth_rate: -1.5,
-    applicable_indications: ['Uterine Fibroids', 'Endometriosis', 'Uterine Prolapse', 'Abnormal Uterine Bleeding', 'Gynecologic Cancer'],
+    applicable_indications: [
+      'Uterine Fibroids',
+      'Endometriosis',
+      'Uterine Prolapse',
+      'Abnormal Uterine Bleeding',
+      'Gynecologic Cancer',
+    ],
     applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
-    current_standard_of_care: 'Laparoscopic/robotic hysterectomy (Intuitive da Vinci, Ethicon, Medtronic energy devices); open for complex cases',
+    current_standard_of_care:
+      'Laparoscopic/robotic hysterectomy (Intuitive da Vinci, Ethicon, Medtronic energy devices); open for complex cases',
     new_device_eligible_procedures: 100000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -602,9 +707,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['59510', '59514', '59515', '59618', '59620', '59622'],
     annual_us_procedures: 1200000,
     procedure_growth_rate: 0.5,
-    applicable_indications: ['Cephalopelvic Disproportion', 'Fetal Distress', 'Placenta Previa', 'Repeat Cesarean', 'Breech Presentation'],
+    applicable_indications: [
+      'Cephalopelvic Disproportion',
+      'Fetal Distress',
+      'Placenta Previa',
+      'Repeat Cesarean',
+      'Breech Presentation',
+    ],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'Standard surgical instruments and closure devices (Ethicon, Medtronic/Covidien); uterine closure stapling systems',
+    current_standard_of_care:
+      'Standard surgical instruments and closure devices (Ethicon, Medtronic/Covidien); uterine closure stapling systems',
     new_device_eligible_procedures: 200000,
     adoption_curve: 'slow',
     site_of_care: 'inpatient',
@@ -618,9 +730,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['58970', '58974', '58976', '89250', '89251', '89253', '89254', '89268'],
     annual_us_procedures: 200000,
     procedure_growth_rate: 8.0,
-    applicable_indications: ['Infertility', 'Polycystic Ovary Syndrome', 'Endometriosis-Related Infertility', 'Male Factor Infertility', 'Diminished Ovarian Reserve'],
+    applicable_indications: [
+      'Infertility',
+      'Polycystic Ovary Syndrome',
+      'Endometriosis-Related Infertility',
+      'Male Factor Infertility',
+      'Diminished Ovarian Reserve',
+    ],
     applicable_device_categories: ['device_capital_equipment', 'device_surgical', 'diagnostics_ivd'],
-    current_standard_of_care: 'IVF culture systems (CooperSurgical/Origio, Vitrolife); embryo assessment AI (TMRW, Igenomix); PGT diagnostics',
+    current_standard_of_care:
+      'IVF culture systems (CooperSurgical/Origio, Vitrolife); embryo assessment AI (TMRW, Igenomix); PGT diagnostics',
     new_device_eligible_procedures: 80000,
     adoption_curve: 'rapid',
     site_of_care: 'outpatient',
@@ -637,9 +756,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['55840', '55842', '55845', '55866'],
     annual_us_procedures: 150000,
     procedure_growth_rate: 2.0,
-    applicable_indications: ['Prostate Cancer', 'Localized Prostate Cancer', 'Intermediate-Risk Prostate Cancer', 'High-Risk Prostate Cancer'],
+    applicable_indications: [
+      'Prostate Cancer',
+      'Localized Prostate Cancer',
+      'Intermediate-Risk Prostate Cancer',
+      'High-Risk Prostate Cancer',
+    ],
     applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
-    current_standard_of_care: 'Robot-assisted radical prostatectomy (Intuitive da Vinci, ~85% of cases); open retropubic prostatectomy declining',
+    current_standard_of_care:
+      'Robot-assisted radical prostatectomy (Intuitive da Vinci, ~85% of cases); open retropubic prostatectomy declining',
     new_device_eligible_procedures: 30000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -653,9 +778,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['50590', '52353', '52356', '52352'],
     annual_us_procedures: 400000,
     procedure_growth_rate: 4.0,
-    applicable_indications: ['Nephrolithiasis', 'Kidney Stones', 'Ureteral Stones', 'Renal Calculi', 'Staghorn Calculus'],
+    applicable_indications: [
+      'Nephrolithiasis',
+      'Kidney Stones',
+      'Ureteral Stones',
+      'Renal Calculi',
+      'Staghorn Calculus',
+    ],
     applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
-    current_standard_of_care: 'ESWL (Dornier, Storz Medical); flexible ureteroscopy with laser lithotripsy (Lumenis, Boston Scientific, Olympus)',
+    current_standard_of_care:
+      'ESWL (Dornier, Storz Medical); flexible ureteroscopy with laser lithotripsy (Lumenis, Boston Scientific, Olympus)',
     new_device_eligible_procedures: 100000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -669,9 +801,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['64561', '64581', '64590'],
     annual_us_procedures: 20000,
     procedure_growth_rate: 5.0,
-    applicable_indications: ['Overactive Bladder', 'Urinary Retention', 'Fecal Incontinence', 'Urinary Urge Incontinence'],
+    applicable_indications: [
+      'Overactive Bladder',
+      'Urinary Retention',
+      'Fecal Incontinence',
+      'Urinary Urge Incontinence',
+    ],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Medtronic InterStim II/Micro; Axonics r-SNM System; conservative therapy (medication, pelvic floor PT)',
+    current_standard_of_care:
+      'Medtronic InterStim II/Micro; Axonics r-SNM System; conservative therapy (medication, pelvic floor PT)',
     new_device_eligible_procedures: 12000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -688,9 +826,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['69436', '69433'],
     annual_us_procedures: 700000,
     procedure_growth_rate: -1.0,
-    applicable_indications: ['Recurrent Acute Otitis Media', 'Chronic Otitis Media with Effusion', 'Eustachian Tube Dysfunction', 'Conductive Hearing Loss'],
+    applicable_indications: [
+      'Recurrent Acute Otitis Media',
+      'Chronic Otitis Media with Effusion',
+      'Eustachian Tube Dysfunction',
+      'Conductive Hearing Loss',
+    ],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Myringotomy with tube insertion (Medtronic, Olympus); in-office tube placement (Tympanostomy, Preceptis Hummingbird)',
+    current_standard_of_care:
+      'Myringotomy with tube insertion (Medtronic, Olympus); in-office tube placement (Tympanostomy, Preceptis Hummingbird)',
     new_device_eligible_procedures: 200000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -704,7 +848,12 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['42820', '42821', '42825', '42826', '42830', '42831', '42835', '42836'],
     annual_us_procedures: 500000,
     procedure_growth_rate: -0.5,
-    applicable_indications: ['Recurrent Tonsillitis', 'Tonsillar Hypertrophy', 'Obstructive Sleep Apnea (Pediatric)', 'Adenoid Hypertrophy'],
+    applicable_indications: [
+      'Recurrent Tonsillitis',
+      'Tonsillar Hypertrophy',
+      'Obstructive Sleep Apnea (Pediatric)',
+      'Adenoid Hypertrophy',
+    ],
     applicable_device_categories: ['device_surgical'],
     current_standard_of_care: 'Electrocautery, coblation (Smith+Nephew), microdebrider, harmonic scalpel (Ethicon)',
     new_device_eligible_procedures: 100000,
@@ -720,9 +869,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['31254', '31255', '31256', '31267', '31276', '31287', '31288'],
     annual_us_procedures: 450000,
     procedure_growth_rate: 3.0,
-    applicable_indications: ['Chronic Rhinosinusitis', 'Nasal Polyps', 'Recurrent Sinusitis', 'Mucocele', 'Fungal Sinusitis'],
+    applicable_indications: [
+      'Chronic Rhinosinusitis',
+      'Nasal Polyps',
+      'Recurrent Sinusitis',
+      'Mucocele',
+      'Fungal Sinusitis',
+    ],
     applicable_device_categories: ['device_surgical', 'device_implantable', 'device_drug_delivery'],
-    current_standard_of_care: 'Endoscopic sinus surgery with powered instrumentation (Medtronic, Stryker); steroid-eluting implants (Intersect ENT PROPEL)',
+    current_standard_of_care:
+      'Endoscopic sinus surgery with powered instrumentation (Medtronic, Stryker); steroid-eluting implants (Intersect ENT PROPEL)',
     new_device_eligible_procedures: 150000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -736,7 +892,12 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['69930'],
     annual_us_procedures: 15000,
     procedure_growth_rate: 7.0,
-    applicable_indications: ['Severe-to-Profound Sensorineural Hearing Loss', 'Bilateral Hearing Loss', 'Single-Sided Deafness', 'Pediatric Hearing Loss'],
+    applicable_indications: [
+      'Severe-to-Profound Sensorineural Hearing Loss',
+      'Bilateral Hearing Loss',
+      'Single-Sided Deafness',
+      'Pediatric Hearing Loss',
+    ],
     applicable_device_categories: ['device_implantable'],
     current_standard_of_care: 'Cochlear Americas Nucleus, Advanced Bionics (Sonova), MED-EL',
     new_device_eligible_procedures: 8000,
@@ -755,7 +916,14 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['43235', '43239', '43249', '43250', '43251'],
     annual_us_procedures: 7000000,
     procedure_growth_rate: 3.0,
-    applicable_indications: ['GERD', 'Barrett Esophagus', 'Peptic Ulcer Disease', 'Dysphagia', 'GI Bleeding', 'Esophageal Cancer Screening'],
+    applicable_indications: [
+      'GERD',
+      'Barrett Esophagus',
+      'Peptic Ulcer Disease',
+      'Dysphagia',
+      'GI Bleeding',
+      'Esophageal Cancer Screening',
+    ],
     applicable_device_categories: ['device_capital_equipment', 'device_surgical'],
     current_standard_of_care: 'Upper endoscopy systems (Olympus, Fujifilm, Pentax); AI-enhanced detection emerging',
     new_device_eligible_procedures: 1500000,
@@ -771,9 +939,17 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['43260', '43261', '43262', '43263', '43264', '43265', '43274', '43275'],
     annual_us_procedures: 600000,
     procedure_growth_rate: 2.0,
-    applicable_indications: ['Choledocholithiasis', 'Bile Duct Stones', 'Biliary Stricture', 'Pancreatic Duct Leak', 'Cholangiocarcinoma', 'Pancreatic Cancer'],
+    applicable_indications: [
+      'Choledocholithiasis',
+      'Bile Duct Stones',
+      'Biliary Stricture',
+      'Pancreatic Duct Leak',
+      'Cholangiocarcinoma',
+      'Pancreatic Cancer',
+    ],
     applicable_device_categories: ['device_capital_equipment', 'device_surgical'],
-    current_standard_of_care: 'Duodenoscopes (Olympus, Fujifilm, Pentax); single-use duodenoscopes (Boston Scientific EXALT)',
+    current_standard_of_care:
+      'Duodenoscopes (Olympus, Fujifilm, Pentax); single-use duodenoscopes (Boston Scientific EXALT)',
     new_device_eligible_procedures: 200000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -787,9 +963,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['43284', '43285', '43999'],
     annual_us_procedures: 60000,
     procedure_growth_rate: 25.0,
-    applicable_indications: ['Obesity BMI 30-40', 'Mild-to-Moderate Obesity', 'Weight Regain Post-Bariatric Surgery', 'Metabolic Syndrome'],
+    applicable_indications: [
+      'Obesity BMI 30-40',
+      'Mild-to-Moderate Obesity',
+      'Weight Regain Post-Bariatric Surgery',
+      'Metabolic Syndrome',
+    ],
     applicable_device_categories: ['device_surgical', 'device_implantable'],
-    current_standard_of_care: 'Endoscopic sleeve gastroplasty (ESG with Apollo OverStitch); intragastric balloons (Orbera, Obalon); GLP-1 medications as alternative',
+    current_standard_of_care:
+      'Endoscopic sleeve gastroplasty (ESG with Apollo OverStitch); intragastric balloons (Orbera, Obalon); GLP-1 medications as alternative',
     new_device_eligible_procedures: 40000,
     adoption_curve: 'rapid',
     site_of_care: 'outpatient',
@@ -806,9 +988,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['D6010', 'D6040', 'D6050', 'D6065', 'D6066', 'D6067'],
     annual_us_procedures: 5000000,
     procedure_growth_rate: 6.0,
-    applicable_indications: ['Edentulism', 'Single Tooth Loss', 'Partial Edentulism', 'Full Arch Restoration', 'Implant-Supported Dentures'],
+    applicable_indications: [
+      'Edentulism',
+      'Single Tooth Loss',
+      'Partial Edentulism',
+      'Full Arch Restoration',
+      'Implant-Supported Dentures',
+    ],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Titanium endosseous implants (Straumann, Nobel Biocare/Envista, Zimmer Biomet Dental, Dentsply Sirona, BioHorizons)',
+    current_standard_of_care:
+      'Titanium endosseous implants (Straumann, Nobel Biocare/Envista, Zimmer Biomet Dental, Dentsply Sirona, BioHorizons)',
     new_device_eligible_procedures: 1500000,
     adoption_curve: 'moderate',
     site_of_care: 'office',
@@ -822,16 +1011,42 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
   // ──────────────────────────────────────────
   {
     procedure_name: 'Central Venous Catheter Placement',
-    cpt_codes: ['36555', '36556', '36557', '36558', '36560', '36561', '36563', '36565', '36566', '36568', '36569', '36570', '36571'],
+    cpt_codes: [
+      '36555',
+      '36556',
+      '36557',
+      '36558',
+      '36560',
+      '36561',
+      '36563',
+      '36565',
+      '36566',
+      '36568',
+      '36569',
+      '36570',
+      '36571',
+    ],
     annual_us_procedures: 5000000,
     procedure_growth_rate: 2.0,
-    applicable_indications: ['Chemotherapy Access', 'Parenteral Nutrition', 'Hemodialysis Access', 'Long-Term IV Therapy', 'Critical Care Access'],
+    applicable_indications: [
+      'Chemotherapy Access',
+      'Parenteral Nutrition',
+      'Hemodialysis Access',
+      'Long-Term IV Therapy',
+      'Critical Care Access',
+    ],
     applicable_device_categories: ['device_surgical', 'device_implantable'],
-    current_standard_of_care: 'PICC lines, tunneled catheters, implanted ports (BD/Bard, Teleflex, B. Braun, AngioDynamics, Cook Medical)',
+    current_standard_of_care:
+      'PICC lines, tunneled catheters, implanted ports (BD/Bard, Teleflex, B. Braun, AngioDynamics, Cook Medical)',
     new_device_eligible_procedures: 800000,
     adoption_curve: 'slow',
     site_of_care: 'inpatient',
-    physician_specialty: ['Interventional Radiology', 'Critical Care Medicine', 'General Surgery', 'Vascular Access Teams'],
+    physician_specialty: [
+      'Interventional Radiology',
+      'Critical Care Medicine',
+      'General Surgery',
+      'Vascular Access Teams',
+    ],
     source: 'AVA (Association for Vascular Access) 2024; CMS Claims Data; NHSN HAI Data',
     last_updated: '2025-01-15',
   },
@@ -841,9 +1056,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['36818', '36819', '36820', '36821', '36825', '36830'],
     annual_us_procedures: 120000,
     procedure_growth_rate: 3.0,
-    applicable_indications: ['End-Stage Renal Disease', 'Chronic Kidney Disease Stage 5', 'Hemodialysis Access', 'Dialysis Access Dysfunction'],
+    applicable_indications: [
+      'End-Stage Renal Disease',
+      'Chronic Kidney Disease Stage 5',
+      'Hemodialysis Access',
+      'Dialysis Access Dysfunction',
+    ],
     applicable_device_categories: ['device_implantable', 'device_surgical'],
-    current_standard_of_care: 'Surgical AV fistula creation; ePTFE grafts (Gore, BD/Bard); endovascular AV fistula (Becton Dickinson WavelinQ, Medtronic)',
+    current_standard_of_care:
+      'Surgical AV fistula creation; ePTFE grafts (Gore, BD/Bard); endovascular AV fistula (Becton Dickinson WavelinQ, Medtronic)',
     new_device_eligible_procedures: 50000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -860,9 +1081,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['17311', '17312', '17313', '17314', '17315'],
     annual_us_procedures: 800000,
     procedure_growth_rate: 4.0,
-    applicable_indications: ['Basal Cell Carcinoma', 'Squamous Cell Carcinoma', 'Melanoma in Situ', 'Dermatofibrosarcoma Protuberans', 'Non-Melanoma Skin Cancer'],
+    applicable_indications: [
+      'Basal Cell Carcinoma',
+      'Squamous Cell Carcinoma',
+      'Melanoma in Situ',
+      'Dermatofibrosarcoma Protuberans',
+      'Non-Melanoma Skin Cancer',
+    ],
     applicable_device_categories: ['device_surgical', 'diagnostics_ivd'],
-    current_standard_of_care: 'Mohs excision with frozen section pathology; cryostat tissue processors (Leica, Sakura); AI digital pathology emerging',
+    current_standard_of_care:
+      'Mohs excision with frozen section pathology; cryostat tissue processors (Leica, Sakura); AI digital pathology emerging',
     new_device_eligible_procedures: 200000,
     adoption_curve: 'moderate',
     site_of_care: 'office',
@@ -876,9 +1104,18 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['17999', '15780', '15781', '15782', '15783', '15786', '15787'],
     annual_us_procedures: 2000000,
     procedure_growth_rate: 7.0,
-    applicable_indications: ['Photoaging', 'Acne Scarring', 'Melasma', 'Vascular Lesions', 'Tattoo Removal', 'Skin Laxity', 'Hyperpigmentation'],
+    applicable_indications: [
+      'Photoaging',
+      'Acne Scarring',
+      'Melasma',
+      'Vascular Lesions',
+      'Tattoo Removal',
+      'Skin Laxity',
+      'Hyperpigmentation',
+    ],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'Fractional CO2 lasers (Lumenis, Cynosure/Hologic); Nd:YAG and picosecond lasers (Cutera, Candela, Sciton); IPL devices',
+    current_standard_of_care:
+      'Fractional CO2 lasers (Lumenis, Cynosure/Hologic); Nd:YAG and picosecond lasers (Cutera, Candela, Sciton); IPL devices',
     new_device_eligible_procedures: 600000,
     adoption_curve: 'rapid',
     site_of_care: 'office',
@@ -895,9 +1132,17 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['31622', '31623', '31624', '31625', '31626', '31628', '31629', '31631', '31632', '31633'],
     annual_us_procedures: 600000,
     procedure_growth_rate: 5.0,
-    applicable_indications: ['Lung Cancer Diagnosis', 'Pulmonary Nodule Evaluation', 'Airway Obstruction', 'Hemoptysis', 'Interstitial Lung Disease', 'Lung Infection'],
+    applicable_indications: [
+      'Lung Cancer Diagnosis',
+      'Pulmonary Nodule Evaluation',
+      'Airway Obstruction',
+      'Hemoptysis',
+      'Interstitial Lung Disease',
+      'Lung Infection',
+    ],
     applicable_device_categories: ['device_capital_equipment', 'device_surgical'],
-    current_standard_of_care: 'Flexible bronchoscopy (Olympus, Fujifilm); robotic bronchoscopy (Intuitive Ion, J&J Monarch, Noah Medical Galaxy)',
+    current_standard_of_care:
+      'Flexible bronchoscopy (Olympus, Fujifilm); robotic bronchoscopy (Intuitive Ion, J&J Monarch, Noah Medical Galaxy)',
     new_device_eligible_procedures: 200000,
     adoption_curve: 'rapid',
     site_of_care: 'outpatient',
@@ -911,9 +1156,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['31600', '31601', '31603', '31605', '31610'],
     annual_us_procedures: 100000,
     procedure_growth_rate: 1.0,
-    applicable_indications: ['Prolonged Mechanical Ventilation', 'Upper Airway Obstruction', 'Laryngeal Cancer', 'Neurological Impairment', 'Subglottic Stenosis'],
+    applicable_indications: [
+      'Prolonged Mechanical Ventilation',
+      'Upper Airway Obstruction',
+      'Laryngeal Cancer',
+      'Neurological Impairment',
+      'Subglottic Stenosis',
+    ],
     applicable_device_categories: ['device_implantable', 'device_surgical'],
-    current_standard_of_care: 'Percutaneous dilational tracheostomy (Ciaglia technique); surgical tracheostomy; tracheostomy tubes (Shiley/Medtronic, Portex/Smiths Medical, Bivona)',
+    current_standard_of_care:
+      'Percutaneous dilational tracheostomy (Ciaglia technique); surgical tracheostomy; tracheostomy tubes (Shiley/Medtronic, Portex/Smiths Medical, Bivona)',
     new_device_eligible_procedures: 25000,
     adoption_curve: 'slow',
     site_of_care: 'inpatient',
@@ -930,9 +1182,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['94010', '94060'],
     annual_us_procedures: 14000000,
     procedure_growth_rate: 3.0,
-    applicable_indications: ['Chronic Obstructive Pulmonary Disease', 'Asthma', 'Interstitial Lung Disease', 'Pulmonary Fibrosis'],
+    applicable_indications: [
+      'Chronic Obstructive Pulmonary Disease',
+      'Asthma',
+      'Interstitial Lung Disease',
+      'Pulmonary Fibrosis',
+    ],
     applicable_device_categories: ['device_monitoring'],
-    current_standard_of_care: 'Office-based spirometry systems (Vyaire/CareFusion, ndd Medical, NuvoAir); hospital PFT labs with full body plethysmography',
+    current_standard_of_care:
+      'Office-based spirometry systems (Vyaire/CareFusion, ndd Medical, NuvoAir); hospital PFT labs with full body plethysmography',
     new_device_eligible_procedures: 3000000,
     adoption_curve: 'moderate',
     site_of_care: 'office',
@@ -946,9 +1204,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['94660', 'E0601'],
     annual_us_procedures: 1500000,
     procedure_growth_rate: 6.0,
-    applicable_indications: ['Obstructive Sleep Apnea', 'Central Sleep Apnea', 'Obesity Hypoventilation Syndrome', 'Chronic Respiratory Failure'],
+    applicable_indications: [
+      'Obstructive Sleep Apnea',
+      'Central Sleep Apnea',
+      'Obesity Hypoventilation Syndrome',
+      'Chronic Respiratory Failure',
+    ],
     applicable_device_categories: ['device_monitoring'],
-    current_standard_of_care: 'CPAP/BiPAP devices (ResMed AirSense 11, Philips DreamStation 2); home sleep testing + auto-titrating PAP',
+    current_standard_of_care:
+      'CPAP/BiPAP devices (ResMed AirSense 11, Philips DreamStation 2); home sleep testing + auto-titrating PAP',
     new_device_eligible_procedures: 500000,
     adoption_curve: 'rapid',
     site_of_care: 'home',
@@ -962,9 +1226,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['32554', '32555'],
     annual_us_procedures: 173000,
     procedure_growth_rate: 2.0,
-    applicable_indications: ['Pleural Effusion', 'Malignant Pleural Effusion', 'Congestive Heart Failure', 'Pneumonia with Parapneumonic Effusion'],
+    applicable_indications: [
+      'Pleural Effusion',
+      'Malignant Pleural Effusion',
+      'Congestive Heart Failure',
+      'Pneumonia with Parapneumonic Effusion',
+    ],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'Ultrasound-guided needle aspiration (BD, Teleflex); indwelling pleural catheters (BD PleurX, Rocket Medical) for recurrent effusions',
+    current_standard_of_care:
+      'Ultrasound-guided needle aspiration (BD, Teleflex); indwelling pleural catheters (BD PleurX, Rocket Medical) for recurrent effusions',
     new_device_eligible_procedures: 40000,
     adoption_curve: 'slow',
     site_of_care: 'inpatient',
@@ -981,9 +1251,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['97605', '97606'],
     annual_us_procedures: 1200000,
     procedure_growth_rate: 5.0,
-    applicable_indications: ['Chronic Non-Healing Wound', 'Diabetic Foot Ulcer', 'Surgical Site Infection', 'Pressure Ulcer'],
+    applicable_indications: [
+      'Chronic Non-Healing Wound',
+      'Diabetic Foot Ulcer',
+      'Surgical Site Infection',
+      'Pressure Ulcer',
+    ],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'VAC Therapy (3M/KCI), PICO (Smith+Nephew), Prevena (3M/KCI) for incision management; portable single-use NPWT devices emerging',
+    current_standard_of_care:
+      'VAC Therapy (3M/KCI), PICO (Smith+Nephew), Prevena (3M/KCI) for incision management; portable single-use NPWT devices emerging',
     new_device_eligible_procedures: 400000,
     adoption_curve: 'moderate',
     site_of_care: 'home',
@@ -999,7 +1275,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 8.0,
     applicable_indications: ['Diabetic Foot Ulcer', 'Venous Leg Ulcer', 'Chronic Non-Healing Wound', 'Burns'],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Cellular/tissue-based products (Organogenesis Apligraf, Smith+Nephew GRAFIX, MiMedx EpiFix); synthetic skin substitutes (Integra)',
+    current_standard_of_care:
+      'Cellular/tissue-based products (Organogenesis Apligraf, Smith+Nephew GRAFIX, MiMedx EpiFix); synthetic skin substitutes (Integra)',
     new_device_eligible_procedures: 200000,
     adoption_curve: 'rapid',
     site_of_care: 'outpatient',
@@ -1013,9 +1290,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['99183'],
     annual_us_procedures: 120000,
     procedure_growth_rate: 4.0,
-    applicable_indications: ['Diabetic Foot Ulcer', 'Chronic Refractory Osteomyelitis', 'Radiation Tissue Damage', 'Non-Healing Wound'],
+    applicable_indications: [
+      'Diabetic Foot Ulcer',
+      'Chronic Refractory Osteomyelitis',
+      'Radiation Tissue Damage',
+      'Non-Healing Wound',
+    ],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'Monoplace/multiplace hyperbaric chambers (Sechrist, ETC, Perry Baromedical); hospital-based wound care programs',
+    current_standard_of_care:
+      'Monoplace/multiplace hyperbaric chambers (Sechrist, ETC, Perry Baromedical); hospital-based wound care programs',
     new_device_eligible_procedures: 40000,
     adoption_curve: 'slow',
     site_of_care: 'outpatient',
@@ -1032,9 +1315,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['90935', '90937'],
     annual_us_procedures: 27000000,
     procedure_growth_rate: 3.0,
-    applicable_indications: ['End-Stage Renal Disease', 'Chronic Kidney Disease Stage 5', 'Acute Kidney Injury', 'Hyperkalemia Refractory to Medical Therapy'],
+    applicable_indications: [
+      'End-Stage Renal Disease',
+      'Chronic Kidney Disease Stage 5',
+      'Acute Kidney Injury',
+      'Hyperkalemia Refractory to Medical Therapy',
+    ],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'Hemodialysis machines (Fresenius 5008S, Baxter/NxStage, B. Braun Dialog+); dialyzers (Fresenius FX, Baxter Revaclear)',
+    current_standard_of_care:
+      'Hemodialysis machines (Fresenius 5008S, Baxter/NxStage, B. Braun Dialog+); dialyzers (Fresenius FX, Baxter Revaclear)',
     new_device_eligible_procedures: 5000000,
     adoption_curve: 'slow',
     site_of_care: 'outpatient',
@@ -1048,9 +1337,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['49421'],
     annual_us_procedures: 65000,
     procedure_growth_rate: 7.0,
-    applicable_indications: ['End-Stage Renal Disease', 'Chronic Kidney Disease Stage 5', 'ESRD with Home Dialysis Preference', 'Pediatric ESRD'],
+    applicable_indications: [
+      'End-Stage Renal Disease',
+      'Chronic Kidney Disease Stage 5',
+      'ESRD with Home Dialysis Preference',
+      'Pediatric ESRD',
+    ],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Tenckhoff catheters (Medline, Medtronic); laparoscopic PD catheter insertion; Baxter HomeChoice/Amia PD cyclers',
+    current_standard_of_care:
+      'Tenckhoff catheters (Medline, Medtronic); laparoscopic PD catheter insertion; Baxter HomeChoice/Amia PD cyclers',
     new_device_eligible_procedures: 30000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -1064,9 +1359,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['90945', '90947'],
     annual_us_procedures: 200000,
     procedure_growth_rate: 4.0,
-    applicable_indications: ['Acute Kidney Injury', 'Sepsis with Renal Failure', 'Multiorgan Failure', 'Hemodynamically Unstable Renal Failure'],
+    applicable_indications: [
+      'Acute Kidney Injury',
+      'Sepsis with Renal Failure',
+      'Multiorgan Failure',
+      'Hemodynamically Unstable Renal Failure',
+    ],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'CRRT machines (Baxter PrisMax, Fresenius multiFiltrate, B. Braun Diapact); hemofiltration/hemodialfiltration circuits',
+    current_standard_of_care:
+      'CRRT machines (Baxter PrisMax, Fresenius multiFiltrate, B. Braun Diapact); hemofiltration/hemodialfiltration circuits',
     new_device_eligible_procedures: 60000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -1085,7 +1386,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 9.0,
     applicable_indications: ['Malocclusion', 'Dental Crowding', 'Open Bite', 'Crossbite'],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'Clear aligners (Align Technology Invisalign, Henry Schein Spark, 3M Clarity, SmileDirectClub); traditional bracket orthodontics declining in adults',
+    current_standard_of_care:
+      'Clear aligners (Align Technology Invisalign, Henry Schein Spark, 3M Clarity, SmileDirectClub); traditional bracket orthodontics declining in adults',
     new_device_eligible_procedures: 800000,
     adoption_curve: 'rapid',
     site_of_care: 'office',
@@ -1101,7 +1403,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 1.0,
     applicable_indications: ['Irreversible Pulpitis', 'Dental Abscess', 'Tooth Necrosis', 'Periapical Pathology'],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'Rotary NiTi endodontic files (Dentsply ProTaper, Kerr WaveOne); electronic apex locators; obturation systems (Calamus, GuttaCore)',
+    current_standard_of_care:
+      'Rotary NiTi endodontic files (Dentsply ProTaper, Kerr WaveOne); electronic apex locators; obturation systems (Calamus, GuttaCore)',
     new_device_eligible_procedures: 2000000,
     adoption_curve: 'slow',
     site_of_care: 'office',
@@ -1120,7 +1423,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 3.0,
     applicable_indications: ['Pulmonary Embolism', 'Trauma Evaluation', 'Cancer Staging', 'Abdominal Pain Evaluation'],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'Multi-detector CT scanners (Siemens SOMATOM, GE Revolution, Canon Aquilion, Philips Incisive); photon-counting CT emerging',
+    current_standard_of_care:
+      'Multi-detector CT scanners (Siemens SOMATOM, GE Revolution, Canon Aquilion, Philips Incisive); photon-counting CT emerging',
     new_device_eligible_procedures: 15000000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -1136,7 +1440,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 4.0,
     applicable_indications: ['Brain Tumor Evaluation', 'Musculoskeletal Injury', 'Multiple Sclerosis', 'Stroke Workup'],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'MRI systems (Siemens MAGNETOM, GE SIGNA, Philips Ingenia, Canon Vantage); 1.5T and 3T dominant; 7T emerging for research',
+    current_standard_of_care:
+      'MRI systems (Siemens MAGNETOM, GE SIGNA, Philips Ingenia, Canon Vantage); 1.5T and 3T dominant; 7T emerging for research',
     new_device_eligible_procedures: 8000000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -1150,9 +1455,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['78816'],
     annual_us_procedures: 2500000,
     procedure_growth_rate: 7.0,
-    applicable_indications: ['Lung Cancer Staging', 'Lymphoma Staging', 'Head and Neck Cancer Staging', 'Melanoma Staging'],
+    applicable_indications: [
+      'Lung Cancer Staging',
+      'Lymphoma Staging',
+      'Head and Neck Cancer Staging',
+      'Melanoma Staging',
+    ],
     applicable_device_categories: ['device_capital_equipment', 'diagnostics_imaging'],
-    current_standard_of_care: 'PET/CT systems (Siemens Biograph, GE Discovery MI, Philips Vereos); FDG-PET dominant; PSMA-PET for prostate emerging',
+    current_standard_of_care:
+      'PET/CT systems (Siemens Biograph, GE Discovery MI, Philips Vereos); FDG-PET dominant; PSMA-PET for prostate emerging',
     new_device_eligible_procedures: 800000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -1169,9 +1480,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['99453', '99454', '99457'],
     annual_us_procedures: 26000000,
     procedure_growth_rate: 15.0,
-    applicable_indications: ['Hypertension', 'Congestive Heart Failure', 'Type 2 Diabetes', 'Chronic Obstructive Pulmonary Disease'],
+    applicable_indications: [
+      'Hypertension',
+      'Congestive Heart Failure',
+      'Type 2 Diabetes',
+      'Chronic Obstructive Pulmonary Disease',
+    ],
     applicable_device_categories: ['device_monitoring', 'device_digital_health'],
-    current_standard_of_care: 'RPM platforms (Livongo/Teladoc, Biobeat, Withings, Current Health/Best Buy Health); connected blood pressure cuffs, scales, pulse oximeters',
+    current_standard_of_care:
+      'RPM platforms (Livongo/Teladoc, Biobeat, Withings, Current Health/Best Buy Health); connected blood pressure cuffs, scales, pulse oximeters',
     new_device_eligible_procedures: 10000000,
     adoption_curve: 'rapid',
     site_of_care: 'home',
@@ -1187,7 +1504,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 25.0,
     applicable_indications: ['Lung Nodule Detection', 'Breast Cancer Screening', 'Stroke Triage', 'Fracture Detection'],
     applicable_device_categories: ['device_digital_health', 'device_capital_equipment'],
-    current_standard_of_care: 'FDA-cleared AI algorithms (Viz.ai stroke, Aidoc triage, Lunit chest, iCAD mammography); integrated into PACS workflows',
+    current_standard_of_care:
+      'FDA-cleared AI algorithms (Viz.ai stroke, Aidoc triage, Lunit chest, iCAD mammography); integrated into PACS workflows',
     new_device_eligible_procedures: 15000000,
     adoption_curve: 'rapid',
     site_of_care: 'outpatient',
@@ -1201,9 +1519,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['98975', '98976', '98977'],
     annual_us_procedures: 500000,
     procedure_growth_rate: 30.0,
-    applicable_indications: ['Substance Use Disorder', 'Chronic Insomnia', 'Type 2 Diabetes Management', 'Chronic Low Back Pain'],
+    applicable_indications: [
+      'Substance Use Disorder',
+      'Chronic Insomnia',
+      'Type 2 Diabetes Management',
+      'Chronic Low Back Pain',
+    ],
     applicable_device_categories: ['device_digital_health'],
-    current_standard_of_care: 'FDA-cleared DTx (Pear reSET/reSET-O, Freespira PTSD/panic, Mahana for IBS, EndeavorRx for ADHD); prescription digital therapeutics reimbursed via CPT 989xx',
+    current_standard_of_care:
+      'FDA-cleared DTx (Pear reSET/reSET-O, Freespira PTSD/panic, Mahana for IBS, EndeavorRx for ADHD); prescription digital therapeutics reimbursed via CPT 989xx',
     new_device_eligible_procedures: 350000,
     adoption_curve: 'rapid',
     site_of_care: 'home',
@@ -1220,9 +1544,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['37220', '37224', '37228'],
     annual_us_procedures: 400000,
     procedure_growth_rate: 5.0,
-    applicable_indications: ['Peripheral Artery Disease', 'Critical Limb Ischemia', 'Intermittent Claudication', 'Chronic Limb-Threatening Ischemia'],
+    applicable_indications: [
+      'Peripheral Artery Disease',
+      'Critical Limb Ischemia',
+      'Intermittent Claudication',
+      'Chronic Limb-Threatening Ischemia',
+    ],
     applicable_device_categories: ['device_implantable', 'device_surgical'],
-    current_standard_of_care: 'Drug-coated balloons (Medtronic IN.PACT, BD Lutonix); peripheral stents (Medtronic, Abbott, Cook); atherectomy (Philips, Boston Scientific, Cardiovascular Systems)',
+    current_standard_of_care:
+      'Drug-coated balloons (Medtronic IN.PACT, BD Lutonix); peripheral stents (Medtronic, Abbott, Cook); atherectomy (Philips, Boston Scientific, Cardiovascular Systems)',
     new_device_eligible_procedures: 120000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -1236,9 +1566,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['36475', '36478'],
     annual_us_procedures: 500000,
     procedure_growth_rate: 4.0,
-    applicable_indications: ['Varicose Veins', 'Chronic Venous Insufficiency', 'Venous Reflux Disease', 'Venous Leg Ulcer'],
+    applicable_indications: [
+      'Varicose Veins',
+      'Chronic Venous Insufficiency',
+      'Venous Reflux Disease',
+      'Venous Leg Ulcer',
+    ],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'Endovenous laser ablation (AngioDynamics, Biolitec); radiofrequency ablation (Medtronic ClosureFast/VenaSeal); mechanochemical ablation (Clarivein)',
+    current_standard_of_care:
+      'Endovenous laser ablation (AngioDynamics, Biolitec); radiofrequency ablation (Medtronic ClosureFast/VenaSeal); mechanochemical ablation (Clarivein)',
     new_device_eligible_procedures: 150000,
     adoption_curve: 'moderate',
     site_of_care: 'office',
@@ -1255,9 +1591,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['17000', '17003', '17004'],
     annual_us_procedures: 5000000,
     procedure_growth_rate: 2.0,
-    applicable_indications: ['Actinic Keratosis', 'Common Warts', 'Seborrheic Keratosis', 'Basal Cell Carcinoma (Superficial)'],
+    applicable_indications: [
+      'Actinic Keratosis',
+      'Common Warts',
+      'Seborrheic Keratosis',
+      'Basal Cell Carcinoma (Superficial)',
+    ],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'Liquid nitrogen spray/probe (Brymill CryoSurgery, Wallach Surgical); nitrous oxide cryosurgery (CryoPen, CryoProbe)',
+    current_standard_of_care:
+      'Liquid nitrogen spray/probe (Brymill CryoSurgery, Wallach Surgical); nitrous oxide cryosurgery (CryoPen, CryoProbe)',
     new_device_eligible_procedures: 1000000,
     adoption_curve: 'slow',
     site_of_care: 'office',
@@ -1274,9 +1616,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['31295', '31296', '31297'],
     annual_us_procedures: 150000,
     procedure_growth_rate: 6.0,
-    applicable_indications: ['Chronic Rhinosinusitis', 'Recurrent Acute Sinusitis', 'Frontal Sinusitis', 'Maxillary Sinusitis'],
+    applicable_indications: [
+      'Chronic Rhinosinusitis',
+      'Recurrent Acute Sinusitis',
+      'Frontal Sinusitis',
+      'Maxillary Sinusitis',
+    ],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'Balloon sinus dilation systems (Stryker/Entellus, Medtronic NuVent, Johnson & Johnson Acclarent); in-office under local anesthesia increasing',
+    current_standard_of_care:
+      'Balloon sinus dilation systems (Stryker/Entellus, Medtronic NuVent, Johnson & Johnson Acclarent); in-office under local anesthesia increasing',
     new_device_eligible_procedures: 60000,
     adoption_curve: 'rapid',
     site_of_care: 'office',
@@ -1293,9 +1641,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['53899', '55874'],
     annual_us_procedures: 180000,
     procedure_growth_rate: 12.0,
-    applicable_indications: ['Benign Prostatic Hyperplasia', 'Lower Urinary Tract Symptoms', 'Bladder Outlet Obstruction', 'BPH-Related Urinary Retention'],
+    applicable_indications: [
+      'Benign Prostatic Hyperplasia',
+      'Lower Urinary Tract Symptoms',
+      'Bladder Outlet Obstruction',
+      'BPH-Related Urinary Retention',
+    ],
     applicable_device_categories: ['device_surgical', 'device_implantable'],
-    current_standard_of_care: 'UroLift prostatic urethral lift (Teleflex); Rezum water vapor thermal therapy (Boston Scientific); iTind (Olympus); TURP declining for moderate BPH',
+    current_standard_of_care:
+      'UroLift prostatic urethral lift (Teleflex); Rezum water vapor thermal therapy (Boston Scientific); iTind (Olympus); TURP declining for moderate BPH',
     new_device_eligible_procedures: 80000,
     adoption_curve: 'rapid',
     site_of_care: 'office',
@@ -1329,7 +1683,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 8.0,
     applicable_indications: ['Uterine Fibroids', 'Symptomatic Leiomyomata'],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'Uterine artery embolization with microspheres (Merit Medical, Boston Scientific). Alternative to hysterectomy.',
+    current_standard_of_care:
+      'Uterine artery embolization with microspheres (Merit Medical, Boston Scientific). Alternative to hysterectomy.',
     new_device_eligible_procedures: 20000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -1342,9 +1697,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['58974', '89268', '89272'],
     annual_us_procedures: 420000,
     procedure_growth_rate: 10.0,
-    applicable_indications: ['Infertility', 'Endometriosis-Related Infertility', 'Male Factor Infertility', 'PGT Genetic Screening'],
+    applicable_indications: [
+      'Infertility',
+      'Endometriosis-Related Infertility',
+      'Male Factor Infertility',
+      'PGT Genetic Screening',
+    ],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'IVF with time-lapse embryo monitoring (Vitrolife EmbryoScope), AI-assisted embryo grading, PGT-A/PGT-M genetic testing',
+    current_standard_of_care:
+      'IVF with time-lapse embryo monitoring (Vitrolife EmbryoScope), AI-assisted embryo grading, PGT-A/PGT-M genetic testing',
     new_device_eligible_procedures: 100000,
     adoption_curve: 'rapid',
     site_of_care: 'outpatient',
@@ -1378,7 +1739,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 6.0,
     applicable_indications: ['Acne Scars', 'Photodamage', 'Skin Rejuvenation', 'Melasma'],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'CO2 fractional (Lumenis, Sciton), erbium YAG, picosecond lasers. RF microneedling (Morpheus8) competing.',
+    current_standard_of_care:
+      'CO2 fractional (Lumenis, Sciton), erbium YAG, picosecond lasers. RF microneedling (Morpheus8) competing.',
     new_device_eligible_procedures: 200000,
     adoption_curve: 'rapid',
     site_of_care: 'office',
@@ -1393,7 +1755,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 1.0,
     applicable_indications: ['Actinic Keratosis', 'Warts', 'Seborrheic Keratosis', 'Skin Tags'],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'Liquid nitrogen spray (Brymill CryoAc), CryoPen, Histofreezer. High-volume office procedure.',
+    current_standard_of_care:
+      'Liquid nitrogen spray (Brymill CryoAc), CryoPen, Histofreezer. High-volume office procedure.',
     new_device_eligible_procedures: 500000,
     adoption_curve: 'slow',
     site_of_care: 'office',
@@ -1412,7 +1775,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 15.0,
     applicable_indications: ['Open-Angle Glaucoma', 'Ocular Hypertension'],
     applicable_device_categories: ['device_implantable', 'device_surgical'],
-    current_standard_of_care: 'iStent (Glaukos), Hydrus (Alcon), XEN Gel Stent (AbbVie), Kahook Dual Blade, OMNI. Often combined with cataract surgery.',
+    current_standard_of_care:
+      'iStent (Glaukos), Hydrus (Alcon), XEN Gel Stent (AbbVie), Kahook Dual Blade, OMNI. Often combined with cataract surgery.',
     new_device_eligible_procedures: 120000,
     adoption_curve: 'rapid',
     site_of_care: 'outpatient',
@@ -1427,7 +1791,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 5.0,
     applicable_indications: ['Wet AMD', 'Diabetic Macular Edema', 'Retinal Vein Occlusion', 'Diabetic Retinopathy'],
     applicable_device_categories: ['device_drug_delivery', 'device_surgical'],
-    current_standard_of_care: 'Eylea (aflibercept), Vabysmo (faricimab), Lucentis (ranibizumab), Avastin (bevacizumab off-label). Port delivery (Susvimo) emerging.',
+    current_standard_of_care:
+      'Eylea (aflibercept), Vabysmo (faricimab), Lucentis (ranibizumab), Avastin (bevacizumab off-label). Port delivery (Susvimo) emerging.',
     new_device_eligible_procedures: 1000000,
     adoption_curve: 'moderate',
     site_of_care: 'office',
@@ -1446,7 +1811,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 7.0,
     applicable_indications: ['Tooth Loss', 'Edentulism', 'Failed Fixed Prosthetics'],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Titanium/zirconia implants (Straumann, Nobel Biocare, Dentsply Sirona, Zimmer Biomet Dental). AI-guided planning growing.',
+    current_standard_of_care:
+      'Titanium/zirconia implants (Straumann, Nobel Biocare, Dentsply Sirona, Zimmer Biomet Dental). AI-guided planning growing.',
     new_device_eligible_procedures: 600000,
     adoption_curve: 'moderate',
     site_of_care: 'office',
@@ -1461,7 +1827,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 12.0,
     applicable_indications: ['Implant Planning', 'Impacted Teeth', 'TMJ Evaluation', 'Endodontic Assessment'],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'Cone-beam CT (Carestream, Dentsply Sirona Orthophos, Planmeca). AI-assisted interpretation emerging.',
+    current_standard_of_care:
+      'Cone-beam CT (Carestream, Dentsply Sirona Orthophos, Planmeca). AI-assisted interpretation emerging.',
     new_device_eligible_procedures: 1000000,
     adoption_curve: 'rapid',
     site_of_care: 'office',
@@ -1480,7 +1847,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 8.0,
     applicable_indications: ['Severe Sensorineural Hearing Loss', 'Single-Sided Deafness', 'Pediatric Hearing Loss'],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Cochlear (Nucleus 8), MED-EL (SYNCHRONY), AB/Phonak (HiRes Ultra). Expanding indications to single-sided deafness.',
+    current_standard_of_care:
+      'Cochlear (Nucleus 8), MED-EL (SYNCHRONY), AB/Phonak (HiRes Ultra). Expanding indications to single-sided deafness.',
     new_device_eligible_procedures: 8000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -1495,7 +1863,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 6.0,
     applicable_indications: ['Chronic Sinusitis', 'Recurrent Acute Sinusitis'],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'Entellus/Stryker XprESS, Medtronic NuVent, J&J Acclarent. Office-based gaining share from OR-based FESS.',
+    current_standard_of_care:
+      'Entellus/Stryker XprESS, Medtronic NuVent, J&J Acclarent. Office-based gaining share from OR-based FESS.',
     new_device_eligible_procedures: 100000,
     adoption_curve: 'rapid',
     site_of_care: 'office',
@@ -1514,7 +1883,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 3.0,
     applicable_indications: ['Abdominal Aortic Aneurysm', 'Thoracic Aortic Aneurysm', 'Aortic Dissection'],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Endovascular stent grafts: Medtronic Endurant/Valiant, Cook Zenith, Gore Excluder/TAG. Complex anatomy driving custom/physician-modified grafts.',
+    current_standard_of_care:
+      'Endovascular stent grafts: Medtronic Endurant/Valiant, Cook Zenith, Gore Excluder/TAG. Complex anatomy driving custom/physician-modified grafts.',
     new_device_eligible_procedures: 25000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -1529,7 +1899,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 4.0,
     applicable_indications: ['Varicose Veins', 'Chronic Venous Insufficiency', 'Venous Ulcers'],
     applicable_device_categories: ['device_surgical'],
-    current_standard_of_care: 'Radiofrequency ablation (Medtronic ClosureFast), laser ablation (AngioDynamics), VenaSeal cyanoacrylate closure (Medtronic), mechanochemical (Clarivein).',
+    current_standard_of_care:
+      'Radiofrequency ablation (Medtronic ClosureFast), laser ablation (AngioDynamics), VenaSeal cyanoacrylate closure (Medtronic), mechanochemical (Clarivein).',
     new_device_eligible_procedures: 150000,
     adoption_curve: 'rapid',
     site_of_care: 'office',
@@ -1544,7 +1915,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 5.0,
     applicable_indications: ['Carotid Artery Stenosis', 'TIA Prevention', 'Stroke Prevention'],
     applicable_device_categories: ['device_implantable'],
-    current_standard_of_care: 'Transfemoral CAS (Abbott/Medtronic) vs TCAR (Silk Road Medical, acquired by Boston Scientific). CEA still standard for most patients.',
+    current_standard_of_care:
+      'Transfemoral CAS (Abbott/Medtronic) vs TCAR (Silk Road Medical, acquired by Boston Scientific). CEA still standard for most patients.',
     new_device_eligible_procedures: 12000,
     adoption_curve: 'moderate',
     site_of_care: 'inpatient',
@@ -1561,9 +1933,16 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['74177', '74178', '71260', '70553'],
     annual_us_procedures: 80000000,
     procedure_growth_rate: 3.0,
-    applicable_indications: ['Cancer Staging', 'Pulmonary Embolism', 'Trauma', 'Abdominal Pain', 'Lung Cancer Screening'],
+    applicable_indications: [
+      'Cancer Staging',
+      'Pulmonary Embolism',
+      'Trauma',
+      'Abdominal Pain',
+      'Lung Cancer Screening',
+    ],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'CT scanners (Siemens Healthineers, GE HealthCare, Philips, Canon Medical). Photon-counting CT emerging (Siemens NAEOTOM Alpha).',
+    current_standard_of_care:
+      'CT scanners (Siemens Healthineers, GE HealthCare, Philips, Canon Medical). Photon-counting CT emerging (Siemens NAEOTOM Alpha).',
     new_device_eligible_procedures: 10000000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -1578,7 +1957,8 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     procedure_growth_rate: 2.5,
     applicable_indications: ['Brain Tumors', 'Spine Disorders', 'Joint Injuries', 'Cardiac Imaging', 'Breast MRI'],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'MRI (Siemens MAGNETOM, GE SIGNA, Philips Ingenia). AI acceleration (GE AIR Recon DL, Siemens Deep Resolve) reducing scan times 50%.',
+    current_standard_of_care:
+      'MRI (Siemens MAGNETOM, GE SIGNA, Philips Ingenia). AI acceleration (GE AIR Recon DL, Siemens Deep Resolve) reducing scan times 50%.',
     new_device_eligible_procedures: 5000000,
     adoption_curve: 'moderate',
     site_of_care: 'outpatient',
@@ -1591,9 +1971,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['78816', '78815', '78814'],
     annual_us_procedures: 2500000,
     procedure_growth_rate: 8.0,
-    applicable_indications: ['Cancer Staging/Restaging', 'Therapy Response Assessment', 'Alzheimer PET (Amyloid/Tau)', 'Prostate PSMA-PET'],
+    applicable_indications: [
+      'Cancer Staging/Restaging',
+      'Therapy Response Assessment',
+      'Alzheimer PET (Amyloid/Tau)',
+      'Prostate PSMA-PET',
+    ],
     applicable_device_categories: ['device_capital_equipment'],
-    current_standard_of_care: 'PET/CT (Siemens Biograph, GE Discovery, Philips Vereos). PSMA-PET (Pylarify, Pluvicto theranostics) driving volume growth.',
+    current_standard_of_care:
+      'PET/CT (Siemens Biograph, GE Discovery, Philips Vereos). PSMA-PET (Pylarify, Pluvicto theranostics) driving volume growth.',
     new_device_eligible_procedures: 800000,
     adoption_curve: 'rapid',
     site_of_care: 'outpatient',
@@ -1610,9 +1996,15 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     cpt_codes: ['97605', '97606'],
     annual_us_procedures: 1200000,
     procedure_growth_rate: 5.0,
-    applicable_indications: ['Diabetic Foot Ulcers', 'Surgical Wound Dehiscence', 'Pressure Ulcers', 'Traumatic Wounds'],
+    applicable_indications: [
+      'Diabetic Foot Ulcers',
+      'Surgical Wound Dehiscence',
+      'Pressure Ulcers',
+      'Traumatic Wounds',
+    ],
     applicable_device_categories: ['device_monitoring'],
-    current_standard_of_care: '3M/KCI V.A.C., Smith+Nephew PICO, Medela Invia. Single-use disposable NPWT growing rapidly.',
+    current_standard_of_care:
+      '3M/KCI V.A.C., Smith+Nephew PICO, Medela Invia. Single-use disposable NPWT growing rapidly.',
     new_device_eligible_procedures: 400000,
     adoption_curve: 'moderate',
     site_of_care: 'home',
@@ -1621,6 +2013,574 @@ export const PROCEDURE_VOLUME_DATA: ProcedureVolumeData[] = [
     last_updated: '2025-01-15',
   },
 
+  // ──────────────────────────────────────────
+  // NEUROSURGERY (EXPANDED)
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Craniotomy for Tumor Resection',
+    cpt_codes: ['61510', '61512', '61518', '61519', '61520', '61521'],
+    annual_us_procedures: 70000,
+    procedure_growth_rate: 3.0,
+    applicable_indications: [
+      'Primary Brain Tumor',
+      'Glioblastoma',
+      'Meningioma',
+      'Brain Metastases',
+      'Low-Grade Glioma',
+    ],
+    applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
+    current_standard_of_care:
+      'Intraoperative MRI/CT navigation (Medtronic StealthStation, Brainlab), fluorescence-guided surgery (5-ALA), ultrasonic aspirators (Integra CUSA)',
+    new_device_eligible_procedures: 25000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Neurosurgery', 'Neuro-Oncology'],
+    source: 'CBTRUS Statistical Report 2024; NIS Database; CMS MEDPAR Claims',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Cerebral Aneurysm Clipping / Endovascular Coiling',
+    cpt_codes: ['61700', '61702', '61703', '61624', '61710'],
+    annual_us_procedures: 35000,
+    procedure_growth_rate: 2.5,
+    applicable_indications: [
+      'Cerebral Aneurysm',
+      'Subarachnoid Hemorrhage',
+      'Unruptured Intracranial Aneurysm',
+      'Ruptured Aneurysm',
+    ],
+    applicable_device_categories: ['device_implantable', 'device_surgical'],
+    current_standard_of_care:
+      'Endovascular coiling (Stryker Target, MicroVention FRED); flow diversion (Medtronic Pipeline Flex, MicroVention FRED); microsurgical clipping for complex anatomy',
+    new_device_eligible_procedures: 15000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Neurosurgery', 'Neurointerventional Radiology'],
+    source: 'AHA Stroke Statistics 2024; AANS/CNS Cerebrovascular Section Data; NIS Database',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Ventriculoperitoneal (VP) Shunt Placement',
+    cpt_codes: ['62220', '62223', '62225', '62230'],
+    annual_us_procedures: 40000,
+    procedure_growth_rate: 1.5,
+    applicable_indications: [
+      'Hydrocephalus',
+      'Normal Pressure Hydrocephalus',
+      'Post-Hemorrhagic Hydrocephalus',
+      'Congenital Hydrocephalus',
+      'Idiopathic Intracranial Hypertension',
+    ],
+    applicable_device_categories: ['device_implantable'],
+    current_standard_of_care:
+      'Programmable shunt valves (Medtronic Strata, Integra Codman Certas Plus, Sophysa); endoscopic third ventriculostomy (ETV) as alternative for select patients',
+    new_device_eligible_procedures: 15000,
+    adoption_curve: 'slow',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Neurosurgery', 'Pediatric Neurosurgery'],
+    source: 'AANS/CNS Pediatric Section; Hydrocephalus Association Data; NIS Database 2024',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Epilepsy Surgery (SEEG / Resection)',
+    cpt_codes: ['61531', '61533', '61534', '61535', '61536', '61760'],
+    annual_us_procedures: 6000,
+    procedure_growth_rate: 5.0,
+    applicable_indications: [
+      'Drug-Resistant Epilepsy',
+      'Temporal Lobe Epilepsy',
+      'Focal Cortical Dysplasia',
+      'Mesial Temporal Sclerosis',
+      'Refractory Epilepsy',
+    ],
+    applicable_device_categories: ['device_surgical', 'device_implantable', 'device_capital_equipment'],
+    current_standard_of_care:
+      'Stereoelectroencephalography (SEEG) with robotic placement (Zimmer Biomet ROSA, Medtronic StealthStation); anterior temporal lobectomy; laser interstitial thermal therapy (LITT, Medtronic Visualase)',
+    new_device_eligible_procedures: 3000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Neurosurgery', 'Epileptology', 'Neurology'],
+    source: 'NAEC (National Association of Epilepsy Centers) 2024; AES/ILAE Data; CMS Claims',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Responsive Neurostimulation (RNS) Implant',
+    cpt_codes: ['61850', '61860', '61863', '61864'],
+    annual_us_procedures: 3000,
+    procedure_growth_rate: 10.0,
+    applicable_indications: [
+      'Drug-Resistant Focal Epilepsy',
+      'Refractory Partial-Onset Seizures',
+      'Medically Intractable Epilepsy',
+    ],
+    applicable_device_categories: ['device_implantable'],
+    current_standard_of_care:
+      'NeuroPace RNS System (only FDA-approved closed-loop brain stimulator for epilepsy); vagus nerve stimulation (LivaNova VNS) as alternative neuromodulation',
+    new_device_eligible_procedures: 2000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Neurosurgery', 'Epileptology'],
+    source: 'NeuroPace Annual Reports; NAEC Data 2024; CMS Claims',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Vagus Nerve Stimulation (VNS) Implant',
+    cpt_codes: ['64553', '64568', '64569', '64570'],
+    annual_us_procedures: 5000,
+    procedure_growth_rate: 4.0,
+    applicable_indications: [
+      'Drug-Resistant Epilepsy',
+      'Treatment-Resistant Depression',
+      'Cluster Headache',
+      'Refractory Epilepsy in Pediatrics',
+    ],
+    applicable_device_categories: ['device_implantable'],
+    current_standard_of_care:
+      'LivaNova VNS Therapy (SenTiva generator); non-invasive VNS (gammaCore for migraine/cluster headache); DBS and RNS as alternatives for epilepsy neuromodulation',
+    new_device_eligible_procedures: 3000,
+    adoption_curve: 'slow',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Neurosurgery', 'Epileptology', 'Neurology'],
+    source: 'LivaNova Clinical Reports 2024; AES Guidelines; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // INTERVENTIONAL RADIOLOGY
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Liver Tumor Ablation (RFA / Microwave Ablation)',
+    cpt_codes: ['47382', '47383'],
+    annual_us_procedures: 30000,
+    procedure_growth_rate: 6.0,
+    applicable_indications: [
+      'Hepatocellular Carcinoma',
+      'Colorectal Liver Metastases',
+      'Unresectable Liver Tumors',
+      'Small HCC',
+    ],
+    applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
+    current_standard_of_care:
+      'Microwave ablation (Medtronic Emprint, J&J Ethicon NeuWave, AngioDynamics); radiofrequency ablation (Boston Scientific, AngioDynamics); cryoablation (IceCure, Varian)',
+    new_device_eligible_procedures: 12000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Interventional Radiology', 'Surgical Oncology', 'Hepatobiliary Surgery'],
+    source: 'SIR (Society of Interventional Radiology) 2024; AASLD HCC Guidelines; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Lung Tumor Ablation (Percutaneous)',
+    cpt_codes: ['32998'],
+    annual_us_procedures: 12000,
+    procedure_growth_rate: 8.0,
+    applicable_indications: [
+      'Early-Stage NSCLC',
+      'Lung Metastases',
+      'Medically Inoperable Lung Cancer',
+      'Oligometastatic Lung Disease',
+    ],
+    applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
+    current_standard_of_care:
+      'Microwave ablation (Medtronic Emprint, NeuWave); cryoablation (Varian, IceCure); CT-guided percutaneous approach; SBRT as competing modality',
+    new_device_eligible_procedures: 6000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Interventional Radiology', 'Thoracic Surgery', 'Pulmonology'],
+    source: 'SIR IO Committee 2024; CHEST/ASTRO Guidelines; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'TIPS Procedure (Transjugular Intrahepatic Portosystemic Shunt)',
+    cpt_codes: ['37182', '37183'],
+    annual_us_procedures: 15000,
+    procedure_growth_rate: 3.0,
+    applicable_indications: [
+      'Portal Hypertension',
+      'Variceal Bleeding',
+      'Refractory Ascites',
+      'Budd-Chiari Syndrome',
+      'Hepatorenal Syndrome',
+    ],
+    applicable_device_categories: ['device_implantable'],
+    current_standard_of_care:
+      'Covered PTFE stent-grafts (Gore VIATORR); uncovered stents declining; endoscopic variceal ligation (EVL) and pharmacotherapy as alternatives',
+    new_device_eligible_procedures: 5000,
+    adoption_curve: 'slow',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Interventional Radiology', 'Hepatology', 'Vascular Surgery'],
+    source: 'SIR Clinical Practice Guidelines 2024; AASLD Portal Hypertension Guidelines; CMS Claims',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Y-90 Radioembolization (TARE / SIRT)',
+    cpt_codes: ['37243', '79445'],
+    annual_us_procedures: 18000,
+    procedure_growth_rate: 7.5,
+    applicable_indications: [
+      'Hepatocellular Carcinoma',
+      'Colorectal Liver Metastases',
+      'Intrahepatic Cholangiocarcinoma',
+      'Unresectable Liver Cancer',
+    ],
+    applicable_device_categories: ['device_drug_delivery', 'device_surgical'],
+    current_standard_of_care:
+      'SIR-Spheres (Sirtex/Varian); TheraSphere (Boston Scientific); used as bridge to transplant, downstaging, or palliative; immunotherapy combinations emerging',
+    new_device_eligible_procedures: 10000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Interventional Radiology', 'Nuclear Medicine', 'Surgical Oncology'],
+    source: 'SIR Position Statement 2024; NCCN HCC Guidelines; Boston Scientific/Sirtex Market Data',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Vertebral Body Augmentation (IR-Guided Vertebroplasty/Kyphoplasty)',
+    cpt_codes: ['22510', '22511', '22512', '22513', '22514', '22515'],
+    annual_us_procedures: 75000,
+    procedure_growth_rate: 2.0,
+    applicable_indications: [
+      'Vertebral Compression Fracture',
+      'Osteoporotic Fracture',
+      'Metastatic Vertebral Fracture',
+      'Painful VCF Refractory to Conservative Therapy',
+    ],
+    applicable_device_categories: ['device_surgical', 'device_implantable'],
+    current_standard_of_care:
+      'Balloon kyphoplasty (Medtronic, Stryker); vertebroplasty (PMMA cement injection); radiofrequency-targeted vertebral augmentation (Medtronic KYPHON)',
+    new_device_eligible_procedures: 20000,
+    adoption_curve: 'slow',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Interventional Radiology', 'Neurosurgery', 'Orthopedic Spine Surgery', 'Pain Management'],
+    source: 'SIR/ASSR Guidelines 2024; AAOS Clinical Practice Guideline; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // ADVANCED SPINAL SURGERY
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Microdiscectomy (Lumbar)',
+    cpt_codes: ['63030', '63035'],
+    annual_us_procedures: 300000,
+    procedure_growth_rate: 2.0,
+    applicable_indications: [
+      'Lumbar Disc Herniation',
+      'Sciatica',
+      'Radiculopathy',
+      'Cauda Equina Syndrome',
+      'Herniated Nucleus Pulposus',
+    ],
+    applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
+    current_standard_of_care:
+      'Microscope-assisted open microdiscectomy (Zeiss, Leica); tubular retractor systems (Medtronic METRx, NuVasive); endoscopic discectomy (joimax, Elliquence) gaining share',
+    new_device_eligible_procedures: 80000,
+    adoption_curve: 'moderate',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Neurosurgery', 'Orthopedic Spine Surgery'],
+    source: 'North American Spine Society 2024; SPORT Trial Long-Term Data; CMS Claims',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Laminectomy (Lumbar Decompression)',
+    cpt_codes: ['63005', '63012', '63017', '63042', '63047'],
+    annual_us_procedures: 200000,
+    procedure_growth_rate: 3.0,
+    applicable_indications: [
+      'Lumbar Spinal Stenosis',
+      'Central Canal Stenosis',
+      'Neurogenic Claudication',
+      'Foraminal Stenosis',
+      'Degenerative Spondylolisthesis',
+    ],
+    applicable_device_categories: ['device_surgical'],
+    current_standard_of_care:
+      'Open laminectomy; minimally invasive laminotomy (Medtronic, NuVasive, Stryker); interspinous process devices (Vertiflex Superion by Boston Scientific) for mild-moderate stenosis',
+    new_device_eligible_procedures: 60000,
+    adoption_curve: 'moderate',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Neurosurgery', 'Orthopedic Spine Surgery'],
+    source: 'NASS Evidence-Based Guidelines 2024; CMS Claims Data; NIS Database',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Kyphoplasty / Vertebroplasty',
+    cpt_codes: ['22510', '22511', '22512', '22513', '22514', '22515'],
+    annual_us_procedures: 100000,
+    procedure_growth_rate: 1.5,
+    applicable_indications: [
+      'Osteoporotic Vertebral Compression Fracture',
+      'Pathologic Vertebral Fracture',
+      'Painful VCF',
+      'Myeloma-Related Vertebral Fracture',
+    ],
+    applicable_device_categories: ['device_surgical', 'device_implantable'],
+    current_standard_of_care:
+      'Balloon kyphoplasty (Medtronic KYPHON, Stryker); vertebroplasty (PMMA cement injection); SpineJack (Stryker) titanium implant augmentation',
+    new_device_eligible_procedures: 30000,
+    adoption_curve: 'slow',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Interventional Radiology', 'Neurosurgery', 'Orthopedic Spine Surgery', 'Pain Management'],
+    source: 'NASS/SIR Guidelines 2024; AAOS Clinical Practice Guidelines; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Artificial Disc Replacement (Cervical / Lumbar)',
+    cpt_codes: ['22856', '22857', '22858', '22861', '22862'],
+    annual_us_procedures: 35000,
+    procedure_growth_rate: 8.0,
+    applicable_indications: [
+      'Cervical Degenerative Disc Disease',
+      'Lumbar Degenerative Disc Disease',
+      'Cervical Radiculopathy',
+      'Single-Level Symptomatic DDD',
+    ],
+    applicable_device_categories: ['device_implantable'],
+    current_standard_of_care:
+      'Cervical: Mobi-C (Zimmer Biomet), Prestige LP (Medtronic), ProDisc-C (DePuy Synthes); Lumbar: activL (Aesculap/B. Braun), ProDisc-L. Motion preservation alternative to fusion.',
+    new_device_eligible_procedures: 18000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Neurosurgery', 'Orthopedic Spine Surgery'],
+    source: 'NASS Cervical/Lumbar ADR Guidelines 2024; FDA IDE Study Long-Term Data; CMS Claims',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // MINOR ORTHOPEDIC PROCEDURES
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Carpal Tunnel Release (Open / Endoscopic)',
+    cpt_codes: ['64721', '29848'],
+    annual_us_procedures: 500000,
+    procedure_growth_rate: 3.0,
+    applicable_indications: [
+      'Carpal Tunnel Syndrome',
+      'Median Nerve Compression',
+      'Median Neuropathy at Wrist',
+      'Severe CTS with Thenar Atrophy',
+    ],
+    applicable_device_categories: ['device_surgical'],
+    current_standard_of_care:
+      'Open carpal tunnel release (standard); endoscopic CTR (Arthrex, Smith+Nephew); ultrasound-guided percutaneous release (Sonex SX-One MicroKnife) emerging',
+    new_device_eligible_procedures: 150000,
+    adoption_curve: 'moderate',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Orthopedic Surgery (Hand)', 'Plastic Surgery', 'General Surgery'],
+    source: 'AAOS Carpal Tunnel Clinical Practice Guideline 2024; CMS Claims Data; ASSH Survey',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Bunionectomy (Hallux Valgus Correction)',
+    cpt_codes: ['28296', '28297', '28298', '28299', '28292'],
+    annual_us_procedures: 200000,
+    procedure_growth_rate: 4.0,
+    applicable_indications: ['Hallux Valgus', 'Bunion Deformity', 'Metatarsalgia', 'Moderate-to-Severe Bunion'],
+    applicable_device_categories: ['device_implantable', 'device_surgical'],
+    current_standard_of_care:
+      'Scarf/Chevron osteotomy with screw fixation (Arthrex, Stryker, Zimmer Biomet); Lapiplasty 3D bunion correction (Treace Medical); minimally invasive percutaneous techniques gaining share',
+    new_device_eligible_procedures: 80000,
+    adoption_curve: 'moderate',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Orthopedic Surgery (Foot & Ankle)', 'Podiatric Surgery'],
+    source: 'AOFAS 2024; Treace Medical Investor Reports; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Trigger Finger Release',
+    cpt_codes: ['26055'],
+    annual_us_procedures: 350000,
+    procedure_growth_rate: 2.5,
+    applicable_indications: ['Trigger Finger', 'Stenosing Tenosynovitis', 'Trigger Thumb', 'Flexor Tendon Entrapment'],
+    applicable_device_categories: ['device_surgical'],
+    current_standard_of_care:
+      'Open A1 pulley release (standard); percutaneous needle release; ultrasound-guided percutaneous release (Sonex, Tenex) emerging as in-office alternative',
+    new_device_eligible_procedures: 80000,
+    adoption_curve: 'slow',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Orthopedic Surgery (Hand)', 'Plastic Surgery', 'Primary Care'],
+    source: 'AAOS Appropriate Use Criteria 2024; ASSH Member Survey; CMS Claims Data',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // ADVANCED GENITOURINARY (GU) PROCEDURES
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Transurethral Resection of the Prostate (TURP)',
+    cpt_codes: ['52601', '52630'],
+    annual_us_procedures: 90000,
+    procedure_growth_rate: -3.0,
+    applicable_indications: [
+      'Benign Prostatic Hyperplasia',
+      'BPH with Urinary Retention',
+      'Refractory BPH',
+      'Large-Volume BPH',
+    ],
+    applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
+    current_standard_of_care:
+      'Bipolar TURP (Olympus, Karl Storz); GreenLight laser (Boston Scientific); HoLEP (Lumenis); declining due to minimally invasive alternatives (UroLift, Rezum, Aquablation)',
+    new_device_eligible_procedures: 20000,
+    adoption_curve: 'slow',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Urology'],
+    source: 'AUA BPH Guidelines 2024; CMS Claims Data; NIS Database',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Robotic Radical Prostatectomy (RARP)',
+    cpt_codes: ['55866'],
+    annual_us_procedures: 120000,
+    procedure_growth_rate: 3.5,
+    applicable_indications: [
+      'Localized Prostate Cancer',
+      'Intermediate-Risk Prostate Cancer',
+      'High-Risk Prostate Cancer',
+      'Clinically Significant Prostate Cancer',
+    ],
+    applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
+    current_standard_of_care:
+      'da Vinci robotic-assisted radical prostatectomy (Intuitive Surgical, ~90% of radical prostatectomies); open retropubic approach declining; focal therapy and active surveillance as alternatives for low-risk',
+    new_device_eligible_procedures: 25000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Urology', 'Urologic Oncology'],
+    source: 'AUA/ASTRO/SUO Prostate Cancer Guidelines 2024; Intuitive Surgical Procedure Reports; SEER-Medicare',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Nephrectomy (Partial / Radical)',
+    cpt_codes: ['50220', '50225', '50230', '50240', '50543', '50545', '50546', '50548'],
+    annual_us_procedures: 65000,
+    procedure_growth_rate: 2.0,
+    applicable_indications: [
+      'Renal Cell Carcinoma',
+      'Kidney Cancer',
+      'Localized Kidney Mass',
+      'Small Renal Mass',
+      'Wilms Tumor',
+    ],
+    applicable_device_categories: ['device_surgical', 'device_capital_equipment'],
+    current_standard_of_care:
+      'Robotic partial nephrectomy (da Vinci, ~60% of partial); laparoscopic radical nephrectomy; percutaneous cryoablation/RFA for small renal masses (T1a) in poor surgical candidates',
+    new_device_eligible_procedures: 18000,
+    adoption_curve: 'moderate',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Urology', 'Urologic Oncology'],
+    source: 'AUA Renal Mass Guidelines 2024; SEER-Medicare Data; CMS Claims',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // CARDIAC MONITORING / RHYTHM MANAGEMENT
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Insertable Cardiac Monitor (ICM) Implant',
+    cpt_codes: ['33285', '33286'],
+    annual_us_procedures: 350000,
+    procedure_growth_rate: 12.0,
+    applicable_indications: [
+      'Cryptogenic Stroke',
+      'Syncope',
+      'Atrial Fibrillation Detection',
+      'Unexplained Palpitations',
+      'Post-Ablation AFib Monitoring',
+    ],
+    applicable_device_categories: ['device_implantable', 'device_monitoring'],
+    current_standard_of_care:
+      'Medtronic LINQ II (dominant); Abbott Confirm Rx; Boston Scientific LUX-Dx. Miniaturized injectable cardiac monitors with smartphone connectivity and AI-based AF detection.',
+    new_device_eligible_procedures: 150000,
+    adoption_curve: 'rapid',
+    site_of_care: 'office',
+    physician_specialty: ['Electrophysiology', 'Cardiology', 'Neurology'],
+    source: 'NCDR Registry 2024; Medtronic LINQ Clinical Data; CRYSTAL-AF Trial; CMS Claims',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Cardiac Resynchronization Therapy Implant (CRT-D / CRT-P)',
+    cpt_codes: ['33224', '33225', '33226', '33249'],
+    annual_us_procedures: 55000,
+    procedure_growth_rate: 2.0,
+    applicable_indications: [
+      'Heart Failure with Reduced EF and Wide QRS',
+      'LBBB with HFrEF',
+      'NYHA Class II-IV Heart Failure',
+      'CRT Upgrade from Pacemaker/ICD',
+    ],
+    applicable_device_categories: ['device_implantable'],
+    current_standard_of_care:
+      'CRT-D systems (Medtronic, Abbott, Boston Scientific); conduction system pacing (His-bundle, left bundle area pacing) emerging as alternative; quadripolar LV leads now standard',
+    new_device_eligible_procedures: 20000,
+    adoption_curve: 'slow',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Electrophysiology', 'Heart Failure Cardiology'],
+    source: 'NCDR ICD Registry 2024; ACC/AHA/HRS CRT Guidelines; MADIT-CRT Long-Term Data',
+    last_updated: '2025-01-15',
+  },
+
+  {
+    procedure_name: 'Subcutaneous ICD (S-ICD) Implant',
+    cpt_codes: ['33270', '33271', '33272', '33273'],
+    annual_us_procedures: 28000,
+    procedure_growth_rate: 10.0,
+    applicable_indications: [
+      'Sudden Cardiac Death Prevention',
+      'Ventricular Tachycardia',
+      'HCM with SCD Risk',
+      'Young Patients Requiring ICD without Transvenous Leads',
+    ],
+    applicable_device_categories: ['device_implantable'],
+    current_standard_of_care:
+      'Boston Scientific EMBLEM S-ICD (market leader); transvenous ICDs (Medtronic, Abbott, Boston Scientific); extravascular ICD (EV-ICD, Medtronic Aurora) emerging. S-ICD avoids intravascular lead complications.',
+    new_device_eligible_procedures: 15000,
+    adoption_curve: 'rapid',
+    site_of_care: 'inpatient',
+    physician_specialty: ['Electrophysiology'],
+    source: 'NCDR ICD Registry 2024; PRAETORIAN Trial Data; Boston Scientific S-ICD Clinical Reports; CMS Claims',
+    last_updated: '2025-01-15',
+  },
+
+  // ──────────────────────────────────────────
+  // WOUND CARE / TISSUE ENGINEERING
+  // ──────────────────────────────────────────
+  {
+    procedure_name: 'Skin Graft / Dermal Substitute Application (Advanced)',
+    cpt_codes: ['15271', '15272', '15273', '15274', '15275', '15276', '15277', '15278'],
+    annual_us_procedures: 600000,
+    procedure_growth_rate: 9.0,
+    applicable_indications: [
+      'Diabetic Foot Ulcer',
+      'Venous Leg Ulcer',
+      'Full-Thickness Burns',
+      'Chronic Non-Healing Wound',
+      'Surgical Wound Reconstruction',
+    ],
+    applicable_device_categories: ['device_implantable', 'device_surgical'],
+    current_standard_of_care:
+      'Cellular/tissue-based products (Organogenesis Apligraf/Dermagraft, MiMedx EpiFix/AmnioFix, Smith+Nephew GRAFIX); synthetic dermal matrices (Integra, LifeCell/Allergan AlloDerm). CMS coverage under HCPCS Q-codes.',
+    new_device_eligible_procedures: 250000,
+    adoption_curve: 'rapid',
+    site_of_care: 'outpatient',
+    physician_specialty: ['Wound Care', 'Dermatology', 'Podiatry', 'Plastic Surgery', 'General Surgery'],
+    source: 'Alliance of Wound Care Stakeholders 2024; CMS LCD Coverage Analysis; Organogenesis/MiMedx Market Data',
+    last_updated: '2025-01-15',
+  },
 ];
 
 // ────────────────────────────────────────────────────────────
@@ -1635,17 +2595,16 @@ export interface DevicePricingBenchmark {
   indication: string;
   clearance_year: number;
   regulatory_pathway: string;
-  hospital_asp_usd: number;              // Average Selling Price to hospital
+  hospital_asp_usd: number; // Average Selling Price to hospital
   list_price_usd?: number;
   key_drg?: string;
   drg_payment_usd?: number;
-  typical_reimbursement_usd?: number;    // What hospital receives from payer
+  typical_reimbursement_usd?: number; // What hospital receives from payer
   gross_margin_pct?: number;
   notes: string;
 }
 
 export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
-
   // Structural Heart
   {
     product_name: 'SAPIEN 3 Ultra (TAVR Valve)',
@@ -1657,7 +2616,7 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     hospital_asp_usd: 32500,
     list_price_usd: 32500,
     key_drg: 'DRG 266/267',
-    drg_payment_usd: 58000,               // Total DRG payment includes hospital stay
+    drg_payment_usd: 58000, // Total DRG payment includes hospital stay
     gross_margin_pct: 78,
     notes: 'Dominant TAVR market share with Medtronic Evolut. Procedural cost ~$58K DRG; device $32-35K.',
   },
@@ -1684,10 +2643,11 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     indication: 'General Surgery / Cancer Resection',
     clearance_year: 2014,
     regulatory_pathway: '510(k)',
-    hospital_asp_usd: 1500000,            // Capital equipment
-    typical_reimbursement_usd: 0,         // Bundled in DRG; no separate reimbursement for robot
+    hospital_asp_usd: 1500000, // Capital equipment
+    typical_reimbursement_usd: 0, // Bundled in DRG; no separate reimbursement for robot
     gross_margin_pct: 68,
-    notes: 'Capital $1.5M + $170K/year service + $700-1,000/procedure in instruments (key revenue stream). 75%+ market share.',
+    notes:
+      'Capital $1.5M + $170K/year service + $700-1,000/procedure in instruments (key revenue stream). 75%+ market share.',
   },
 
   // Orthopedics
@@ -1700,7 +2660,8 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     regulatory_pathway: '510(k)',
     hospital_asp_usd: 800000,
     gross_margin_pct: 62,
-    notes: 'Robot + software. Per-use implant revenue is the sustainable revenue stream. 35%+ TKA robotic market share.',
+    notes:
+      'Robot + software. Per-use implant revenue is the sustainable revenue stream. 35%+ TKA robotic market share.',
   },
 
   {
@@ -1710,10 +2671,11 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     indication: 'Knee Osteoarthritis',
     clearance_year: 2012,
     regulatory_pathway: '510(k)',
-    hospital_asp_usd: 4800,               // Per implant set (femoral + tibial + patella)
+    hospital_asp_usd: 4800, // Per implant set (femoral + tibial + patella)
     typical_reimbursement_usd: 12000,
     gross_margin_pct: 70,
-    notes: 'All-component implant set. DRG 470 typical TKA; hospital negotiates on implant cost. ASP under pressure from volume contracts.',
+    notes:
+      'All-component implant set. DRG 470 typical TKA; hospital negotiates on implant cost. ASP under pressure from volume contracts.',
   },
 
   // Neuromodulation
@@ -1739,10 +2701,11 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     clearance_year: 2022,
     regulatory_pathway: 'De Novo',
     hospital_asp_usd: 0,
-    typical_reimbursement_usd: 380,       // Per month CMS DMEPOS
-    list_price_usd: 499,                  // Monthly out-of-pocket list price
+    typical_reimbursement_usd: 380, // Per month CMS DMEPOS
+    list_price_usd: 499, // Monthly out-of-pocket list price
     gross_margin_pct: 58,
-    notes: '10-day wear. CMS reimbursement via DMEPOS (K0553/K0554). Commercial $400-500/month. Competitive with Abbott FreeStyle Libre.',
+    notes:
+      '10-day wear. CMS reimbursement via DMEPOS (K0553/K0554). Commercial $400-500/month. Competitive with Abbott FreeStyle Libre.',
   },
 
   // Diagnostics — Companion Diagnostic
@@ -1754,7 +2717,7 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     clearance_year: 2017,
     regulatory_pathway: 'PMA',
     hospital_asp_usd: 0,
-    typical_reimbursement_usd: 250,       // Per IHC slide interpretation
+    typical_reimbursement_usd: 250, // Per IHC slide interpretation
     gross_margin_pct: 75,
     notes: 'CDx for Imfinzi. Pathology lab revenue. Multiple CDx assays now cover PD-L1 testing across NSCLC.',
   },
@@ -1768,7 +2731,7 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     clearance_year: 2020,
     regulatory_pathway: 'PMA',
     hospital_asp_usd: 0,
-    typical_reimbursement_usd: 3500,      // CMS gapfill pricing; commercial $3,500-5,000
+    typical_reimbursement_usd: 3500, // CMS gapfill pricing; commercial $3,500-5,000
     list_price_usd: 5260,
     gross_margin_pct: 65,
     notes: 'FDA PMA approved CDx for EGFR in NSCLC. Comprehensive genomic profiling. MolDx covered for Medicare.',
@@ -1786,7 +2749,8 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     typical_reimbursement_usd: 3500,
     list_price_usd: 5800,
     gross_margin_pct: 60,
-    notes: 'Broadest CDx approval portfolio. Covered under Medicare NCD for CGP testing in advanced cancer. >30 CDx approvals tied to specific drugs.',
+    notes:
+      'Broadest CDx approval portfolio. Covered under Medicare NCD for CGP testing in advanced cancer. >30 CDx approvals tied to specific drugs.',
   },
 
   // Digital Health / SaMD
@@ -1798,10 +2762,11 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     clearance_year: 2018,
     regulatory_pathway: 'De Novo',
     hospital_asp_usd: 0,
-    typical_reimbursement_usd: 1040,      // CMS NTAP codes for AI stroke detection
-    list_price_usd: 0,                    // Subscription per hospital ~$50-80K/year
+    typical_reimbursement_usd: 1040, // CMS NTAP codes for AI stroke detection
+    list_price_usd: 0, // Subscription per hospital ~$50-80K/year
     gross_margin_pct: 80,
-    notes: 'First AI/ML-based SaMD with CMS reimbursement via Category III CPT code and NTAP. Demonstrates AI device reimbursement pathway.',
+    notes:
+      'First AI/ML-based SaMD with CMS reimbursement via Category III CPT code and NTAP. Demonstrates AI device reimbursement pathway.',
   },
 
   // Drug Delivery Device (Combination Product)
@@ -1815,7 +2780,8 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     hospital_asp_usd: 2200,
     typical_reimbursement_usd: 5400,
     gross_margin_pct: 72,
-    notes: 'Combination product (device + ranibizumab). Transforms monthly injections to 6-month refills. Requires surgical implant procedure (ASC/hospital).',
+    notes:
+      'Combination product (device + ranibizumab). Transforms monthly injections to 6-month refills. Requires surgical implant procedure (ASC/hospital).',
   },
 
   // ── Additional Device ASP Benchmarks ──
@@ -1832,7 +2798,8 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     key_drg: 'DRG 460 (fusion) / DRG 491 (decompression)',
     drg_payment_usd: 35000,
     gross_margin_pct: 72,
-    notes: 'Per-level implant set. Multi-level fusions use 2-4x sets. Heavy price pressure from GPO contracts and ASC shift.',
+    notes:
+      'Per-level implant set. Multi-level fusions use 2-4x sets. Heavy price pressure from GPO contracts and ASC shift.',
   },
   {
     product_name: 'INFUSE Bone Graft (BMP-2)',
@@ -1843,7 +2810,8 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     regulatory_pathway: 'PMA',
     hospital_asp_usd: 4500,
     gross_margin_pct: 90,
-    notes: 'Biologic. Recombinant BMP-2 on collagen sponge. Was $4-5K per kit. High margin biologic revenue for Medtronic spine division.',
+    notes:
+      'Biologic. Recombinant BMP-2 on collagen sponge. Was $4-5K per kit. High margin biologic revenue for Medtronic spine division.',
   },
 
   // Cardiac Rhythm Management
@@ -1884,7 +2852,8 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     hospital_asp_usd: 2400,
     typical_reimbursement_usd: 1500,
     gross_margin_pct: 80,
-    notes: 'Premium IOL. CMS reimburses basic IOL ($175); patient pays difference for premium lens ($2-3K out-of-pocket). High-margin upgrade pathway.',
+    notes:
+      'Premium IOL. CMS reimburses basic IOL ($175); patient pays difference for premium lens ($2-3K out-of-pocket). High-margin upgrade pathway.',
   },
   {
     product_name: 'iStent inject W (MIGS)',
@@ -1896,7 +2865,8 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     hospital_asp_usd: 1150,
     typical_reimbursement_usd: 800,
     gross_margin_pct: 82,
-    notes: 'Micro-invasive glaucoma surgery device. Implanted during cataract surgery. CPT 0671T/66989 for combined procedure.',
+    notes:
+      'Micro-invasive glaucoma surgery device. Implanted during cataract surgery. CPT 0671T/66989 for combined procedure.',
   },
 
   // Wound Care / Biologics
@@ -1909,7 +2879,8 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     regulatory_pathway: 'PMA',
     hospital_asp_usd: 5500,
     gross_margin_pct: 75,
-    notes: 'Per sheet ($20-25/cm²). Used in burn reconstruction and diabetic wound repair. CMS pass-through for Q4100-Q4116.',
+    notes:
+      'Per sheet ($20-25/cm²). Used in burn reconstruction and diabetic wound repair. CMS pass-through for Q4100-Q4116.',
   },
 
   // Endoscopy / GI
@@ -1923,7 +2894,8 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     hospital_asp_usd: 550,
     typical_reimbursement_usd: 950,
     gross_margin_pct: 70,
-    notes: 'Disposable capsule + reader. CPT 91110. Non-invasive alternative to push enteroscopy. Growing with Crohn\'s monitoring.',
+    notes:
+      "Disposable capsule + reader. CPT 91110. Non-invasive alternative to push enteroscopy. Growing with Crohn's monitoring.",
   },
 
   // Vascular
@@ -1953,7 +2925,8 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     typical_reimbursement_usd: 350,
     list_price_usd: 450,
     gross_margin_pct: 55,
-    notes: 'Tubeless insulin pump (disposable pod). Per-month DMEPOS reimbursement. Paired with Dexcom G6/G7 for closed-loop control.',
+    notes:
+      'Tubeless insulin pump (disposable pod). Per-month DMEPOS reimbursement. Paired with Dexcom G6/G7 for closed-loop control.',
   },
 
   // ENT
@@ -2001,8 +2974,17 @@ export const DEVICE_PARTNER_DATABASE: DevicePartnerProfile[] = [
     revenue_b: 32,
     key_divisions: ['Cardiovascular', 'Neuroscience', 'Medical Surgical', 'Diabetes'],
     primary_therapeutic_areas: ['cardiac', 'neuromodulation', 'spine', 'diabetes', 'surgical robotics'],
-    active_bd_interests: ['surgical robotics (Hugo)', 'cardiac ablation (PFA)', 'closed-loop neuromodulation', 'continuous glucose monitoring'],
-    recent_acquisitions: ['Intersect ENT ($1.1B, 2022)', 'Affera ($925M, 2023)', 'EOFlow ($738M, attempted, blocked by ITC)'],
+    active_bd_interests: [
+      'surgical robotics (Hugo)',
+      'cardiac ablation (PFA)',
+      'closed-loop neuromodulation',
+      'continuous glucose monitoring',
+    ],
+    recent_acquisitions: [
+      'Intersect ENT ($1.1B, 2022)',
+      'Affera ($925M, 2023)',
+      'EOFlow ($738M, attempted, blocked by ITC)',
+    ],
     deal_size_range: '$100M - $5B+ acquisitions; licensing $10M-$500M',
     preferred_stage: ['cleared_approved', 'pivotal_ongoing', 'submission_pending'],
     source: 'Medtronic Annual Report 2024; SEC Filings',
@@ -2014,8 +2996,20 @@ export const DEVICE_PARTNER_DATABASE: DevicePartnerProfile[] = [
     market_cap_b: 180,
     revenue_b: 22,
     key_divisions: ['Medical Devices', 'Diagnostics', 'Nutrition', 'Established Pharmaceuticals'],
-    primary_therapeutic_areas: ['structural heart', 'electrophysiology', 'neurostimulation', 'CGM/diabetes', 'rapid diagnostics'],
-    active_bd_interests: ['PFA ablation', 'leadless pacing', 'next-gen CGM', 'glucose monitoring expansion', 'AI diagnostics'],
+    primary_therapeutic_areas: [
+      'structural heart',
+      'electrophysiology',
+      'neurostimulation',
+      'CGM/diabetes',
+      'rapid diagnostics',
+    ],
+    active_bd_interests: [
+      'PFA ablation',
+      'leadless pacing',
+      'next-gen CGM',
+      'glucose monitoring expansion',
+      'AI diagnostics',
+    ],
     recent_acquisitions: ['Cardiovascular Systems Inc. ($890M, 2023)', 'Bigfoot Biomedical (closed-loop insulin)'],
     deal_size_range: '$200M - $5B acquisitions',
     preferred_stage: ['pivotal_ongoing', 'submission_pending', 'cleared_approved'],
@@ -2029,8 +3023,18 @@ export const DEVICE_PARTNER_DATABASE: DevicePartnerProfile[] = [
     revenue_b: 15,
     key_divisions: ['Cardiology', 'MedSurg', 'Neuromodulation'],
     primary_therapeutic_areas: ['electrophysiology', 'structural heart', 'endoscopy', 'neuromodulation', 'urology'],
-    active_bd_interests: ['PFA technologies', 'left heart access', 'image-guided therapy', 'pain management', 'obesity/metabolic (Empower RF)'],
-    recent_acquisitions: ['Acotec Scientific ($1.3B, 2024)', 'Apollo Endosurgery ($615M, 2023)', 'Relievant Medsystems ($585M, 2023)'],
+    active_bd_interests: [
+      'PFA technologies',
+      'left heart access',
+      'image-guided therapy',
+      'pain management',
+      'obesity/metabolic (Empower RF)',
+    ],
+    recent_acquisitions: [
+      'Acotec Scientific ($1.3B, 2024)',
+      'Apollo Endosurgery ($615M, 2023)',
+      'Relievant Medsystems ($585M, 2023)',
+    ],
     deal_size_range: '$100M - $3B acquisitions; earlier stage licensing',
     preferred_stage: ['pivotal_design', 'pivotal_ongoing', 'cleared_approved'],
     source: 'Boston Scientific Annual Report 2024',
@@ -2043,7 +3047,12 @@ export const DEVICE_PARTNER_DATABASE: DevicePartnerProfile[] = [
     revenue_b: 20,
     key_divisions: ['MedSurg & Neurotechnology', 'Orthopedics & Spine', 'Endoscopy'],
     primary_therapeutic_areas: ['orthopedics', 'trauma', 'neurosurgery', 'spine', 'robotics', 'emergency care'],
-    active_bd_interests: ['surgical robotics expansion', 'digital health for OR', 'upper extremity', 'sports medicine biologics'],
+    active_bd_interests: [
+      'surgical robotics expansion',
+      'digital health for OR',
+      'upper extremity',
+      'sports medicine biologics',
+    ],
     recent_acquisitions: ['Vocera Communications ($3.09B, 2022)', 'Cerus Endovascular ($45M, 2024)'],
     deal_size_range: '$50M - $5B+ acquisitions; prefer tuck-in to platform',
     preferred_stage: ['cleared_approved', 'submission_pending'],
@@ -2067,11 +3076,27 @@ export const DEVICE_PARTNER_DATABASE: DevicePartnerProfile[] = [
     company: 'Roche Diagnostics',
     company_type: 'diagnostics_major',
     hq: 'Basel, Switzerland',
-    market_cap_b: 200,   // Roche group
-    revenue_b: 60,       // Roche group (diagnostics ~$16B)
-    key_divisions: ['Centralized & Point of Care Solutions', 'Molecular Lab', 'Tissue Diagnostics', 'Information Solutions'],
-    primary_therapeutic_areas: ['oncology diagnostics', 'companion diagnostics', 'infectious disease', 'blood glucose', 'digital pathology'],
-    active_bd_interests: ['AI pathology integration', 'liquid biopsy', 'multimodal diagnostics', 'companion diagnostics for oncology pipeline'],
+    market_cap_b: 200, // Roche group
+    revenue_b: 60, // Roche group (diagnostics ~$16B)
+    key_divisions: [
+      'Centralized & Point of Care Solutions',
+      'Molecular Lab',
+      'Tissue Diagnostics',
+      'Information Solutions',
+    ],
+    primary_therapeutic_areas: [
+      'oncology diagnostics',
+      'companion diagnostics',
+      'infectious disease',
+      'blood glucose',
+      'digital pathology',
+    ],
+    active_bd_interests: [
+      'AI pathology integration',
+      'liquid biopsy',
+      'multimodal diagnostics',
+      'companion diagnostics for oncology pipeline',
+    ],
     recent_acquisitions: ['LumiraDx (POC diagnostics, $295M, 2024)', 'Compandiag assets'],
     deal_size_range: '$100M - $5B+ acquisitions; CDx partnerships common',
     preferred_stage: ['feasibility', 'pivotal_design', 'cleared_approved'],
@@ -2081,10 +3106,16 @@ export const DEVICE_PARTNER_DATABASE: DevicePartnerProfile[] = [
     company: 'Abbott Diagnostics (Alinity)',
     company_type: 'diagnostics_major',
     hq: 'Abbott Park, IL',
-    market_cap_b: 180,   // Abbott group
-    revenue_b: 10,       // Diagnostics segment
+    market_cap_b: 180, // Abbott group
+    revenue_b: 10, // Diagnostics segment
     key_divisions: ['Core Laboratory', 'Molecular', 'Point of Care', 'Rapid Diagnostics'],
-    primary_therapeutic_areas: ['infectious disease', 'cardiometabolic', 'oncology markers', 'women\'s health', 'POC testing'],
+    primary_therapeutic_areas: [
+      'infectious disease',
+      'cardiometabolic',
+      'oncology markers',
+      "women's health",
+      'POC testing',
+    ],
     active_bd_interests: ['decentralized diagnostics', 'AI interpretation', 'chronic disease monitoring biomarkers'],
     recent_acquisitions: ['Bigfoot Biomedical (diabetes data)', 'Egnite (oncology informatics)'],
     deal_size_range: '$50M - $2B acquisitions',
@@ -2141,7 +3172,12 @@ export const DEVICE_PARTNER_DATABASE: DevicePartnerProfile[] = [
     revenue_b: 7.5,
     key_divisions: ['da Vinci Surgical Systems', 'Ion Endoluminal System', 'Digital ecosystem'],
     primary_therapeutic_areas: ['minimally invasive surgery (all specialties)', 'lung biopsy', 'surgical AI'],
-    active_bd_interests: ['next-gen da Vinci', 'Ion pulmonary expansion', 'AI procedure guidance', 'single-port expansion'],
+    active_bd_interests: [
+      'next-gen da Vinci',
+      'Ion pulmonary expansion',
+      'AI procedure guidance',
+      'single-port expansion',
+    ],
     recent_acquisitions: ['Orpheus Medical (OR workflow, 2022)'],
     deal_size_range: 'Primarily internal R&D; selective smaller acquisitions <$500M',
     preferred_stage: ['pivotal_ongoing', 'cleared_approved'],

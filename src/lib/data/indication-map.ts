@@ -2,11 +2,13 @@
 // TERRAIN — Indication Data Map
 // lib/data/indication-map.ts
 //
-// Static database of 152 indications with epidemiology data.
-// Covers: oncology (42), rare disease (29), neurology (24), immunology (16),
-// cardiovascular (13), infectious disease (6), hematology (5), ophthalmology (5),
-// pulmonology (4), nephrology (4), metabolic (4).
-// Sources: SEER, ACS, WHO GBD, CDC, disease foundations, published literature.
+// Static database of 214 indications with epidemiology data.
+// Covers: oncology (49), rare disease (29), neurology (24), immunology (16),
+// cardiovascular (13), psychiatry (10), infectious disease (11), metabolic (9),
+// pain management (6), pulmonology (7), musculoskeletal (5), nephrology (6),
+// hematology (5), ophthalmology (5), dermatology (4), gastroenterology (5),
+// hepatology (4), endocrinology (5).
+// Sources: SEER, ACS, WHO GBD, CDC, NIMH, SAMHSA, disease foundations, published literature.
 // ============================================================
 
 export interface IndicationData {
@@ -14,19 +16,18 @@ export interface IndicationData {
   synonyms: string[];
   icd10_codes: string[];
   therapy_area: string;
-  us_prevalence: number;         // Number of US patients with condition
-  us_incidence: number;          // New cases per year in US
+  us_prevalence: number; // Number of US patients with condition
+  us_incidence: number; // New cases per year in US
   prevalence_source: string;
-  diagnosis_rate: number;        // 0-1: % of prevalent patients who are diagnosed
-  treatment_rate: number;        // 0-1: % of diagnosed who receive treatment
-  cagr_5yr: number;              // Market CAGR %
-  major_competitors: string[];   // Approved/late-stage drugs
+  diagnosis_rate: number; // 0-1: % of prevalent patients who are diagnosed
+  treatment_rate: number; // 0-1: % of diagnosed who receive treatment
+  cagr_5yr: number; // Market CAGR %
+  major_competitors: string[]; // Approved/late-stage drugs
   market_growth_driver: string;
   therapy_area_pricing_context: string;
 }
 
 export const INDICATION_DATA: IndicationData[] = [
-
   // ──────────────────────────────────────────
   // ONCOLOGY
   // ──────────────────────────────────────────
@@ -50,8 +51,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Lumakras (sotorasib, Amgen)',
       'Krazati (adagrasib, Mirati)',
     ],
-    market_growth_driver: 'Expanding biomarker-selected populations, combination regimens, and earlier-line treatment opportunities',
-    therapy_area_pricing_context: 'Oncology premium pricing environment; $150K-$250K annually typical for targeted therapies',
+    market_growth_driver:
+      'Expanding biomarker-selected populations, combination regimens, and earlier-line treatment opportunities',
+    therapy_area_pricing_context:
+      'Oncology premium pricing environment; $150K-$250K annually typical for targeted therapies',
   },
 
   {
@@ -62,8 +65,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 62000,
     us_incidence: 66440,
     prevalence_source: 'American Cancer Society 2024; National Cancer Database',
-    diagnosis_rate: 0.90,        // High because symptomatic presentation
-    treatment_rate: 0.75,        // Many patients diagnosed at unresectable stage
+    diagnosis_rate: 0.9, // High because symptomatic presentation
+    treatment_rate: 0.75, // Many patients diagnosed at unresectable stage
     cagr_5yr: 11.5,
     major_competitors: [
       'Gemcitabine (generic)',
@@ -72,7 +75,8 @@ export const INDICATION_DATA: IndicationData[] = [
       'Olaparib (AstraZeneca, BRCA+ only)',
     ],
     market_growth_driver: 'Massive unmet need, rising incidence, KRAS targeted therapy emerging, ADC combinations',
-    therapy_area_pricing_context: 'High unmet need supports premium pricing. First effective targeted therapy could command $200K+ annually',
+    therapy_area_pricing_context:
+      'High unmet need supports premium pricing. First effective targeted therapy could command $200K+ annually',
   },
 
   {
@@ -93,8 +97,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Quizartinib (Daiichi Sankyo)',
       'Gilteritinib (Astellas)',
     ],
-    market_growth_driver: 'Molecular subtype targeting expansion, frontline combination opportunities, MRD-driven treatment strategies',
-    therapy_area_pricing_context: 'Hematology oncology commands $150K-$300K+ annually; intensity of therapy supports high pricing',
+    market_growth_driver:
+      'Molecular subtype targeting expansion, frontline combination opportunities, MRD-driven treatment strategies',
+    therapy_area_pricing_context:
+      'Hematology oncology commands $150K-$300K+ annually; intensity of therapy supports high pricing',
   },
 
   {
@@ -148,8 +154,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 72000,
     us_incidence: 19680,
     prevalence_source: 'American Cancer Society 2024; OCRA Foundation',
-    diagnosis_rate: 0.82,        // Often late-stage at diagnosis
-    treatment_rate: 0.90,
+    diagnosis_rate: 0.82, // Often late-stage at diagnosis
+    treatment_rate: 0.9,
     cagr_5yr: 9.5,
     major_competitors: [
       'Lynparza (olaparib, AstraZeneca/MSD)',
@@ -158,7 +164,8 @@ export const INDICATION_DATA: IndicationData[] = [
       'Avastin (bevacizumab, Roche)',
     ],
     market_growth_driver: 'PARP inhibitor maintenance expansion, HRD testing, ADC development, VEGF combinations',
-    therapy_area_pricing_context: 'PARP inhibitors set $150K+ benchmark; follow-on assets need differentiation for premium pricing',
+    therapy_area_pricing_context:
+      'PARP inhibitors set $150K+ benchmark; follow-on assets need differentiation for premium pricing',
   },
 
   {
@@ -170,7 +177,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 28000,
     prevalence_source: 'SEER Database 2024; Leukemia and Lymphoma Society',
     diagnosis_rate: 0.93,
-    treatment_rate: 0.90,
+    treatment_rate: 0.9,
     cagr_5yr: 12.5,
     major_competitors: [
       'Yescarta (axicabtagene ciloleucel, Gilead) — CAR-T',
@@ -181,8 +188,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Epkinly (epcoritamab, AbbVie/Genmab) — bispecific',
       'R-CHOP (generic rituximab + chemo)',
     ],
-    market_growth_driver: 'CAR-T moving to earlier lines, bispecific antibodies expanding access, novel combinations for relapsed/refractory',
-    therapy_area_pricing_context: 'CAR-T therapies at $373K-$410K one-time; bispecifics at $150K-$200K annually. Curative intent justifies high pricing.',
+    market_growth_driver:
+      'CAR-T moving to earlier lines, bispecific antibodies expanding access, novel combinations for relapsed/refractory',
+    therapy_area_pricing_context:
+      'CAR-T therapies at $373K-$410K one-time; bispecifics at $150K-$200K annually. Curative intent justifies high pricing.',
   },
 
   {
@@ -193,7 +202,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 100000,
     us_incidence: 15000,
     prevalence_source: 'SEER Database 2024; Lymphoma Research Foundation',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.75,
     cagr_5yr: 8.2,
     major_competitors: [
@@ -205,8 +214,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Tazverik (tazemetostat, Ipsen)',
       'Copiktra (duvelisib, Secura Bio)',
     ],
-    market_growth_driver: 'Time-limited regimens, bispecific antibodies, novel combinations replacing chemoimmunotherapy, watch-and-wait conversion',
-    therapy_area_pricing_context: 'Indolent disease with long treatment duration; $80K-$150K annually. Biosimilar rituximab creating pricing pressure.',
+    market_growth_driver:
+      'Time-limited regimens, bispecific antibodies, novel combinations replacing chemoimmunotherapy, watch-and-wait conversion',
+    therapy_area_pricing_context:
+      'Indolent disease with long treatment duration; $80K-$150K annually. Biosimilar rituximab creating pricing pressure.',
   },
 
   {
@@ -218,7 +229,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 35730,
     prevalence_source: 'American Cancer Society 2024; SEER Database',
     diagnosis_rate: 0.92,
-    treatment_rate: 0.90,
+    treatment_rate: 0.9,
     cagr_5yr: 9.8,
     major_competitors: [
       'Darzalex (daratumumab, Janssen)',
@@ -231,8 +242,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Tecvayli (teclistamab, Janssen) — bispecific',
       'Talvey (talquetamab, Janssen) — bispecific',
     ],
-    market_growth_driver: 'BCMA-targeted therapies, bispecific expansion to earlier lines, quadruplet frontline regimens, MRD-driven treatment decisions',
-    therapy_area_pricing_context: 'Premium hematology-oncology pricing; $150K-$400K annually. CAR-T at $400K+ one-time.',
+    market_growth_driver:
+      'BCMA-targeted therapies, bispecific expansion to earlier lines, quadruplet frontline regimens, MRD-driven treatment decisions',
+    therapy_area_pricing_context:
+      'Premium hematology-oncology pricing; $150K-$400K annually. CAR-T at $400K+ one-time.',
   },
 
   {
@@ -244,7 +257,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 81800,
     prevalence_source: 'American Cancer Society 2024; SEER Database; Kidney Cancer Association',
     diagnosis_rate: 0.88,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 8.5,
     major_competitors: [
       'Keytruda (pembrolizumab, MSD)',
@@ -254,7 +267,8 @@ export const INDICATION_DATA: IndicationData[] = [
       'Inlyta (axitinib, Pfizer)',
       'Welireg (belzutifan, MSD) — HIF-2a inhibitor',
     ],
-    market_growth_driver: 'IO+TKI combinations in 1L, HIF-2a inhibitor expansion, adjuvant immunotherapy, biomarker-selected populations',
+    market_growth_driver:
+      'IO+TKI combinations in 1L, HIF-2a inhibitor expansion, adjuvant immunotherapy, biomarker-selected populations',
     therapy_area_pricing_context: 'IO+TKI combos at $200K-$350K annually combined; single-agent TKIs $150K+.',
   },
 
@@ -266,7 +280,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 65000,
     us_incidence: 41210,
     prevalence_source: 'American Cancer Society 2024; SEER Database',
-    diagnosis_rate: 0.80,
+    diagnosis_rate: 0.8,
     treatment_rate: 0.72,
     cagr_5yr: 10.8,
     major_competitors: [
@@ -276,8 +290,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Nexavar (sorafenib, Bayer)',
       'Cabometyx (cabozantinib, Exelixis)',
     ],
-    market_growth_driver: 'IO combinations expanding frontline dominance, adjuvant/neoadjuvant immunotherapy, novel IO+TKI combinations',
-    therapy_area_pricing_context: 'IO+anti-VEGF combos at $200K+ annually. High unmet need in second-line and beyond supports premium pricing.',
+    market_growth_driver:
+      'IO combinations expanding frontline dominance, adjuvant/neoadjuvant immunotherapy, novel IO+TKI combinations',
+    therapy_area_pricing_context:
+      'IO+anti-VEGF combos at $200K+ annually. High unmet need in second-line and beyond supports premium pricing.',
   },
 
   {
@@ -299,8 +315,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Cyramza (ramucirumab, Eli Lilly)',
       'Zolbetuximab (Astellas) — CLDN18.2+',
     ],
-    market_growth_driver: 'Claudin 18.2 targeting, ADC expansion, immunotherapy combinations, biomarker-stratified approaches',
-    therapy_area_pricing_context: 'Oncology standard pricing; IO agents $150K+ annually. Novel targets like CLDN18.2 can command premium.',
+    market_growth_driver:
+      'Claudin 18.2 targeting, ADC expansion, immunotherapy combinations, biomarker-stratified approaches',
+    therapy_area_pricing_context:
+      'Oncology standard pricing; IO agents $150K+ annually. Novel targets like CLDN18.2 can command premium.',
   },
 
   {
@@ -312,7 +330,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 83190,
     prevalence_source: 'American Cancer Society 2024; SEER Database',
     diagnosis_rate: 0.88,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 11.2,
     major_competitors: [
       'Keytruda (pembrolizumab, MSD)',
@@ -321,8 +339,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Balversa (erdafitinib, Janssen) — FGFR inhibitor',
       'Tecentriq (atezolizumab, Roche)',
     ],
-    market_growth_driver: 'EV-302 paradigm shift (Padcev+Keytruda in 1L), ADC class expansion, FGFR-targeted therapy, adjuvant IO post-cystectomy',
-    therapy_area_pricing_context: 'ADC+IO combinations at $250K-$400K annually combined. Significant clinical advance supports premium.',
+    market_growth_driver:
+      'EV-302 paradigm shift (Padcev+Keytruda in 1L), ADC class expansion, FGFR-targeted therapy, adjuvant IO post-cystectomy',
+    therapy_area_pricing_context:
+      'ADC+IO combinations at $250K-$400K annually combined. Significant clinical advance supports premium.',
   },
 
   {
@@ -345,8 +365,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Braftovi + Mektovi (encorafenib + binimetinib, Pfizer)',
       'Libtayo (cemiplimab, Regeneron/Sanofi)',
     ],
-    market_growth_driver: 'Adjuvant/neoadjuvant IO expansion, novel IO combinations (LAG-3, TIGIT), BRAF-mutant combinations, uveal melanoma unmet need',
-    therapy_area_pricing_context: 'IO therapies at $150K-$200K annually; adjuvant duration limits total cost. Combinations push toward $300K+.',
+    market_growth_driver:
+      'Adjuvant/neoadjuvant IO expansion, novel IO combinations (LAG-3, TIGIT), BRAF-mutant combinations, uveal melanoma unmet need',
+    therapy_area_pricing_context:
+      'IO therapies at $150K-$200K annually; adjuvant duration limits total cost. Combinations push toward $300K+.',
   },
 
   {
@@ -357,7 +379,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 160000,
     us_incidence: 288300,
     prevalence_source: 'American Cancer Society 2024; SEER Database; Prostate Cancer Foundation',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.82,
     cagr_5yr: 8.8,
     major_competitors: [
@@ -369,8 +391,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Lynparza (olaparib, AstraZeneca) — HRR-mutated',
       'Keytruda (pembrolizumab, MSD) — MSI-H',
     ],
-    market_growth_driver: 'PSMA-targeted radioligand therapy expansion, PARP inhibitors for HRR-mutated, triplet combinations in mCSPC, earlier line intensification',
-    therapy_area_pricing_context: 'AR-pathway inhibitors $100K-$150K annually; radioligand therapy ~$100K per treatment course.',
+    market_growth_driver:
+      'PSMA-targeted radioligand therapy expansion, PARP inhibitors for HRR-mutated, triplet combinations in mCSPC, earlier line intensification',
+    therapy_area_pricing_context:
+      'AR-pathway inhibitors $100K-$150K annually; radioligand therapy ~$100K per treatment course.',
   },
 
   {
@@ -390,8 +414,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Tivdak (tisotumab vedotin, Seagen/Genmab) — ADC',
       'Cisplatin/Paclitaxel (generic)',
     ],
-    market_growth_driver: 'ADC expansion, IO combinations, tissue factor targeting, rising incidence in younger populations globally',
-    therapy_area_pricing_context: 'Oncology standard pricing; ADCs at $150K-$200K annually. Global health disparity creates unique market dynamics.',
+    market_growth_driver:
+      'ADC expansion, IO combinations, tissue factor targeting, rising incidence in younger populations globally',
+    therapy_area_pricing_context:
+      'Oncology standard pricing; ADCs at $150K-$200K annually. Global health disparity creates unique market dynamics.',
   },
 
   {
@@ -402,7 +428,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 210000,
     us_incidence: 66200,
     prevalence_source: 'American Cancer Society 2024; SEER Database',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.82,
     cagr_5yr: 9.8,
     major_competitors: [
@@ -411,19 +437,28 @@ export const INDICATION_DATA: IndicationData[] = [
       'Keytruda (pembrolizumab, MSD) — dMMR/MSI-H',
       'Carboplatin/Paclitaxel (generic)',
     ],
-    market_growth_driver: 'IO+TKI combinations, biomarker-driven therapy (dMMR, HER2, p53), ADC development, rising incidence linked to obesity',
-    therapy_area_pricing_context: 'IO+TKI combos at $200K-$300K annually combined. Biomarker-selected populations support targeted pricing.',
+    market_growth_driver:
+      'IO+TKI combinations, biomarker-driven therapy (dMMR, HER2, p53), ADC development, rising incidence linked to obesity',
+    therapy_area_pricing_context:
+      'IO+TKI combos at $200K-$300K annually combined. Biomarker-selected populations support targeted pricing.',
   },
 
   {
     name: 'Thyroid Cancer',
-    synonyms: ['thyroid carcinoma', 'differentiated thyroid cancer', 'DTC', 'papillary thyroid cancer', 'medullary thyroid cancer', 'MTC'],
+    synonyms: [
+      'thyroid carcinoma',
+      'differentiated thyroid cancer',
+      'DTC',
+      'papillary thyroid cancer',
+      'medullary thyroid cancer',
+      'MTC',
+    ],
     icd10_codes: ['C73'],
     therapy_area: 'oncology',
     us_prevalence: 880000,
     us_incidence: 44020,
     prevalence_source: 'American Cancer Society 2024; SEER Database; American Thyroid Association',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.78,
     cagr_5yr: 8.0,
     major_competitors: [
@@ -434,8 +469,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Gavreto (pralsetinib, Blueprint/Roche) — RET-mutant',
       'Retevmo (selpercatinib, Eli Lilly) — RET-mutant',
     ],
-    market_growth_driver: 'RET-targeted therapies for RET-altered DTC and MTC, BRAF/MEK combinations, radioiodine-refractory DTC unmet need',
-    therapy_area_pricing_context: 'Targeted therapies $150K-$200K annually; large prevalent pool but most cured by surgery/RAI.',
+    market_growth_driver:
+      'RET-targeted therapies for RET-altered DTC and MTC, BRAF/MEK combinations, radioiodine-refractory DTC unmet need',
+    therapy_area_pricing_context:
+      'Targeted therapies $150K-$200K annually; large prevalent pool but most cured by surgery/RAI.',
   },
 
   {
@@ -447,7 +484,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 66920,
     prevalence_source: 'American Cancer Society 2024; SEER Database',
     diagnosis_rate: 0.85,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 8.5,
     major_competitors: [
       'Keytruda (pembrolizumab, MSD)',
@@ -455,8 +492,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Erbitux (cetuximab, Eli Lilly)',
       'Cisplatin/5-FU (generic)',
     ],
-    market_growth_driver: 'IO expansion to earlier stages, HPV-positive vs HPV-negative stratification, de-escalation in favorable prognosis, novel combinations',
-    therapy_area_pricing_context: 'IO standard pricing $150K+ annually; HPV-stratified approaches may enable precision pricing.',
+    market_growth_driver:
+      'IO expansion to earlier stages, HPV-positive vs HPV-negative stratification, de-escalation in favorable prognosis, novel combinations',
+    therapy_area_pricing_context:
+      'IO standard pricing $150K+ annually; HPV-stratified approaches may enable precision pricing.',
   },
 
   {
@@ -476,8 +515,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Optune (TTFields, Novocure) — device',
       'Lomustine (generic)',
     ],
-    market_growth_driver: 'Massive unmet need (median OS ~15 months), novel IO approaches, targeted therapies for molecular subtypes, mRNA vaccines, BBB-penetrant agents',
-    therapy_area_pricing_context: 'Extreme unmet need; novel effective therapies could command $200K+ annually. Optune at $21K/month sets premium device precedent.',
+    market_growth_driver:
+      'Massive unmet need (median OS ~15 months), novel IO approaches, targeted therapies for molecular subtypes, mRNA vaccines, BBB-penetrant agents',
+    therapy_area_pricing_context:
+      'Extreme unmet need; novel effective therapies could command $200K+ annually. Optune at $21K/month sets premium device precedent.',
   },
 
   {
@@ -488,7 +529,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 8000,
     us_incidence: 3000,
     prevalence_source: 'American Cancer Society 2024; SEER Database; Mesothelioma Applied Research Foundation',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.82,
     cagr_5yr: 9.5,
     major_competitors: [
@@ -496,8 +537,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Cisplatin + Pemetrexed (generic)',
       'Avastin (bevacizumab, Roche)',
     ],
-    market_growth_driver: 'IO combination expansion, novel targets (mesothelin, BAP1), ADC development, small patient population supports orphan pricing',
-    therapy_area_pricing_context: 'Rare cancer with orphan drug potential; $150K-$250K annually. IO doublet at $250K+ combined.',
+    market_growth_driver:
+      'IO combination expansion, novel targets (mesothelin, BAP1), ADC development, small patient population supports orphan pricing',
+    therapy_area_pricing_context:
+      'Rare cancer with orphan drug potential; $150K-$250K annually. IO doublet at $250K+ combined.',
   },
 
   {
@@ -518,8 +561,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Zepzelca (lurbinectedin, Jazz Pharma)',
       'Hycamtin (topotecan, Novartis)',
     ],
-    market_growth_driver: 'DLL3-targeted therapies (bispecifics, ADCs), novel IO combinations, biomarker-selected subpopulations, limited efficacy of current options drives innovation',
-    therapy_area_pricing_context: 'High unmet need despite IO; novel agents could command $150K-$200K annually. Short treatment duration limits revenue per patient.',
+    market_growth_driver:
+      'DLL3-targeted therapies (bispecifics, ADCs), novel IO combinations, biomarker-selected subpopulations, limited efficacy of current options drives innovation',
+    therapy_area_pricing_context:
+      'High unmet need despite IO; novel agents could command $150K-$200K annually. Short treatment duration limits revenue per patient.',
   },
 
   {
@@ -538,7 +583,8 @@ export const INDICATION_DATA: IndicationData[] = [
       'Keytruda (pembrolizumab, MSD)',
       'Opdivo (nivolumab, BMS)',
     ],
-    market_growth_driver: 'Ultra-rare cancer with orphan pricing, IO expansion, combination approaches, limited pipeline creates high barrier to entry',
+    market_growth_driver:
+      'Ultra-rare cancer with orphan pricing, IO expansion, combination approaches, limited pipeline creates high barrier to entry',
     therapy_area_pricing_context: 'Ultra-rare; orphan drug pricing at $150K-$200K annually. Bavencio set benchmark.',
   },
 
@@ -560,8 +606,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Truseltiq (futibatinib, Taiho) — FGFR2+',
       'Tibsovo (ivosidenib, Servier) — IDH1-mutant',
     ],
-    market_growth_driver: 'FGFR2-targeted therapy expansion, IDH-targeted agents, IO+chemo frontline, rising incidence, molecular profiling adoption',
-    therapy_area_pricing_context: 'Rare cancer; targeted agents at $150K-$200K annually. Molecular profiling enabling precision pricing.',
+    market_growth_driver:
+      'FGFR2-targeted therapy expansion, IDH-targeted agents, IO+chemo frontline, rising incidence, molecular profiling adoption',
+    therapy_area_pricing_context:
+      'Rare cancer; targeted agents at $150K-$200K annually. Molecular profiling enabling precision pricing.',
   },
 
   {
@@ -573,15 +621,17 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 600,
     prevalence_source: 'SEER Database 2024; National Cancer Institute Rare Cancers Program',
     diagnosis_rate: 0.85,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 8.0,
     major_competitors: [
       'Mitotane (generic)',
       'Etoposide/Doxorubicin/Cisplatin (generic)',
       'Keytruda (pembrolizumab, MSD) — investigational',
     ],
-    market_growth_driver: 'Extreme unmet need, limited treatment options, orphan drug opportunity, molecular subtyping may enable targeted therapies',
-    therapy_area_pricing_context: 'Ultra-rare; orphan drug pricing potential. Effective novel therapy could command $200K+ annually.',
+    market_growth_driver:
+      'Extreme unmet need, limited treatment options, orphan drug opportunity, molecular subtyping may enable targeted therapies',
+    therapy_area_pricing_context:
+      'Ultra-rare; orphan drug pricing potential. Effective novel therapy could command $200K+ annually.',
   },
 
   {
@@ -602,8 +652,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Tecartus (brexucabtagene autoleucel, Gilead) — CAR-T',
       'Velcade (bortezomib, Takeda)',
     ],
-    market_growth_driver: 'BTK inhibitor sequencing, non-covalent BTK inhibitors, CAR-T in earlier lines, combination strategies for high-risk disease',
-    therapy_area_pricing_context: 'BTK inhibitors at $150K-$180K annually; CAR-T at $373K one-time. Rare lymphoma supports premium.',
+    market_growth_driver:
+      'BTK inhibitor sequencing, non-covalent BTK inhibitors, CAR-T in earlier lines, combination strategies for high-risk disease',
+    therapy_area_pricing_context:
+      'BTK inhibitors at $150K-$180K annually; CAR-T at $373K one-time. Rare lymphoma supports premium.',
   },
 
   {
@@ -614,7 +666,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 210000,
     us_incidence: 20160,
     prevalence_source: 'SEER Database 2024; Leukemia and Lymphoma Society',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.65,
     cagr_5yr: 7.0,
     major_competitors: [
@@ -624,8 +676,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Venclexta (venetoclax, AbbVie/Roche)',
       'Gazyva (obinutuzumab, Roche)',
     ],
-    market_growth_driver: 'Fixed-duration venetoclax-based combinations, BTK inhibitor competition, time-limited regimens replacing continuous therapy, MRD-guided approaches',
-    therapy_area_pricing_context: 'BTK inhibitors $150K-$180K annually; fixed-duration regimens creating cost-effectiveness pressure. Large prevalent pool.',
+    market_growth_driver:
+      'Fixed-duration venetoclax-based combinations, BTK inhibitor competition, time-limited regimens replacing continuous therapy, MRD-guided approaches',
+    therapy_area_pricing_context:
+      'BTK inhibitors $150K-$180K annually; fixed-duration regimens creating cost-effectiveness pressure. Large prevalent pool.',
   },
 
   {
@@ -637,7 +691,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 1500,
     prevalence_source: 'SEER Database 2024; International Waldenstrom Macroglobulinemia Foundation',
     diagnosis_rate: 0.88,
-    treatment_rate: 0.70,
+    treatment_rate: 0.7,
     cagr_5yr: 7.5,
     major_competitors: [
       'Imbruvica (ibrutinib, Janssen/AbbVie)',
@@ -645,8 +699,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Rituximab (generic)',
       'Bendamustine (generic)',
     ],
-    market_growth_driver: 'BTK inhibitor class competition, MYD88/CXCR4 mutation-directed therapy, novel combinations for refractory disease',
-    therapy_area_pricing_context: 'Rare hematologic malignancy; BTK inhibitors at $150K-$180K annually. Orphan pricing context.',
+    market_growth_driver:
+      'BTK inhibitor class competition, MYD88/CXCR4 mutation-directed therapy, novel combinations for refractory disease',
+    therapy_area_pricing_context:
+      'Rare hematologic malignancy; BTK inhibitors at $150K-$180K annually. Orphan pricing context.',
   },
 
   {
@@ -657,7 +713,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 60000,
     us_incidence: 20000,
     prevalence_source: 'SEER Database 2024; MDS Foundation',
-    diagnosis_rate: 0.80,
+    diagnosis_rate: 0.8,
     treatment_rate: 0.72,
     cagr_5yr: 9.5,
     major_competitors: [
@@ -667,8 +723,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Revlimid (lenalidomide, BMS) — del(5q)',
       'Inqovi (decitabine/cedazuridine, Taiho/Astex)',
     ],
-    market_growth_driver: 'Novel combinations with HMA backbone, TP53-targeted agents, splicing modulators, higher-risk MDS unmet need, transplant conditioning',
-    therapy_area_pricing_context: 'HMAs at $50K-$80K annually; novel agents targeting specific mutations at $100K-$200K.',
+    market_growth_driver:
+      'Novel combinations with HMA backbone, TP53-targeted agents, splicing modulators, higher-risk MDS unmet need, transplant conditioning',
+    therapy_area_pricing_context:
+      'HMAs at $50K-$80K annually; novel agents targeting specific mutations at $100K-$200K.',
   },
 
   {
@@ -688,8 +746,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Vonjo (pacritinib, CTI BioPharma)',
       'Ojjaara (momelotinib, GSK)',
     ],
-    market_growth_driver: 'Combination JAK inhibitor approaches, novel targets beyond JAK2, disease modification, BETi combinations, transplant alternatives',
-    therapy_area_pricing_context: 'JAK inhibitors at $150K-$180K annually; rare disease pricing with orphan exclusivity.',
+    market_growth_driver:
+      'Combination JAK inhibitor approaches, novel targets beyond JAK2, disease modification, BETi combinations, transplant alternatives',
+    therapy_area_pricing_context:
+      'JAK inhibitors at $150K-$180K annually; rare disease pricing with orphan exclusivity.',
   },
 
   {
@@ -701,7 +761,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 8000,
     prevalence_source: 'MPN Research Foundation 2024; Blood journal epidemiology studies',
     diagnosis_rate: 0.78,
-    treatment_rate: 0.70,
+    treatment_rate: 0.7,
     cagr_5yr: 8.0,
     major_competitors: [
       'Jakafi (ruxolitinib, Incyte)',
@@ -709,8 +769,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Hydroxyurea (generic)',
       'Aspirin (generic)',
     ],
-    market_growth_driver: 'Interferon approaches for early disease, JAK inhibitor expansion, hepcidin mimetics for iron overload, thrombosis prevention',
-    therapy_area_pricing_context: 'Besremi at ~$300K annually; Jakafi $150K+. Many patients managed with generic hydroxyurea creating payer segmentation.',
+    market_growth_driver:
+      'Interferon approaches for early disease, JAK inhibitor expansion, hepcidin mimetics for iron overload, thrombosis prevention',
+    therapy_area_pricing_context:
+      'Besremi at ~$300K annually; Jakafi $150K+. Many patients managed with generic hydroxyurea creating payer segmentation.',
   },
 
   {
@@ -720,7 +782,7 @@ export const INDICATION_DATA: IndicationData[] = [
     therapy_area: 'oncology',
     us_prevalence: 6000,
     us_incidence: 800,
-    prevalence_source: 'American Cancer Society 2024; SEER Database; COG (Children\'s Oncology Group)',
+    prevalence_source: "American Cancer Society 2024; SEER Database; COG (Children's Oncology Group)",
     diagnosis_rate: 0.95,
     treatment_rate: 0.92,
     cagr_5yr: 12.0,
@@ -730,8 +792,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Isotretinoin (generic) — maintenance',
       'Cyclophosphamide/Topotecan (generic)',
     ],
-    market_growth_driver: 'Anti-GD2 antibody combinations, ALK inhibitors, CAR-T for relapsed disease, MYCN-targeted approaches, pediatric rare disease pricing',
-    therapy_area_pricing_context: 'Pediatric rare cancer; orphan pricing at $200K+ annually. High societal willingness to pay for pediatric oncology.',
+    market_growth_driver:
+      'Anti-GD2 antibody combinations, ALK inhibitors, CAR-T for relapsed disease, MYCN-targeted approaches, pediatric rare disease pricing',
+    therapy_area_pricing_context:
+      'Pediatric rare cancer; orphan pricing at $200K+ annually. High societal willingness to pay for pediatric oncology.',
   },
 
   {
@@ -743,15 +807,17 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 400,
     prevalence_source: 'SEER Database 2024; National Cancer Institute Rare Cancers',
     diagnosis_rate: 0.92,
-    treatment_rate: 0.90,
+    treatment_rate: 0.9,
     cagr_5yr: 8.5,
     major_competitors: [
       'VDC/IE regimen (vincristine/doxorubicin/cyclophosphamide alternating with ifosfamide/etoposide)',
       'Temozolomide + Irinotecan (generic)',
       'Lurbinectedin (Jazz Pharma) — investigational',
     ],
-    market_growth_driver: 'EWS-FLI1 fusion targeting, immunotherapy approaches, CAR-T targeting EWS antigens, extreme unmet need in relapsed disease',
-    therapy_area_pricing_context: 'Ultra-rare pediatric cancer; orphan drug designation available. Novel effective therapies could command $300K+ annually.',
+    market_growth_driver:
+      'EWS-FLI1 fusion targeting, immunotherapy approaches, CAR-T targeting EWS antigens, extreme unmet need in relapsed disease',
+    therapy_area_pricing_context:
+      'Ultra-rare pediatric cancer; orphan drug designation available. Novel effective therapies could command $300K+ annually.',
   },
 
   {
@@ -762,7 +828,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 8000,
     us_incidence: 1000,
     prevalence_source: 'SEER Database 2024; American Cancer Society; Sarcoma Foundation of America',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.88,
     cagr_5yr: 7.5,
     major_competitors: [
@@ -770,20 +836,29 @@ export const INDICATION_DATA: IndicationData[] = [
       'Mifamurtide (not approved in US)',
       'Ifosfamide/Etoposide (generic)',
     ],
-    market_growth_driver: 'Extreme unmet need (no new approvals in 40+ years), immunotherapy approaches, GD2 targeting, HER2 targeting, multi-kinase inhibitors',
-    therapy_area_pricing_context: 'Ultra-rare; standard of care unchanged for decades. First novel effective therapy could command orphan premium pricing.',
+    market_growth_driver:
+      'Extreme unmet need (no new approvals in 40+ years), immunotherapy approaches, GD2 targeting, HER2 targeting, multi-kinase inhibitors',
+    therapy_area_pricing_context:
+      'Ultra-rare; standard of care unchanged for decades. First novel effective therapy could command orphan premium pricing.',
   },
 
   {
     name: 'Soft Tissue Sarcoma',
-    synonyms: ['STS', 'soft tissue sarcoma', 'leiomyosarcoma', 'liposarcoma', 'synovial sarcoma', 'undifferentiated pleomorphic sarcoma'],
+    synonyms: [
+      'STS',
+      'soft tissue sarcoma',
+      'leiomyosarcoma',
+      'liposarcoma',
+      'synovial sarcoma',
+      'undifferentiated pleomorphic sarcoma',
+    ],
     icd10_codes: ['C49.0', 'C49.1', 'C49.2', 'C49.3', 'C49.4', 'C49.9'],
     therapy_area: 'oncology',
     us_prevalence: 50000,
     us_incidence: 13400,
     prevalence_source: 'American Cancer Society 2024; SEER Database; Sarcoma Foundation of America',
     diagnosis_rate: 0.85,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 9.0,
     major_competitors: [
       'Doxorubicin (generic)',
@@ -792,8 +867,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Halaven (eribulin, Eisai) — liposarcoma',
       'Kimmtrak (tebentafusp, Immunocore) — uveal melanoma only',
     ],
-    market_growth_driver: 'Subtype-specific targeting, novel immunotherapy approaches, engineered T-cell therapies (afamitresgene autoleucel for synovial sarcoma), ADC development',
-    therapy_area_pricing_context: 'Heterogeneous rare cancers; subtype-specific agents at $100K-$200K annually. Orphan designation common.',
+    market_growth_driver:
+      'Subtype-specific targeting, novel immunotherapy approaches, engineered T-cell therapies (afamitresgene autoleucel for synovial sarcoma), ADC development',
+    therapy_area_pricing_context:
+      'Heterogeneous rare cancers; subtype-specific agents at $100K-$200K annually. Orphan designation common.',
   },
 
   {
@@ -814,13 +891,22 @@ export const INDICATION_DATA: IndicationData[] = [
       'Enhertu (trastuzumab deruxtecan, Daiichi Sankyo) — HER2+',
       '5-FU/Cisplatin (generic)',
     ],
-    market_growth_driver: 'IO expansion in 1L, HER2-targeted ADCs, FGFR targeting, perioperative immunotherapy, biomarker-driven strategies',
-    therapy_area_pricing_context: 'IO agents at $150K+ annually; ADCs at $150K-$200K. Short survival limits total cost per patient.',
+    market_growth_driver:
+      'IO expansion in 1L, HER2-targeted ADCs, FGFR targeting, perioperative immunotherapy, biomarker-driven strategies',
+    therapy_area_pricing_context:
+      'IO agents at $150K+ annually; ADCs at $150K-$200K. Short survival limits total cost per patient.',
   },
 
   {
     name: 'Hodgkin Lymphoma',
-    synonyms: ['HL', 'Hodgkin lymphoma', "Hodgkin's disease", "Hodgkin's lymphoma", 'classical Hodgkin lymphoma', 'cHL'],
+    synonyms: [
+      'HL',
+      'Hodgkin lymphoma',
+      "Hodgkin's disease",
+      "Hodgkin's lymphoma",
+      'classical Hodgkin lymphoma',
+      'cHL',
+    ],
     icd10_codes: ['C81.0', 'C81.1', 'C81.2', 'C81.3', 'C81.4', 'C81.9'],
     therapy_area: 'oncology',
     us_prevalence: 45000,
@@ -836,8 +922,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'ABVD regimen (generic)',
       'BV-AVD frontline regimen',
     ],
-    market_growth_driver: 'Frontline brentuximab-based regimens, IO in relapsed/refractory, de-escalation in favorable prognosis, CAR-T for multiply relapsed',
-    therapy_area_pricing_context: 'ADC at $180K+ annually; IO at $150K+. High cure rates limit total treatment duration. Curative intent supports premium pricing.',
+    market_growth_driver:
+      'Frontline brentuximab-based regimens, IO in relapsed/refractory, de-escalation in favorable prognosis, CAR-T for multiply relapsed',
+    therapy_area_pricing_context:
+      'ADC at $180K+ annually; IO at $150K+. High cure rates limit total treatment duration. Curative intent supports premium pricing.',
   },
 
   {
@@ -859,8 +947,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Iclusig (ponatinib, Takeda) — T315I mutation',
       'Scemblix (asciminib, Novartis) — STAMP inhibitor',
     ],
-    market_growth_driver: 'Treatment-free remission strategies, STAMP inhibitor class, generic imatinib pressure driving innovation in 2L+, T315I-targeted therapy',
-    therapy_area_pricing_context: 'Generic imatinib at $3K-$8K annually; branded TKIs at $100K-$180K. Asciminib $175K+ for novel mechanism. Chronic lifelong therapy.',
+    market_growth_driver:
+      'Treatment-free remission strategies, STAMP inhibitor class, generic imatinib pressure driving innovation in 2L+, T315I-targeted therapy',
+    therapy_area_pricing_context:
+      'Generic imatinib at $3K-$8K annually; branded TKIs at $100K-$180K. Asciminib $175K+ for novel mechanism. Chronic lifelong therapy.',
   },
 
   {
@@ -883,20 +973,29 @@ export const INDICATION_DATA: IndicationData[] = [
       'Nerlynx (neratinib, Puma Biotech)',
       'Phesgo (pertuzumab/trastuzumab SC, Roche)',
     ],
-    market_growth_driver: 'Enhertu expanding across HER2-low, ADC class dominance, neoadjuvant optimization, brain metastasis penetration (tucatinib), HER2-low/ultralow paradigm',
-    therapy_area_pricing_context: 'ADCs at $150K-$200K annually; targeted agents $80K-$150K. HER2-low expansion dramatically increases addressable population.',
+    market_growth_driver:
+      'Enhertu expanding across HER2-low, ADC class dominance, neoadjuvant optimization, brain metastasis penetration (tucatinib), HER2-low/ultralow paradigm',
+    therapy_area_pricing_context:
+      'ADCs at $150K-$200K annually; targeted agents $80K-$150K. HER2-low expansion dramatically increases addressable population.',
   },
 
   {
     name: 'HR+/HER2- Breast Cancer',
-    synonyms: ['HR+ breast cancer', 'HR-positive breast cancer', 'hormone receptor positive breast cancer', 'ER+ breast cancer', 'luminal breast cancer', 'HR+/HER2-negative breast cancer'],
+    synonyms: [
+      'HR+ breast cancer',
+      'HR-positive breast cancer',
+      'hormone receptor positive breast cancer',
+      'ER+ breast cancer',
+      'luminal breast cancer',
+      'HR+/HER2-negative breast cancer',
+    ],
     icd10_codes: ['C50.01', 'C50.11', 'C50.21', 'C50.31', 'C50.41', 'C50.91'],
     therapy_area: 'oncology',
     us_prevalence: 600000,
     us_incidence: 210000,
     prevalence_source: 'American Cancer Society 2024; SEER Database; HR+/HER2- accounts for ~70% of all breast cancers',
     diagnosis_rate: 0.95,
-    treatment_rate: 0.90,
+    treatment_rate: 0.9,
     cagr_5yr: 6.5,
     major_competitors: [
       'Ibrance (palbociclib, Pfizer) — CDK4/6 inhibitor (going generic)',
@@ -907,8 +1006,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'ARV-471 (vepdegestrant, Arvinas/Pfizer) — PROTAC ER degrader',
       'Capivasertib (AstraZeneca) — AKT inhibitor',
     ],
-    market_growth_driver: 'CDK4/6 inhibitor market maturation with Ibrance LOE, oral SERD/PROTAC competition, adjuvant CDK4/6i expansion (monarchE), AKT/PI3K pathway targeting, ESR1 mutation-directed therapy',
-    therapy_area_pricing_context: 'CDK4/6 inhibitors at $150K-$180K annually; Ibrance generics expected to reduce class pricing. Novel SERDs/PROTACs at $120K-$200K. Chronic therapy with long treatment duration.',
+    market_growth_driver:
+      'CDK4/6 inhibitor market maturation with Ibrance LOE, oral SERD/PROTAC competition, adjuvant CDK4/6i expansion (monarchE), AKT/PI3K pathway targeting, ESR1 mutation-directed therapy',
+    therapy_area_pricing_context:
+      'CDK4/6 inhibitors at $150K-$180K annually; Ibrance generics expected to reduce class pricing. Novel SERDs/PROTACs at $120K-$200K. Chronic therapy with long treatment duration.',
   },
 
   {
@@ -930,8 +1031,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Zolbetuximab (Astellas) — CLDN18.2+',
       'FOLFOX/CAPOX regimen (generic)',
     ],
-    market_growth_driver: 'Claudin 18.2 targeted therapy, HER2 ADC expansion, immunotherapy frontline combinations, biomarker-stratified approaches, perioperative IO',
-    therapy_area_pricing_context: 'IO agents $150K+ annually; novel targets (CLDN18.2) can command premium. Rising global incidence creates expansion opportunity.',
+    market_growth_driver:
+      'Claudin 18.2 targeted therapy, HER2 ADC expansion, immunotherapy frontline combinations, biomarker-stratified approaches, perioperative IO',
+    therapy_area_pricing_context:
+      'IO agents $150K+ annually; novel targets (CLDN18.2) can command premium. Rising global incidence creates expansion opportunity.',
   },
 
   {
@@ -952,8 +1055,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Surgical excision (standard of care)',
       'Mohs surgery',
     ],
-    market_growth_driver: 'IO for advanced/metastatic BCC, Hedgehog inhibitor limitations driving IO adoption, topical immunotherapy approaches, neoadjuvant IO before surgery',
-    therapy_area_pricing_context: 'Hedgehog inhibitors $10K-$12K/month; IO at $150K annually. Most patients treated surgically; pharmacotherapy for advanced disease only.',
+    market_growth_driver:
+      'IO for advanced/metastatic BCC, Hedgehog inhibitor limitations driving IO adoption, topical immunotherapy approaches, neoadjuvant IO before surgery',
+    therapy_area_pricing_context:
+      'Hedgehog inhibitors $10K-$12K/month; IO at $150K annually. Most patients treated surgically; pharmacotherapy for advanced disease only.',
   },
 
   {
@@ -964,7 +1069,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 1800000,
     us_incidence: 1800000,
     prevalence_source: 'American Cancer Society 2024; Skin Cancer Foundation; published estimates',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.95,
     cagr_5yr: 8.0,
     major_competitors: [
@@ -972,8 +1077,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Keytruda (pembrolizumab, MSD)',
       'Surgical excision (standard of care)',
     ],
-    market_growth_driver: 'IO for advanced cSCC, neoadjuvant IO before surgery, adjuvant immunotherapy for high-risk resected disease, combination approaches',
-    therapy_area_pricing_context: 'IO at $150K annually for advanced disease. Most treated surgically; expanding pharmacotherapy opportunity in high-risk/advanced setting.',
+    market_growth_driver:
+      'IO for advanced cSCC, neoadjuvant IO before surgery, adjuvant immunotherapy for high-risk resected disease, combination approaches',
+    therapy_area_pricing_context:
+      'IO at $150K annually for advanced disease. Most treated surgically; expanding pharmacotherapy opportunity in high-risk/advanced setting.',
   },
 
   // ──────────────────────────────────────────
@@ -987,8 +1094,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 6800000,
     us_incidence: 500000,
     prevalence_source: "Alzheimer's Association 2024 Facts and Figures",
-    diagnosis_rate: 0.45,        // Many undiagnosed; early detection remains challenge
-    treatment_rate: 0.60,        // Of diagnosed, many on symptomatic treatment
+    diagnosis_rate: 0.45, // Many undiagnosed; early detection remains challenge
+    treatment_rate: 0.6, // Of diagnosed, many on symptomatic treatment
     cagr_5yr: 14.2,
     major_competitors: [
       'Leqembi (lecanemab, Eisai/Biogen)',
@@ -996,8 +1103,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Memantine (generic)',
       'Donepezil (generic)',
     ],
-    market_growth_driver: 'Anti-amyloid approvals opening premium treatment market, early detection via blood biomarkers, pipeline for early-stage disease',
-    therapy_area_pricing_context: "Leqembi at $26,500/year sets early precedent; anti-tau and next-gen modalities could command $30K-$80K annually",
+    market_growth_driver:
+      'Anti-amyloid approvals opening premium treatment market, early detection via blood biomarkers, pipeline for early-stage disease',
+    therapy_area_pricing_context:
+      'Leqembi at $26,500/year sets early precedent; anti-tau and next-gen modalities could command $30K-$80K annually',
   },
 
   {
@@ -1018,8 +1127,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Ongentys (opicapone, Neurocrine)',
       'Inbrija (levodopa inhalation, Acorda)',
     ],
-    market_growth_driver: 'Disease-modifying therapy opportunity (alpha-synuclein, LRRK2), device-aided therapies, digital health integration',
-    therapy_area_pricing_context: 'Symptomatic drugs face generic competition; disease-modifying therapy could command $40K-$100K annually',
+    market_growth_driver:
+      'Disease-modifying therapy opportunity (alpha-synuclein, LRRK2), device-aided therapies, digital health integration',
+    therapy_area_pricing_context:
+      'Symptomatic drugs face generic competition; disease-modifying therapy could command $40K-$100K annually',
   },
 
   {
@@ -1039,7 +1150,8 @@ export const INDICATION_DATA: IndicationData[] = [
       'Qalsody (tofersen, Biogen, SOD1-ALS only)',
       'Riluzole (generic)',
     ],
-    market_growth_driver: 'Genetic subtype targeting (SOD1, FUS, TDP-43), gene therapy approaches, high unmet need, rare disease pricing',
+    market_growth_driver:
+      'Genetic subtype targeting (SOD1, FUS, TDP-43), gene therapy approaches, high unmet need, rare disease pricing',
     therapy_area_pricing_context: 'Rare neurological disease; $100K-$300K annually. Orphan designation available.',
   },
 
@@ -1051,7 +1163,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 1000000,
     us_incidence: 10000,
     prevalence_source: 'National MS Society 2024; MSIF Atlas',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.82,
     cagr_5yr: 5.8,
     major_competitors: [
@@ -1063,7 +1175,8 @@ export const INDICATION_DATA: IndicationData[] = [
       'Fenway (ponesimod, Janssen)',
     ],
     market_growth_driver: 'Progressive MS treatment gap, neuroprotection/repair targets, subtype-specific biologics',
-    therapy_area_pricing_context: 'Highly competitive; Ocrevus set $65K/year benchmark. Novel mechanisms with neuroprotection claims could command premium',
+    therapy_area_pricing_context:
+      'Highly competitive; Ocrevus set $65K/year benchmark. Novel mechanisms with neuroprotection claims could command premium',
   },
 
   {
@@ -1074,21 +1187,30 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 10000,
     us_incidence: 600,
     prevalence_source: 'SMA Foundation; Cure SMA 2024',
-    diagnosis_rate: 0.95,        // Newborn screening expanding
-    treatment_rate: 0.90,
+    diagnosis_rate: 0.95, // Newborn screening expanding
+    treatment_rate: 0.9,
     cagr_5yr: 18.5,
     major_competitors: [
       'Zolgensma (onasemnogene, Novartis) — $2.1M gene therapy',
       'Spinraza (nusinersen, Biogen) — $125K/year',
       'Evrysdi (risdiplam, Roche) — $340K/year',
     ],
-    market_growth_driver: 'Gene therapy precedent, combination approaches, next-gen RNA splicing therapies, newborn screening expansion',
-    therapy_area_pricing_context: 'Ultra-rare; gene therapy sets multi-million dollar precedent. Chronic treatments $120K-$340K annually.',
+    market_growth_driver:
+      'Gene therapy precedent, combination approaches, next-gen RNA splicing therapies, newborn screening expansion',
+    therapy_area_pricing_context:
+      'Ultra-rare; gene therapy sets multi-million dollar precedent. Chronic treatments $120K-$340K annually.',
   },
 
   {
     name: 'Epilepsy',
-    synonyms: ['epilepsy', 'treatment-resistant epilepsy', 'TRE', 'refractory epilepsy', 'focal epilepsy', 'generalized epilepsy'],
+    synonyms: [
+      'epilepsy',
+      'treatment-resistant epilepsy',
+      'TRE',
+      'refractory epilepsy',
+      'focal epilepsy',
+      'generalized epilepsy',
+    ],
     icd10_codes: ['G40.0', 'G40.1', 'G40.2', 'G40.3', 'G40.4', 'G40.5', 'G40.8', 'G40.9'],
     therapy_area: 'neurology',
     us_prevalence: 3400000,
@@ -1106,19 +1228,28 @@ export const INDICATION_DATA: IndicationData[] = [
       'Lamotrigine (generic)',
       'Carbamazepine (generic)',
     ],
-    market_growth_driver: 'Treatment-resistant epilepsy (30% of patients), gene therapy for monogenic epilepsies, precision medicine approaches, novel mechanisms',
-    therapy_area_pricing_context: 'Broad generic competition in well-controlled epilepsy; novel agents for TRE at $30K-$80K annually. Gene therapies for monogenic forms could command $500K+.',
+    market_growth_driver:
+      'Treatment-resistant epilepsy (30% of patients), gene therapy for monogenic epilepsies, precision medicine approaches, novel mechanisms',
+    therapy_area_pricing_context:
+      'Broad generic competition in well-controlled epilepsy; novel agents for TRE at $30K-$80K annually. Gene therapies for monogenic forms could command $500K+.',
   },
 
   {
     name: 'Migraine',
-    synonyms: ['migraine', 'chronic migraine', 'episodic migraine', 'migraine with aura', 'migraine without aura', 'CM'],
+    synonyms: [
+      'migraine',
+      'chronic migraine',
+      'episodic migraine',
+      'migraine with aura',
+      'migraine without aura',
+      'CM',
+    ],
     icd10_codes: ['G43.0', 'G43.1', 'G43.7', 'G43.9'],
     therapy_area: 'neurology',
     us_prevalence: 39000000,
     us_incidence: 4500000,
     prevalence_source: 'American Migraine Foundation 2024; AHS; GBD Study',
-    diagnosis_rate: 0.50,
+    diagnosis_rate: 0.5,
     treatment_rate: 0.48,
     cagr_5yr: 9.5,
     major_competitors: [
@@ -1131,8 +1262,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Qulipta (atogepant, AbbVie) — CGRP receptor antagonist oral preventive',
       'Sumatriptan (generic)',
     ],
-    market_growth_driver: 'Massive underdiagnosed/undertreated population, CGRP class expansion, oral preventives improving access, dual-action acute+preventive use',
-    therapy_area_pricing_context: 'CGRP mAbs at $6K-$7K annually; oral gepants at $8K-$10K annually. Massive market size compensates for moderate pricing.',
+    market_growth_driver:
+      'Massive underdiagnosed/undertreated population, CGRP class expansion, oral preventives improving access, dual-action acute+preventive use',
+    therapy_area_pricing_context:
+      'CGRP mAbs at $6K-$7K annually; oral gepants at $8K-$10K annually. Massive market size compensates for moderate pricing.',
   },
 
   {
@@ -1144,15 +1277,17 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 3500,
     prevalence_source: 'Huntington Disease Society of America 2024; HDSA',
     diagnosis_rate: 0.85,
-    treatment_rate: 0.70,
+    treatment_rate: 0.7,
     cagr_5yr: 15.0,
     major_competitors: [
       'Austedo (deutetrabenazine, Teva) — chorea',
       'Xenazine (tetrabenazine, Lundbeck) — chorea',
       'Tominersen (Roche) — HTT-lowering ASO, Phase 3 discontinued then restarted in subset',
     ],
-    market_growth_driver: 'Huntingtin-lowering approaches (ASO, RNA interference, gene therapy), no disease-modifying therapy approved, genetic testing expansion',
-    therapy_area_pricing_context: 'Rare neurodegeneration; symptomatic agents $50K-$80K. Disease-modifying therapy could command $200K-$500K annually.',
+    market_growth_driver:
+      'Huntingtin-lowering approaches (ASO, RNA interference, gene therapy), no disease-modifying therapy approved, genetic testing expansion',
+    therapy_area_pricing_context:
+      'Rare neurodegeneration; symptomatic agents $50K-$80K. Disease-modifying therapy could command $200K-$500K annually.',
   },
 
   {
@@ -1163,15 +1298,17 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 5000,
     us_incidence: 600,
     prevalence_source: 'Friedreich Ataxia Research Alliance 2024; FARA',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.75,
     cagr_5yr: 20.0,
     major_competitors: [
       'Skyclarys (omaveloxolone, Reata/Biogen) — first FDA-approved FRDA therapy',
       'Idebenone (off-label in some countries)',
     ],
-    market_growth_driver: 'First approval sets precedent, frataxin replacement gene therapy, frataxin protein replacement, combination approaches',
-    therapy_area_pricing_context: 'Skyclarys at ~$370K annually. Ultra-rare; orphan drug pricing fully applicable. Gene therapy could be $2M+ one-time.',
+    market_growth_driver:
+      'First approval sets precedent, frataxin replacement gene therapy, frataxin protein replacement, combination approaches',
+    therapy_area_pricing_context:
+      'Skyclarys at ~$370K annually. Ultra-rare; orphan drug pricing fully applicable. Gene therapy could be $2M+ one-time.',
   },
 
   {
@@ -1182,16 +1319,18 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 30000,
     us_incidence: 5000,
     prevalence_source: 'CurePSP Foundation 2024; published epidemiology estimates',
-    diagnosis_rate: 0.50,
-    treatment_rate: 0.40,
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.4,
     cagr_5yr: 12.0,
     major_competitors: [
       'No FDA-approved therapies',
       'Levodopa (generic, limited efficacy)',
       'Coenzyme Q10 (supplement)',
     ],
-    market_growth_driver: 'Tau-targeted therapies from AD pipeline, complete treatment void, anti-tau antibodies and ASOs in clinical development',
-    therapy_area_pricing_context: 'No approved therapy; first-in-disease agent could command $100K-$300K annually. Orphan designation likely.',
+    market_growth_driver:
+      'Tau-targeted therapies from AD pipeline, complete treatment void, anti-tau antibodies and ASOs in clinical development',
+    therapy_area_pricing_context:
+      'No approved therapy; first-in-disease agent could command $100K-$300K annually. Orphan designation likely.',
   },
 
   {
@@ -1202,7 +1341,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 60000,
     us_incidence: 5000,
     prevalence_source: 'Myasthenia Gravis Foundation of America 2024; MGFA',
-    diagnosis_rate: 0.80,
+    diagnosis_rate: 0.8,
     treatment_rate: 0.85,
     cagr_5yr: 18.0,
     major_competitors: [
@@ -1214,8 +1353,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Azathioprine (generic)',
       'Mycophenolate (generic)',
     ],
-    market_growth_driver: 'FcRn inhibitor class expansion, complement inhibition, CD19-targeted B cell depletion, neonatal Fc receptor blockade advancing rapidly',
-    therapy_area_pricing_context: 'Vyvgart at ~$310K annually; complement inhibitors at $300K-$500K. Premium rare neuroimmunology pricing.',
+    market_growth_driver:
+      'FcRn inhibitor class expansion, complement inhibition, CD19-targeted B cell depletion, neonatal Fc receptor blockade advancing rapidly',
+    therapy_area_pricing_context:
+      'Vyvgart at ~$310K annually; complement inhibitors at $300K-$500K. Premium rare neuroimmunology pricing.',
   },
 
   {
@@ -1234,8 +1375,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Enspryng (satralizumab, Roche) — anti-IL-6R',
       'Uplizna (inebilizumab, Amgen) — anti-CD19',
     ],
-    market_growth_driver: 'Three approved therapies in 5 years, AQP4-seronegative disease unmet need, combination approaches, relapse prevention optimization',
-    therapy_area_pricing_context: 'Ultra-rare neuroimmunology; Soliris at $400K+ annually, Enspryng at $250K, Uplizna at $300K. Orphan drug premium.',
+    market_growth_driver:
+      'Three approved therapies in 5 years, AQP4-seronegative disease unmet need, combination approaches, relapse prevention optimization',
+    therapy_area_pricing_context:
+      'Ultra-rare neuroimmunology; Soliris at $400K+ annually, Enspryng at $250K, Uplizna at $300K. Orphan drug premium.',
   },
 
   {
@@ -1247,7 +1390,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 3000,
     prevalence_source: 'GBS-CIDP Foundation 2024; published epidemiology estimates',
     diagnosis_rate: 0.65,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 12.0,
     major_competitors: [
       'IVIg (Privigen, Gamunex, etc.) — immunoglobulin',
@@ -1255,8 +1398,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Vyvgart Hytrulo (efgartigimod, argenx) — FcRn inhibitor',
       'Corticosteroids (generic)',
     ],
-    market_growth_driver: 'FcRn inhibitor disruption of IVIg market, complement inhibitors, targeted B cell therapies, diagnosis rate improvement',
-    therapy_area_pricing_context: 'IVIg at $50K-$100K annually; FcRn inhibitors at ~$310K. Shifting from blood product to targeted biologic paradigm.',
+    market_growth_driver:
+      'FcRn inhibitor disruption of IVIg market, complement inhibitors, targeted B cell therapies, diagnosis rate improvement',
+    therapy_area_pricing_context:
+      'IVIg at $50K-$100K annually; FcRn inhibitors at ~$310K. Shifting from blood product to targeted biologic paradigm.',
   },
 
   {
@@ -1276,8 +1421,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Amvuttra (vutrisiran, Alnylam) — RNAi',
       'ATTR-silencer (eplontersen, Ionis/AstraZeneca)',
     ],
-    market_growth_driver: 'Massive underdiagnosis (est. 300K+ patients vs <50K diagnosed), cardiac imaging screening, TTR silencing/knockdown competition, combination approaches',
-    therapy_area_pricing_context: 'Vyndaqel at $225K annually; TTR silencers at $200K-$450K. Rapidly expanding diagnosed population driving market growth.',
+    market_growth_driver:
+      'Massive underdiagnosis (est. 300K+ patients vs <50K diagnosed), cardiac imaging screening, TTR silencing/knockdown competition, combination approaches',
+    therapy_area_pricing_context:
+      'Vyndaqel at $225K annually; TTR silencers at $200K-$450K. Rapidly expanding diagnosed population driving market growth.',
   },
 
   {
@@ -1288,7 +1435,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 7000000,
     us_incidence: 500000,
     prevalence_source: 'International Essential Tremor Foundation 2024; published epidemiology',
-    diagnosis_rate: 0.50,
+    diagnosis_rate: 0.5,
     treatment_rate: 0.45,
     cagr_5yr: 6.0,
     major_competitors: [
@@ -1298,8 +1445,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Focused ultrasound (Insightec/Exablate)',
       'DBS (Medtronic, Abbott, Boston Scientific)',
     ],
-    market_growth_driver: 'Massive undertreated population, non-invasive neurostimulation devices, T-type calcium channel modulators, novel mechanism drugs in development',
-    therapy_area_pricing_context: 'Generic first-line therapy; novel pharmacotherapy could command $15K-$30K annually. Device approaches $30K-$100K one-time.',
+    market_growth_driver:
+      'Massive undertreated population, non-invasive neurostimulation devices, T-type calcium channel modulators, novel mechanism drugs in development',
+    therapy_area_pricing_context:
+      'Generic first-line therapy; novel pharmacotherapy could command $15K-$30K annually. Device approaches $30K-$100K one-time.',
   },
 
   {
@@ -1311,7 +1460,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 15000,
     prevalence_source: 'Narcolepsy Network 2024; published epidemiology; Wake Up Narcolepsy',
     diagnosis_rate: 0.25,
-    treatment_rate: 0.70,
+    treatment_rate: 0.7,
     cagr_5yr: 10.0,
     major_competitors: [
       'Xyrem (sodium oxybate, Jazz Pharma)',
@@ -1320,8 +1469,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Sunosi (solriamfetol, Jazz Pharma)',
       'Modafinil/Armodafinil (generic)',
     ],
-    market_growth_driver: 'Orexin receptor agonists in development (restoring deficient neuropeptide), improved diagnosis rates, novel wake-promoting agents',
-    therapy_area_pricing_context: 'Xywav at $120K+ annually; Wakix at $120K. Rare sleep disorder supports premium pricing. Orexin agonists could command $80K-$150K.',
+    market_growth_driver:
+      'Orexin receptor agonists in development (restoring deficient neuropeptide), improved diagnosis rates, novel wake-promoting agents',
+    therapy_area_pricing_context:
+      'Xywav at $120K+ annually; Wakix at $120K. Rare sleep disorder supports premium pricing. Orexin agonists could command $80K-$150K.',
   },
 
   {
@@ -1332,14 +1483,14 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 10000,
     us_incidence: 500,
     prevalence_source: 'International Rett Syndrome Foundation 2024; IRSF; Rett Syndrome Research Trust',
-    diagnosis_rate: 0.90,
-    treatment_rate: 0.70,
+    diagnosis_rate: 0.9,
+    treatment_rate: 0.7,
     cagr_5yr: 18.0,
-    major_competitors: [
-      'Daybue (trofinetide, Acadia Pharmaceuticals) — first FDA-approved Rett therapy',
-    ],
-    market_growth_driver: 'First approval opens market, gene therapy approaches targeting MECP2, combination strategies, improved survival creating larger prevalent pool',
-    therapy_area_pricing_context: 'Daybue at $576K annually. Ultra-rare pediatric neurodevelopmental disorder; orphan pricing fully applicable.',
+    major_competitors: ['Daybue (trofinetide, Acadia Pharmaceuticals) — first FDA-approved Rett therapy'],
+    market_growth_driver:
+      'First approval opens market, gene therapy approaches targeting MECP2, combination strategies, improved survival creating larger prevalent pool',
+    therapy_area_pricing_context:
+      'Daybue at $576K annually. Ultra-rare pediatric neurodevelopmental disorder; orphan pricing fully applicable.',
   },
 
   {
@@ -1350,16 +1501,18 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 15000,
     us_incidence: 1000,
     prevalence_source: 'Angelman Syndrome Foundation 2024; published epidemiology',
-    diagnosis_rate: 0.80,
-    treatment_rate: 0.50,
+    diagnosis_rate: 0.8,
+    treatment_rate: 0.5,
     cagr_5yr: 20.0,
     major_competitors: [
       'No FDA-approved therapies for core symptoms',
       'Anticonvulsants (generic, for seizures)',
       'Gene therapy candidates in clinical trials (GeneTx/Ultragenyx, Roche)',
     ],
-    market_growth_driver: 'UBE3A gene reactivation via ASO, gene replacement therapy, no approved disease-modifying treatment creates massive opportunity',
-    therapy_area_pricing_context: 'Ultra-rare pediatric; gene therapy could command $2M+ one-time. Chronic therapy $300K-$500K annually.',
+    market_growth_driver:
+      'UBE3A gene reactivation via ASO, gene replacement therapy, no approved disease-modifying treatment creates massive opportunity',
+    therapy_area_pricing_context:
+      'Ultra-rare pediatric; gene therapy could command $2M+ one-time. Chronic therapy $300K-$500K annually.',
   },
 
   {
@@ -1380,8 +1533,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Valproate (generic)',
       'Clobazam (generic)',
     ],
-    market_growth_driver: 'Precision medicine (SCN1A-targeted gene therapy), antisense oligonucleotides, novel anticonvulsant mechanisms, SUDEP prevention',
-    therapy_area_pricing_context: 'Rare pediatric epilepsy; branded agents $30K-$80K annually. Gene therapy approaches could command $1M+.',
+    market_growth_driver:
+      'Precision medicine (SCN1A-targeted gene therapy), antisense oligonucleotides, novel anticonvulsant mechanisms, SUDEP prevention',
+    therapy_area_pricing_context:
+      'Rare pediatric epilepsy; branded agents $30K-$80K annually. Gene therapy approaches could command $1M+.',
   },
 
   {
@@ -1392,15 +1547,17 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 600000,
     us_incidence: 60000,
     prevalence_source: 'AJMC Tardive Dyskinesia estimates 2024; published epidemiology',
-    diagnosis_rate: 0.40,
+    diagnosis_rate: 0.4,
     treatment_rate: 0.35,
     cagr_5yr: 12.0,
     major_competitors: [
       'Ingrezza (valbenazine, Neurocrine Biosciences) — VMAT2 inhibitor',
       'Austedo (deutetrabenazine, Teva) — VMAT2 inhibitor',
     ],
-    market_growth_driver: 'Massive underdiagnosis, increasing antipsychotic use expanding at-risk population, VMAT2 class penetration growth, awareness campaigns',
-    therapy_area_pricing_context: 'Ingrezza at ~$85K annually; Austedo at ~$80K. Large untreated population with room for market expansion.',
+    market_growth_driver:
+      'Massive underdiagnosis, increasing antipsychotic use expanding at-risk population, VMAT2 class penetration growth, awareness campaigns',
+    therapy_area_pricing_context:
+      'Ingrezza at ~$85K annually; Austedo at ~$80K. Large untreated population with room for market expansion.',
   },
 
   {
@@ -1412,7 +1569,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 2500,
     prevalence_source: 'LGS Foundation 2024; published epilepsy epidemiology',
     diagnosis_rate: 0.85,
-    treatment_rate: 0.90,
+    treatment_rate: 0.9,
     cagr_5yr: 10.0,
     major_competitors: [
       'Epidiolex (cannabidiol, Jazz Pharma)',
@@ -1423,8 +1580,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Valproate (generic)',
       'VNS therapy (LivaNova) — device',
     ],
-    market_growth_driver: 'Cannabidiol class expansion, precision medicine for genetic subtypes, novel anticonvulsant mechanisms, neuromodulation devices, disease modification approaches',
-    therapy_area_pricing_context: 'Epidiolex at $32K annually; Fintepla at $80K+. Rare pediatric epilepsy with orphan pricing. High polypharmacy rates.',
+    market_growth_driver:
+      'Cannabidiol class expansion, precision medicine for genetic subtypes, novel anticonvulsant mechanisms, neuromodulation devices, disease modification approaches',
+    therapy_area_pricing_context:
+      'Epidiolex at $32K annually; Fintepla at $80K+. Rare pediatric epilepsy with orphan pricing. High polypharmacy rates.',
   },
 
   {
@@ -1435,16 +1594,18 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 15000,
     us_incidence: 500,
     prevalence_source: 'Parent Project Muscular Dystrophy 2024; published estimates',
-    diagnosis_rate: 0.50,
-    treatment_rate: 0.20,
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.2,
     cagr_5yr: 15.0,
     major_competitors: [
       'No FDA-approved therapies for CNS manifestations',
       'Behavioral therapy (standard of care)',
       'SSRIs (off-label, generic)',
     ],
-    market_growth_driver: 'CNS manifestations gaining recognition, dystrophin restoration in brain, antisense oligonucleotides crossing BBB, cognitive endpoints in trials',
-    therapy_area_pricing_context: 'No current market; novel CNS-targeting DMD therapies could leverage rare disease/pediatric pricing at $200K+ annually.',
+    market_growth_driver:
+      'CNS manifestations gaining recognition, dystrophin restoration in brain, antisense oligonucleotides crossing BBB, cognitive endpoints in trials',
+    therapy_area_pricing_context:
+      'No current market; novel CNS-targeting DMD therapies could leverage rare disease/pediatric pricing at $200K+ annually.',
   },
 
   {
@@ -1455,8 +1616,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 150000,
     us_incidence: 15000,
     prevalence_source: 'Facial Pain Association 2024; published epidemiology estimates',
-    diagnosis_rate: 0.70,
-    treatment_rate: 0.80,
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.8,
     cagr_5yr: 7.0,
     major_competitors: [
       'Carbamazepine (generic) — first-line',
@@ -1465,8 +1626,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Microvascular decompression (surgical)',
       'Gamma knife radiosurgery',
     ],
-    market_growth_driver: 'Nav1.7 selective inhibitors in development, botulinum toxin approaches, novel sodium channel blockers, unmet need for refractory pain',
-    therapy_area_pricing_context: 'Generic first-line therapy; novel selective Nav blockers could command $20K-$50K annually. Surgical alternatives $15K-$30K one-time.',
+    market_growth_driver:
+      'Nav1.7 selective inhibitors in development, botulinum toxin approaches, novel sodium channel blockers, unmet need for refractory pain',
+    therapy_area_pricing_context:
+      'Generic first-line therapy; novel selective Nav blockers could command $20K-$50K annually. Surgical alternatives $15K-$30K one-time.',
   },
 
   {
@@ -1478,7 +1641,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 5000,
     prevalence_source: 'CMT Association 2024; CMTA; published epidemiology',
     diagnosis_rate: 0.65,
-    treatment_rate: 0.30,
+    treatment_rate: 0.3,
     cagr_5yr: 18.0,
     major_competitors: [
       'No FDA-approved disease-modifying therapies',
@@ -1486,8 +1649,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Orthotic devices',
       'PXT3003 (Pharnext) — investigational combination',
     ],
-    market_growth_driver: 'Complete treatment void for disease modification, gene therapy targeting PMP22, RNA-based approaches, neuroprotective agents, large rare disease population',
-    therapy_area_pricing_context: 'No current market; first approved disease-modifying therapy could command $100K-$300K annually. Gene therapy $1M+ one-time.',
+    market_growth_driver:
+      'Complete treatment void for disease modification, gene therapy targeting PMP22, RNA-based approaches, neuroprotective agents, large rare disease population',
+    therapy_area_pricing_context:
+      'No current market; first approved disease-modifying therapy could command $100K-$300K annually. Gene therapy $1M+ one-time.',
   },
 
   // ──────────────────────────────────────────
@@ -1512,7 +1677,8 @@ export const INDICATION_DATA: IndicationData[] = [
       'Viltepso (viltolarsen, NS Pharma)',
       'Corticosteroids (standard of care)',
     ],
-    market_growth_driver: 'Gene therapy expansion (all patients), exon skipping expansion, stop codon readthrough, combination approaches',
+    market_growth_driver:
+      'Gene therapy expansion (all patients), exon skipping expansion, stop codon readthrough, combination approaches',
     therapy_area_pricing_context: 'Ultra-rare, pediatric; gene therapies $3M+. Chronic therapies $500K-$1M annually.',
   },
 
@@ -1524,16 +1690,17 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 35000,
     us_incidence: 1000,
     prevalence_source: 'Cystic Fibrosis Foundation 2024 Patient Registry',
-    diagnosis_rate: 0.98,        // Newborn screening near-universal
+    diagnosis_rate: 0.98, // Newborn screening near-universal
     treatment_rate: 0.92,
-    cagr_5yr: 6.5,               // Trikafta has transformed market
+    cagr_5yr: 6.5, // Trikafta has transformed market
     major_competitors: [
       'Trikafta (elexacaftor/tezacaftor/ivacaftor, Vertex)',
       'Symdeko (tezacaftor/ivacaftor, Vertex)',
       'Orkambi (lumacaftor/ivacaftor, Vertex)',
       'Kalydeco (ivacaftor, Vertex)',
     ],
-    market_growth_driver: 'Patients not eligible for current modulators, next-gen modulators, mRNA/gene therapy, combination approaches',
+    market_growth_driver:
+      'Patients not eligible for current modulators, next-gen modulators, mRNA/gene therapy, combination approaches',
     therapy_area_pricing_context: 'Vertex dominant at $300K+ annually; gene therapy could be single curative dose',
   },
 
@@ -1546,7 +1713,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 200,
     prevalence_source: 'National Gaucher Foundation 2024; published epidemiology',
     diagnosis_rate: 0.85,
-    treatment_rate: 0.90,
+    treatment_rate: 0.9,
     cagr_5yr: 4.5,
     major_competitors: [
       'Cerezyme (imiglucerase, Sanofi) — ERT',
@@ -1554,19 +1721,27 @@ export const INDICATION_DATA: IndicationData[] = [
       'Cerdelga (eliglustat, Sanofi) — oral SRT',
       'Zavesca (miglustat, Janssen) — oral SRT',
     ],
-    market_growth_driver: 'Gene therapy approaches, oral substrate reduction expansion, next-gen ERT, CNS-penetrant therapies for neuronopathic forms',
-    therapy_area_pricing_context: 'ERT at $200K-$400K annually; oral SRT at $300K+. Established ultra-rare disease pricing paradigm.',
+    market_growth_driver:
+      'Gene therapy approaches, oral substrate reduction expansion, next-gen ERT, CNS-penetrant therapies for neuronopathic forms',
+    therapy_area_pricing_context:
+      'ERT at $200K-$400K annually; oral SRT at $300K+. Established ultra-rare disease pricing paradigm.',
   },
 
   {
     name: 'Pompe Disease',
-    synonyms: ['Pompe disease', 'acid maltase deficiency', 'GAA deficiency', 'glycogen storage disease type II', 'GSD II'],
+    synonyms: [
+      'Pompe disease',
+      'acid maltase deficiency',
+      'GAA deficiency',
+      'glycogen storage disease type II',
+      'GSD II',
+    ],
     icd10_codes: ['E74.02'],
     therapy_area: 'rare_disease',
     us_prevalence: 5000,
     us_incidence: 300,
     prevalence_source: 'Acid Maltase Deficiency Association 2024; Pompe Community; published epidemiology',
-    diagnosis_rate: 0.80,
+    diagnosis_rate: 0.8,
     treatment_rate: 0.85,
     cagr_5yr: 8.0,
     major_competitors: [
@@ -1574,8 +1749,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Nexviazyme (avalglucosidase alfa, Sanofi) — next-gen ERT',
       'Myozyme (alglucosidase alfa, Sanofi) — infantile onset',
     ],
-    market_growth_driver: 'Next-gen ERT with improved uptake, gene therapy (AAV-based), substrate reduction approaches, combination ERT+chaperone strategies',
-    therapy_area_pricing_context: 'ERT at $300K-$600K annually; ultra-rare orphan pricing. Gene therapy approaching $2M+ one-time.',
+    market_growth_driver:
+      'Next-gen ERT with improved uptake, gene therapy (AAV-based), substrate reduction approaches, combination ERT+chaperone strategies',
+    therapy_area_pricing_context:
+      'ERT at $300K-$600K annually; ultra-rare orphan pricing. Gene therapy approaching $2M+ one-time.',
   },
 
   {
@@ -1586,27 +1763,36 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 10000,
     us_incidence: 600,
     prevalence_source: 'Fabry Support & Information Group 2024; published newborn screening data',
-    diagnosis_rate: 0.60,
-    treatment_rate: 0.80,
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.8,
     cagr_5yr: 7.5,
     major_competitors: [
       'Fabrazyme (agalsidase beta, Sanofi) — ERT',
       'Galafold (migalastat, Amicus) — oral chaperone (amenable mutations)',
       'Replagal (agalsidase alfa, Takeda) — ERT (not approved in US)',
     ],
-    market_growth_driver: 'Newborn screening expansion increasing diagnosed pool, gene therapy approaches, substrate reduction, next-gen ERT with improved tissue penetration',
-    therapy_area_pricing_context: 'ERT at $200K-$350K annually; Galafold at $315K annually. Orphan drug pricing well-established.',
+    market_growth_driver:
+      'Newborn screening expansion increasing diagnosed pool, gene therapy approaches, substrate reduction, next-gen ERT with improved tissue penetration',
+    therapy_area_pricing_context:
+      'ERT at $200K-$350K annually; Galafold at $315K annually. Orphan drug pricing well-established.',
   },
 
   {
     name: 'Hereditary Angioedema',
-    synonyms: ['HAE', 'hereditary angioedema', 'C1-INH deficiency', 'HAE type I', 'HAE type II', 'bradykinin-mediated angioedema'],
+    synonyms: [
+      'HAE',
+      'hereditary angioedema',
+      'C1-INH deficiency',
+      'HAE type I',
+      'HAE type II',
+      'bradykinin-mediated angioedema',
+    ],
     icd10_codes: ['D84.1'],
     therapy_area: 'rare_disease',
     us_prevalence: 8000,
     us_incidence: 400,
     prevalence_source: 'US Hereditary Angioedema Association 2024; HAEA',
-    diagnosis_rate: 0.70,
+    diagnosis_rate: 0.7,
     treatment_rate: 0.85,
     cagr_5yr: 8.5,
     major_competitors: [
@@ -1617,13 +1803,21 @@ export const INDICATION_DATA: IndicationData[] = [
       'Cinryze (C1-INH IV, Takeda)',
       'Kalbitor (ecallantide, Takeda)',
     ],
-    market_growth_driver: 'Oral prophylaxis expansion, FXII-targeted therapies, gene therapy/editing approaches, attack-free status as treatment goal',
-    therapy_area_pricing_context: 'Takhzyro at $480K+ annually; Orladeyo oral at $400K+. Ultra-rare; strong orphan pricing environment.',
+    market_growth_driver:
+      'Oral prophylaxis expansion, FXII-targeted therapies, gene therapy/editing approaches, attack-free status as treatment goal',
+    therapy_area_pricing_context:
+      'Takhzyro at $480K+ annually; Orladeyo oral at $400K+. Ultra-rare; strong orphan pricing environment.',
   },
 
   {
     name: 'Phenylketonuria',
-    synonyms: ['PKU', 'phenylketonuria', 'PAH deficiency', 'phenylalanine hydroxylase deficiency', 'hyperphenylalaninemia'],
+    synonyms: [
+      'PKU',
+      'phenylketonuria',
+      'PAH deficiency',
+      'phenylalanine hydroxylase deficiency',
+      'hyperphenylalaninemia',
+    ],
     icd10_codes: ['E70.0', 'E70.1'],
     therapy_area: 'rare_disease',
     us_prevalence: 16500,
@@ -1637,8 +1831,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Kuvan (sapropterin, BioMarin) — BH4 cofactor (responsive patients)',
       'Dietary phenylalanine restriction (medical food)',
     ],
-    market_growth_driver: 'Gene therapy approaches (BioMarin AAV), mRNA therapy, enzyme replacement improvements, adherence to diet declining in adults creating treatment need',
-    therapy_area_pricing_context: 'Palynziq at $200K+ annually; Kuvan at $100K+. Gene therapy could command $1M-$2M one-time.',
+    market_growth_driver:
+      'Gene therapy approaches (BioMarin AAV), mRNA therapy, enzyme replacement improvements, adherence to diet declining in adults creating treatment need',
+    therapy_area_pricing_context:
+      'Palynziq at $200K+ annually; Kuvan at $100K+. Gene therapy could command $1M-$2M one-time.',
   },
 
   {
@@ -1650,7 +1846,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 500,
     prevalence_source: 'Wilson Disease Association 2024; published epidemiology',
     diagnosis_rate: 0.55,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 10.0,
     major_competitors: [
       'Penicillamine (generic) — chelation',
@@ -1658,8 +1854,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Zinc acetate (generic) — maintenance',
       'Chelator combinations (off-label)',
     ],
-    market_growth_driver: 'Underdiagnosis, novel chelation agents with improved safety profile, gene therapy approaches, bis-choline tetrathiomolybdate (Alexion) development',
-    therapy_area_pricing_context: 'Current generics are inexpensive; branded novel chelator could command $100K-$200K annually. Gene therapy $1M+.',
+    market_growth_driver:
+      'Underdiagnosis, novel chelation agents with improved safety profile, gene therapy approaches, bis-choline tetrathiomolybdate (Alexion) development',
+    therapy_area_pricing_context:
+      'Current generics are inexpensive; branded novel chelator could command $100K-$200K annually. Gene therapy $1M+.',
   },
 
   {
@@ -1670,14 +1868,14 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 2500,
     us_incidence: 100,
     prevalence_source: 'Published epidemiology 2024; LAL-D Foundation; newborn screening estimates',
-    diagnosis_rate: 0.30,
+    diagnosis_rate: 0.3,
     treatment_rate: 0.75,
     cagr_5yr: 12.0,
-    major_competitors: [
-      'Kanuma (sebelipase alfa, Alexion) — ERT',
-    ],
-    market_growth_driver: 'Severe underdiagnosis, newborn screening potential, gene therapy approaches, combination with lipid-lowering agents',
-    therapy_area_pricing_context: 'Kanuma at $350K-$600K annually (weight-based dosing). Ultra-rare; orphan drug pricing with minimal competition.',
+    major_competitors: ['Kanuma (sebelipase alfa, Alexion) — ERT'],
+    market_growth_driver:
+      'Severe underdiagnosis, newborn screening potential, gene therapy approaches, combination with lipid-lowering agents',
+    therapy_area_pricing_context:
+      'Kanuma at $350K-$600K annually (weight-based dosing). Ultra-rare; orphan drug pricing with minimal competition.',
   },
 
   {
@@ -1688,14 +1886,15 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 8000,
     us_incidence: 500,
     prevalence_source: 'American Porphyria Foundation 2024; published epidemiology',
-    diagnosis_rate: 0.40,
-    treatment_rate: 0.70,
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.7,
     cagr_5yr: 10.0,
     major_competitors: [
       'Givlaari (givosiran, Alnylam) — RNAi targeting ALAS1',
       'Panhematin (hemin, Recordati) — acute attacks',
     ],
-    market_growth_driver: 'RNAi therapy reducing attacks, underdiagnosis improvement, gene therapy approaches, broader porphyria subtype coverage',
+    market_growth_driver:
+      'RNAi therapy reducing attacks, underdiagnosis improvement, gene therapy approaches, broader porphyria subtype coverage',
     therapy_area_pricing_context: 'Givlaari at $575K annually. Ultra-rare; established orphan premium pricing.',
   },
 
@@ -1718,8 +1917,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Adynovate (rurioctocog alfa pegol, Takeda)',
       'Esperoct (turoctocog alfa pegol, Novo Nordisk)',
     ],
-    market_growth_driver: 'Gene therapy competition, Hemlibra subcutaneous prophylaxis dominance, next-gen gene therapies, non-factor replacement approaches',
-    therapy_area_pricing_context: 'Factor replacement $200K-$500K annually; Hemlibra $500K+; Roctavian gene therapy $2.9M one-time.',
+    market_growth_driver:
+      'Gene therapy competition, Hemlibra subcutaneous prophylaxis dominance, next-gen gene therapies, non-factor replacement approaches',
+    therapy_area_pricing_context:
+      'Factor replacement $200K-$500K annually; Hemlibra $500K+; Roctavian gene therapy $2.9M one-time.',
   },
 
   {
@@ -1741,8 +1942,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Rebinyn (nonacog beta pegol, Novo Nordisk)',
       'Fitusiran (alhemo, Sanofi) — anti-AT inhibitor',
     ],
-    market_growth_driver: 'Gene therapy at $3.5M sets pricing benchmark, fitusiran subcutaneous prophylaxis, next-gen gene therapy with improved durability',
-    therapy_area_pricing_context: 'Hemgenix at $3.5M (most expensive drug ever). Factor replacement $200K-$400K annually. Gene therapy curative potential justifies one-time premium.',
+    market_growth_driver:
+      'Gene therapy at $3.5M sets pricing benchmark, fitusiran subcutaneous prophylaxis, next-gen gene therapy with improved durability',
+    therapy_area_pricing_context:
+      'Hemgenix at $3.5M (most expensive drug ever). Factor replacement $200K-$400K annually. Gene therapy curative potential justifies one-time premium.',
   },
 
   {
@@ -1754,19 +1957,25 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 100,
     prevalence_source: 'National MPS Society 2024; published epidemiology',
     diagnosis_rate: 0.85,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 8.0,
-    major_competitors: [
-      'Elaprase (idursulfase, Takeda) — ERT',
-      'Hunterase (idursulfase beta, GC Pharma) — ERT',
-    ],
-    market_growth_driver: 'CNS-penetrant ERT, intrathecal enzyme delivery, gene therapy, BBB-penetrant approaches for neuronopathic form',
-    therapy_area_pricing_context: 'Elaprase at $375K-$750K annually (weight-based). Ultra-rare; orphan pricing with limited competition.',
+    major_competitors: ['Elaprase (idursulfase, Takeda) — ERT', 'Hunterase (idursulfase beta, GC Pharma) — ERT'],
+    market_growth_driver:
+      'CNS-penetrant ERT, intrathecal enzyme delivery, gene therapy, BBB-penetrant approaches for neuronopathic form',
+    therapy_area_pricing_context:
+      'Elaprase at $375K-$750K annually (weight-based). Ultra-rare; orphan pricing with limited competition.',
   },
 
   {
     name: 'Hurler Syndrome',
-    synonyms: ['MPS I', 'mucopolysaccharidosis type I', 'Hurler syndrome', 'Scheie syndrome', 'Hurler-Scheie', 'alpha-L-iduronidase deficiency'],
+    synonyms: [
+      'MPS I',
+      'mucopolysaccharidosis type I',
+      'Hurler syndrome',
+      'Scheie syndrome',
+      'Hurler-Scheie',
+      'alpha-L-iduronidase deficiency',
+    ],
     icd10_codes: ['E76.01', 'E76.02', 'E76.03'],
     therapy_area: 'rare_disease',
     us_prevalence: 1500,
@@ -1779,8 +1988,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Aldurazyme (laronidase, Sanofi) — ERT',
       'HSCT (hematopoietic stem cell transplant) — severe form',
     ],
-    market_growth_driver: 'Gene therapy approaches, CNS-directed therapy, improved newborn screening, combination ERT+HSCT strategies',
-    therapy_area_pricing_context: 'Aldurazyme at $200K-$500K annually. Ultra-rare; orphan pricing. Gene therapy could command $2M+.',
+    market_growth_driver:
+      'Gene therapy approaches, CNS-directed therapy, improved newborn screening, combination ERT+HSCT strategies',
+    therapy_area_pricing_context:
+      'Aldurazyme at $200K-$500K annually. Ultra-rare; orphan pricing. Gene therapy could command $2M+.',
   },
 
   {
@@ -1791,7 +2002,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 1500,
     us_incidence: 100,
     prevalence_source: 'National Niemann-Pick Disease Foundation 2024; published epidemiology',
-    diagnosis_rate: 0.50,
+    diagnosis_rate: 0.5,
     treatment_rate: 0.65,
     cagr_5yr: 15.0,
     major_competitors: [
@@ -1799,8 +2010,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Arimoclomol — recently rejected by FDA',
       'Cyclodextrin (investigational)',
     ],
-    market_growth_driver: 'No FDA-approved disease-specific therapy, gene therapy approaches, cyclodextrin development, improved diagnosis via biomarkers',
-    therapy_area_pricing_context: 'Ultra-rare neurodegenerative; first approved therapy could command $300K-$500K annually.',
+    market_growth_driver:
+      'No FDA-approved disease-specific therapy, gene therapy approaches, cyclodextrin development, improved diagnosis via biomarkers',
+    therapy_area_pricing_context:
+      'Ultra-rare neurodegenerative; first approved therapy could command $300K-$500K annually.',
   },
 
   {
@@ -1812,13 +2025,13 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 200,
     prevalence_source: 'Batten Disease Support and Research Association 2024; published epidemiology',
     diagnosis_rate: 0.75,
-    treatment_rate: 0.70,
+    treatment_rate: 0.7,
     cagr_5yr: 18.0,
-    major_competitors: [
-      'Brineura (cerliponase alfa, BioMarin) — intracerebroventricular ERT for CLN2',
-    ],
-    market_growth_driver: 'Gene therapy for multiple CLN subtypes, improved newborn screening, Brineura precedent for CNS enzyme delivery, AAV gene therapy trials active',
-    therapy_area_pricing_context: 'Brineura at $730K annually with intracerebroventricular delivery. Ultra-rare pediatric; gene therapy $2M-$3M one-time.',
+    major_competitors: ['Brineura (cerliponase alfa, BioMarin) — intracerebroventricular ERT for CLN2'],
+    market_growth_driver:
+      'Gene therapy for multiple CLN subtypes, improved newborn screening, Brineura precedent for CNS enzyme delivery, AAV gene therapy trials active',
+    therapy_area_pricing_context:
+      'Brineura at $730K annually with intracerebroventricular delivery. Ultra-rare pediatric; gene therapy $2M-$3M one-time.',
   },
 
   {
@@ -1829,16 +2042,18 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 25000,
     us_incidence: 1000,
     prevalence_source: 'EB Research Partnership 2024; debra of America; published epidemiology',
-    diagnosis_rate: 0.90,
-    treatment_rate: 0.70,
+    diagnosis_rate: 0.9,
+    treatment_rate: 0.7,
     cagr_5yr: 22.0,
     major_competitors: [
       'Vyjuvek (beremagene geperpavec, Krystal Biotech) — topical gene therapy for DEB',
       'Wound care management (standard of care)',
       'Filsuvez (birch bark extract, Amryt) — approved in EU',
     ],
-    market_growth_driver: 'Vyjuvek gene therapy approval breakthrough, systemic gene therapy, protein replacement, cell therapy, wound healing approaches for multiple EB subtypes',
-    therapy_area_pricing_context: 'Vyjuvek at $24K per vial (chronic use). Ultra-rare with high treatment burden; innovative therapies command orphan premium.',
+    market_growth_driver:
+      'Vyjuvek gene therapy approval breakthrough, systemic gene therapy, protein replacement, cell therapy, wound healing approaches for multiple EB subtypes',
+    therapy_area_pricing_context:
+      'Vyjuvek at $24K per vial (chronic use). Ultra-rare with high treatment burden; innovative therapies command orphan premium.',
   },
 
   {
@@ -1850,15 +2065,17 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 800,
     prevalence_source: 'Little People of America 2024; published epidemiology estimates',
     diagnosis_rate: 0.95,
-    treatment_rate: 0.40,
+    treatment_rate: 0.4,
     cagr_5yr: 25.0,
     major_competitors: [
       'Voxzogo (vosoritide, BioMarin) — CNP analog, first approved for achondroplasia',
       'Growth hormone (off-label)',
       'Surgical limb lengthening',
     ],
-    market_growth_driver: 'Voxzogo approval precedent, long-term growth data accumulating, infant formulation development, combination approaches, adult indications',
-    therapy_area_pricing_context: 'Voxzogo at $325K annually (pediatric). Rare genetic condition; orphan drug pricing with strong payer acceptance.',
+    market_growth_driver:
+      'Voxzogo approval precedent, long-term growth data accumulating, infant formulation development, combination approaches, adult indications',
+    therapy_area_pricing_context:
+      'Voxzogo at $325K annually (pediatric). Rare genetic condition; orphan drug pricing with strong payer acceptance.',
   },
 
   {
@@ -1869,14 +2086,14 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 4000,
     us_incidence: 200,
     prevalence_source: 'Soft Bones Foundation 2024; published epidemiology estimates',
-    diagnosis_rate: 0.50,
+    diagnosis_rate: 0.5,
     treatment_rate: 0.75,
     cagr_5yr: 10.0,
-    major_competitors: [
-      'Strensiq (asfotase alfa, Alexion) — ERT',
-    ],
-    market_growth_driver: 'Underdiagnosis, expanded indications for adult-onset HPP, gene therapy potential, next-gen enzyme replacement',
-    therapy_area_pricing_context: 'Strensiq at $250K-$800K annually (weight-based). Ultra-rare; orphan pricing benchmark.',
+    major_competitors: ['Strensiq (asfotase alfa, Alexion) — ERT'],
+    market_growth_driver:
+      'Underdiagnosis, expanded indications for adult-onset HPP, gene therapy potential, next-gen enzyme replacement',
+    therapy_area_pricing_context:
+      'Strensiq at $250K-$800K annually (weight-based). Ultra-rare; orphan pricing benchmark.',
   },
 
   {
@@ -1887,8 +2104,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 100000,
     us_incidence: 3000,
     prevalence_source: 'Alpha-1 Foundation 2024; published epidemiology (estimated ~100K, most undiagnosed)',
-    diagnosis_rate: 0.10,
-    treatment_rate: 0.50,
+    diagnosis_rate: 0.1,
+    treatment_rate: 0.5,
     cagr_5yr: 8.5,
     major_competitors: [
       'Prolastin-C (alpha-1 proteinase inhibitor, Grifols) — augmentation',
@@ -1896,8 +2113,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Zemaira (alpha-1 proteinase inhibitor, CSL Behring)',
       'Glassia (alpha-1 proteinase inhibitor, Takeda)',
     ],
-    market_growth_driver: 'Massive underdiagnosis (only ~10% diagnosed), gene therapy approaches, next-gen augmentation therapy, RNA-based liver-targeted therapies',
-    therapy_area_pricing_context: 'Augmentation therapy at $80K-$120K annually. Large undiagnosed population; gene therapy could command $1M+ one-time.',
+    market_growth_driver:
+      'Massive underdiagnosis (only ~10% diagnosed), gene therapy approaches, next-gen augmentation therapy, RNA-based liver-targeted therapies',
+    therapy_area_pricing_context:
+      'Augmentation therapy at $80K-$120K annually. Large undiagnosed population; gene therapy could command $1M+ one-time.',
   },
 
   {
@@ -1908,15 +2127,17 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 20000,
     us_incidence: 600,
     prevalence_source: 'Prader-Willi Syndrome Association 2024; published epidemiology',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.65,
     cagr_5yr: 15.0,
     major_competitors: [
       'Growth hormone (Genotropin, Norditropin, etc.) — for growth/body composition',
       'No FDA-approved therapy for hyperphagia (core symptom)',
     ],
-    market_growth_driver: 'Hyperphagia-targeting therapies in development (DCCR, setmelanotide, carbetocin), oxytocin approaches, no approved treatment for core symptom',
-    therapy_area_pricing_context: 'GH at $30K-$60K annually; first approved hyperphagia agent could command $100K-$300K annually. Orphan pricing applicable.',
+    market_growth_driver:
+      'Hyperphagia-targeting therapies in development (DCCR, setmelanotide, carbetocin), oxytocin approaches, no approved treatment for core symptom',
+    therapy_area_pricing_context:
+      'GH at $30K-$60K annually; first approved hyperphagia agent could command $100K-$300K annually. Orphan pricing applicable.',
   },
 
   {
@@ -1927,8 +2148,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 50000,
     us_incidence: 2000,
     prevalence_source: 'TSC Alliance 2024; published epidemiology estimates',
-    diagnosis_rate: 0.80,
-    treatment_rate: 0.70,
+    diagnosis_rate: 0.8,
+    treatment_rate: 0.7,
     cagr_5yr: 9.0,
     major_competitors: [
       'Afinitor (everolimus, Novartis) — mTOR inhibitor for SEGA, renal AML',
@@ -1936,8 +2157,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Epidiolex (cannabidiol, Jazz Pharma) — TSC-associated seizures',
       'Vigabatrin (Lundbeck) — infantile spasms in TSC',
     ],
-    market_growth_driver: 'Comprehensive multi-organ approach, mTOR inhibitor expanded indications, gene therapy targeting TSC1/TSC2, infantile spasm prevention',
-    therapy_area_pricing_context: 'Afinitor at $150K+ annually; Epidiolex at $32K. Multi-organ disease requiring chronic management supports sustained pricing.',
+    market_growth_driver:
+      'Comprehensive multi-organ approach, mTOR inhibitor expanded indications, gene therapy targeting TSC1/TSC2, infantile spasm prevention',
+    therapy_area_pricing_context:
+      'Afinitor at $150K+ annually; Epidiolex at $32K. Multi-organ disease requiring chronic management supports sustained pricing.',
   },
 
   {
@@ -1948,16 +2171,18 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 3000,
     us_incidence: 200,
     prevalence_source: 'Kennedy Disease Association 2024; published epidemiology',
-    diagnosis_rate: 0.60,
-    treatment_rate: 0.30,
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.3,
     cagr_5yr: 15.0,
     major_competitors: [
       'No FDA-approved therapies',
       'Physical therapy (standard of care)',
       'Testosterone supplementation (off-label)',
     ],
-    market_growth_driver: 'ASO targeting polyglutamine expansion, gene silencing approaches, androgen receptor modulation, complete treatment void creates opportunity',
-    therapy_area_pricing_context: 'Ultra-rare; first disease-modifying therapy could command $200K-$500K annually. Orphan drug designation available.',
+    market_growth_driver:
+      'ASO targeting polyglutamine expansion, gene silencing approaches, androgen receptor modulation, complete treatment void creates opportunity',
+    therapy_area_pricing_context:
+      'Ultra-rare; first disease-modifying therapy could command $200K-$500K annually. Orphan drug designation available.',
   },
 
   {
@@ -1968,8 +2193,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 1300,
     us_incidence: 60,
     prevalence_source: 'FH Foundation 2024; published epidemiology (1:300K-1:160K prevalence)',
-    diagnosis_rate: 0.80,
-    treatment_rate: 0.90,
+    diagnosis_rate: 0.8,
+    treatment_rate: 0.9,
     cagr_5yr: 8.0,
     major_competitors: [
       'Juxtapid (lomitapide, Amryt) — MTP inhibitor',
@@ -1977,8 +2202,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Repatha (evolocumab, Amgen) — PCSK9 mAb',
       'LDL apheresis',
     ],
-    market_growth_driver: 'ANGPTL3 inhibition, gene therapy approaches, siRNA targeting HoFH, combination lipid-lowering strategies, LDL apheresis reduction',
-    therapy_area_pricing_context: 'Evkeeza at $450K annually; Juxtapid at $350K. Ultra-rare with severe cardiovascular risk; orphan premium pricing.',
+    market_growth_driver:
+      'ANGPTL3 inhibition, gene therapy approaches, siRNA targeting HoFH, combination lipid-lowering strategies, LDL apheresis reduction',
+    therapy_area_pricing_context:
+      'Evkeeza at $450K annually; Juxtapid at $350K. Ultra-rare with severe cardiovascular risk; orphan premium pricing.',
   },
 
   {
@@ -1989,7 +2216,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 25000,
     us_incidence: 800,
     prevalence_source: 'CARES Foundation 2024; published newborn screening data',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.85,
     cagr_5yr: 12.0,
     major_competitors: [
@@ -1998,28 +2225,37 @@ export const INDICATION_DATA: IndicationData[] = [
       'Crinecerfont (Neurocrine Biosciences) — CRF1 antagonist, Phase 3',
       'Tildacerfont (Spruce Biosciences) — CRF1 antagonist',
     ],
-    market_growth_driver: 'CRF1 receptor antagonists enabling physiologic cortisol replacement, gene therapy potential, improved newborn screening, adult disease management',
-    therapy_area_pricing_context: 'Generic glucocorticoids very inexpensive; novel CRF1 antagonists could command $100K-$200K annually. Orphan pricing applicable.',
+    market_growth_driver:
+      'CRF1 receptor antagonists enabling physiologic cortisol replacement, gene therapy potential, improved newborn screening, adult disease management',
+    therapy_area_pricing_context:
+      'Generic glucocorticoids very inexpensive; novel CRF1 antagonists could command $100K-$200K annually. Orphan pricing applicable.',
   },
 
   {
     name: 'Aromatic L-Amino Acid Decarboxylase Deficiency',
-    synonyms: ['AADC deficiency', 'AADCD', 'aromatic L-amino acid decarboxylase deficiency', 'dopa decarboxylase deficiency'],
+    synonyms: [
+      'AADC deficiency',
+      'AADCD',
+      'aromatic L-amino acid decarboxylase deficiency',
+      'dopa decarboxylase deficiency',
+    ],
     icd10_codes: ['E70.8'],
     therapy_area: 'rare_disease',
     us_prevalence: 300,
     us_incidence: 20,
     prevalence_source: 'Published literature 2024; AADC Research Trust',
-    diagnosis_rate: 0.50,
-    treatment_rate: 0.70,
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.7,
     cagr_5yr: 25.0,
     major_competitors: [
       'Upstaza (eladocagene exuparvovec, PTC Therapeutics) — gene therapy (EU approved)',
       'Dopamine agonists (off-label)',
       'MAO inhibitors (off-label)',
     ],
-    market_growth_driver: 'Gene therapy approval precedent in EU, FDA pathway in progress, ultra-rare with transformative treatment potential, newborn screening possible',
-    therapy_area_pricing_context: 'Ultra-rare gene therapy; Upstaza priced at $3.5M in EU. US approval could command similar pricing.',
+    market_growth_driver:
+      'Gene therapy approval precedent in EU, FDA pathway in progress, ultra-rare with transformative treatment potential, newborn screening possible',
+    therapy_area_pricing_context:
+      'Ultra-rare gene therapy; Upstaza priced at $3.5M in EU. US approval could command similar pricing.',
   },
 
   // ──────────────────────────────────────────
@@ -2045,7 +2281,8 @@ export const INDICATION_DATA: IndicationData[] = [
       'Xeljanz (tofacitinib, Pfizer)',
     ],
     market_growth_driver: 'Post-Humira biosimilar dynamics, next-gen selective JAKi, B cell depletion, bispecifics',
-    therapy_area_pricing_context: 'Highly competitive; TNF biosimilars driving price pressure. Novel mechanisms with superior efficacy needed for premium positioning ($40K-$60K annually)',
+    therapy_area_pricing_context:
+      'Highly competitive; TNF biosimilars driving price pressure. Novel mechanisms with superior efficacy needed for premium positioning ($40K-$60K annually)',
   },
 
   {
@@ -2066,8 +2303,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Mycophenolate (generic)',
       'Rituximab (off-label)',
     ],
-    market_growth_driver: 'Anti-IFNAR pathway expansion, complement inhibitors for lupus nephritis, CAR-T for refractory disease, large underserved population',
-    therapy_area_pricing_context: 'Benlysta at $35K annually; Saphnelo at $45K. Novel biologics with superior efficacy could command $50K-$80K. Health disparities in prevalence.',
+    market_growth_driver:
+      'Anti-IFNAR pathway expansion, complement inhibitors for lupus nephritis, CAR-T for refractory disease, large underserved population',
+    therapy_area_pricing_context:
+      'Benlysta at $35K annually; Saphnelo at $45K. Novel biologics with superior efficacy could command $50K-$80K. Health disparities in prevalence.',
   },
 
   {
@@ -2078,8 +2317,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 1200000,
     us_incidence: 60000,
     prevalence_source: 'National Psoriasis Foundation 2024; ACR epidemiology estimates',
-    diagnosis_rate: 0.60,
-    treatment_rate: 0.70,
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.7,
     cagr_5yr: 7.8,
     major_competitors: [
       'Cosentyx (secukinumab, Novartis) — anti-IL-17A',
@@ -2090,13 +2329,23 @@ export const INDICATION_DATA: IndicationData[] = [
       'Otezla (apremilast, Amgen) — PDE4 inhibitor',
       'Humira/biosimilars (adalimumab)',
     ],
-    market_growth_driver: 'IL-23 class growing share, dual-domain disease management (joints+skin), bispecific IL-17A/F antibodies, earlier biologic intervention',
-    therapy_area_pricing_context: 'IL-17/IL-23 biologics at $60K-$80K annually. Biosimilar TNF pressure driving novel mechanism adoption. Oral agents at $30K-$40K.',
+    market_growth_driver:
+      'IL-23 class growing share, dual-domain disease management (joints+skin), bispecific IL-17A/F antibodies, earlier biologic intervention',
+    therapy_area_pricing_context:
+      'IL-17/IL-23 biologics at $60K-$80K annually. Biosimilar TNF pressure driving novel mechanism adoption. Oral agents at $30K-$40K.',
   },
 
   {
     name: 'Ankylosing Spondylitis',
-    synonyms: ['AS', 'ankylosing spondylitis', 'axial spondyloarthritis', 'axSpA', 'radiographic axSpA', 'non-radiographic axSpA', 'nr-axSpA'],
+    synonyms: [
+      'AS',
+      'ankylosing spondylitis',
+      'axial spondyloarthritis',
+      'axSpA',
+      'radiographic axSpA',
+      'non-radiographic axSpA',
+      'nr-axSpA',
+    ],
     icd10_codes: ['M45.0', 'M45.1', 'M45.2', 'M45.9'],
     therapy_area: 'immunology',
     us_prevalence: 600000,
@@ -2112,8 +2361,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Humira/biosimilars (adalimumab)',
       'NSAIDs (generic first-line)',
     ],
-    market_growth_driver: 'IL-17 class dominance in axSpA, non-radiographic axSpA label expansion, JAK inhibitors providing oral option, earlier diagnosis via MRI',
-    therapy_area_pricing_context: 'Biologics at $60K-$80K annually. Significant diagnosis delay (avg 7-10 years) creates untreated population opportunity.',
+    market_growth_driver:
+      'IL-17 class dominance in axSpA, non-radiographic axSpA label expansion, JAK inhibitors providing oral option, earlier diagnosis via MRI',
+    therapy_area_pricing_context:
+      'Biologics at $60K-$80K annually. Significant diagnosis delay (avg 7-10 years) creates untreated population opportunity.',
   },
 
   {
@@ -2124,8 +2375,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 7900000,
     us_incidence: 800000,
     prevalence_source: 'National Eczema Association 2024; AAD epidemiology data',
-    diagnosis_rate: 0.70,
-    treatment_rate: 0.60,
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.6,
     cagr_5yr: 14.0,
     major_competitors: [
       'Dupixent (dupilumab, Sanofi/Regeneron) — anti-IL-4Ra',
@@ -2135,8 +2386,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Opzelura (ruxolitinib cream, Incyte) — topical JAK inhibitor',
       'Eucrisa (crisaborole, Pfizer) — PDE4 topical',
     ],
-    market_growth_driver: 'Dupixent blockbuster growth, JAK inhibitor oral option, OX40 ligand and TSLP targeting, pediatric age expansions, biologic penetration of moderate AD',
-    therapy_area_pricing_context: 'Dupixent at $36K annually; JAK inhibitors at $50K-$65K. Massive addressable population drives very large market.',
+    market_growth_driver:
+      'Dupixent blockbuster growth, JAK inhibitor oral option, OX40 ligand and TSLP targeting, pediatric age expansions, biologic penetration of moderate AD',
+    therapy_area_pricing_context:
+      'Dupixent at $36K annually; JAK inhibitors at $50K-$65K. Massive addressable population drives very large market.',
   },
 
   {
@@ -2147,7 +2400,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 3300000,
     us_incidence: 150000,
     prevalence_source: 'National Psoriasis Foundation 2024; AAD epidemiology data',
-    diagnosis_rate: 0.80,
+    diagnosis_rate: 0.8,
     treatment_rate: 0.65,
     cagr_5yr: 8.5,
     major_competitors: [
@@ -2159,8 +2412,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Sotyktu (deucravacitinib, BMS) — TYK2 inhibitor oral',
       'Humira/biosimilars (adalimumab)',
     ],
-    market_growth_driver: 'IL-23 class dominance, TYK2 selective inhibitors, high PASI 100 clearance rates as new standard, oral options expanding access',
-    therapy_area_pricing_context: 'IL-23 biologics at $60K-$80K annually; TYK2 oral at $35K-$40K. Large market; competition driving differentiation on clearance rates.',
+    market_growth_driver:
+      'IL-23 class dominance, TYK2 selective inhibitors, high PASI 100 clearance rates as new standard, oral options expanding access',
+    therapy_area_pricing_context:
+      'IL-23 biologics at $60K-$80K annually; TYK2 oral at $35K-$40K. Large market; competition driving differentiation on clearance rates.',
   },
 
   {
@@ -2172,7 +2427,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 33000,
     prevalence_source: "Crohn's and Colitis Foundation 2024; CDC GI health estimates",
     diagnosis_rate: 0.78,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 8.2,
     major_competitors: [
       'Skyrizi (risankizumab, AbbVie) — anti-IL-23',
@@ -2182,8 +2437,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Humira/biosimilars (adalimumab)',
       'Remicade/biosimilars (infliximab)',
     ],
-    market_growth_driver: 'IL-23 class gaining 1L share, JAK inhibitor oral option, S1P modulators, anti-TL1A agents in Phase 3 (tulisokibart), combination biologics',
-    therapy_area_pricing_context: 'Biologics at $50K-$80K annually. Biosimilar TNF creating headroom for novel mechanisms. Anti-TL1A could be next major class.',
+    market_growth_driver:
+      'IL-23 class gaining 1L share, JAK inhibitor oral option, S1P modulators, anti-TL1A agents in Phase 3 (tulisokibart), combination biologics',
+    therapy_area_pricing_context:
+      'Biologics at $50K-$80K annually. Biosimilar TNF creating headroom for novel mechanisms. Anti-TL1A could be next major class.',
   },
 
   {
@@ -2194,7 +2451,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 900000,
     us_incidence: 38000,
     prevalence_source: "Crohn's and Colitis Foundation 2024; CDC GI health estimates",
-    diagnosis_rate: 0.80,
+    diagnosis_rate: 0.8,
     treatment_rate: 0.82,
     cagr_5yr: 8.5,
     major_competitors: [
@@ -2206,8 +2463,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Remicade/biosimilars (infliximab)',
       'Omvoh (mirikizumab, Eli Lilly) — anti-IL-23',
     ],
-    market_growth_driver: 'S1P modulators oral convenience, anti-IL-23 expansion, anti-TL1A agents, biologic penetration growth, colectomy prevention strategies',
-    therapy_area_pricing_context: 'Biologics at $50K-$80K annually; oral agents at $40K-$60K. Large and growing IBD market.',
+    market_growth_driver:
+      'S1P modulators oral convenience, anti-IL-23 expansion, anti-TL1A agents, biologic penetration growth, colectomy prevention strategies',
+    therapy_area_pricing_context:
+      'Biologics at $50K-$80K annually; oral agents at $40K-$60K. Large and growing IBD market.',
   },
 
   {
@@ -2218,7 +2477,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 80000,
     us_incidence: 20000,
     prevalence_source: 'Vasculitis Foundation 2024; published epidemiology estimates',
-    diagnosis_rate: 0.70,
+    diagnosis_rate: 0.7,
     treatment_rate: 0.85,
     cagr_5yr: 12.0,
     major_competitors: [
@@ -2226,8 +2485,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Prednisone (generic) — standard of care',
       'Methotrexate (generic, off-label)',
     ],
-    market_growth_driver: 'Actemra monotherapy enabling steroid sparing, novel targets (GM-CSF, CD20), unmet need in relapsing disease, imaging-based diagnosis improvement',
-    therapy_area_pricing_context: 'Actemra at $24K-$36K annually. Steroid-sparing agents valued by payers. Novel mechanisms could command $40K-$60K.',
+    market_growth_driver:
+      'Actemra monotherapy enabling steroid sparing, novel targets (GM-CSF, CD20), unmet need in relapsing disease, imaging-based diagnosis improvement',
+    therapy_area_pricing_context:
+      'Actemra at $24K-$36K annually. Steroid-sparing agents valued by payers. Novel mechanisms could command $40K-$60K.',
   },
 
   {
@@ -2239,15 +2500,17 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 200000,
     prevalence_source: 'National Alopecia Areata Foundation 2024; NAAF; published epidemiology',
     diagnosis_rate: 0.75,
-    treatment_rate: 0.50,
+    treatment_rate: 0.5,
     cagr_5yr: 22.0,
     major_competitors: [
       'Olumiant (baricitinib, Eli Lilly) — JAK inhibitor, first FDA-approved for AA',
       'Litfulo (ritlecitinib, Pfizer) — JAK3/TEC inhibitor',
       'Corticosteroids (generic, intralesional)',
     ],
-    market_growth_driver: 'First-ever FDA approvals in 2022-2023, JAK inhibitor class expansion, large undertreated population, topical JAK inhibitors in development',
-    therapy_area_pricing_context: 'Olumiant at $55K annually; Litfulo at $49K. Large market opportunity with recent class creation.',
+    market_growth_driver:
+      'First-ever FDA approvals in 2022-2023, JAK inhibitor class expansion, large undertreated population, topical JAK inhibitors in development',
+    therapy_area_pricing_context:
+      'Olumiant at $55K annually; Litfulo at $49K. Large market opportunity with recent class creation.',
   },
 
   {
@@ -2258,7 +2521,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 2500000,
     us_incidence: 200000,
     prevalence_source: 'Global Vitiligo Foundation 2024; AAD epidemiology data',
-    diagnosis_rate: 0.70,
+    diagnosis_rate: 0.7,
     treatment_rate: 0.35,
     cagr_5yr: 18.0,
     major_competitors: [
@@ -2267,8 +2530,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Topical corticosteroids (generic)',
       'Topical calcineurin inhibitors (generic)',
     ],
-    market_growth_driver: 'Opzelura first-ever FDA approval, massive undertreated population, oral JAK inhibitors in development, combination topical+phototherapy optimization',
-    therapy_area_pricing_context: 'Opzelura at $24K annually. Large addressable market with very low current treatment rates creates significant growth runway.',
+    market_growth_driver:
+      'Opzelura first-ever FDA approval, massive undertreated population, oral JAK inhibitors in development, combination topical+phototherapy optimization',
+    therapy_area_pricing_context:
+      'Opzelura at $24K annually. Large addressable market with very low current treatment rates creates significant growth runway.',
   },
 
   {
@@ -2288,8 +2553,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Swallowed topical corticosteroids (budesonide, fluticasone)',
       'Elimination diet',
     ],
-    market_growth_driver: 'Dupixent first biologic approval, anti-IL-13 agents in development, massive underdiagnosis, rising prevalence, biologic penetration of allergic GI conditions',
-    therapy_area_pricing_context: 'Dupixent at $36K annually. Growing diagnosed population. First-in-disease biologic sets pricing precedent for follow-on agents.',
+    market_growth_driver:
+      'Dupixent first biologic approval, anti-IL-13 agents in development, massive underdiagnosis, rising prevalence, biologic penetration of allergic GI conditions',
+    therapy_area_pricing_context:
+      'Dupixent at $36K annually. Growing diagnosed population. First-in-disease biologic sets pricing precedent for follow-on agents.',
   },
 
   {
@@ -2310,19 +2577,28 @@ export const INDICATION_DATA: IndicationData[] = [
       'Hydroxychloroquine (generic, off-label)',
       'Rituximab (off-label)',
     ],
-    market_growth_driver: 'Complete treatment void for disease modification, anti-CD40 antibodies in development, BAFF/BLyS inhibition, IFN pathway targeting, large unmet need',
-    therapy_area_pricing_context: 'No approved systemic therapy; first disease-modifying agent could command $40K-$80K annually. Large prevalent population.',
+    market_growth_driver:
+      'Complete treatment void for disease modification, anti-CD40 antibodies in development, BAFF/BLyS inhibition, IFN pathway targeting, large unmet need',
+    therapy_area_pricing_context:
+      'No approved systemic therapy; first disease-modifying agent could command $40K-$80K annually. Large prevalent population.',
   },
 
   {
     name: 'Systemic Sclerosis',
-    synonyms: ['SSc', 'scleroderma', 'systemic sclerosis', 'diffuse cutaneous systemic sclerosis', 'dcSSc', 'limited cutaneous SSc'],
+    synonyms: [
+      'SSc',
+      'scleroderma',
+      'systemic sclerosis',
+      'diffuse cutaneous systemic sclerosis',
+      'dcSSc',
+      'limited cutaneous SSc',
+    ],
     icd10_codes: ['M34.0', 'M34.1', 'M34.2', 'M34.81', 'M34.89', 'M34.9'],
     therapy_area: 'immunology',
     us_prevalence: 100000,
     us_incidence: 5000,
     prevalence_source: 'Scleroderma Foundation 2024; published epidemiology estimates',
-    diagnosis_rate: 0.70,
+    diagnosis_rate: 0.7,
     treatment_rate: 0.65,
     cagr_5yr: 10.0,
     major_competitors: [
@@ -2332,8 +2608,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Rituximab (off-label)',
       'Autologous HSCT (severe cases)',
     ],
-    market_growth_driver: 'Anti-fibrotic agents for skin/lung disease, CD19-targeted therapies, CAR-T for refractory SSc, lysophosphatidic acid receptor antagonists',
-    therapy_area_pricing_context: 'Limited approved options; novel disease-modifying agents could command $50K-$150K annually. Rare autoimmune disease with orphan potential.',
+    market_growth_driver:
+      'Anti-fibrotic agents for skin/lung disease, CD19-targeted therapies, CAR-T for refractory SSc, lysophosphatidic acid receptor antagonists',
+    therapy_area_pricing_context:
+      'Limited approved options; novel disease-modifying agents could command $50K-$150K annually. Rare autoimmune disease with orphan potential.',
   },
 
   // ──────────────────────────────────────────
@@ -2347,8 +2625,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 3600000,
     us_incidence: 550000,
     prevalence_source: 'American Heart Association 2024 Statistical Update',
-    diagnosis_rate: 0.80,
-    treatment_rate: 0.70,
+    diagnosis_rate: 0.8,
+    treatment_rate: 0.7,
     cagr_5yr: 6.8,
     major_competitors: [
       'Entresto (sacubitril/valsartan, Novartis)',
@@ -2360,7 +2638,8 @@ export const INDICATION_DATA: IndicationData[] = [
       'Beta blockers (generic)',
     ],
     market_growth_driver: 'SGLT2 class expansion, combination regimens, HFpEF emerging market, device-drug combination',
-    therapy_area_pricing_context: 'Price-sensitive; generic backbone + branded agents. Novel mechanisms need strong outcome data for formulary positioning ($25K-$45K annually)',
+    therapy_area_pricing_context:
+      'Price-sensitive; generic backbone + branded agents. Novel mechanisms need strong outcome data for formulary positioning ($25K-$45K annually)',
   },
 
   {
@@ -2381,20 +2660,29 @@ export const INDICATION_DATA: IndicationData[] = [
       'Diuretics (generic)',
       'MRAs (generic)',
     ],
-    market_growth_driver: 'Massive undertreated population, SGLT2i as first approved class, novel targets (GLP-1 for obesity-HFpEF, titin modulators), phenotyping-driven precision medicine',
-    therapy_area_pricing_context: 'SGLT2 inhibitors at $6K-$8K annually; novel mechanisms for HFpEF phenotypes could command $15K-$30K. Very large market opportunity.',
+    market_growth_driver:
+      'Massive undertreated population, SGLT2i as first approved class, novel targets (GLP-1 for obesity-HFpEF, titin modulators), phenotyping-driven precision medicine',
+    therapy_area_pricing_context:
+      'SGLT2 inhibitors at $6K-$8K annually; novel mechanisms for HFpEF phenotypes could command $15K-$30K. Very large market opportunity.',
   },
 
   {
     name: 'Metabolic Dysfunction-Associated Steatohepatitis',
-    synonyms: ['MASH', 'NASH', 'nonalcoholic steatohepatitis', 'metabolic steatohepatitis', 'fatty liver disease', 'MASLD'],
+    synonyms: [
+      'MASH',
+      'NASH',
+      'nonalcoholic steatohepatitis',
+      'metabolic steatohepatitis',
+      'fatty liver disease',
+      'MASLD',
+    ],
     icd10_codes: ['K75.81', 'K76.0'],
     therapy_area: 'cardiovascular',
     us_prevalence: 16500000,
     us_incidence: 2000000,
     prevalence_source: 'American Liver Foundation 2024; AASLD; published epidemiology',
     diagnosis_rate: 0.15,
-    treatment_rate: 0.10,
+    treatment_rate: 0.1,
     cagr_5yr: 35.0,
     major_competitors: [
       'Rezdiffra (resmetirom, Madrigal) — THR-beta agonist, first FDA-approved for NASH',
@@ -2402,8 +2690,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Pioglitazone (generic, off-label)',
       'Vitamin E (supplement, off-label)',
     ],
-    market_growth_driver: 'Rezdiffra first approval, GLP-1 class NASH data, massive underdiagnosed population, FXR agonists, combination approaches, non-invasive biomarker diagnosis expansion',
-    therapy_area_pricing_context: 'Rezdiffra at $47K annually. Massive market potential (est. $25-40B at peak). GLP-1 repurposing could dominate.',
+    market_growth_driver:
+      'Rezdiffra first approval, GLP-1 class NASH data, massive underdiagnosed population, FXR agonists, combination approaches, non-invasive biomarker diagnosis expansion',
+    therapy_area_pricing_context:
+      'Rezdiffra at $47K annually. Massive market potential (est. $25-40B at peak). GLP-1 repurposing could dominate.',
   },
 
   {
@@ -2414,8 +2704,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 1300000,
     us_incidence: 50000,
     prevalence_source: 'FH Foundation 2024; published epidemiology estimates',
-    diagnosis_rate: 0.10,
-    treatment_rate: 0.50,
+    diagnosis_rate: 0.1,
+    treatment_rate: 0.5,
     cagr_5yr: 10.0,
     major_competitors: [
       'Repatha (evolocumab, Amgen) — PCSK9 mAb',
@@ -2425,8 +2715,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Statins (generic, first-line)',
       'Ezetimibe (generic)',
     ],
-    market_growth_driver: 'PCSK9 siRNA once-yearly dosing, massive underdiagnosis (only ~10% diagnosed), cascade genetic screening, payer coverage expanding for PCSK9',
-    therapy_area_pricing_context: 'PCSK9 mAbs at $5K-$6K annually (post-price cuts); Leqvio at $6.5K. Massive population if screening improves.',
+    market_growth_driver:
+      'PCSK9 siRNA once-yearly dosing, massive underdiagnosis (only ~10% diagnosed), cascade genetic screening, payer coverage expanding for PCSK9',
+    therapy_area_pricing_context:
+      'PCSK9 mAbs at $5K-$6K annually (post-price cuts); Leqvio at $6.5K. Massive population if screening improves.',
   },
 
   {
@@ -2437,7 +2729,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 50000,
     us_incidence: 5000,
     prevalence_source: 'Pulmonary Hypertension Association 2024; REVEAL Registry',
-    diagnosis_rate: 0.60,
+    diagnosis_rate: 0.6,
     treatment_rate: 0.85,
     cagr_5yr: 8.5,
     major_competitors: [
@@ -2449,8 +2741,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Ambrisentan (generic) — ERA',
       'Winrevair (sotatercept, MSD) — activin signaling inhibitor',
     ],
-    market_growth_driver: 'Sotatercept (Winrevair) approval as potential best-in-class, triple combination therapy adoption, activin pathway paradigm shift, earlier diagnosis via screening',
-    therapy_area_pricing_context: 'PAH therapies $50K-$200K annually; Winrevair at $250K+. Rare disease pricing with high treatment complexity.',
+    market_growth_driver:
+      'Sotatercept (Winrevair) approval as potential best-in-class, triple combination therapy adoption, activin pathway paradigm shift, earlier diagnosis via screening',
+    therapy_area_pricing_context:
+      'PAH therapies $50K-$200K annually; Winrevair at $250K+. Rare disease pricing with high treatment complexity.',
   },
 
   {
@@ -2461,7 +2755,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 8000,
     us_incidence: 3000,
     prevalence_source: 'PH Association 2024; International CTEPH Association; published epidemiology',
-    diagnosis_rate: 0.50,
+    diagnosis_rate: 0.5,
     treatment_rate: 0.75,
     cagr_5yr: 9.0,
     major_competitors: [
@@ -2469,19 +2763,29 @@ export const INDICATION_DATA: IndicationData[] = [
       'Pulmonary thromboendarterectomy (PTE surgery)',
       'Balloon pulmonary angioplasty (BPA)',
     ],
-    market_growth_driver: 'Underdiagnosis, multimodal treatment (surgery+BPA+drugs), sotatercept expansion potential, better imaging diagnostics',
-    therapy_area_pricing_context: 'Adempas at $100K annually; combination with surgical approaches. Rare PH subtype supports orphan pricing.',
+    market_growth_driver:
+      'Underdiagnosis, multimodal treatment (surgery+BPA+drugs), sotatercept expansion potential, better imaging diagnostics',
+    therapy_area_pricing_context:
+      'Adempas at $100K annually; combination with surgical approaches. Rare PH subtype supports orphan pricing.',
   },
 
   {
     name: 'Peripheral Artery Disease',
-    synonyms: ['PAD', 'peripheral artery disease', 'peripheral vascular disease', 'PVD', 'claudication', 'critical limb ischemia', 'CLI'],
+    synonyms: [
+      'PAD',
+      'peripheral artery disease',
+      'peripheral vascular disease',
+      'PVD',
+      'claudication',
+      'critical limb ischemia',
+      'CLI',
+    ],
     icd10_codes: ['I73.9', 'I70.20', 'I70.21', 'I70.22', 'I70.23', 'I70.24', 'I70.25'],
     therapy_area: 'cardiovascular',
     us_prevalence: 8500000,
     us_incidence: 500000,
     prevalence_source: 'American Heart Association 2024; CDC PAD estimates',
-    diagnosis_rate: 0.50,
+    diagnosis_rate: 0.5,
     treatment_rate: 0.55,
     cagr_5yr: 6.5,
     major_competitors: [
@@ -2491,8 +2795,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Statins (generic)',
       'Endovascular intervention (devices)',
     ],
-    market_growth_driver: 'Massive underdiagnosed population, rivaroxaban vascular dose expansion, novel anti-inflammatory approaches, gene therapy for critical limb ischemia',
-    therapy_area_pricing_context: 'Generic backbone; novel agents for CLI prevention could command $10K-$25K annually. Large population compensates for moderate pricing.',
+    market_growth_driver:
+      'Massive underdiagnosed population, rivaroxaban vascular dose expansion, novel anti-inflammatory approaches, gene therapy for critical limb ischemia',
+    therapy_area_pricing_context:
+      'Generic backbone; novel agents for CLI prevention could command $10K-$25K annually. Large population compensates for moderate pricing.',
   },
 
   {
@@ -2503,8 +2809,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 500000,
     us_incidence: 25000,
     prevalence_source: 'HCMA (Hypertrophic Cardiomyopathy Association) 2024; published epidemiology',
-    diagnosis_rate: 0.30,
-    treatment_rate: 0.60,
+    diagnosis_rate: 0.3,
+    treatment_rate: 0.6,
     cagr_5yr: 18.0,
     major_competitors: [
       'Camzyos (mavacamten, BMS) — cardiac myosin inhibitor',
@@ -2513,8 +2819,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Disopyramide (generic)',
       'Septal myectomy (surgical)',
     ],
-    market_growth_driver: 'Mavacamten as first-in-class cardiac myosin inhibitor, aficamten (Cytokinetics) following, massive underdiagnosis, genetic screening expansion',
-    therapy_area_pricing_context: 'Camzyos at $90K annually. Cardiovascular premium for novel mechanism; large undiagnosed population creates growth runway.',
+    market_growth_driver:
+      'Mavacamten as first-in-class cardiac myosin inhibitor, aficamten (Cytokinetics) following, massive underdiagnosis, genetic screening expansion',
+    therapy_area_pricing_context:
+      'Camzyos at $90K annually. Cardiovascular premium for novel mechanism; large undiagnosed population creates growth runway.',
   },
 
   {
@@ -2526,7 +2834,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 800000,
     prevalence_source: 'American Heart Association 2024; CDC NHANES; Framingham Heart Study',
     diagnosis_rate: 0.75,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 5.5,
     major_competitors: [
       'Eliquis (apixaban, BMS/Pfizer) — DOAC',
@@ -2536,8 +2844,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Multaq (dronedarone, Sanofi)',
       'Catheter ablation (devices)',
     ],
-    market_growth_driver: 'DOAC patent cliffs creating room for novel anticoagulants, Factor XIa inhibitors for safer anticoagulation, rhythm control resurgence, digital health screening',
-    therapy_area_pricing_context: 'DOACs at $5K-$6K annually; generic apixaban expected 2026+. Novel anticoagulants (FXIa) need safety advantage for premium pricing.',
+    market_growth_driver:
+      'DOAC patent cliffs creating room for novel anticoagulants, Factor XIa inhibitors for safer anticoagulation, rhythm control resurgence, digital health screening',
+    therapy_area_pricing_context:
+      'DOACs at $5K-$6K annually; generic apixaban expected 2026+. Novel anticoagulants (FXIa) need safety advantage for premium pricing.',
   },
 
   {
@@ -2548,8 +2858,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 900000,
     us_incidence: 600000,
     prevalence_source: 'CDC VTE estimates 2024; ISTH; American Venous Forum',
-    diagnosis_rate: 0.80,
-    treatment_rate: 0.90,
+    diagnosis_rate: 0.8,
+    treatment_rate: 0.9,
     cagr_5yr: 4.5,
     major_competitors: [
       'Eliquis (apixaban, BMS/Pfizer)',
@@ -2558,8 +2868,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Warfarin (generic)',
       'Heparin (generic)',
     ],
-    market_growth_driver: 'Factor XIa inhibitors for safer anticoagulation (abelacimab, milvexian), extended VTE prophylaxis, cancer-associated VTE treatment optimization',
-    therapy_area_pricing_context: 'DOAC-dominated market at $5K-$6K annually; generics impending. FXIa inhibitors need bleeding safety advantage for premium.',
+    market_growth_driver:
+      'Factor XIa inhibitors for safer anticoagulation (abelacimab, milvexian), extended VTE prophylaxis, cancer-associated VTE treatment optimization',
+    therapy_area_pricing_context:
+      'DOAC-dominated market at $5K-$6K annually; generics impending. FXIa inhibitors need bleeding safety advantage for premium.',
   },
 
   {
@@ -2570,7 +2882,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 250000,
     us_incidence: 36000,
     prevalence_source: 'American Heart Association 2024; Cardiomyopathy Foundation; published epidemiology',
-    diagnosis_rate: 0.70,
+    diagnosis_rate: 0.7,
     treatment_rate: 0.75,
     cagr_5yr: 8.0,
     major_competitors: [
@@ -2579,8 +2891,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'ICD/CRT devices',
       'LVAD (destination therapy)',
     ],
-    market_growth_driver: 'Genetic subtype-specific therapies, gene therapy for LMNA and TTN mutations, novel myotropes, precision cardiology approach',
-    therapy_area_pricing_context: 'Standard HF therapy backbone; genotype-specific gene therapy could command $500K-$2M one-time. Growing genetic testing adoption.',
+    market_growth_driver:
+      'Genetic subtype-specific therapies, gene therapy for LMNA and TTN mutations, novel myotropes, precision cardiology approach',
+    therapy_area_pricing_context:
+      'Standard HF therapy backbone; genotype-specific gene therapy could command $500K-$2M one-time. Growing genetic testing adoption.',
   },
 
   // ──────────────────────────────────────────
@@ -2594,7 +2908,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 38000000,
     us_incidence: 1900000,
     prevalence_source: 'CDC National Diabetes Statistics Report 2024; ADA',
-    diagnosis_rate: 0.79,        // ~21% undiagnosed per CDC
+    diagnosis_rate: 0.79, // ~21% undiagnosed per CDC
     treatment_rate: 0.82,
     cagr_5yr: 7.5,
     major_competitors: [
@@ -2605,8 +2919,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Metformin (generic)',
       'GLP-1 class broadly',
     ],
-    market_growth_driver: 'GLP-1 class expansion, NASH comorbidity treatment, weight management, combination approaches, oral GLP-1 development',
-    therapy_area_pricing_context: 'GLP-1 agents at $10K-$15K annually; high formulary competition and rebating. Access/adherence critical.',
+    market_growth_driver:
+      'GLP-1 class expansion, NASH comorbidity treatment, weight management, combination approaches, oral GLP-1 development',
+    therapy_area_pricing_context:
+      'GLP-1 agents at $10K-$15K annually; high formulary competition and rebating. Access/adherence critical.',
   },
 
   {
@@ -2616,10 +2932,10 @@ export const INDICATION_DATA: IndicationData[] = [
     therapy_area: 'cardiovascular',
     us_prevalence: 108000000,
     us_incidence: 8000000,
-    prevalence_source: 'CDC NHANES 2024; Trust for America\'s Health',
-    diagnosis_rate: 0.60,        // Many obese patients not coded/treated for obesity
-    treatment_rate: 0.25,        // Only fraction receiving pharmacotherapy
-    cagr_5yr: 32.0,              // Explosive growth driven by GLP-1 class
+    prevalence_source: "CDC NHANES 2024; Trust for America's Health",
+    diagnosis_rate: 0.6, // Many obese patients not coded/treated for obesity
+    treatment_rate: 0.25, // Only fraction receiving pharmacotherapy
+    cagr_5yr: 32.0, // Explosive growth driven by GLP-1 class
     major_competitors: [
       'Wegovy (semaglutide 2.4mg, Novo Nordisk)',
       'Zepbound (tirzepatide, Eli Lilly)',
@@ -2627,8 +2943,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Qsymia (phentermine/topiramate, Vivus)',
       'Contrave (naltrexone/bupropion, Currax)',
     ],
-    market_growth_driver: 'Massive untreated population, next-gen triple agonists (GIP/GLP-1/glucagon), oral formulations, combination approaches, subcutaneous monthly dosing',
-    therapy_area_pricing_context: 'Wegovy at $1,350/month ($16K/year). Payer coverage inconsistent but improving. Next-gen differentiation needs to justify premium.',
+    market_growth_driver:
+      'Massive untreated population, next-gen triple agonists (GIP/GLP-1/glucagon), oral formulations, combination approaches, subcutaneous monthly dosing',
+    therapy_area_pricing_context:
+      'Wegovy at $1,350/month ($16K/year). Payer coverage inconsistent but improving. Next-gen differentiation needs to justify premium.',
   },
 
   {
@@ -2639,8 +2957,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 9200000,
     us_incidence: 1000000,
     prevalence_source: 'CDC NHANES 2024; American College of Rheumatology',
-    diagnosis_rate: 0.80,
-    treatment_rate: 0.50,
+    diagnosis_rate: 0.8,
+    treatment_rate: 0.5,
     cagr_5yr: 7.5,
     major_competitors: [
       'Allopurinol (generic) — xanthine oxidase inhibitor',
@@ -2649,8 +2967,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Colchicine (generic)',
       'Duzallo (lesinurad + allopurinol, Ironwood)',
     ],
-    market_growth_driver: 'Krystexxa + immunomodulator combination improving response, novel URAT1 inhibitors, anti-IL-1 for flare prevention, massive undertreated population',
-    therapy_area_pricing_context: 'Generic first-line $200-$500/year; Krystexxa at $300K+ annually for refractory disease. Segmented market.',
+    market_growth_driver:
+      'Krystexxa + immunomodulator combination improving response, novel URAT1 inhibitors, anti-IL-1 for flare prevention, massive undertreated population',
+    therapy_area_pricing_context:
+      'Generic first-line $200-$500/year; Krystexxa at $300K+ annually for refractory disease. Segmented market.',
   },
 
   {
@@ -2661,16 +2981,14 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 43000000,
     us_incidence: 5000000,
     prevalence_source: 'CDC NHANES 2024; published epidemiology',
-    diagnosis_rate: 0.40,
-    treatment_rate: 0.20,
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.2,
     cagr_5yr: 6.0,
-    major_competitors: [
-      'Allopurinol (generic)',
-      'Febuxostat (generic)',
-      'Probenecid (generic)',
-    ],
-    market_growth_driver: 'Emerging link between uric acid and CV/renal outcomes, preventive treatment debate, novel selective URAT1 inhibitors in development',
-    therapy_area_pricing_context: 'Generic-dominated landscape; novel agents would need CV/renal outcome data to justify premium pricing at $5K-$15K annually.',
+    major_competitors: ['Allopurinol (generic)', 'Febuxostat (generic)', 'Probenecid (generic)'],
+    market_growth_driver:
+      'Emerging link between uric acid and CV/renal outcomes, preventive treatment debate, novel selective URAT1 inhibitors in development',
+    therapy_area_pricing_context:
+      'Generic-dominated landscape; novel agents would need CV/renal outcome data to justify premium pricing at $5K-$15K annually.',
   },
 
   {
@@ -2690,8 +3008,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Automated insulin delivery systems (Medtronic, Tandem, Insulet)',
       'CGM devices (Dexcom, Abbott FreeStyle Libre)',
     ],
-    market_growth_driver: 'Teplizumab disease delay precedent, beta cell replacement therapies, islet cell transplantation, encapsulated stem cell-derived islets, immunotherapy prevention',
-    therapy_area_pricing_context: 'Tzield at $194K one-time for disease delay; insulin $200-$600/month. Beta cell replacement therapies could command $200K-$500K.',
+    market_growth_driver:
+      'Teplizumab disease delay precedent, beta cell replacement therapies, islet cell transplantation, encapsulated stem cell-derived islets, immunotherapy prevention',
+    therapy_area_pricing_context:
+      'Tzield at $194K one-time for disease delay; insulin $200-$600/month. Beta cell replacement therapies could command $200K-$500K.',
   },
 
   {
@@ -2703,7 +3023,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 5000000,
     prevalence_source: 'CDC NHANES 2024; American Heart Association; Million Hearts',
     diagnosis_rate: 0.55,
-    treatment_rate: 0.50,
+    treatment_rate: 0.5,
     cagr_5yr: 5.0,
     major_competitors: [
       'Statins (atorvastatin, rosuvastatin — generic)',
@@ -2713,8 +3033,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Leqvio (inclisiran, Novartis) — PCSK9 siRNA',
       'Nexletol (bempedoic acid, Esperion) — ACL inhibitor',
     ],
-    market_growth_driver: 'PCSK9 siRNA expansion, Lp(a)-targeting therapies (pelacarsen, olpasiran), ANGPTL3 inhibitors, statin intolerance population, residual CV risk',
-    therapy_area_pricing_context: 'Generic statins at $100-$500/year; PCSK9 agents at $5K-$6K/year. Novel Lp(a) therapies could command $5K-$15K annually.',
+    market_growth_driver:
+      'PCSK9 siRNA expansion, Lp(a)-targeting therapies (pelacarsen, olpasiran), ANGPTL3 inhibitors, statin intolerance population, residual CV risk',
+    therapy_area_pricing_context:
+      'Generic statins at $100-$500/year; PCSK9 agents at $5K-$6K/year. Novel Lp(a) therapies could command $5K-$15K annually.',
   },
 
   // ──────────────────────────────────────────
@@ -2729,7 +3051,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 36000,
     prevalence_source: 'CDC HIV Surveillance Report 2024; HRSA Ryan White',
     diagnosis_rate: 0.87,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 4.2,
     major_competitors: [
       'Biktarvy (BIC/TAF/FTC, Gilead)',
@@ -2738,8 +3060,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Sunlenca (lenacapavir, Gilead) — twice-yearly SC',
       'Descovy (TAF/FTC, Gilead)',
     ],
-    market_growth_driver: 'Ultra-long-acting formulations (implant/annual), cure strategies, broadly neutralizing antibodies, prevention expansion',
-    therapy_area_pricing_context: 'Established regimens $20K-$40K annually. Long-acting innovations command premium for convenience; cure would be high single-payment scenario',
+    market_growth_driver:
+      'Ultra-long-acting formulations (implant/annual), cure strategies, broadly neutralizing antibodies, prevention expansion',
+    therapy_area_pricing_context:
+      'Established regimens $20K-$40K annually. Long-acting innovations command premium for convenience; cure would be high single-payment scenario',
   },
 
   {
@@ -2750,8 +3074,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 2000000,
     us_incidence: 6000000,
     prevalence_source: 'CDC RSV Surveillance 2024; NREVSS',
-    diagnosis_rate: 0.60,
-    treatment_rate: 0.50,
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.5,
     cagr_5yr: 25.0,
     major_competitors: [
       'Beyfortus (nirsevimab, AstraZeneca/Sanofi) — long-acting RSV mAb prevention',
@@ -2760,8 +3084,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Abrysvo (RSV vaccine, Pfizer) — maternal/older adults',
       'mResvia (RSV mRNA vaccine, Moderna) — older adults',
     ],
-    market_growth_driver: 'First-ever RSV vaccines approved 2023, infant immunization via maternal vaccination, long-acting mAb replacing monthly palivizumab, adult RSV treatment gap',
-    therapy_area_pricing_context: 'Beyfortus at $495/dose; RSV vaccines at $180-$295. Combined infant+elderly market projected at $10B+ globally.',
+    market_growth_driver:
+      'First-ever RSV vaccines approved 2023, infant immunization via maternal vaccination, long-acting mAb replacing monthly palivizumab, adult RSV treatment gap',
+    therapy_area_pricing_context:
+      'Beyfortus at $495/dose; RSV vaccines at $180-$295. Combined infant+elderly market projected at $10B+ globally.',
   },
 
   {
@@ -2772,8 +3098,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 30000000,
     us_incidence: 30000000,
     prevalence_source: 'CDC FluView 2024; seasonal estimates',
-    diagnosis_rate: 0.40,
-    treatment_rate: 0.30,
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.3,
     cagr_5yr: 8.0,
     major_competitors: [
       'Tamiflu (oseltamivir, generic) — neuraminidase inhibitor',
@@ -2781,19 +3107,27 @@ export const INDICATION_DATA: IndicationData[] = [
       'Rapivab (peramivir, BioCryst) — IV neuraminidase inhibitor',
       'Influenza vaccines (multiple manufacturers)',
     ],
-    market_growth_driver: 'mRNA influenza vaccine development, universal influenza vaccine, combination flu/COVID vaccines, novel antivirals for hospitalized patients, pandemic preparedness',
-    therapy_area_pricing_context: 'Seasonal vaccines $25-$75/dose; Xofluza at $150/course. Universal vaccine could be premium. Massive seasonal volume.',
+    market_growth_driver:
+      'mRNA influenza vaccine development, universal influenza vaccine, combination flu/COVID vaccines, novel antivirals for hospitalized patients, pandemic preparedness',
+    therapy_area_pricing_context:
+      'Seasonal vaccines $25-$75/dose; Xofluza at $150/course. Universal vaccine could be premium. Massive seasonal volume.',
   },
 
   {
     name: 'MRSA Infections',
-    synonyms: ['MRSA', 'methicillin-resistant Staphylococcus aureus', 'staph aureus infection', 'serious bacterial infection', 'SBI'],
+    synonyms: [
+      'MRSA',
+      'methicillin-resistant Staphylococcus aureus',
+      'staph aureus infection',
+      'serious bacterial infection',
+      'SBI',
+    ],
     icd10_codes: ['A49.02', 'B95.62'],
     therapy_area: 'infectious_disease',
     us_prevalence: 120000,
     us_incidence: 80000,
     prevalence_source: 'CDC AR Threats Report 2024; NHSN HAI data',
-    diagnosis_rate: 0.90,
+    diagnosis_rate: 0.9,
     treatment_rate: 0.95,
     cagr_5yr: 5.0,
     major_competitors: [
@@ -2804,8 +3138,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Dalbavancin (generic)',
       'Telavancin (generic)',
     ],
-    market_growth_driver: 'Rising antimicrobial resistance, GAIN Act incentives, LPAD pathway for limited populations, novel bactericidal mechanisms, anti-virulence approaches',
-    therapy_area_pricing_context: 'Generic antibiotics create severe pricing pressure; novel agents $5K-$15K per treatment course. Market access challenged by short treatment duration.',
+    market_growth_driver:
+      'Rising antimicrobial resistance, GAIN Act incentives, LPAD pathway for limited populations, novel bactericidal mechanisms, anti-virulence approaches',
+    therapy_area_pricing_context:
+      'Generic antibiotics create severe pricing pressure; novel agents $5K-$15K per treatment course. Market access challenged by short treatment duration.',
   },
 
   {
@@ -2817,7 +3153,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 500000,
     prevalence_source: 'CDC HAI/AR data 2024; published surveillance estimates',
     diagnosis_rate: 0.85,
-    treatment_rate: 0.90,
+    treatment_rate: 0.9,
     cagr_5yr: 8.5,
     major_competitors: [
       'Vancomycin oral (generic)',
@@ -2826,8 +3162,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Rebyota (fecal microbiota, Ferring) — rectal microbiome therapy',
       'Bezlotoxumab (Zinplava, Merck) — anti-toxin B mAb',
     ],
-    market_growth_driver: 'Microbiome-based prevention of recurrence, engineered probiotics, anti-toxin approaches, narrow-spectrum antibiotics, recurrence prevention focus',
-    therapy_area_pricing_context: 'Fidaxomicin at $4K/course; microbiome therapies $17K-$18K per course. Recurrence prevention valued by payers and systems.',
+    market_growth_driver:
+      'Microbiome-based prevention of recurrence, engineered probiotics, anti-toxin approaches, narrow-spectrum antibiotics, recurrence prevention focus',
+    therapy_area_pricing_context:
+      'Fidaxomicin at $4K/course; microbiome therapies $17K-$18K per course. Recurrence prevention valued by payers and systems.',
   },
 
   {
@@ -2848,8 +3186,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Pegylated interferon (generic)',
       'Hepcludex (bulevirtide, Gilead) — entry inhibitor (EU approved)',
     ],
-    market_growth_driver: 'Functional cure pursuit (HBsAg loss), RNAi therapies (JNJ-3989, VIR-2218), ASO approaches, combination cure strategies, massive underdiagnosed population',
-    therapy_area_pricing_context: 'Chronic NUC therapy at $2K-$20K annually; functional cure therapy could command $50K-$100K+ given curative intent.',
+    market_growth_driver:
+      'Functional cure pursuit (HBsAg loss), RNAi therapies (JNJ-3989, VIR-2218), ASO approaches, combination cure strategies, massive underdiagnosed population',
+    therapy_area_pricing_context:
+      'Chronic NUC therapy at $2K-$20K annually; functional cure therapy could command $50K-$100K+ given curative intent.',
   },
 
   // ──────────────────────────────────────────
@@ -2863,7 +3203,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 100000,
     us_incidence: 2000,
     prevalence_source: 'CDC Sickle Cell Disease Data; ASH 2024',
-    diagnosis_rate: 0.98,        // Universal newborn screening
+    diagnosis_rate: 0.98, // Universal newborn screening
     treatment_rate: 0.75,
     cagr_5yr: 25.0,
     major_competitors: [
@@ -2875,7 +3215,8 @@ export const INDICATION_DATA: IndicationData[] = [
       'Hydroxyurea (generic)',
     ],
     market_growth_driver: 'Gene therapy/editing expansion, anti-sickling agents, VOC prevention, pediatric approaches',
-    therapy_area_pricing_context: 'Gene therapies at $2-3M+ for cure; chronic therapies $50K-$150K. Access disparities given predominantly Black patient population.',
+    therapy_area_pricing_context:
+      'Gene therapies at $2-3M+ for cure; chronic therapies $50K-$150K. Access disparities given predominantly Black patient population.',
   },
 
   {
@@ -2887,7 +3228,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 2000000,
     prevalence_source: 'CDC NHANES 2024; American Society of Hematology',
     diagnosis_rate: 0.65,
-    treatment_rate: 0.60,
+    treatment_rate: 0.6,
     cagr_5yr: 7.0,
     major_competitors: [
       'Injectafer (ferric carboxymaltose, American Regent)',
@@ -2896,19 +3237,26 @@ export const INDICATION_DATA: IndicationData[] = [
       'Iron sucrose (generic)',
       'Oral iron supplements (generic)',
     ],
-    market_growth_driver: 'IV iron formulations with fewer infusions, CKD-associated anemia overlap, HIF-PHI oral agents, IBD/GI-associated IDA growing population',
-    therapy_area_pricing_context: 'IV iron $500-$3K per infusion course; oral iron $50-$200/year. Hospital infusion economics drive product differentiation.',
+    market_growth_driver:
+      'IV iron formulations with fewer infusions, CKD-associated anemia overlap, HIF-PHI oral agents, IBD/GI-associated IDA growing population',
+    therapy_area_pricing_context:
+      'IV iron $500-$3K per infusion course; oral iron $50-$200/year. Hospital infusion economics drive product differentiation.',
   },
 
   {
     name: 'Immune Thrombocytopenia',
-    synonyms: ['ITP', 'immune thrombocytopenic purpura', 'idiopathic thrombocytopenic purpura', 'autoimmune thrombocytopenia'],
+    synonyms: [
+      'ITP',
+      'immune thrombocytopenic purpura',
+      'idiopathic thrombocytopenic purpura',
+      'autoimmune thrombocytopenia',
+    ],
     icd10_codes: ['D69.3'],
     therapy_area: 'hematology',
     us_prevalence: 60000,
     us_incidence: 12000,
     prevalence_source: 'Platelet Disorder Support Association 2024; published epidemiology',
-    diagnosis_rate: 0.80,
+    diagnosis_rate: 0.8,
     treatment_rate: 0.75,
     cagr_5yr: 9.0,
     major_competitors: [
@@ -2920,8 +3268,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'IVIg (various)',
       'Corticosteroids (generic)',
     ],
-    market_growth_driver: 'FcRn inhibitor development, Bruton TKI approaches, neonatal Fc receptor blockade, combination strategies for refractory ITP',
-    therapy_area_pricing_context: 'TPO receptor agonists at $50K-$100K annually; FcRn inhibitors could command $200K+. Chronic relapsing disease supports sustained therapy.',
+    market_growth_driver:
+      'FcRn inhibitor development, Bruton TKI approaches, neonatal Fc receptor blockade, combination strategies for refractory ITP',
+    therapy_area_pricing_context:
+      'TPO receptor agonists at $50K-$100K annually; FcRn inhibitors could command $200K+. Chronic relapsing disease supports sustained therapy.',
   },
 
   {
@@ -2941,8 +3291,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Corticosteroids (generic)',
       'Rituximab (off-label)',
     ],
-    market_growth_driver: 'Caplacizumab adoption in acute episodes, recombinant ADAMTS13 replacement therapy, prevention of relapse strategies, improved diagnosis speed',
-    therapy_area_pricing_context: 'Cablivi at $270K per acute treatment course; rare hematologic emergency supports premium pricing. Orphan designation.',
+    market_growth_driver:
+      'Caplacizumab adoption in acute episodes, recombinant ADAMTS13 replacement therapy, prevention of relapse strategies, improved diagnosis speed',
+    therapy_area_pricing_context:
+      'Cablivi at $270K per acute treatment course; rare hematologic emergency supports premium pricing. Orphan designation.',
   },
 
   {
@@ -2953,7 +3305,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 5000,
     us_incidence: 400,
     prevalence_source: 'AAMDS International Foundation 2024; published epidemiology',
-    diagnosis_rate: 0.70,
+    diagnosis_rate: 0.7,
     treatment_rate: 0.85,
     cagr_5yr: 8.0,
     major_competitors: [
@@ -2963,20 +3315,28 @@ export const INDICATION_DATA: IndicationData[] = [
       'Iptacopan (Novartis) — Factor B inhibitor oral',
       'Voydeya (danicopan, Alexion) — Factor D inhibitor oral add-on',
     ],
-    market_growth_driver: 'Oral complement inhibitors disrupting IV infusion paradigm, proximal complement blockade (C3/Factor B), combination strategies, Soliris biosimilar pressure',
-    therapy_area_pricing_context: 'Soliris/Ultomiris at $400K-$500K annually; oral alternatives may be priced at $200K-$350K. Ultra-rare with orphan exclusivity.',
+    market_growth_driver:
+      'Oral complement inhibitors disrupting IV infusion paradigm, proximal complement blockade (C3/Factor B), combination strategies, Soliris biosimilar pressure',
+    therapy_area_pricing_context:
+      'Soliris/Ultomiris at $400K-$500K annually; oral alternatives may be priced at $200K-$350K. Ultra-rare with orphan exclusivity.',
   },
 
   {
     name: 'Beta-Thalassemia',
-    synonyms: ['beta-thalassemia', 'thalassemia major', 'thalassemia intermedia', 'transfusion-dependent thalassemia', 'TDT'],
+    synonyms: [
+      'beta-thalassemia',
+      'thalassemia major',
+      'thalassemia intermedia',
+      'transfusion-dependent thalassemia',
+      'TDT',
+    ],
     icd10_codes: ['D56.1', 'D56.2', 'D56.3', 'D56.9'],
     therapy_area: 'hematology',
     us_prevalence: 15000,
     us_incidence: 500,
     prevalence_source: 'Cooley Anemia Foundation 2024; Thalassemia International Federation',
     diagnosis_rate: 0.95,
-    treatment_rate: 0.90,
+    treatment_rate: 0.9,
     cagr_5yr: 18.0,
     major_competitors: [
       'Casgevy (exagamglogene, Vertex/CRISPR) — gene editing cure',
@@ -2985,8 +3345,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Deferasirox (generic) — iron chelation',
       'Chronic transfusion therapy',
     ],
-    market_growth_driver: 'Gene therapy/editing curative approaches, luspatercept reducing transfusion burden, novel gene therapy with improved vectors, global expansion opportunity',
-    therapy_area_pricing_context: 'Casgevy at $2.2M one-time; Zynteglo at $2.8M; Reblozyl at $150K annually. Curative gene therapies command premium vs lifetime transfusion costs.',
+    market_growth_driver:
+      'Gene therapy/editing curative approaches, luspatercept reducing transfusion burden, novel gene therapy with improved vectors, global expansion opportunity',
+    therapy_area_pricing_context:
+      'Casgevy at $2.2M one-time; Zynteglo at $2.8M; Reblozyl at $150K annually. Curative gene therapies command premium vs lifetime transfusion costs.',
   },
 
   // ──────────────────────────────────────────
@@ -3001,7 +3363,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 200000,
     prevalence_source: 'Bright Focus Foundation 2024; AAO',
     diagnosis_rate: 0.85,
-    treatment_rate: 0.70,
+    treatment_rate: 0.7,
     cagr_5yr: 7.8,
     major_competitors: [
       'Eylea (aflibercept, Regeneron)',
@@ -3011,8 +3373,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Syfovre (pegcetacoplan, Apellis)',
       'Lucentis (ranibizumab, Genentech)',
     ],
-    market_growth_driver: 'Extended dosing intervals, gene therapy single-dose cure potential, combination anti-VEGF approaches, GA prevention',
-    therapy_area_pricing_context: 'Anti-VEGF injections $2K-$8K per dose; $15K-$40K annually. Gene therapy for sustained delivery could be high-value single-payment.',
+    market_growth_driver:
+      'Extended dosing intervals, gene therapy single-dose cure potential, combination anti-VEGF approaches, GA prevention',
+    therapy_area_pricing_context:
+      'Anti-VEGF injections $2K-$8K per dose; $15K-$40K annually. Gene therapy for sustained delivery could be high-value single-payment.',
   },
 
   {
@@ -3023,8 +3387,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 750000,
     us_incidence: 100000,
     prevalence_source: 'National Eye Institute 2024; AAO; published prevalence estimates',
-    diagnosis_rate: 0.70,
-    treatment_rate: 0.60,
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.6,
     cagr_5yr: 8.5,
     major_competitors: [
       'Eylea (aflibercept, Regeneron)',
@@ -3034,8 +3398,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Ozurdex (dexamethasone implant, AbbVie)',
       'Iluvien (fluocinolone acetonide implant, Alimera)',
     ],
-    market_growth_driver: 'Extended dosing intervals reducing treatment burden, bispecific anti-VEGF/Ang-2, port delivery systems, gene therapy for sustained expression',
-    therapy_area_pricing_context: 'Anti-VEGF injections $1.8K-$8K per dose; steroid implants $1K-$2K. Chronic disease with high treatment frequency drives annual costs to $15K-$40K.',
+    market_growth_driver:
+      'Extended dosing intervals reducing treatment burden, bispecific anti-VEGF/Ang-2, port delivery systems, gene therapy for sustained expression',
+    therapy_area_pricing_context:
+      'Anti-VEGF injections $1.8K-$8K per dose; steroid implants $1K-$2K. Chronic disease with high treatment frequency drives annual costs to $15K-$40K.',
   },
 
   {
@@ -3053,20 +3419,29 @@ export const INDICATION_DATA: IndicationData[] = [
       'Syfovre (pegcetacoplan, Apellis) — complement C3 inhibitor, first FDA-approved for GA',
       'Izervay (avacincaptad pegol, Iveric Bio/Astellas) — complement C5 inhibitor',
     ],
-    market_growth_driver: 'First-ever FDA approvals in 2023, massive untreated prevalent pool, monthly IVT injection burden driving extended-dosing innovation, gene therapy approaches',
-    therapy_area_pricing_context: 'Syfovre at $2.2K per injection ($26K-$58K annually depending on frequency); Izervay similar. New market category with major growth potential.',
+    market_growth_driver:
+      'First-ever FDA approvals in 2023, massive untreated prevalent pool, monthly IVT injection burden driving extended-dosing innovation, gene therapy approaches',
+    therapy_area_pricing_context:
+      'Syfovre at $2.2K per injection ($26K-$58K annually depending on frequency); Izervay similar. New market category with major growth potential.',
   },
 
   {
     name: 'Glaucoma',
-    synonyms: ['glaucoma', 'open-angle glaucoma', 'POAG', 'primary open-angle glaucoma', 'angle-closure glaucoma', 'ocular hypertension'],
+    synonyms: [
+      'glaucoma',
+      'open-angle glaucoma',
+      'POAG',
+      'primary open-angle glaucoma',
+      'angle-closure glaucoma',
+      'ocular hypertension',
+    ],
     icd10_codes: ['H40.10', 'H40.11', 'H40.12', 'H40.13', 'H40.20', 'H40.9'],
     therapy_area: 'ophthalmology',
     us_prevalence: 3000000,
     us_incidence: 300000,
     prevalence_source: 'Glaucoma Research Foundation 2024; NEI; AAO epidemiology',
-    diagnosis_rate: 0.50,
-    treatment_rate: 0.70,
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.7,
     cagr_5yr: 5.5,
     major_competitors: [
       'Latanoprost (generic) — prostaglandin analog',
@@ -3077,8 +3452,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Durysta (bimatoprost implant, AbbVie) — sustained release',
       'iStent (Glaukos) — MIGS device',
     ],
-    market_growth_driver: 'Sustained-release drug delivery reducing adherence burden, MIGS procedures growth, Rho kinase class expansion, gene therapy for neuroprotection',
-    therapy_area_pricing_context: 'Generic drops at $50-$300/year; branded drops $2K-$4K/year; MIGS devices $1K-$3K. Sustained-release implants $500-$1K per implant.',
+    market_growth_driver:
+      'Sustained-release drug delivery reducing adherence burden, MIGS procedures growth, Rho kinase class expansion, gene therapy for neuroprotection',
+    therapy_area_pricing_context:
+      'Generic drops at $50-$300/year; branded drops $2K-$4K/year; MIGS devices $1K-$3K. Sustained-release implants $500-$1K per implant.',
   },
 
   {
@@ -3089,7 +3466,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 100000,
     us_incidence: 3000,
     prevalence_source: 'Foundation Fighting Blindness 2024; published epidemiology',
-    diagnosis_rate: 0.80,
+    diagnosis_rate: 0.8,
     treatment_rate: 0.25,
     cagr_5yr: 20.0,
     major_competitors: [
@@ -3097,8 +3474,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Vitamin A palmitate (supplement)',
       'No broadly applicable approved therapies',
     ],
-    market_growth_driver: 'Luxturna gene therapy precedent for RPE65, optogenetics approaches, CRISPR gene editing, neuroprotective agents, broad genetic heterogeneity creates multiple targets',
-    therapy_area_pricing_context: 'Luxturna at $850K per eye ($1.7M total). Ultra-rare; gene therapy pricing for inherited retinal diseases established at premium.',
+    market_growth_driver:
+      'Luxturna gene therapy precedent for RPE65, optogenetics approaches, CRISPR gene editing, neuroprotective agents, broad genetic heterogeneity creates multiple targets',
+    therapy_area_pricing_context:
+      'Luxturna at $850K per eye ($1.7M total). Ultra-rare; gene therapy pricing for inherited retinal diseases established at premium.',
   },
 
   // ──────────────────────────────────────────
@@ -3112,27 +3491,35 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 130000,
     us_incidence: 50000,
     prevalence_source: 'Pulmonary Fibrosis Foundation 2024; published epidemiology estimates',
-    diagnosis_rate: 0.50,
+    diagnosis_rate: 0.5,
     treatment_rate: 0.65,
     cagr_5yr: 9.0,
     major_competitors: [
       'Ofev (nintedanib, Boehringer Ingelheim) — anti-fibrotic',
       'Esbriet (pirfenidone, Roche) — anti-fibrotic',
     ],
-    market_growth_driver: 'Combination anti-fibrotic approaches, inhaled delivery, novel targets (autotaxin, integrin, LPAR1), progressive fibrosing ILD expansion',
-    therapy_area_pricing_context: 'Anti-fibrotics at $100K+ annually. Two-drug market with room for combination and improved efficacy agents.',
+    market_growth_driver:
+      'Combination anti-fibrotic approaches, inhaled delivery, novel targets (autotaxin, integrin, LPAR1), progressive fibrosing ILD expansion',
+    therapy_area_pricing_context:
+      'Anti-fibrotics at $100K+ annually. Two-drug market with room for combination and improved efficacy agents.',
   },
 
   {
     name: 'Severe Asthma',
-    synonyms: ['severe asthma', 'uncontrolled asthma', 'eosinophilic asthma', 'type 2 severe asthma', 'biologic-eligible asthma'],
+    synonyms: [
+      'severe asthma',
+      'uncontrolled asthma',
+      'eosinophilic asthma',
+      'type 2 severe asthma',
+      'biologic-eligible asthma',
+    ],
     icd10_codes: ['J45.50', 'J45.51', 'J45.52'],
     therapy_area: 'pulmonology',
     us_prevalence: 2400000,
     us_incidence: 300000,
     prevalence_source: 'Asthma and Allergy Foundation 2024; CDC NHIS estimates (severe subset ~8% of 25M total)',
-    diagnosis_rate: 0.80,
-    treatment_rate: 0.50,
+    diagnosis_rate: 0.8,
+    treatment_rate: 0.5,
     cagr_5yr: 10.0,
     major_competitors: [
       'Dupixent (dupilumab, Sanofi/Regeneron) — anti-IL-4Ra',
@@ -3142,8 +3529,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Xolair (omalizumab, Roche) — anti-IgE',
       'Tezspire (tezepelumab, AstraZeneca/Amgen) — anti-TSLP',
     ],
-    market_growth_driver: 'Dupixent broad type 2 dominance, TSLP pathway for non-eosinophilic asthma, oral biologics, biologic combination strategies, alarmins targeting',
-    therapy_area_pricing_context: 'Biologics at $30K-$40K annually. Large biologic-eligible population with <50% penetration creates growth runway.',
+    market_growth_driver:
+      'Dupixent broad type 2 dominance, TSLP pathway for non-eosinophilic asthma, oral biologics, biologic combination strategies, alarmins targeting',
+    therapy_area_pricing_context:
+      'Biologics at $30K-$40K annually. Large biologic-eligible population with <50% penetration creates growth runway.',
   },
 
   {
@@ -3154,8 +3543,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 16000000,
     us_incidence: 800000,
     prevalence_source: 'CDC NHIS 2024; GOLD Report; American Lung Association',
-    diagnosis_rate: 0.60,
-    treatment_rate: 0.70,
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.7,
     cagr_5yr: 6.5,
     major_competitors: [
       'Trelegy Ellipta (FF/UMEC/VI, GSK) — triple inhaler',
@@ -3165,8 +3554,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Symbicort (budesonide/formoterol, AstraZeneca)',
       'Advair (fluticasone/salmeterol, GSK)',
     ],
-    market_growth_driver: 'Dupixent approval for eosinophilic COPD (type 2 inflammation), anti-IL-33 approaches, triple therapy optimization, COPD exacerbation prevention biologics',
-    therapy_area_pricing_context: 'Triple inhalers at $6K-$8K annually; biologics for COPD at $36K+ annually. Massive addressable population for biologic upgrade.',
+    market_growth_driver:
+      'Dupixent approval for eosinophilic COPD (type 2 inflammation), anti-IL-33 approaches, triple therapy optimization, COPD exacerbation prevention biologics',
+    therapy_area_pricing_context:
+      'Triple inhalers at $6K-$8K annually; biologics for COPD at $36K+ annually. Massive addressable population for biologic upgrade.',
   },
 
   {
@@ -3186,8 +3577,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Airway clearance devices',
       'Brensocatib (AstraZeneca) — DPP1 inhibitor, Phase 3',
     ],
-    market_growth_driver: 'Complete treatment void, brensocatib neutrophil elastase pathway, CFTR modulators for CFTR-related bronchiectasis, anti-inflammatory approaches',
-    therapy_area_pricing_context: 'No approved therapies; first approved agent could command $30K-$80K annually. Growing diagnosed population.',
+    market_growth_driver:
+      'Complete treatment void, brensocatib neutrophil elastase pathway, CFTR modulators for CFTR-related bronchiectasis, anti-inflammatory approaches',
+    therapy_area_pricing_context:
+      'No approved therapies; first approved agent could command $30K-$80K annually. Growing diagnosed population.',
   },
 
   // ──────────────────────────────────────────
@@ -3201,7 +3594,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 200000,
     us_incidence: 20000,
     prevalence_source: 'HS Foundation 2024; published epidemiology estimates (often underdiagnosed)',
-    diagnosis_rate: 0.40,
+    diagnosis_rate: 0.4,
     treatment_rate: 0.35,
     cagr_5yr: 18.0,
     major_competitors: [
@@ -3210,8 +3603,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Bimzelx (bimekizumab, UCB) — anti-IL-17A/F, approved for HS',
       'Antibiotics (generic)',
     ],
-    market_growth_driver: 'IL-17 class expansion, complement inhibition, JAK inhibitors, massive underdiagnosis creates large untapped market, multi-cytokine approaches',
-    therapy_area_pricing_context: 'Biologics at $60K-$80K annually. Large underdiagnosed population with severe disease burden. New approvals expanding treatment options.',
+    market_growth_driver:
+      'IL-17 class expansion, complement inhibition, JAK inhibitors, massive underdiagnosis creates large untapped market, multi-cytokine approaches',
+    therapy_area_pricing_context:
+      'Biologics at $60K-$80K annually. Large underdiagnosed population with severe disease burden. New approvals expanding treatment options.',
   },
 
   {
@@ -3222,7 +3617,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 1500000,
     us_incidence: 200000,
     prevalence_source: 'Allergy & Asthma Network 2024; published epidemiology estimates',
-    diagnosis_rate: 0.60,
+    diagnosis_rate: 0.6,
     treatment_rate: 0.55,
     cagr_5yr: 12.0,
     major_competitors: [
@@ -3231,8 +3626,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Dupixent (dupilumab, Sanofi/Regeneron) — Phase 3 for CSU',
       'Ligelizumab (Novartis) — next-gen anti-IgE (development uncertain)',
     ],
-    market_growth_driver: 'Anti-IgE class evolution, Bruton TKI for mast cell targeting, dupilumab expansion, rapid complete response as treatment goal',
-    therapy_area_pricing_context: 'Xolair at $30K-$36K annually. Large undertreated population with room for novel mechanisms commanding $40K-$60K.',
+    market_growth_driver:
+      'Anti-IgE class evolution, Bruton TKI for mast cell targeting, dupilumab expansion, rapid complete response as treatment goal',
+    therapy_area_pricing_context:
+      'Xolair at $30K-$36K annually. Large undertreated population with room for novel mechanisms commanding $40K-$60K.',
   },
 
   // ──────────────────────────────────────────
@@ -3246,8 +3643,8 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 130000,
     us_incidence: 15000,
     prevalence_source: 'IgA Nephropathy Foundation 2024; published epidemiology estimates',
-    diagnosis_rate: 0.50,
-    treatment_rate: 0.60,
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.6,
     cagr_5yr: 25.0,
     major_competitors: [
       'Filspari (sparsentan, Travere) — dual endothelin/angiotensin receptor antagonist',
@@ -3255,8 +3652,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'ACE inhibitors / ARBs (generic)',
       'SGLT2 inhibitors (off-label)',
     ],
-    market_growth_driver: 'First dedicated IgAN approvals (2022-2023), complement inhibitors (iptacopan, narsoplimab), APRIL/BAFF targeting, SGLT2 renal protection evidence',
-    therapy_area_pricing_context: 'Filspari at $200K annually; Tarpeyo at $55K. Novel mechanisms for IgAN at $100K-$200K. Previously untreatable rare nephrology.',
+    market_growth_driver:
+      'First dedicated IgAN approvals (2022-2023), complement inhibitors (iptacopan, narsoplimab), APRIL/BAFF targeting, SGLT2 renal protection evidence',
+    therapy_area_pricing_context:
+      'Filspari at $200K annually; Tarpeyo at $55K. Novel mechanisms for IgAN at $100K-$200K. Previously untreatable rare nephrology.',
   },
 
   {
@@ -3268,7 +3667,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 8000,
     prevalence_source: 'Lupus Foundation of America 2024; published nephritis prevalence in SLE (30-50%)',
     diagnosis_rate: 0.75,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 14.0,
     major_competitors: [
       'Lupkynis (voclosporin, Aurinia) — calcineurin inhibitor approved for LN',
@@ -3277,8 +3676,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Cyclophosphamide (generic)',
       'Rituximab (off-label)',
     ],
-    market_growth_driver: 'Voclosporin + mycophenolate combination, CD20/CD19 B cell depletion, complement inhibition, obinutuzumab for LN, novel biologic combinations',
-    therapy_area_pricing_context: 'Lupkynis at $80K annually; Benlysta at $35K. Combination biologics for severe LN could command $100K+ combined annually.',
+    market_growth_driver:
+      'Voclosporin + mycophenolate combination, CD20/CD19 B cell depletion, complement inhibition, obinutuzumab for LN, novel biologic combinations',
+    therapy_area_pricing_context:
+      'Lupkynis at $80K annually; Benlysta at $35K. Combination biologics for severe LN could command $100K+ combined annually.',
   },
 
   {
@@ -3290,7 +3691,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 7000,
     prevalence_source: 'NephCure Foundation 2024; published epidemiology estimates',
     diagnosis_rate: 0.65,
-    treatment_rate: 0.70,
+    treatment_rate: 0.7,
     cagr_5yr: 15.0,
     major_competitors: [
       'Filspari (sparsentan, Travere) — dual endothelin/angiotensin receptor antagonist (approved for IgAN, studying FSGS)',
@@ -3298,8 +3699,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Tacrolimus (generic)',
       'ACE inhibitors / ARBs (generic)',
     ],
-    market_growth_driver: 'No approved targeted therapies, APOL1-targeting for genetic FSGS, podocyte biology advances, endothelin receptor antagonism, complement pathway',
-    therapy_area_pricing_context: 'No approved therapies; rare glomerular disease with orphan potential. First approved agent could command $100K-$300K annually.',
+    market_growth_driver:
+      'No approved targeted therapies, APOL1-targeting for genetic FSGS, podocyte biology advances, endothelin receptor antagonism, complement pathway',
+    therapy_area_pricing_context:
+      'No approved therapies; rare glomerular disease with orphan potential. First approved agent could command $100K-$300K annually.',
   },
 
   // ──────────────────────────────────────────
@@ -3313,7 +3716,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_prevalence: 25000,
     us_incidence: 1500,
     prevalence_source: 'Acromegaly Community 2024; published epidemiology estimates',
-    diagnosis_rate: 0.60,
+    diagnosis_rate: 0.6,
     treatment_rate: 0.85,
     cagr_5yr: 7.0,
     major_competitors: [
@@ -3323,8 +3726,10 @@ export const INDICATION_DATA: IndicationData[] = [
       'Somavert (pegvisomant, Pfizer) — GH receptor antagonist',
       'Signifor LAR (pasireotide, Recordati) — multireceptor SSA',
     ],
-    market_growth_driver: 'Oral somatostatin analog paradigm shift, next-gen GH receptor antagonists, combination approaches, improved diagnosis via IGF-1 screening',
-    therapy_area_pricing_context: 'Somatostatin analogs $30K-$60K annually; Somavert $80K+; Mycapssa oral at $80K+. Chronic rare disease with sustained pricing.',
+    market_growth_driver:
+      'Oral somatostatin analog paradigm shift, next-gen GH receptor antagonists, combination approaches, improved diagnosis via IGF-1 screening',
+    therapy_area_pricing_context:
+      'Somatostatin analogs $30K-$60K annually; Somavert $80K+; Mycapssa oral at $80K+. Chronic rare disease with sustained pricing.',
   },
 
   {
@@ -3336,7 +3741,7 @@ export const INDICATION_DATA: IndicationData[] = [
     us_incidence: 1200,
     prevalence_source: 'CSRF (Cushing Support & Research Foundation) 2024; published epidemiology',
     diagnosis_rate: 0.55,
-    treatment_rate: 0.80,
+    treatment_rate: 0.8,
     cagr_5yr: 10.0,
     major_competitors: [
       'Isturisa (osilodrostat, Recordati) — 11-beta-hydroxylase inhibitor',
@@ -3345,19 +3750,28 @@ export const INDICATION_DATA: IndicationData[] = [
       'Signifor (pasireotide, Recordati) — somatostatin analog',
       'Metyrapone (generic)',
     ],
-    market_growth_driver: 'Cortisol receptor antagonist improvements, next-gen steroidogenesis inhibitors, CRF1 antagonists, improved pituitary tumor targeting',
-    therapy_area_pricing_context: 'Korlym at $200K+ annually; Isturisa at $120K+. Rare endocrine disease with orphan pricing.',
+    market_growth_driver:
+      'Cortisol receptor antagonist improvements, next-gen steroidogenesis inhibitors, CRF1 antagonists, improved pituitary tumor targeting',
+    therapy_area_pricing_context:
+      'Korlym at $200K+ annually; Isturisa at $120K+. Rare endocrine disease with orphan pricing.',
   },
 
   {
     name: 'Chronic Kidney Disease',
-    synonyms: ['CKD', 'chronic kidney disease', 'chronic renal failure', 'CKD stage 3-5', 'diabetic kidney disease', 'DKD'],
+    synonyms: [
+      'CKD',
+      'chronic kidney disease',
+      'chronic renal failure',
+      'CKD stage 3-5',
+      'diabetic kidney disease',
+      'DKD',
+    ],
     icd10_codes: ['N18.1', 'N18.2', 'N18.3', 'N18.4', 'N18.5', 'N18.6', 'N18.9'],
     therapy_area: 'nephrology',
     us_prevalence: 37000000,
     us_incidence: 3000000,
     prevalence_source: 'CDC CKD Fact Sheet 2024; USRDS; National Kidney Foundation',
-    diagnosis_rate: 0.40,
+    diagnosis_rate: 0.4,
     treatment_rate: 0.45,
     cagr_5yr: 9.0,
     major_competitors: [
@@ -3367,32 +3781,1516 @@ export const INDICATION_DATA: IndicationData[] = [
       'ACE inhibitors / ARBs (generic)',
       'Jesduvroq (daprodustat, GSK) — HIF-PHI for anemia',
     ],
-    market_growth_driver: 'SGLT2 class CKD indication expansion, non-steroidal MRA combination, GLP-1 renal protection data, massive underdiagnosed population, CKD progression prevention',
-    therapy_area_pricing_context: 'SGLT2 inhibitors at $6K-$8K annually; Kerendia at $6K. Massive patient population means moderate pricing generates very large market.',
+    market_growth_driver:
+      'SGLT2 class CKD indication expansion, non-steroidal MRA combination, GLP-1 renal protection data, massive underdiagnosed population, CKD progression prevention',
+    therapy_area_pricing_context:
+      'SGLT2 inhibitors at $6K-$8K annually; Kerendia at $6K. Massive patient population means moderate pricing generates very large market.',
   },
 
+  // ──────────────────────────────────────────
+  // PSYCHIATRY
+  // ──────────────────────────────────────────
+  {
+    name: 'Major Depressive Disorder',
+    synonyms: ['MDD', 'clinical depression', 'major depression', 'unipolar depression'],
+    icd10_codes: ['F32.0', 'F32.1', 'F32.2', 'F32.9', 'F33.0', 'F33.1', 'F33.2'],
+    therapy_area: 'psychiatry',
+    us_prevalence: 21000000,
+    us_incidence: 7800000,
+    prevalence_source: 'NIMH 2024; Epidemiologic Catchment Area Study; SAMHSA NSDUH 2023',
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.65,
+    cagr_5yr: 5.8,
+    major_competitors: [
+      'SSRIs (sertraline, fluoxetine, escitalopram — generic)',
+      'SNRIs (venlafaxine, duloxetine — generic)',
+      'Spravato (esketamine, Janssen)',
+      'Auvelity (dextromethorphan/bupropion, Axsome)',
+      'Zurzuvae (zuranolone, Sage/Biogen)',
+    ],
+    market_growth_driver:
+      'Novel rapid-acting mechanisms (glutamate, neurosteroid, psychedelic-assisted), treatment-resistant subpopulations, digital therapeutics adjuncts',
+    therapy_area_pricing_context:
+      'Generic SSRIs/SNRIs at <$500/yr. Novel mechanisms command premium: Spravato at $20K-$30K/yr; oral novel agents at $10K-$20K/yr.',
+  },
+
+  {
+    name: 'Bipolar Disorder',
+    synonyms: ['bipolar I', 'bipolar II', 'bipolar depression', 'manic-depressive disorder'],
+    icd10_codes: ['F31.0', 'F31.1', 'F31.2', 'F31.3', 'F31.4', 'F31.5', 'F31.9'],
+    therapy_area: 'psychiatry',
+    us_prevalence: 7100000,
+    us_incidence: 450000,
+    prevalence_source: 'NIMH 2024; National Comorbidity Survey Replication',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.6,
+    cagr_5yr: 6.2,
+    major_competitors: [
+      'Lithium (generic)',
+      'Lamotrigine (generic)',
+      'Valproate/divalproex (generic)',
+      'Seroquel (quetiapine, generic)',
+      'Caplyta (lumateperone, Intra-Cellular)',
+      'Latuda (lurasidone, generic)',
+      'Vraylar (cariprazine, AbbVie)',
+    ],
+    market_growth_driver:
+      'Bipolar depression remains undertreated, novel atypical antipsychotics with improved tolerability, biomarker-guided treatment selection',
+    therapy_area_pricing_context:
+      'Lithium/generic mood stabilizers at <$500/yr. Branded atypicals at $10K-$25K/yr; novel mechanisms targeting depressive phase at premium.',
+  },
+
+  {
+    name: 'Schizophrenia',
+    synonyms: ['schizophrenia spectrum disorder', 'psychosis', 'schizoaffective disorder'],
+    icd10_codes: ['F20.0', 'F20.1', 'F20.2', 'F20.3', 'F20.5', 'F20.9'],
+    therapy_area: 'psychiatry',
+    us_prevalence: 3500000,
+    us_incidence: 100000,
+    prevalence_source: 'NIMH 2024; WHO Global Burden of Disease 2024',
+    diagnosis_rate: 0.65,
+    treatment_rate: 0.55,
+    cagr_5yr: 7.5,
+    major_competitors: [
+      'Clozapine (generic — treatment-resistant)',
+      'Invega Sustenna/Trinza (paliperidone, Janssen)',
+      'Abilify Maintena (aripiprazole LAI, Otsuka)',
+      'Cobenfy (xanomeline/trospium, Bristol Myers Squibb)',
+      'Lybalvi (olanzapine/samidorphan, Alkermes)',
+      'Caplyta (lumateperone, Intra-Cellular)',
+    ],
+    market_growth_driver:
+      'Muscarinic agonists (Cobenfy) opening new mechanism class, long-acting injectables growth, negative symptom and cognitive domain unmet need',
+    therapy_area_pricing_context:
+      'Generic oral antipsychotics at <$2K/yr. Branded LAIs at $15K-$30K/yr. Novel mechanism agents (Cobenfy) at $20K-$25K/yr.',
+  },
+
+  {
+    name: 'Post-Traumatic Stress Disorder',
+    synonyms: ['PTSD', 'post-traumatic stress', 'combat PTSD', 'trauma disorder'],
+    icd10_codes: ['F43.10', 'F43.11', 'F43.12'],
+    therapy_area: 'psychiatry',
+    us_prevalence: 13000000,
+    us_incidence: 3500000,
+    prevalence_source: 'NIMH 2024; National Center for PTSD; VA Epidemiology Program',
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.5,
+    cagr_5yr: 8.5,
+    major_competitors: [
+      'Sertraline (generic — FDA-approved for PTSD)',
+      'Paroxetine (generic — FDA-approved for PTSD)',
+      'Prazosin (generic — nightmares, off-label)',
+      'Stellate ganglion block (procedural)',
+    ],
+    market_growth_driver:
+      'MDMA-assisted therapy regulatory pathway, novel NMDA modulators, military/veteran population funding, psychedelic-assisted psychotherapy research',
+    therapy_area_pricing_context:
+      'Only generic SSRIs currently approved. Novel targeted therapies could command $15K-$30K/yr given massive unmet need and limited approved options.',
+  },
+
+  {
+    name: 'Obsessive-Compulsive Disorder',
+    synonyms: ['OCD', 'obsessive compulsive disorder'],
+    icd10_codes: ['F42.2', 'F42.3', 'F42.4', 'F42.8', 'F42.9'],
+    therapy_area: 'psychiatry',
+    us_prevalence: 2500000,
+    us_incidence: 500000,
+    prevalence_source: 'NIMH 2024; International OCD Foundation; APA Practice Guidelines',
+    diagnosis_rate: 0.45,
+    treatment_rate: 0.55,
+    cagr_5yr: 6.0,
+    major_competitors: [
+      'Fluvoxamine (generic)',
+      'Fluoxetine (generic)',
+      'Clomipramine (generic)',
+      'Sertraline (generic)',
+      'ERP cognitive behavioral therapy',
+    ],
+    market_growth_driver:
+      'Glutamate modulators, psilocybin-assisted therapy trials, treatment-resistant OCD subpopulation, digital therapeutics for ERP delivery',
+    therapy_area_pricing_context:
+      'Only generics currently approved. ~30% of patients are treatment-resistant; novel targeted agents could command $15K-$25K/yr.',
+  },
+
+  {
+    name: 'Attention-Deficit/Hyperactivity Disorder',
+    synonyms: ['ADHD', 'attention deficit disorder', 'ADD', 'hyperactivity disorder'],
+    icd10_codes: ['F90.0', 'F90.1', 'F90.2', 'F90.8', 'F90.9'],
+    therapy_area: 'psychiatry',
+    us_prevalence: 16500000,
+    us_incidence: 1500000,
+    prevalence_source: 'NIMH 2024; CDC ADHD Data 2024; Journal of Clinical Psychiatry',
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.62,
+    cagr_5yr: 7.8,
+    major_competitors: [
+      'Adderall/Adderall XR (amphetamine salts, generic)',
+      'Concerta/Ritalin (methylphenidate, generic)',
+      'Vyvanse (lisdexamfetamine, Takeda)',
+      'Qelbree (viloxazine, Supernus)',
+      'Azstarys (serdexmethylphenidate/dexmethylphenidate, Corium)',
+      'Jornay PM (methylphenidate, Ironshore)',
+    ],
+    market_growth_driver:
+      'Adult ADHD diagnosis expansion, non-stimulant alternatives, abuse-deterrent formulations, increasing female adult diagnosis',
+    therapy_area_pricing_context:
+      'Generic stimulants at $500-$2K/yr. Branded formulations at $5K-$15K/yr. Non-stimulant novel mechanisms at $8K-$20K/yr.',
+  },
+
+  {
+    name: 'Generalized Anxiety Disorder',
+    synonyms: ['GAD', 'generalized anxiety', 'chronic anxiety', 'anxiety disorder'],
+    icd10_codes: ['F41.1'],
+    therapy_area: 'psychiatry',
+    us_prevalence: 6800000,
+    us_incidence: 2200000,
+    prevalence_source: 'NIMH 2024; SAMHSA NSDUH 2023; Anxiety & Depression Association of America',
+    diagnosis_rate: 0.45,
+    treatment_rate: 0.55,
+    cagr_5yr: 5.5,
+    major_competitors: [
+      'Buspirone (generic)',
+      'SSRIs (escitalopram, paroxetine — generic)',
+      'SNRIs (venlafaxine, duloxetine — generic)',
+      'Benzodiazepines (generic — short-term only)',
+    ],
+    market_growth_driver:
+      'Non-benzodiazepine anxiolytics with rapid onset, GABA-A PAMs, orexin antagonists for anxiety, digital CBT platforms',
+    therapy_area_pricing_context:
+      'Generics dominate at <$500/yr. Novel non-addictive rapid-acting anxiolytics could command $8K-$15K/yr given unmet need.',
+  },
+
+  {
+    name: 'Anorexia Nervosa',
+    synonyms: ['anorexia', 'AN', 'restrictive eating disorder'],
+    icd10_codes: ['F50.00', 'F50.01', 'F50.02'],
+    therapy_area: 'psychiatry',
+    us_prevalence: 280000,
+    us_incidence: 35000,
+    prevalence_source: 'NIMH 2024; National Eating Disorders Association; Hudson et al. Biological Psychiatry',
+    diagnosis_rate: 0.35,
+    treatment_rate: 0.4,
+    cagr_5yr: 9.0,
+    major_competitors: [
+      'Olanzapine (off-label, generic)',
+      'Fluoxetine (off-label for binge-purge subtype, generic)',
+      'Nutritional rehabilitation programs',
+    ],
+    market_growth_driver:
+      'No FDA-approved pharmacotherapy — massive unmet need, hypothalamic-pituitary axis targets, GLP-1 receptor research, oxytocin-based approaches',
+    therapy_area_pricing_context:
+      'No approved drugs. First approved therapy could command $30K-$60K/yr given high mortality rate and lack of alternatives. Orphan-like pricing dynamics.',
+  },
+
+  {
+    name: 'Substance Use Disorder',
+    synonyms: ['SUD', 'drug addiction', 'opioid use disorder', 'OUD', 'alcohol use disorder', 'AUD'],
+    icd10_codes: ['F10.20', 'F10.21', 'F11.20', 'F11.21', 'F14.20', 'F15.20', 'F19.20'],
+    therapy_area: 'psychiatry',
+    us_prevalence: 46300000,
+    us_incidence: 4500000,
+    prevalence_source: 'SAMHSA NSDUH 2023; CDC WONDER; National Drug Early Warning System',
+    diagnosis_rate: 0.3,
+    treatment_rate: 0.25,
+    cagr_5yr: 8.0,
+    major_competitors: [
+      'Suboxone (buprenorphine/naloxone, Indivior — OUD)',
+      'Sublocade (buprenorphine LAI, Indivior)',
+      'Vivitrol (naltrexone LAI, Alkermes — OUD/AUD)',
+      'Methadone (generic — OUD)',
+      'Naltrexone oral (generic — AUD)',
+      'Disulfiram (generic — AUD)',
+    ],
+    market_growth_driver:
+      'Opioid epidemic public health funding, psychedelic-assisted therapy (ibogaine, psilocybin), vaccine approaches, GLP-1 agonist addiction research, digital therapeutics',
+    therapy_area_pricing_context:
+      'Sublocade at $2K/month. Vivitrol at $1.5K/month. Novel vaccines/biologics could command $15K-$30K/yr given societal cost burden.',
+  },
+
+  {
+    name: 'Treatment-Resistant Depression',
+    synonyms: ['TRD', 'refractory depression', 'treatment resistant MDD'],
+    icd10_codes: ['F32.A', 'F32.9', 'F33.2', 'F33.9'],
+    therapy_area: 'psychiatry',
+    us_prevalence: 2800000,
+    us_incidence: 750000,
+    prevalence_source: 'Journal of Clinical Psychiatry 2024; Heerlein et al.; APA estimates ~30% of MDD is TRD',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.5,
+    cagr_5yr: 12.5,
+    major_competitors: [
+      'Spravato (esketamine, Janssen)',
+      'Auvelity (dextromethorphan/bupropion, Axsome)',
+      'ECT (electroconvulsive therapy)',
+      'TMS (transcranial magnetic stimulation, Neuronetics/BrainsWay)',
+      'Psilocybin (COMP360, Compass Pathways — Phase 3)',
+    ],
+    market_growth_driver:
+      'Psychedelic-assisted therapy (psilocybin, MDMA), novel glutamate modulators, neuromodulation devices, rapid-acting antidepressants pipeline',
+    therapy_area_pricing_context:
+      'Spravato at $20K-$30K/yr. Psilocybin-assisted therapy estimated at $10K-$15K per course. TRD patients justify premium pricing.',
+  },
+
+  // ──────────────────────────────────────────
+  // PAIN MANAGEMENT
+  // ──────────────────────────────────────────
+  {
+    name: 'Chronic Pain',
+    synonyms: ['chronic pain syndrome', 'persistent pain', 'chronic non-cancer pain', 'CNCP'],
+    icd10_codes: ['G89.29', 'G89.4', 'R52'],
+    therapy_area: 'pain_management',
+    us_prevalence: 51600000,
+    us_incidence: 8000000,
+    prevalence_source: 'CDC NHIS 2023; Institute of Medicine Report; NIH HEAL Initiative',
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.7,
+    cagr_5yr: 5.0,
+    major_competitors: [
+      'Opioids (various, generic — declining use)',
+      'Gabapentin/pregabalin (generic)',
+      'Duloxetine (generic)',
+      'NSAIDs (generic)',
+      'Vertiflex Superion (Boston Scientific — spinal stenosis)',
+      'Nevro HFX iQ (Nevro — spinal cord stimulation)',
+    ],
+    market_growth_driver:
+      'Non-opioid analgesic revolution, Nav1.7/1.8 sodium channel inhibitors, CGRP pathway expansion beyond migraine, neuromodulation devices',
+    therapy_area_pricing_context:
+      'Generics dominate at <$1K/yr. Novel non-opioid targeted therapies at $8K-$20K/yr. Implantable neuromodulation devices at $30K-$50K per procedure.',
+  },
+
+  {
+    name: 'Neuropathic Pain',
+    synonyms: ['nerve pain', 'peripheral neuropathic pain', 'diabetic neuropathy pain', 'postherpetic neuralgia'],
+    icd10_codes: ['G89.0', 'G60.9', 'G62.9', 'G63', 'B02.29'],
+    therapy_area: 'pain_management',
+    us_prevalence: 10000000,
+    us_incidence: 1500000,
+    prevalence_source: 'IASP Pain Research Forum; van Hecke et al. Pain 2014; NIH NINDS',
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.55,
+    cagr_5yr: 7.2,
+    major_competitors: [
+      'Pregabalin/Lyrica (generic)',
+      'Gabapentin (generic)',
+      'Duloxetine (generic)',
+      'Qutenza (capsaicin 8% patch, Averitas)',
+      'Lidocaine 5% patch (generic)',
+    ],
+    market_growth_driver:
+      'Nav1.7 selective sodium channel blockers, TRPV1 antagonists, gene therapy for sodium channels, precision phenotyping of neuropathic pain subtypes',
+    therapy_area_pricing_context:
+      'Generic gabapentinoids at $500-$2K/yr. Novel targeted ion channel therapies could command $15K-$25K/yr given failed prior attempts and high unmet need.',
+  },
+
+  {
+    name: 'Fibromyalgia',
+    synonyms: ['fibromyalgia syndrome', 'FMS', 'fibrositis'],
+    icd10_codes: ['M79.7'],
+    therapy_area: 'pain_management',
+    us_prevalence: 6000000,
+    us_incidence: 400000,
+    prevalence_source:
+      'CDC Arthritis Data 2024; Wolfe et al. Arthritis Care & Research; American College of Rheumatology',
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.5,
+    cagr_5yr: 5.5,
+    major_competitors: [
+      'Lyrica (pregabalin, generic)',
+      'Cymbalta (duloxetine, generic)',
+      'Savella (milnacipran, Allergan)',
+      'Amitriptyline (off-label, generic)',
+    ],
+    market_growth_driver:
+      'Central sensitization mechanism targeting, neuroinflammation approaches, low-dose naltrexone research, digital therapeutics for pain management',
+    therapy_area_pricing_context:
+      'All three approved drugs now generic or near-generic at <$3K/yr. Novel mechanism agents could command $10K-$18K/yr if demonstrating clear superiority.',
+  },
+
+  {
+    name: 'Complex Regional Pain Syndrome',
+    synonyms: ['CRPS', 'reflex sympathetic dystrophy', 'RSD', 'causalgia', 'CRPS type I', 'CRPS type II'],
+    icd10_codes: ['G90.50', 'G90.51', 'G90.52', 'G90.59'],
+    therapy_area: 'pain_management',
+    us_prevalence: 200000,
+    us_incidence: 26000,
+    prevalence_source: 'RSDSA Foundation; de Mos et al. Pain 2007 (adjusted for US population); IASP',
+    diagnosis_rate: 0.35,
+    treatment_rate: 0.5,
+    cagr_5yr: 8.0,
+    major_competitors: [
+      'Bisphosphonates (off-label, generic)',
+      'Gabapentin/pregabalin (off-label, generic)',
+      'Ketamine infusions (off-label)',
+      'Neridronate (not yet approved in US)',
+      'Spinal cord stimulation (Medtronic, Abbott, Nevro)',
+    ],
+    market_growth_driver:
+      'No FDA-approved therapy — orphan-like unmet need, anti-neuroinflammatory targets, NMDA receptor modulators, autoimmune hypothesis driving immunotherapy trials',
+    therapy_area_pricing_context:
+      'No approved drugs. First approved CRPS therapy could command $30K-$60K/yr given rare disease-like dynamics and devastating impact.',
+  },
+
+  {
+    name: 'Cluster Headache',
+    synonyms: [
+      'cluster headache syndrome',
+      'episodic cluster headache',
+      'chronic cluster headache',
+      'suicide headache',
+    ],
+    icd10_codes: ['G44.001', 'G44.009', 'G44.011', 'G44.019'],
+    therapy_area: 'pain_management',
+    us_prevalence: 400000,
+    us_incidence: 30000,
+    prevalence_source: 'American Headache Society; Fischera et al. Cephalalgia; Headache Classification Committee IHS',
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.55,
+    cagr_5yr: 9.5,
+    major_competitors: [
+      'Sumatriptan injection (generic)',
+      'High-flow oxygen therapy',
+      'Verapamil (off-label, generic)',
+      'Galcanezumab (Emgality, Lilly — FDA-approved for episodic CH)',
+      'Occipital nerve stimulation (investigational)',
+    ],
+    market_growth_driver:
+      'CGRP antibodies expanding to cluster headache, psilocybin research for cluster prevention, PACAP-38 antagonists, hypothalamic neuromodulation',
+    therapy_area_pricing_context:
+      'Emgality for CH at ~$7K/yr. Novel targeted preventives could command $10K-$20K/yr. Small but severely affected patient population supports premium.',
+  },
+
+  // ──────────────────────────────────────────
+  // DERMATOLOGY
+  // ──────────────────────────────────────────
+  {
+    name: 'Acne Vulgaris',
+    synonyms: ['acne', 'cystic acne', 'nodulocystic acne', 'hormonal acne', 'severe acne'],
+    icd10_codes: ['L70.0', 'L70.1', 'L70.2', 'L70.8', 'L70.9'],
+    therapy_area: 'dermatology',
+    us_prevalence: 50000000,
+    us_incidence: 5000000,
+    prevalence_source:
+      'American Academy of Dermatology 2024; Global Burden of Disease Study; Bhate & Williams Br J Dermatol',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.6,
+    cagr_5yr: 5.0,
+    major_competitors: [
+      'Isotretinoin (generic — severe acne)',
+      'Arazlo (tazarotene lotion, Bausch)',
+      'Winlevi (clascoterone, Cassiopea/Sun Pharma)',
+      'Aklief (trifarotene, Galderma)',
+      'Amzeeq (minocycline foam, Journey Medical)',
+      'Antibiotics (doxycycline, minocycline — generic)',
+    ],
+    market_growth_driver:
+      'Topical androgen receptor inhibitors, microbiome-based therapies, sebocyte-targeting biologics, combination regimens, scarring prevention focus',
+    therapy_area_pricing_context:
+      'Generic retinoids/antibiotics at <$500/yr. Branded topicals at $3K-$8K/yr. Injectable biologics for severe acne could command $15K-$25K/yr.',
+  },
+
+  {
+    name: 'Chronic Spontaneous Urticaria',
+    synonyms: ['CSU', 'chronic urticaria', 'chronic hives', 'chronic idiopathic urticaria', 'CIU'],
+    icd10_codes: ['L50.1', 'L50.8', 'L50.9'],
+    therapy_area: 'dermatology',
+    us_prevalence: 1500000,
+    us_incidence: 350000,
+    prevalence_source:
+      'Asthma and Allergy Foundation of America; Maurer et al. Allergy; American Academy of Dermatology',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.6,
+    cagr_5yr: 8.5,
+    major_competitors: [
+      'Xolair (omalizumab, Novartis/Genentech)',
+      'H1-antihistamines (cetirizine, fexofenadine — generic)',
+      'Remibrutinib (Novartis — Phase 3)',
+      'Ligelizumab (Novartis — Phase 3)',
+    ],
+    market_growth_driver:
+      'BTK inhibitors for mast cell stabilization, anti-IgE next-gen agents, anti-KIT antibodies, Syk inhibitors, addressable population expansion',
+    therapy_area_pricing_context:
+      'Xolair at $15K-$30K/yr. Novel targeted agents expected at $20K-$35K/yr. Significant unmet need in anti-IgE non-responders.',
+  },
+
+  {
+    name: 'Prurigo Nodularis',
+    synonyms: ['PN', 'nodular prurigo', 'picker nodules', 'chronic prurigo'],
+    icd10_codes: ['L28.1'],
+    therapy_area: 'dermatology',
+    us_prevalence: 170000,
+    us_incidence: 25000,
+    prevalence_source: 'Sutaria et al. JAAD 2022; Pereira et al. JEADV; National Eczema Association',
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.45,
+    cagr_5yr: 15.0,
+    major_competitors: [
+      'Dupixent (dupilumab, Sanofi/Regeneron — FDA-approved for PN)',
+      'Nemluvio (nemolizumab, Galderma — FDA-approved 2024)',
+      'Topical corticosteroids (generic)',
+    ],
+    market_growth_driver:
+      'First FDA-approved therapies arrived 2022-2024, IL-31 pathway expansion, itch-specific mechanism targeting, underdiagnosed population awareness',
+    therapy_area_pricing_context:
+      'Dupixent at ~$37K/yr. Nemolizumab expected at similar pricing. Rare dermatologic condition with significant disease burden supports premium.',
+  },
+
+  {
+    name: 'Pemphigus Vulgaris',
+    synonyms: ['pemphigus', 'PV', 'autoimmune blistering disease'],
+    icd10_codes: ['L10.0', 'L10.1', 'L10.9'],
+    therapy_area: 'dermatology',
+    us_prevalence: 30000,
+    us_incidence: 4000,
+    prevalence_source: 'National Organization for Rare Disorders; Kridin Immunol Res 2018; Pemphigus Vulgaris Network',
+    diagnosis_rate: 0.65,
+    treatment_rate: 0.8,
+    cagr_5yr: 10.0,
+    major_competitors: [
+      'Rituximab (Rituxan, Genentech — FDA-approved for PV)',
+      'Corticosteroids (prednisone — generic)',
+      'Mycophenolate mofetil (off-label, generic)',
+      'Azathioprine (off-label, generic)',
+    ],
+    market_growth_driver:
+      'Anti-CD20 alternatives, anti-FcRn antibodies, neonatal Fc receptor targeting, CAAR-T cell therapy, targeted B-cell depletion with improved safety',
+    therapy_area_pricing_context:
+      'Rituximab at $20K-$40K/yr. Novel targeted therapies for autoimmune blistering diseases could command $40K-$80K/yr given orphan dynamics.',
+  },
+
+  // ──────────────────────────────────────────
+  // GASTROENTEROLOGY
+  // ──────────────────────────────────────────
+  {
+    name: "Crohn's Disease",
+    synonyms: ['Crohn disease', 'CD', 'regional enteritis', 'granulomatous colitis', 'ileitis'],
+    icd10_codes: ['K50.00', 'K50.01', 'K50.10', 'K50.11', 'K50.80', 'K50.90'],
+    therapy_area: 'gastroenterology',
+    us_prevalence: 780000,
+    us_incidence: 33000,
+    prevalence_source: "Crohn's & Colitis Foundation 2024; GBD IBD Collaborators; CDC IBD Epidemiology",
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.8,
+    cagr_5yr: 7.5,
+    major_competitors: [
+      'Humira (adalimumab, AbbVie — biosimilars entering)',
+      'Skyrizi (risankizumab, AbbVie)',
+      'Entyvio (vedolizumab, Takeda)',
+      'Stelara (ustekinumab, Janssen)',
+      'Rinvoq (upadacitinib, AbbVie)',
+      'Remicade (infliximab, biosimilars)',
+    ],
+    market_growth_driver:
+      'IL-23 selective blockade, S1P receptor modulators, TL1A antibodies (tulisokibart), combination biologic strategies, mucosal healing endpoints',
+    therapy_area_pricing_context:
+      'Anti-TNF biosimilars at $15K-$25K/yr. Novel biologics at $30K-$50K/yr. JAK inhibitors at $50K-$65K/yr.',
+  },
+
+  {
+    name: 'Irritable Bowel Syndrome',
+    synonyms: ['IBS', 'IBS-C', 'IBS-D', 'IBS-M', 'spastic colon', 'irritable colon'],
+    icd10_codes: ['K58.0', 'K58.1', 'K58.2', 'K58.8', 'K58.9'],
+    therapy_area: 'gastroenterology',
+    us_prevalence: 25000000,
+    us_incidence: 3000000,
+    prevalence_source: 'ACG Clinical Guideline 2024; Rome Foundation Global Epidemiology Study; AGA',
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.45,
+    cagr_5yr: 5.8,
+    major_competitors: [
+      'Linzess (linaclotide, AbbVie/Ironwood — IBS-C)',
+      'Xifaxan (rifaximin, Salix/Bausch — IBS-D)',
+      'Viberzi (eluxadoline, AbbVie — IBS-D)',
+      'Ibsrela (tenapanor, Ardelyx — IBS-C)',
+      'Amitiza (lubiprostone, generic — IBS-C)',
+    ],
+    market_growth_driver:
+      'Gut-brain axis targeting, GLP-1 receptor pathway, microbiome therapeutics, bile acid modulators, precision subtyping beyond IBS-C/D/M',
+    therapy_area_pricing_context:
+      'Branded agents at $5K-$15K/yr. Massive addressable population. Novel mechanism therapies at $8K-$18K/yr.',
+  },
+
+  {
+    name: 'Celiac Disease',
+    synonyms: ['celiac sprue', 'coeliac disease', 'gluten-sensitive enteropathy', 'nontropical sprue'],
+    icd10_codes: ['K90.0'],
+    therapy_area: 'gastroenterology',
+    us_prevalence: 3000000,
+    us_incidence: 60000,
+    prevalence_source: 'Celiac Disease Foundation; Rubio-Tapia et al. Am J Gastroenterol 2023; NIH NIDDK',
+    diagnosis_rate: 0.3,
+    treatment_rate: 0.9,
+    cagr_5yr: 14.0,
+    major_competitors: [
+      'Gluten-free diet (standard of care)',
+      'Latiglutenase (ImmunogenX — Phase 2/3)',
+      'TAK-062 (Takeda — gluten degrading enzyme, Phase 2)',
+      'KAN-101 (Anokion — tolerizing therapy, Phase 2)',
+    ],
+    market_growth_driver:
+      'No FDA-approved pharmacotherapy — first-in-class opportunity, transglutaminase 2 inhibitors, gluten-degrading enzymes, immune tolerance approaches',
+    therapy_area_pricing_context:
+      'No approved drugs. First therapy could command $15K-$30K/yr given 3M patients and significant quality-of-life impact.',
+  },
+
+  {
+    name: 'Eosinophilic Gastritis/Duodenitis',
+    synonyms: ['EoG', 'eosinophilic gastritis', 'eosinophilic duodenitis', 'EGE', 'EGID'],
+    icd10_codes: ['K52.81'],
+    therapy_area: 'gastroenterology',
+    us_prevalence: 160000,
+    us_incidence: 18000,
+    prevalence_source: 'Dellon et al. Gastroenterology 2024; APFED; CEGIR Consortium',
+    diagnosis_rate: 0.3,
+    treatment_rate: 0.45,
+    cagr_5yr: 15.0,
+    major_competitors: [
+      'Oral budesonide (off-label, generic)',
+      'Dupixent (dupilumab, Sanofi/Regeneron — under investigation)',
+      'PPI therapy (off-label)',
+      'Elimination diet',
+    ],
+    market_growth_driver:
+      'IL-4/IL-13 pathway biologics, anti-Siglec-8 antibodies, no FDA-approved therapy, overlap with eosinophilic esophagitis pipeline',
+    therapy_area_pricing_context:
+      'No approved drugs. Following EoE precedent, first approved biologic could command $30K-$50K/yr. Orphan disease dynamics.',
+  },
+
+  {
+    name: 'Short Bowel Syndrome',
+    synonyms: ['SBS', 'short gut syndrome', 'intestinal failure'],
+    icd10_codes: ['K91.2'],
+    therapy_area: 'gastroenterology',
+    us_prevalence: 15000,
+    us_incidence: 3000,
+    prevalence_source: 'OASIS Registry; Thompson et al. Nutr Clin Pract; ASPEN Guidelines',
+    diagnosis_rate: 0.85,
+    treatment_rate: 0.75,
+    cagr_5yr: 8.0,
+    major_competitors: [
+      'Gattex (teduglutide, Takeda)',
+      'TPN/parenteral nutrition (standard of care)',
+      'Zorbtive (somatotropin, EMD Serono)',
+      'Apraglutide (VectivBio/Ironwood — Phase 3)',
+    ],
+    market_growth_driver:
+      'GLP-2 analog improvements, oral GLP-2 peptides, intestinal rehabilitation optimization, gene therapy for intestinal regeneration',
+    therapy_area_pricing_context:
+      'Gattex at $300K+/yr. Ultra-rare orphan disease with high medical cost offset (reduced TPN). Novel agents expected at $200K-$400K/yr.',
+  },
+
+  // ──────────────────────────────────────────
+  // HEPATOLOGY
+  // ──────────────────────────────────────────
+  {
+    name: 'Hepatitis C',
+    synonyms: ['HCV', 'chronic hepatitis C', 'hepatitis C virus infection'],
+    icd10_codes: ['B18.2', 'B17.10', 'B17.11'],
+    therapy_area: 'hepatology',
+    us_prevalence: 2400000,
+    us_incidence: 67000,
+    prevalence_source:
+      'CDC Hepatitis Surveillance 2024; HHS National Viral Hepatitis Strategic Plan; Hofmeister et al. Hepatology',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.4,
+    cagr_5yr: -2.0,
+    major_competitors: [
+      'Epclusa (sofosbuvir/velpatasvir, Gilead)',
+      'Mavyret (glecaprevir/pibrentasvir, AbbVie)',
+      'Harvoni (ledipasvir/sofosbuvir, Gilead)',
+      'Vosevi (sofosbuvir/velpatasvir/voxilaprevir, Gilead)',
+    ],
+    market_growth_driver:
+      'WHO elimination goals driving screening expansion, prison/homeless population access, point-of-care testing, simplified treatment models',
+    therapy_area_pricing_context:
+      'Curative DAA regimens at $20K-$90K per 8-12 week course. Market declining as cured patients reduce prevalence pool. Volume-based access programs.',
+  },
+
+  {
+    name: 'Primary Biliary Cholangitis',
+    synonyms: ['PBC', 'primary biliary cirrhosis', 'autoimmune cholangiopathy'],
+    icd10_codes: ['K74.3'],
+    therapy_area: 'hepatology',
+    us_prevalence: 130000,
+    us_incidence: 12000,
+    prevalence_source: 'American Liver Foundation; Lu et al. Hepatology 2023; AASLD Practice Guidelines',
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.65,
+    cagr_5yr: 11.0,
+    major_competitors: [
+      'Ocaliva (obeticholic acid, Intercept — FDA-approved, label limited)',
+      'Ursodiol/UDCA (generic — first-line)',
+      'Livdelzi (seladelpar, Ipsen — FDA-approved 2024)',
+      'Bezafibrate (used in EU, off-label US)',
+    ],
+    market_growth_driver:
+      'PPAR-delta agonists, FXR agonists next-gen, anti-fibrotic combinations, 40% of patients inadequately respond to UDCA',
+    therapy_area_pricing_context:
+      'UDCA at $2K-$5K/yr. Ocaliva at $70K+/yr. Seladelpar expected at $40K-$60K/yr. Rare liver disease supports specialty pricing.',
+  },
+
+  {
+    name: 'Autoimmune Hepatitis',
+    synonyms: ['AIH', 'autoimmune liver disease', 'lupoid hepatitis'],
+    icd10_codes: ['K75.4'],
+    therapy_area: 'hepatology',
+    us_prevalence: 150000,
+    us_incidence: 8000,
+    prevalence_source:
+      'AASLD Practice Guidelines 2024; Mack et al. Hepatology; European Association for Study of Liver',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.75,
+    cagr_5yr: 9.0,
+    major_competitors: [
+      'Prednisone/prednisolone (generic — first-line)',
+      'Azathioprine (generic — maintenance)',
+      'Mycophenolate mofetil (off-label, generic)',
+      'Budesonide (off-label, generic)',
+      'Tacrolimus (off-label, generic)',
+    ],
+    market_growth_driver:
+      'No FDA-approved therapy — entirely off-label treatment, anti-BAFF/anti-CD20 approaches, calcineurin inhibitor optimization, steroid-sparing strategies',
+    therapy_area_pricing_context:
+      'Only generics used. First approved targeted therapy could command $30K-$60K/yr given orphan-like dynamics and corticosteroid toxicity burden.',
+  },
+
+  {
+    name: 'Primary Sclerosing Cholangitis',
+    synonyms: ['PSC', 'sclerosing cholangitis', 'bile duct sclerosis'],
+    icd10_codes: ['K83.01'],
+    therapy_area: 'hepatology',
+    us_prevalence: 30000,
+    us_incidence: 2000,
+    prevalence_source: 'PSC Partners Seeking a Cure; Lazaridis & LaRusso Gastroenterology; Mayo Clinic PSC Registry',
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.5,
+    cagr_5yr: 12.0,
+    major_competitors: [
+      'Ursodiol/UDCA (off-label, generic — controversial efficacy)',
+      'Liver transplantation (definitive treatment)',
+      'Vancomycin (off-label, under investigation)',
+      'Cilofexor (Gilead — discontinued)',
+    ],
+    market_growth_driver:
+      'No FDA-approved therapy — massive unmet need, norUDCA (Phase 3), FXR/FGF19 pathway, gut-liver axis microbiome approaches, cholangiocarcinoma risk reduction',
+    therapy_area_pricing_context:
+      'No approved drugs. First PSC therapy could command $60K-$100K/yr given orphan indication, progressive disease course, and transplant cost offset.',
+  },
+
+  // ──────────────────────────────────────────
+  // ENDOCRINOLOGY
+  // ──────────────────────────────────────────
+  {
+    name: 'Hypothyroidism',
+    synonyms: ['underactive thyroid', 'Hashimoto thyroiditis', 'myxedema', 'hypothyroid'],
+    icd10_codes: ['E03.0', 'E03.1', 'E03.2', 'E03.8', 'E03.9', 'E06.3'],
+    therapy_area: 'endocrinology',
+    us_prevalence: 12000000,
+    us_incidence: 500000,
+    prevalence_source: 'American Thyroid Association; Chaker et al. Lancet 2017; NHANES Survey Data',
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.85,
+    cagr_5yr: 3.5,
+    major_competitors: [
+      'Levothyroxine (Synthroid, generic — standard of care)',
+      'Tirosint (levothyroxine gel cap, IBSA)',
+      'Armour Thyroid (desiccated thyroid, Allergan)',
+      'Liothyronine (generic T3)',
+    ],
+    market_growth_driver:
+      "Precision dosing optimization, combination T4/T3 therapy trials, branded formulation differentiation, Hashimoto's-specific immunomodulation research",
+    therapy_area_pricing_context:
+      'Generic levothyroxine at <$200/yr. Branded formulations at $1K-$3K/yr. Large patient volume, minimal pharma innovation opportunity at current pricing.',
+  },
+
+  {
+    name: "Hyperthyroidism/Graves' Disease",
+    synonyms: ['Graves disease', 'hyperthyroidism', 'thyrotoxicosis', 'overactive thyroid', 'Basedow disease'],
+    icd10_codes: ['E05.00', 'E05.01', 'E05.10', 'E05.20', 'E05.80', 'E05.90'],
+    therapy_area: 'endocrinology',
+    us_prevalence: 1200000,
+    us_incidence: 80000,
+    prevalence_source: 'American Thyroid Association; Smith & Hegedüs N Engl J Med 2016; NHANES',
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.85,
+    cagr_5yr: 5.0,
+    major_competitors: [
+      'Methimazole/Tapazole (generic)',
+      'Propylthiouracil/PTU (generic)',
+      'Radioactive iodine ablation (procedural)',
+      'Thyroidectomy (surgical)',
+      'Tepezza (teprotumumab, Horizon — thyroid eye disease)',
+    ],
+    market_growth_driver:
+      'TSH receptor antibody-targeted therapies, FcRn inhibitors for TED, immunomodulatory approaches to prevent disease recurrence, thyroid eye disease crossover',
+    therapy_area_pricing_context:
+      "Antithyroid drugs at <$500/yr. Tepezza for TED at $300K+ per course. Novel targeted immunotherapies for Graves' at $30K-$60K/yr potential.",
+  },
+
+  {
+    name: "Addison's Disease",
+    synonyms: ['Addison disease', 'primary adrenal insufficiency', 'adrenocortical insufficiency', 'PAI'],
+    icd10_codes: ['E27.1', 'E27.2', 'E27.40'],
+    therapy_area: 'endocrinology',
+    us_prevalence: 65000,
+    us_incidence: 5000,
+    prevalence_source:
+      'National Adrenal Diseases Foundation; Bornstein et al. J Clin Endocrinol Metab; Endocrine Society',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.9,
+    cagr_5yr: 7.5,
+    major_competitors: [
+      'Hydrocortisone (generic)',
+      'Cortef (hydrocortisone, generic)',
+      'Fludrocortisone (generic)',
+      'Alkindi (hydrocortisone granules, Eton Pharmaceuticals — pediatric)',
+      'Efmody (hydrocortisone modified-release, Diurnal)',
+    ],
+    market_growth_driver:
+      'Modified-release cortisol replacement mimicking circadian rhythm, CRF agonists, adrenal regeneration gene therapy, continuous subcutaneous hydrocortisone pumps',
+    therapy_area_pricing_context:
+      'Generic hydrocortisone at <$500/yr. Novel modified-release at $5K-$15K/yr. Orphan indication supports specialty pricing for improved formulations.',
+  },
+
+  {
+    name: 'Hypoparathyroidism',
+    synonyms: ['hypopara', 'chronic hypoparathyroidism', 'PTH deficiency', 'parathyroid insufficiency'],
+    icd10_codes: ['E20.0', 'E20.1', 'E20.8', 'E20.9', 'E89.2'],
+    therapy_area: 'endocrinology',
+    us_prevalence: 70000,
+    us_incidence: 8000,
+    prevalence_source: 'Hypoparathyroidism Association; Clarke et al. J Bone Miner Res 2016; Endocrine Society',
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.85,
+    cagr_5yr: 12.0,
+    major_competitors: [
+      'Natpara (PTH 1-84, Takeda — REMS restricted)',
+      'Yorvipath (palopegteriparatide, Ascendis — FDA-approved 2025)',
+      'Calcium + vitamin D (standard of care, generic)',
+      'TransCon PTH (Ascendis — long-acting PTH prodrug)',
+    ],
+    market_growth_driver:
+      'PTH replacement paradigm shift, long-acting PTH prodrugs reducing injection frequency, gene therapy approaches, improved quality of life endpoints',
+    therapy_area_pricing_context:
+      'Natpara at $150K+/yr (restricted). Yorvipath expected at $100K-$150K/yr. Orphan disease with clear hormone replacement rationale.',
+  },
+
+  {
+    name: 'Congenital Hyperinsulinism',
+    synonyms: ['CHI', 'persistent hyperinsulinemic hypoglycemia of infancy', 'PHHI', 'nesidioblastosis'],
+    icd10_codes: ['E16.1'],
+    therapy_area: 'endocrinology',
+    us_prevalence: 5000,
+    us_incidence: 500,
+    prevalence_source:
+      "Children's Hyperinsulinism Charity; Banerjee et al. Horm Res Paediatr; Cook Childrens CHI Center",
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.85,
+    cagr_5yr: 10.0,
+    major_competitors: [
+      'Diazoxide (Proglycem, generic)',
+      'Octreotide (off-label, generic)',
+      'Lanreotide (off-label)',
+      'Pancreatectomy (surgical — last resort)',
+      'RZ358 (rezatoclax, Rezolute — Phase 3)',
+    ],
+    market_growth_driver:
+      'GLP-1 receptor antagonists, precision medicine for ABCC8/KCNJ11 mutations, long-acting somatostatin analogs, avoiding irreversible pancreatectomy',
+    therapy_area_pricing_context:
+      'Diazoxide at $10K-$30K/yr (pricing volatility). Ultra-rare pediatric disease with orphan pricing: $200K-$400K/yr for novel targeted agents.',
+  },
+
+  // ──────────────────────────────────────────
+  // INFECTIOUS DISEASE
+  // ──────────────────────────────────────────
+  {
+    name: 'Tuberculosis',
+    synonyms: ['TB', 'pulmonary tuberculosis', 'Mycobacterium tuberculosis infection', 'MDR-TB', 'XDR-TB'],
+    icd10_codes: ['A15.0', 'A15.4', 'A15.5', 'A15.6', 'A15.7', 'A15.9'],
+    therapy_area: 'infectious_disease',
+    us_prevalence: 13000000,
+    us_incidence: 9600,
+    prevalence_source:
+      'CDC TB Surveillance Report 2024; WHO Global TB Report 2024; LTBI prevalence from Miramontes et al.',
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.8,
+    cagr_5yr: 6.0,
+    major_competitors: [
+      'Isoniazid/rifampicin/pyrazinamide/ethambutol (RHZE, generic)',
+      'Pretomanid/bedaquiline/linezolid (BPaL, TB Alliance)',
+      'Sirturo (bedaquiline, Janssen)',
+      'Rifapentine (Priftin, Sanofi)',
+      'Delamanid (Otsuka)',
+    ],
+    market_growth_driver:
+      'Shortened treatment regimens (BPaL), MDR/XDR-TB drug development, TB vaccine pipeline (M72/AS01E), LTBI treatment expansion, global access pricing models',
+    therapy_area_pricing_context:
+      'Generic first-line at <$100 per course. Novel MDR-TB agents at $5K-$15K per course in US. Global pricing $100-$500 per course for access programs.',
+  },
+
+  {
+    name: 'Malaria',
+    synonyms: ['Plasmodium falciparum', 'P. vivax', 'P. falciparum malaria', 'severe malaria'],
+    icd10_codes: ['B50.0', 'B50.8', 'B50.9', 'B51.0', 'B51.8', 'B52.0'],
+    therapy_area: 'infectious_disease',
+    us_prevalence: 2000,
+    us_incidence: 2000,
+    prevalence_source: 'CDC Malaria Surveillance 2024; WHO World Malaria Report 2024; imported cases primarily',
+    diagnosis_rate: 0.85,
+    treatment_rate: 0.95,
+    cagr_5yr: 8.0,
+    major_competitors: [
+      'Artemisinin-based combination therapies (ACTs, generic)',
+      'Mosquirix/RTS,S (GSK — first malaria vaccine)',
+      'R21/Matrix-M (Oxford/Serum Institute — second vaccine)',
+      'Chloroquine (generic — limited efficacy areas)',
+      'Atovaquone/proguanil (Malarone, generic)',
+      'Tafenoquine (Krintafel, GSK — P. vivax radical cure)',
+    ],
+    market_growth_driver:
+      'Next-gen vaccines, monoclonal antibody prevention, single-dose radical cure, artemisinin resistance containment, gene drive mosquito control',
+    therapy_area_pricing_context:
+      'US travel medicine: $500-$2K per course. Global market driven by access pricing at $1-$5 per ACT course. Vaccines at $5-$10/dose for global programs.',
+  },
+
+  {
+    name: 'Invasive Fungal Infections',
+    synonyms: ['invasive aspergillosis', 'invasive candidiasis', 'IFI', 'mucormycosis', 'cryptococcal meningitis'],
+    icd10_codes: ['B37.7', 'B44.0', 'B44.1', 'B46.0', 'B45.1', 'B48.8'],
+    therapy_area: 'infectious_disease',
+    us_prevalence: 75000,
+    us_incidence: 75000,
+    prevalence_source: 'CDC Mycotic Diseases Branch 2024; Bongomin et al. J Fungi; IDSA Guidelines',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.8,
+    cagr_5yr: 9.5,
+    major_competitors: [
+      'Vfend (voriconazole, generic)',
+      'Cresemba (isavuconazonium, Astellas)',
+      'AmBisome (amphotericin B liposomal, Gilead)',
+      'Cancidas (caspofungin, generic)',
+      'Noxafil (posaconazole, generic)',
+      'Brexafemme (ibrexafungerp, Scynexis — Phase 3 invasive)',
+      'Olorofim (F2G — Phase 3)',
+      'Fosmanogepix (Pfizer — Phase 2)',
+    ],
+    market_growth_driver:
+      'Rising immunocompromised population (transplant, CAR-T, COVID), azole-resistant Aspergillus, Candida auris emergence, novel antifungal classes (orotomides, gwt1 inhibitors)',
+    therapy_area_pricing_context:
+      'IV antifungals at $20K-$80K per hospitalization course. Novel oral agents at $30K-$50K per course. Critical care/transplant setting supports premium.',
+  },
+
+  {
+    name: 'Mpox',
+    synonyms: ['monkeypox', 'mpox virus', 'MPXV infection', 'orthopoxvirus'],
+    icd10_codes: ['B04'],
+    therapy_area: 'infectious_disease',
+    us_prevalence: 5000,
+    us_incidence: 3000,
+    prevalence_source: 'CDC MPXV Surveillance 2024; WHO Multi-Country Outbreak Report; JYNNEOS vaccination data',
+    diagnosis_rate: 0.8,
+    treatment_rate: 0.6,
+    cagr_5yr: 12.0,
+    major_competitors: [
+      'Tecovirimat (TPOXX, SIGA Technologies — FDA-approved for smallpox)',
+      'JYNNEOS vaccine (Bavarian Nordic — prevention)',
+      'Brincidofovir (Tembexa, Emergent — FDA-approved for smallpox)',
+      'Cidofovir (off-label, generic)',
+    ],
+    market_growth_driver:
+      'Clade I emergence with higher mortality, pandemic preparedness stockpiling, antiviral-resistant strains, next-gen vaccine platforms, endemic region treatment access',
+    therapy_area_pricing_context:
+      'TPOXX supplied via BARDA contract at ~$350/course. Commercial pricing for novel antivirals estimated $5K-$15K/course. Vaccine at $100-$200/dose.',
+  },
+
+  {
+    name: 'Chronic Hepatitis D',
+    synonyms: ['HDV', 'hepatitis D', 'delta hepatitis', 'hepatitis D virus infection'],
+    icd10_codes: ['B18.0', 'B17.0'],
+    therapy_area: 'infectious_disease',
+    us_prevalence: 100000,
+    us_incidence: 6500,
+    prevalence_source:
+      'Hepatitis B Foundation; Chen et al. J Hepatol 2024; Global HDV prevalence meta-analysis Stockdale et al.',
+    diagnosis_rate: 0.25,
+    treatment_rate: 0.3,
+    cagr_5yr: 18.0,
+    major_competitors: [
+      'Hepcludex (bulevirtide, Gilead — FDA-approved 2024)',
+      'Pegylated interferon alfa (off-label, generic)',
+      'Lonafarnib (Eiger — discontinued)',
+    ],
+    market_growth_driver:
+      'First FDA-approved HDV therapy (bulevirtide), prenylation inhibitors, entry inhibitors, combination strategies, massive underdiagnosis',
+    therapy_area_pricing_context:
+      'Bulevirtide at $250K+/yr (ultra-orphan pricing). Novel agents expected at $100K-$200K/yr. Severely underdiagnosed population represents expansion opportunity.',
+  },
+
+  // ──────────────────────────────────────────
+  // METABOLIC
+  // ──────────────────────────────────────────
+  {
+    name: 'Homocystinuria',
+    synonyms: ['CBS deficiency', 'classical homocystinuria', 'cystathionine beta-synthase deficiency'],
+    icd10_codes: ['E72.11'],
+    therapy_area: 'metabolic',
+    us_prevalence: 10000,
+    us_incidence: 300,
+    prevalence_source: 'National Organization for Rare Disorders; Mudd et al. Am J Hum Genet; Homocystinuria Network',
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.7,
+    cagr_5yr: 10.0,
+    major_competitors: [
+      'Betaine (Cystadane, Recordati)',
+      'Pyridoxine/vitamin B6 (generic)',
+      'Methionine-restricted diet',
+      'OT-58 (PEG-CBS enzyme, Orphan Technologies — Phase 2)',
+    ],
+    market_growth_driver:
+      'Enzyme replacement therapy, mRNA-based CBS replacement, gene therapy approaches, newborn screening expansion improving early diagnosis',
+    therapy_area_pricing_context:
+      'Cystadane at $20K-$40K/yr. Novel enzyme/gene therapies could command $200K-$400K/yr given ultra-orphan dynamics.',
+  },
+
+  {
+    name: 'Maple Syrup Urine Disease',
+    synonyms: ['MSUD', 'branched-chain ketoaciduria', 'BCKD deficiency'],
+    icd10_codes: ['E71.0'],
+    therapy_area: 'metabolic',
+    us_prevalence: 3000,
+    us_incidence: 150,
+    prevalence_source:
+      'National Organization for Rare Disorders; Strauss et al. Mol Genet Metab; MSUD Family Support Group',
+    diagnosis_rate: 0.85,
+    treatment_rate: 0.9,
+    cagr_5yr: 12.0,
+    major_competitors: [
+      'BCAA-restricted diet (standard of care)',
+      'Liver transplantation (curative)',
+      'Thiamine supplementation (thiamine-responsive forms)',
+    ],
+    market_growth_driver:
+      'Gene therapy (AAV-based BCKDHA/BCKDHB replacement), mRNA therapeutics, enzyme replacement approaches, reducing liver transplant burden',
+    therapy_area_pricing_context:
+      'No approved pharmacotherapy. First gene therapy could command $1M-$3M one-time given curative potential and transplant cost offset.',
+  },
+
+  {
+    name: 'Galactosemia',
+    synonyms: ['classic galactosemia', 'GALT deficiency', 'galactose-1-phosphate uridylyltransferase deficiency'],
+    icd10_codes: ['E74.21'],
+    therapy_area: 'metabolic',
+    us_prevalence: 8000,
+    us_incidence: 200,
+    prevalence_source:
+      'Galactosemia Foundation; Berry et al. Genet Med; Newborn Screening Translational Research Network',
+    diagnosis_rate: 0.9,
+    treatment_rate: 0.95,
+    cagr_5yr: 10.0,
+    major_competitors: ['Galactose-restricted diet (standard of care)', 'No approved pharmacotherapy'],
+    market_growth_driver:
+      'mRNA-based GALT enzyme replacement, gene therapy, aldose reductase inhibitors for galactitol reduction, long-term complication prevention',
+    therapy_area_pricing_context:
+      'No approved drugs. Ultra-rare with no pharmacotherapy. First agent could command $300K-$500K/yr given complete unmet need and severe long-term complications.',
+  },
+
+  {
+    name: 'Urea Cycle Disorders',
+    synonyms: [
+      'UCD',
+      'OTC deficiency',
+      'ornithine transcarbamylase deficiency',
+      'citrullinemia',
+      'argininosuccinic aciduria',
+    ],
+    icd10_codes: ['E72.20', 'E72.21', 'E72.22', 'E72.23', 'E72.29'],
+    therapy_area: 'metabolic',
+    us_prevalence: 6000,
+    us_incidence: 350,
+    prevalence_source: 'National Urea Cycle Disorders Foundation; Batshaw et al. J Pediatr; NUCDF Registry',
+    diagnosis_rate: 0.65,
+    treatment_rate: 0.85,
+    cagr_5yr: 11.0,
+    major_competitors: [
+      'Ravicti (glycerol phenylbutyrate, Immedica/Horizon)',
+      'Buphenyl (sodium phenylbutyrate, generic)',
+      'Carbaglu (carglumic acid, Recordati — NAGS deficiency)',
+      'Protein-restricted diet',
+      'Liver transplantation',
+      'DTX401 (Ultragenyx — AAV gene therapy for OTC, Phase 3)',
+    ],
+    market_growth_driver:
+      'Gene therapy for OTC deficiency, mRNA therapeutics (Arcturus), improved nitrogen scavengers, reduced transplant dependency, newborn screening expansion',
+    therapy_area_pricing_context:
+      'Ravicti at $300K+/yr. Carbaglu at $200K+/yr. Gene therapy one-time at $1M-$3M anticipated. Ultra-orphan pricing dynamics.',
+  },
+
+  {
+    name: 'Glycogen Storage Disease Type I',
+    synonyms: ['GSD I', 'von Gierke disease', 'glucose-6-phosphatase deficiency', 'GSD Ia', 'GSD Ib'],
+    icd10_codes: ['E74.01'],
+    therapy_area: 'metabolic',
+    us_prevalence: 6000,
+    us_incidence: 200,
+    prevalence_source: 'Association for Glycogen Storage Disease; Kishnani et al. Genet Med; ACMG GSD Guidelines',
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.9,
+    cagr_5yr: 12.0,
+    major_competitors: [
+      'Cornstarch therapy (standard of care)',
+      'Glycosade (modified cornstarch, Vitaflo)',
+      'Empagliflozin (off-label for GSD Ib neutropenia)',
+      'Liver transplantation (severe cases)',
+      'DTX401-related gene therapies (investigational)',
+    ],
+    market_growth_driver:
+      'AAV gene therapy clinical trials (mRNA-based G6Pase replacement), SGLT2 inhibitors for GSD Ib repurposing, reducing hepatic adenoma/carcinoma risk',
+    therapy_area_pricing_context:
+      'No approved pharmacotherapy beyond dietary management. Gene therapy one-time at $1M-$3M potential. Ultra-rare with high burden supports orphan pricing.',
+  },
+
+  // ──────────────────────────────────────────
+  // ONCOLOGY (Gap indications)
+  // ──────────────────────────────────────────
+  {
+    name: 'Testicular Cancer',
+    synonyms: ['testicular germ cell tumor', 'TGCT', 'seminoma', 'nonseminoma', 'testicular carcinoma'],
+    icd10_codes: ['C62.00', 'C62.01', 'C62.02', 'C62.10', 'C62.11', 'C62.12', 'C62.90'],
+    therapy_area: 'oncology',
+    us_prevalence: 280000,
+    us_incidence: 9470,
+    prevalence_source: 'American Cancer Society 2024; SEER Database; Testicular Cancer Foundation',
+    diagnosis_rate: 0.92,
+    treatment_rate: 0.95,
+    cagr_5yr: 4.0,
+    major_competitors: [
+      'BEP regimen (bleomycin/etoposide/cisplatin, generic)',
+      'EP regimen (etoposide/cisplatin, generic)',
+      'Carboplatin (generic — stage I seminoma)',
+      'Surveillance (active surveillance — stage I)',
+      'Keytruda (pembrolizumab — refractory, off-label)',
+    ],
+    market_growth_driver:
+      'Platinum-refractory disease targeting, immunotherapy in cisplatin-resistant GCT, de-escalation strategies, fertility preservation optimization',
+    therapy_area_pricing_context:
+      'Generic chemotherapy at <$5K per cycle. High cure rate limits drug development investment. Novel agents for refractory disease could command $50K-$100K/yr.',
+  },
+
+  {
+    name: 'Anal Cancer',
+    synonyms: ['anal squamous cell carcinoma', 'anal carcinoma', 'HPV-associated anal cancer', 'anal canal cancer'],
+    icd10_codes: ['C21.0', 'C21.1', 'C21.2', 'C21.8'],
+    therapy_area: 'oncology',
+    us_prevalence: 35000,
+    us_incidence: 10540,
+    prevalence_source: 'American Cancer Society 2024; SEER Database; National Cancer Database',
+    diagnosis_rate: 0.8,
+    treatment_rate: 0.85,
+    cagr_5yr: 8.5,
+    major_competitors: [
+      'Mitomycin C/5-FU + radiation (Nigro protocol, generic)',
+      'Opdivo (nivolumab, BMS — 2L metastatic)',
+      'Keytruda (pembrolizumab — MSI-H, agnostic approval)',
+      'Cisplatin/5-FU (metastatic, generic)',
+    ],
+    market_growth_driver:
+      'Immunotherapy frontline combinations, HPV-therapeutic vaccines, antibody-drug conjugates, rising incidence in HIV-positive population',
+    therapy_area_pricing_context:
+      'Generic chemoradiation is SOC. Novel immunotherapy combinations at $150K-$200K/yr. Growing but still small market.',
+  },
+
+  {
+    name: 'Cutaneous T-Cell Lymphoma',
+    synonyms: ['CTCL', 'mycosis fungoides', 'Sezary syndrome', 'cutaneous lymphoma'],
+    icd10_codes: ['C84.00', 'C84.01', 'C84.09', 'C84.A0'],
+    therapy_area: 'oncology',
+    us_prevalence: 30000,
+    us_incidence: 3000,
+    prevalence_source: 'Cutaneous Lymphoma Foundation; SEER Database; Korgavkar et al. Arch Dermatol',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.75,
+    cagr_5yr: 9.0,
+    major_competitors: [
+      'Targretin (bexarotene, generic)',
+      'Adcetris (brentuximab vedotin, Seagen/Pfizer)',
+      'Poteligeo (mogamulizumab, Kyowa Kirin)',
+      'Zolinza (vorinostat, generic)',
+      'Romidepsin (Istodax, generic)',
+      'Mechlorethamine gel (Valchlor, Helsinn)',
+    ],
+    market_growth_driver:
+      'Anti-KIR3DL2 antibodies, bispecific T-cell engagers, EZH2 inhibitors, novel skin-directed therapies, improved early-stage management',
+    therapy_area_pricing_context:
+      'ADCs at $100K-$200K/yr. Anti-CCR4 antibody at $150K/yr. Rare hematologic malignancy supports orphan pricing dynamics.',
+  },
+
+  {
+    name: 'Burkitt Lymphoma',
+    synonyms: ['Burkitt lymphoma', 'BL', 'endemic Burkitt lymphoma', 'sporadic Burkitt lymphoma'],
+    icd10_codes: ['C83.70', 'C83.71', 'C83.72', 'C83.79'],
+    therapy_area: 'oncology',
+    us_prevalence: 5000,
+    us_incidence: 1500,
+    prevalence_source: 'Leukemia & Lymphoma Society; SEER Database; Molyneux et al. Lancet',
+    diagnosis_rate: 0.9,
+    treatment_rate: 0.95,
+    cagr_5yr: 6.0,
+    major_competitors: [
+      'R-CODOX-M/IVAC (rituximab + chemo, generic)',
+      'DA-EPOCH-R (dose-adjusted, generic)',
+      'R-hyper-CVAD (generic)',
+      'Rituximab (generic biosimilars)',
+    ],
+    market_growth_driver:
+      'Chemotherapy-sparing regimens, bispecific antibodies (mosunetuzumab, glofitamab), CAR-T for relapsed, MYC-targeted approaches',
+    therapy_area_pricing_context:
+      'Generic intensive chemotherapy at $30K-$50K per course. Novel targeted agents at $100K-$200K/yr. Small patient population limits market but high unmet need in relapsed.',
+  },
+
+  {
+    name: 'Gallbladder Cancer',
+    synonyms: ['gallbladder carcinoma', 'gallbladder adenocarcinoma', 'biliary tract cancer'],
+    icd10_codes: ['C23'],
+    therapy_area: 'oncology',
+    us_prevalence: 12000,
+    us_incidence: 12000,
+    prevalence_source: 'American Cancer Society 2024; SEER Database; National Cancer Database',
+    diagnosis_rate: 0.75,
+    treatment_rate: 0.65,
+    cagr_5yr: 10.5,
+    major_competitors: [
+      'Gemcitabine/cisplatin (ABC-02 regimen, generic)',
+      'Imfinzi (durvalumab, AstraZeneca — TOPAZ-1 regimen)',
+      'Keytruda (pembrolizumab — MSI-H/TMB-H)',
+      'FGFR inhibitors (for FGFR2 alterations)',
+    ],
+    market_growth_driver:
+      'Immunotherapy-chemotherapy combinations, FGFR/IDH-targeted therapies (biliary overlap), HER2-directed ADCs, ctDNA-guided treatment',
+    therapy_area_pricing_context:
+      'Generic chemotherapy backbone at $10K-$20K. Immunotherapy additions at $100K-$150K/yr. Shared pipeline with cholangiocarcinoma.',
+  },
+
+  {
+    name: 'Penile Cancer',
+    synonyms: ['penile carcinoma', 'penile squamous cell carcinoma', 'carcinoma of penis'],
+    icd10_codes: ['C60.0', 'C60.1', 'C60.2', 'C60.8', 'C60.9'],
+    therapy_area: 'oncology',
+    us_prevalence: 8000,
+    us_incidence: 2050,
+    prevalence_source: 'American Cancer Society 2024; SEER Database; Barnholtz-Sloan et al. Cancer',
+    diagnosis_rate: 0.85,
+    treatment_rate: 0.8,
+    cagr_5yr: 7.0,
+    major_competitors: [
+      'Cisplatin-based chemotherapy (TIP regimen, generic)',
+      'Keytruda (pembrolizumab — off-label)',
+      'Erbitux (cetuximab — off-label)',
+      'Surgery (primary treatment)',
+      'Radiation therapy',
+    ],
+    market_growth_driver:
+      'Immunotherapy trials (anti-PD-1/PD-L1), HPV-therapeutic vaccines, tissue-sparing surgical techniques, biomarker development for treatment selection',
+    therapy_area_pricing_context:
+      'Generic chemotherapy at <$10K per cycle. Immunotherapy at $150K/yr. Ultra-small market limits dedicated drug development; benefits from basket/agnostic approvals.',
+  },
+
+  {
+    name: 'Waldenstrom Macroglobulinemia',
+    synonyms: ['WM', 'lymphoplasmacytic lymphoma', 'LPL', "Waldenstrom's"],
+    icd10_codes: ['C88.0'],
+    therapy_area: 'oncology',
+    us_prevalence: 20000,
+    us_incidence: 1500,
+    prevalence_source: "International Waldenstrom's Macroglobulinemia Foundation; SEER Database; Castillo et al. Blood",
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.65,
+    cagr_5yr: 8.0,
+    major_competitors: [
+      'Imbruvica (ibrutinib, Janssen/Pharmacyclics)',
+      'Brukinsa (zanubrutinib, BeiGene)',
+      'Rituximab (generic biosimilars)',
+      'Bendamustine + rituximab (generic)',
+      'Bortezomib/DRC regimen (generic)',
+    ],
+    market_growth_driver:
+      'Next-gen BTK inhibitors, BCL2 inhibitors (venetoclax combinations), bispecific antibodies, CXCR4-targeted therapy for CXCR4-mutated WM',
+    therapy_area_pricing_context:
+      'BTK inhibitors at $150K-$180K/yr. Rare indolent lymphoma supports orphan pricing. Novel combinations expected at $100K-$200K/yr.',
+  },
+
+  // ──────────────────────────────────────────
+  // RESPIRATORY
+  // ──────────────────────────────────────────
+  {
+    name: 'Sarcoidosis',
+    synonyms: ['pulmonary sarcoidosis', 'systemic sarcoidosis', 'Besnier-Boeck-Schaumann disease'],
+    icd10_codes: ['D86.0', 'D86.1', 'D86.2', 'D86.3', 'D86.8', 'D86.9'],
+    therapy_area: 'pulmonology',
+    us_prevalence: 200000,
+    us_incidence: 35000,
+    prevalence_source:
+      'Foundation for Sarcoidosis Research; Baughman et al. Am J Respir Crit Care Med; CDC Morbidity Data',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.5,
+    cagr_5yr: 10.0,
+    major_competitors: [
+      'Prednisone/corticosteroids (generic — first-line)',
+      'Methotrexate (off-label, generic)',
+      'Azathioprine (off-label, generic)',
+      'Remicade (infliximab, off-label)',
+      'Humira (adalimumab, off-label)',
+    ],
+    market_growth_driver:
+      'No FDA-approved sarcoidosis therapy — massive unmet need, mTOR inhibitors, JAK inhibitors, anti-granuloma targeted approaches, pulmonary and cardiac sarcoidosis differentiation',
+    therapy_area_pricing_context:
+      'Only off-label generics used. First approved sarcoidosis drug could command $30K-$60K/yr given unmet need and chronic nature.',
+  },
+
+  {
+    name: 'Allergic Bronchopulmonary Aspergillosis',
+    synonyms: ['ABPA', 'aspergillus lung disease', 'allergic aspergillosis'],
+    icd10_codes: ['B44.81'],
+    therapy_area: 'pulmonology',
+    us_prevalence: 400000,
+    us_incidence: 50000,
+    prevalence_source:
+      'Denning et al. Med Mycol 2013; Agarwal et al. Clin Exp Allergy; primarily in asthma/CF populations',
+    diagnosis_rate: 0.3,
+    treatment_rate: 0.55,
+    cagr_5yr: 9.0,
+    major_competitors: [
+      'Itraconazole (generic)',
+      'Voriconazole (generic)',
+      'Oral corticosteroids (generic)',
+      'Xolair (omalizumab, off-label)',
+      'Benralizumab (Fasenra, off-label — anti-IL-5Ralpha)',
+    ],
+    market_growth_driver:
+      'Anti-IgE/IL-5/TSLP biologics for ABPA, novel antifungals with better safety profiles, precision diagnosis through Aspergillus-specific IgE testing',
+    therapy_area_pricing_context:
+      'Generic azoles at <$2K/yr. Biologics off-label at $15K-$30K/yr. First approved ABPA biologic could command $20K-$40K/yr.',
+  },
+
+  {
+    name: 'Interstitial Lung Disease',
+    synonyms: ['ILD', 'non-IPF ILD', 'progressive pulmonary fibrosis', 'PPF', 'connective tissue disease-ILD'],
+    icd10_codes: ['J84.10', 'J84.111', 'J84.112', 'J84.17', 'J84.89', 'J84.9'],
+    therapy_area: 'pulmonology',
+    us_prevalence: 250000,
+    us_incidence: 40000,
+    prevalence_source: 'Pulmonary Fibrosis Foundation; Olson et al. Am J Respir Crit Care Med; ATS/ERS Classification',
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.55,
+    cagr_5yr: 8.5,
+    major_competitors: [
+      'Ofev (nintedanib, Boehringer — approved for SSc-ILD and PPF)',
+      'Esbriet (pirfenidone, Roche — IPF only)',
+      'Mycophenolate (off-label, generic — CTD-ILD)',
+      'Rituximab (off-label — autoimmune ILD)',
+    ],
+    market_growth_driver:
+      'PPF indication expansion (INBUILD data), combination antifibrotic + immunomodulatory, autotaxin inhibitors, pentraxin-2, inhaled delivery approaches',
+    therapy_area_pricing_context:
+      'Ofev/Esbriet at $100K+/yr. Novel combinations at $80K-$150K/yr. Expanding PPF definition growing addressable population.',
+  },
+
+  // ──────────────────────────────────────────
+  // NEPHROLOGY
+  // ──────────────────────────────────────────
+  {
+    name: 'Minimal Change Disease',
+    synonyms: ['MCD', 'nil disease', 'lipoid nephrosis', 'minimal change nephrotic syndrome'],
+    icd10_codes: ['N04.0'],
+    therapy_area: 'nephrology',
+    us_prevalence: 40000,
+    us_incidence: 5000,
+    prevalence_source:
+      'National Kidney Foundation; Vivarelli et al. Clin J Am Soc Nephrol; Nephrotic Syndrome Study Group',
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.85,
+    cagr_5yr: 8.0,
+    major_competitors: [
+      'Prednisone/prednisolone (generic — first-line)',
+      'Tacrolimus (off-label, generic)',
+      'Cyclosporine (off-label, generic)',
+      'Mycophenolate mofetil (off-label, generic)',
+      'Rituximab (off-label for frequently relapsing)',
+    ],
+    market_growth_driver:
+      'Steroid-sparing agents, anti-CD20 strategies, voclosporin (nephrology calcineurin inhibitor), anti-APRIL/BAFF approaches, podocyte-targeted therapies',
+    therapy_area_pricing_context:
+      'Only off-label generics used. Novel steroid-sparing agents could command $30K-$60K/yr given relapsing course and corticosteroid toxicity burden.',
+  },
+
+  {
+    name: 'Membranous Nephropathy',
+    synonyms: ['membranous glomerulonephritis', 'MN', 'primary membranous nephropathy', 'PLA2R-associated MN'],
+    icd10_codes: ['N04.2', 'N05.2'],
+    therapy_area: 'nephrology',
+    us_prevalence: 45000,
+    us_incidence: 5500,
+    prevalence_source: 'Couser WG. J Am Soc Nephrol; National Kidney Foundation; Ronco & Debiec N Engl J Med',
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.65,
+    cagr_5yr: 10.0,
+    major_competitors: [
+      'Rituximab (off-label — emerging standard)',
+      'Cyclophosphamide (off-label, generic)',
+      'Tacrolimus (off-label, generic)',
+      'ACE inhibitors/ARBs (supportive, generic)',
+    ],
+    market_growth_driver:
+      'Anti-PLA2R antibody-guided treatment, anti-CD20 next-gen agents, complement inhibition, targeted B-cell therapy, biomarker-driven treatment algorithms',
+    therapy_area_pricing_context:
+      'Rituximab at $20K-$40K/yr off-label. Novel targeted agents for MN could command $40K-$80K/yr given unmet need and progressive renal failure risk.',
+  },
+
+  // ──────────────────────────────────────────
+  // MUSCULOSKELETAL
+  // ──────────────────────────────────────────
+  {
+    name: 'Osteoporosis',
+    synonyms: ['postmenopausal osteoporosis', 'osteopenia', 'bone loss', 'senile osteoporosis'],
+    icd10_codes: ['M80.00', 'M80.08', 'M81.0', 'M81.6', 'M81.8'],
+    therapy_area: 'musculoskeletal',
+    us_prevalence: 10000000,
+    us_incidence: 2000000,
+    prevalence_source: 'National Osteoporosis Foundation; Wright et al. J Bone Miner Res 2024; NHANES DXA Survey',
+    diagnosis_rate: 0.45,
+    treatment_rate: 0.35,
+    cagr_5yr: 6.5,
+    major_competitors: [
+      'Prolia (denosumab, Amgen)',
+      'Evenity (romosozumab, Amgen/UCB)',
+      'Forteo (teriparatide, generic)',
+      'Tymlos (abaloparatide, Radius/Ipsen)',
+      'Alendronate/risedronate (generic bisphosphonates)',
+      'Zoledronic acid (generic IV bisphosphonate)',
+    ],
+    market_growth_driver:
+      'Sclerostin inhibitor uptake, sequential therapy paradigm, imminent denosumab biosimilars changing landscape, osteoporosis screening expansion, male osteoporosis awareness',
+    therapy_area_pricing_context:
+      'Generic bisphosphonates at <$500/yr. Denosumab at $7K/yr. Romosozumab at $22K/yr (12-month course). PTH analogs at $20K-$30K/yr.',
+  },
+
+  {
+    name: "Paget's Disease of Bone",
+    synonyms: ['Paget disease', 'osteitis deformans', 'Paget bone disease'],
+    icd10_codes: ['M88.0', 'M88.1', 'M88.8', 'M88.9'],
+    therapy_area: 'musculoskeletal',
+    us_prevalence: 1000000,
+    us_incidence: 20000,
+    prevalence_source: 'Paget Foundation; Ralston et al. N Engl J Med; NHANES bone density surveys',
+    diagnosis_rate: 0.3,
+    treatment_rate: 0.4,
+    cagr_5yr: 3.0,
+    major_competitors: [
+      'Zoledronic acid/Reclast (generic — single infusion)',
+      'Alendronate (generic)',
+      'Risedronate (generic)',
+      'Calcitonin (generic — rarely used)',
+    ],
+    market_growth_driver:
+      'Declining incidence limits new drug development, potential SQSTM1-targeted therapy for genetic forms, combination approaches for refractory disease',
+    therapy_area_pricing_context:
+      'Generic bisphosphonates dominate at <$500/yr. Zoledronic acid single infusion at $1K-$2K. Limited commercial incentive for novel agents.',
+  },
+
+  {
+    name: 'Rheumatoid Arthritis - Refractory',
+    synonyms: ['refractory RA', 'treatment-resistant rheumatoid arthritis', 'difficult-to-treat RA', 'D2T RA'],
+    icd10_codes: ['M05.70', 'M05.79', 'M06.00', 'M06.09'],
+    therapy_area: 'musculoskeletal',
+    us_prevalence: 400000,
+    us_incidence: 50000,
+    prevalence_source:
+      'ACR/EULAR D2T RA guidelines; Buch MH Nat Rev Rheumatol; ~25-30% of RA patients are refractory per Nagy et al.',
+    diagnosis_rate: 0.8,
+    treatment_rate: 0.9,
+    cagr_5yr: 9.5,
+    major_competitors: [
+      'Rituximab (Rituxan, generic)',
+      'JAK inhibitors (tofacitinib, baricitinib, upadacitinib)',
+      'Abatacept (Orencia, BMS)',
+      'IL-6 inhibitors (tocilizumab, sarilumab)',
+      'CAR-T therapy (investigational — CD19-directed for autoimmune)',
+    ],
+    market_growth_driver:
+      'CAR-T for autoimmune diseases, bispecific T-cell redirectors, novel cytokine targets (GM-CSF, IL-17C), precision rheumatology with biomarker selection',
+    therapy_area_pricing_context:
+      'Biologics at $30K-$60K/yr. JAK inhibitors at $50K-$65K/yr. CAR-T for autoimmune at $200K-$400K one-time (investigational).',
+  },
+
+  {
+    name: 'Osteoarthritis',
+    synonyms: ['OA', 'degenerative joint disease', 'knee osteoarthritis', 'hip osteoarthritis'],
+    icd10_codes: ['M15.0', 'M16.0', 'M16.1', 'M17.0', 'M17.1', 'M19.90'],
+    therapy_area: 'musculoskeletal',
+    us_prevalence: 32500000,
+    us_incidence: 3000000,
+    prevalence_source: 'CDC Arthritis Statistics 2024; OARSI; Hunter & Bierma-Zeinstra Lancet',
+    diagnosis_rate: 0.65,
+    treatment_rate: 0.7,
+    cagr_5yr: 7.0,
+    major_competitors: [
+      'NSAIDs (ibuprofen, naproxen, celecoxib — generic)',
+      'Hyaluronic acid injections (Synvisc, Hyalgan)',
+      'Corticosteroid injections (generic)',
+      'Total joint replacement (surgical)',
+      'Lorecivivint (Biosplice — Phase 3, Wnt inhibitor)',
+    ],
+    market_growth_driver:
+      'Disease-modifying OA drugs (DMOADs) — massive unmet need, Wnt pathway inhibitors, nerve growth factor antibodies, gene therapy for cartilage regeneration',
+    therapy_area_pricing_context:
+      'Generic NSAIDs at <$500/yr. HA injections at $1K-$3K per series. First DMOAD could command $15K-$30K/yr given massive population and no current disease-modifying therapy.',
+  },
+
+  {
+    name: 'Gout - Refractory',
+    synonyms: ['refractory gout', 'chronic tophaceous gout', 'uncontrolled gout', 'treatment-failure gout'],
+    icd10_codes: ['M10.00', 'M10.09', 'M1A.00', 'M1A.09'],
+    therapy_area: 'musculoskeletal',
+    us_prevalence: 1000000,
+    us_incidence: 150000,
+    prevalence_source:
+      'ACR Gout Guidelines 2024; FitzGerald et al. Arthritis Care Res; ~10-15% of gout patients are refractory per Becker et al.',
+    diagnosis_rate: 0.75,
+    treatment_rate: 0.65,
+    cagr_5yr: 11.0,
+    major_competitors: [
+      'Krystexxa (pegloticase, Horizon/Amgen)',
+      'Krystexxa + methotrexate (MIRROR RCT regimen)',
+      'Allopurinol (generic — often failed)',
+      'Febuxostat (Uloric, generic)',
+      'Probenecid (generic)',
+    ],
+    market_growth_driver:
+      'Anti-drug antibody mitigation strategies (immunomodulator co-therapy with pegloticase), novel uricases, URAT1 inhibitors, IL-1 blockade for flare prevention',
+    therapy_area_pricing_context:
+      'Krystexxa at $300K+ per course. Refractory gout represents high-value niche. Novel approaches at $50K-$100K/yr anticipated.',
+  },
 ];
 
 // Export helper for lookup
 export function findIndicationByName(name: string): IndicationData | undefined {
   const normalized = name.toLowerCase().trim();
-  return INDICATION_DATA.find(i =>
-    i.name.toLowerCase() === normalized ||
-    i.synonyms.some(s => s.toLowerCase() === normalized) ||
-    normalized.includes(i.name.toLowerCase()) ||
-    i.name.toLowerCase().includes(normalized)
+  return INDICATION_DATA.find(
+    (i) =>
+      i.name.toLowerCase() === normalized ||
+      i.synonyms.some((s) => s.toLowerCase() === normalized) ||
+      normalized.includes(i.name.toLowerCase()) ||
+      i.name.toLowerCase().includes(normalized),
   );
 }
 
 export function getIndicationNames(): string[] {
-  return INDICATION_DATA.map(i => i.name);
+  return INDICATION_DATA.map((i) => i.name);
 }
 
 export function getIndicationSuggestions(query: string): IndicationData[] {
   if (!query || query.length < 2) return INDICATION_DATA.slice(0, 10);
   const q = query.toLowerCase();
-  return INDICATION_DATA.filter(i =>
-    i.name.toLowerCase().includes(q) ||
-    i.synonyms.some(s => s.toLowerCase().includes(q))
+  return INDICATION_DATA.filter(
+    (i) => i.name.toLowerCase().includes(q) || i.synonyms.some((s) => s.toLowerCase().includes(q)),
   ).slice(0, 10);
 }

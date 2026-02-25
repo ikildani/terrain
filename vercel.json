@@ -3,6 +3,18 @@
     {
       "path": "/api/cron/renewal-reminder",
       "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-fda",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-trials",
+      "schedule": "0 3 * * 0"
+    },
+    {
+      "path": "/api/cron/refresh-sec",
+      "schedule": "0 4 * * 1"
     }
   ]
 }
