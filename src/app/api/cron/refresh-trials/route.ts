@@ -73,7 +73,7 @@ async function fetchStudies(query: string): Promise<CTGovStudy[]> {
   const params = new URLSearchParams({
     'query.cond': query,
     'filter.overallStatus': 'RECRUITING,ACTIVE_NOT_RECRUITING,ENROLLING_BY_INVITATION,NOT_YET_RECRUITING',
-    'filter.phase': 'PHASE2,PHASE3',
+    'filter.advanced': 'AREA[Phase](PHASE2 OR PHASE3)',
     pageSize: '50',
     sort: 'LastUpdatePostDate:desc',
     format: 'json',
@@ -87,7 +87,8 @@ async function fetchStudies(query: string): Promise<CTGovStudy[]> {
   });
 
   if (!res.ok) {
-    logger.warn('ctgov_fetch_failed', { query, status: res.status });
+    const body = await res.text().catch(() => '');
+    logger.warn('ctgov_fetch_failed', { query, status: res.status, body: body.slice(0, 200) });
     return [];
   }
 
