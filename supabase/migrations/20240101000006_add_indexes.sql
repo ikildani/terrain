@@ -15,18 +15,6 @@ CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id
 CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe_customer
   ON public.subscriptions(stripe_customer_id);
 
--- Alerts: active alerts per user (filtered index)
-CREATE INDEX IF NOT EXISTS idx_alerts_user_active
-  ON public.alerts(user_id) WHERE is_active = true;
-
--- Alert events: feed queries (user + reverse chronological)
-CREATE INDEX IF NOT EXISTS idx_alert_events_user_created
-  ON public.alert_events(user_id, created_at DESC);
-
--- Alert events: lookup by parent alert
-CREATE INDEX IF NOT EXISTS idx_alert_events_alert_id
-  ON public.alert_events(alert_id);
-
 -- Reports: user listing (reverse chronological)
 CREATE INDEX IF NOT EXISTS idx_reports_user_created
   ON public.reports(user_id, created_at DESC);

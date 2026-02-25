@@ -33,9 +33,6 @@ CREATE INDEX IF NOT EXISTS idx_usage_events_user_id_created
 CREATE INDEX IF NOT EXISTS idx_reports_user_id_created
   ON public.reports(user_id, created_at DESC);
 
-CREATE INDEX IF NOT EXISTS idx_alert_events_user_read
-  ON public.alert_events(user_id, is_read, created_at DESC);
-
 CREATE INDEX IF NOT EXISTS idx_report_shares_shared_user
   ON public.report_shares(shared_with_user_id, report_id);
 

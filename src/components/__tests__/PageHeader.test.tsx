@@ -19,8 +19,8 @@ describe('PageHeader', () => {
   });
 
   it('renders with actions slot', () => {
-    render(<PageHeader title="Pipeline Intelligence" actions={<button>Export</button>} />);
-    expect(screen.getByText('Pipeline Intelligence')).toBeInTheDocument();
+    render(<PageHeader title="Regulatory Intel" actions={<button>Export</button>} />);
+    expect(screen.getByText('Regulatory Intel')).toBeInTheDocument();
     expect(screen.getByText('Export')).toBeInTheDocument();
   });
 

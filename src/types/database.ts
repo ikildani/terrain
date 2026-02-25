@@ -2,17 +2,11 @@
 // TERRAIN — Supabase Database Types
 // src/types/database.ts
 //
-// Hand-written types matching supabase/migrations/ 001–005.
+// Hand-written types matching supabase/migrations/ 001–004.
 // Regenerate with: npx supabase gen types typescript --local
 // ============================================================
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export interface Database {
   public: {
@@ -175,78 +169,6 @@ export interface Database {
         };
         Update: {
           permission?: string;
-        };
-      };
-
-      // ── Migration 005: Alerts ───────────────────────────────
-      alerts: {
-        Row: {
-          id: string;
-          user_id: string;
-          alert_type: string;
-          indication: string | null;
-          company: string | null;
-          filters: Json;
-          is_active: boolean;
-          frequency: string;
-          last_triggered: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          alert_type: string;
-          indication?: string | null;
-          company?: string | null;
-          filters?: Json;
-          is_active?: boolean;
-          frequency?: string;
-          created_at?: string;
-        };
-        Update: {
-          alert_type?: string;
-          indication?: string | null;
-          company?: string | null;
-          filters?: Json;
-          is_active?: boolean;
-          frequency?: string;
-          last_triggered?: string | null;
-        };
-      };
-
-      // ── Migration 005: Alert Events ─────────────────────────
-      alert_events: {
-        Row: {
-          id: string;
-          alert_id: string;
-          user_id: string;
-          title: string;
-          summary: string | null;
-          source: string | null;
-          source_url: string | null;
-          signal_type: string | null;
-          metadata: Json;
-          is_read: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          alert_id: string;
-          user_id: string;
-          title: string;
-          summary?: string | null;
-          source?: string | null;
-          source_url?: string | null;
-          signal_type?: string | null;
-          metadata?: Json;
-          is_read?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          title?: string;
-          summary?: string | null;
-          is_read?: boolean;
-          metadata?: Json;
         };
       };
     };

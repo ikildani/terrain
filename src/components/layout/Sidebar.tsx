@@ -7,8 +7,6 @@ import {
   Network,
   Users,
   Shield,
-  FlaskConical,
-  Bell,
   FileText,
   Settings,
   CreditCard,
@@ -38,8 +36,6 @@ const NAV_SECTIONS: { section: string; items: NavItem[] }[] = [
       { label: 'Competitive Landscape', href: '/competitive', icon: Network },
       { label: 'Partner Discovery', href: '/partners', icon: Users, pro: true },
       { label: 'Regulatory Intel', href: '/regulatory', icon: Shield, pro: true },
-      { label: 'Pipeline Intelligence', href: '/pipeline', icon: FlaskConical, pro: true },
-      { label: 'Deal Alerts', href: '/alerts', icon: Bell, pro: true },
     ],
   },
   {
