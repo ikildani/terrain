@@ -39,7 +39,7 @@
   --border-subtle: rgba(100, 116, 139, 0.15);
   --text-primary: var(--white);
   --text-secondary: var(--slate-400);
-  --text-muted: var(--slate-500);
+  --text-muted: var(--slate-400);
   --accent: var(--teal-500);
   --accent-hover: var(--teal-400);
 

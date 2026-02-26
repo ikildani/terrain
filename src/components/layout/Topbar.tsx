@@ -3,14 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import {
-  Search,
-  ChevronRight,
-  Settings,
-  CreditCard,
-  LogOut,
-  Menu,
-} from 'lucide-react';
+import { Search, ChevronRight, Settings, CreditCard, LogOut, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useUser } from '@/hooks/useUser';
 import { useProfile } from '@/hooks/useProfile';
@@ -92,10 +85,7 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
               <span className="text-slate-200 font-medium truncate">{crumb.label}</span>
             ) : (
               <>
-                <Link
-                  href={crumb.href}
-                  className="text-slate-500 hover:text-slate-300 transition-colors truncate"
-                >
+                <Link href={crumb.href} className="text-slate-500 hover:text-slate-300 transition-colors truncate">
                   {crumb.label}
                 </Link>
                 <ChevronRight className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
@@ -132,6 +122,9 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-navy-800 transition-colors"
+          aria-label="User menu"
+          aria-haspopup="true"
+          aria-expanded={dropdownOpen}
         >
           <div className="w-7 h-7 rounded-full bg-teal-500/15 border border-teal-500/30 flex items-center justify-center">
             <span className="text-xs font-semibold text-teal-400">{initials}</span>
@@ -142,11 +135,12 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
         </button>
 
         {dropdownOpen && (
-          <div className="absolute right-0 top-full mt-2 w-56 bg-navy-800 border border-navy-700 rounded-lg shadow-elevated py-1 z-50">
+          <div
+            className="absolute right-0 top-full mt-2 w-56 bg-navy-800 border border-navy-700 rounded-lg shadow-elevated py-1 z-50"
+            role="menu"
+          >
             <div className="px-4 py-3 border-b border-navy-700">
-              <p className="text-sm text-slate-200 font-medium">
-                {fullName || user?.email || 'Guest'}
-              </p>
+              <p className="text-sm text-slate-200 font-medium">{fullName || user?.email || 'Guest'}</p>
               <p className="text-xs text-slate-500 mt-0.5">
                 {plan === 'free' ? 'Free Plan' : `${planDisplay.name} Plan`}
               </p>
@@ -156,6 +150,7 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
                 href="/settings"
                 onClick={() => setDropdownOpen(false)}
                 className="flex items-center gap-3 px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-navy-700 transition-colors"
+                role="menuitem"
               >
                 <Settings className="w-4 h-4" />
                 Settings
@@ -164,6 +159,7 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
                 href="/settings/billing"
                 onClick={() => setDropdownOpen(false)}
                 className="flex items-center gap-3 px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-navy-700 transition-colors"
+                role="menuitem"
               >
                 <CreditCard className="w-4 h-4" />
                 Billing
@@ -172,7 +168,8 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
             <div className="border-t border-navy-700 py-1">
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-3 px-4 py-2 text-sm text-slate-500 hover:text-red-400 hover:bg-navy-700 transition-colors w-full text-left"
+                className="flex items-center gap-3 px-4 py-2 text-sm text-slate-400 hover:text-red-400 hover:bg-navy-700 transition-colors w-full text-left"
+                role="menuitem"
               >
                 <LogOut className="w-4 h-4" />
                 Sign out

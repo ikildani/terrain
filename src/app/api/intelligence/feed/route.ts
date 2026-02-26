@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { sanitizePostgrestValue } from '@/lib/utils/sanitize';
+import { logger } from '@/lib/logger';
+import { rateLimit } from '@/lib/rate-limit';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -144,11 +147,17 @@ export async function GET(request: NextRequest): Promise<NextResponse<FeedRespon
     return NextResponse.json({ success: false as const, error: 'Authentication required.' }, { status: 401 });
   }
 
+  const rateLimitResult = await rateLimit(`intel_feed:${user.id}`, { limit: 30, windowMs: 60 * 1000 });
+  if (!rateLimitResult.success) {
+    return NextResponse.json({ success: false as const, error: 'Rate limit exceeded' }, { status: 429 });
+  }
+
   // ── Parse query parameters ──────────────────────────────────────────────
   const { searchParams } = request.nextUrl;
   const source = parseSource(searchParams.get('source'));
   const limit = parseLimit(searchParams.get('limit'));
-  const search = searchParams.get('search')?.trim() || null;
+  const rawSearch = searchParams.get('search')?.trim() || null;
+  const search = rawSearch ? sanitizePostgrestValue(rawSearch) : null;
   const searchPattern = search ? toSearchPattern(search) : null;
 
   const shouldFetch = {
@@ -294,9 +303,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<FeedRespon
       },
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Internal server error.';
-    console.error('[intelligence/feed] Query error:', message);
-
-    return NextResponse.json({ success: false as const, error: message }, { status: 500 });
+    logger.error('[intelligence/feed] Query error', { error: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json(
+      { success: false as const, error: 'Intelligence feed unavailable. Please try again.' },
+      { status: 500 },
+    );
   }
 }

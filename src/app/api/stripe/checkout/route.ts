@@ -11,10 +11,15 @@ const checkoutSchema = z.object({
   return_url: z
     .string()
     .url()
-    .refine(
-      (url) => url.startsWith(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
-      'return_url must be on the same domain',
-    )
+    .refine((url) => {
+      try {
+        const parsed = new URL(url);
+        const expected = new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
+        return parsed.hostname === expected.hostname;
+      } catch {
+        return false;
+      }
+    }, 'return_url must be on the same domain')
     .optional(),
 });
 

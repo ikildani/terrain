@@ -76,7 +76,7 @@ export default function ReportsPage() {
           <div className="w-16 h-16 rounded-2xl bg-teal-500/5 border border-teal-500/10 flex items-center justify-center mb-6">
             <FileText className="w-8 h-8 text-teal-500/40" />
           </div>
-          <h3 className="font-display text-lg text-slate-200 mb-2">No saved reports yet</h3>
+          <h2 className="font-display text-lg text-slate-200 mb-2">No saved reports yet</h2>
           <p className="text-sm text-slate-500 max-w-md mb-6">Run your first market analysis to create a report.</p>
           <Link href="/market-sizing">
             <Button variant="primary">
@@ -96,7 +96,7 @@ export default function ReportsPage() {
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-sm font-medium text-slate-200 truncate">{report.title}</h3>
+                  <h2 className="text-sm font-medium text-slate-200 truncate">{report.title}</h2>
                   <Badge variant="teal">{TYPE_LABELS[report.report_type] ?? report.report_type}</Badge>
                   {report.status === 'final' && <Badge variant="green">Final</Badge>}
                 </div>
@@ -110,8 +110,9 @@ export default function ReportsPage() {
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => toggleStar(report.id)}
-                  className="p-2 rounded-md hover:bg-navy-700 transition-colors"
+                  className="p-2.5 rounded-md hover:bg-navy-700 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   title={report.is_starred ? 'Unstar' : 'Star'}
+                  aria-label={report.is_starred ? 'Unstar' : 'Star'}
                 >
                   <Star
                     className={`w-4 h-4 ${report.is_starred ? 'text-amber-400 fill-amber-400' : 'text-slate-500'}`}
@@ -119,15 +120,17 @@ export default function ReportsPage() {
                 </button>
                 <Link
                   href={`${TYPE_ROUTES[report.report_type] ?? '/market-sizing'}/${report.id}`}
-                  className="p-2 rounded-md hover:bg-navy-700 transition-colors"
+                  className="p-2.5 rounded-md hover:bg-navy-700 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   title="Open report"
+                  aria-label="Open report"
                 >
                   <ExternalLink className="w-4 h-4 text-slate-500" />
                 </Link>
                 <button
                   onClick={() => deleteReport(report.id)}
-                  className="p-2 rounded-md hover:bg-navy-700 transition-colors"
+                  className="p-2.5 rounded-md hover:bg-navy-700 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   title="Delete report"
+                  aria-label="Delete report"
                 >
                   <Trash2 className="w-4 h-4 text-slate-500 hover:text-red-400" />
                 </button>

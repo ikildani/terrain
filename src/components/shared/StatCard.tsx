@@ -38,7 +38,7 @@ export function StatCard({
               'text-2xs font-mono uppercase tracking-wider',
               confidence === 'high' && 'confidence-high',
               confidence === 'medium' && 'confidence-medium',
-              confidence === 'low' && 'confidence-low'
+              confidence === 'low' && 'confidence-low',
             )}
           >
             {confidence}
@@ -53,7 +53,7 @@ export function StatCard({
               'text-xs font-medium',
               trendDirection === 'up' && 'text-signal-green',
               trendDirection === 'down' && 'text-signal-red',
-              trendDirection === 'flat' && 'text-slate-500'
+              trendDirection === 'flat' && 'text-slate-500',
             )}
           >
             {trend}
@@ -61,12 +61,9 @@ export function StatCard({
         )}
       </div>
       {sparklineData && sparklineData.length >= 2 && (
-        <div className="mt-1.5 -mx-1" style={{ height: 32 }}>
+        <div className="mt-1.5 -mx-1" style={{ height: 32 }} role="img" aria-label="Trend sparkline">
           <ResponsiveContainer width="100%" height={32}>
-            <AreaChart
-              data={sparklineData.map((v, i) => ({ v, i }))}
-              margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
-            >
+            <AreaChart data={sparklineData.map((v, i) => ({ v, i }))} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id={sparkId} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#00C9A7" stopOpacity={0.3} />

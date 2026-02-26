@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Tabs } from '@/components/ui/Tabs';
 import CompetitiveForm from '@/components/competitive/CompetitiveForm';
 import type { CompetitiveFormSubmission } from '@/components/competitive/CompetitiveForm';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
 
 // Dynamic imports — heavy report components loaded only when results arrive
@@ -177,30 +178,36 @@ export default function CompetitivePage() {
 
       {/* ── Competitive Analysis Tab ── */}
       {activeTab === 'analysis' && (
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Left panel — Form */}
-          <div className="w-full lg:w-[380px] lg:flex-shrink-0">
-            <CompetitiveForm onSubmit={handleSubmit} isLoading={isLoading} />
-          </div>
+        <ErrorBoundary>
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Left panel — Form */}
+            <div className="w-full lg:w-[380px] lg:flex-shrink-0">
+              <CompetitiveForm onSubmit={handleSubmit} isLoading={isLoading} />
+            </div>
 
-          {/* Right panel — Results */}
-          <div className="flex-1 min-w-0">
-            {isLoading && <ResultsSkeleton />}
-            {!isLoading && error && (
-              <div className="card noise p-8 text-center">
-                <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
-                  {error}
-                </p>
-              </div>
-            )}
-            {!isLoading && !error && !analysisResult && <EmptyState />}
-            {!isLoading && !error && analysisResult && renderResults()}
+            {/* Right panel — Results */}
+            <div className="flex-1 min-w-0">
+              {isLoading && <ResultsSkeleton />}
+              {!isLoading && error && (
+                <div className="card noise p-8 text-center">
+                  <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
+                    {error}
+                  </p>
+                </div>
+              )}
+              {!isLoading && !error && !analysisResult && <EmptyState />}
+              {!isLoading && !error && analysisResult && renderResults()}
+            </div>
           </div>
-        </div>
+        </ErrorBoundary>
       )}
 
       {/* ── Opportunity Screener Tab ── */}
-      {activeTab === 'screener' && <OpportunityScreener />}
+      {activeTab === 'screener' && (
+        <ErrorBoundary>
+          <OpportunityScreener />
+        </ErrorBoundary>
+      )}
 
       {/* PDF Preview Overlay */}
       <PdfPreviewOverlay

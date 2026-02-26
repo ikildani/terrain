@@ -88,6 +88,42 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${dmSerif.variable} ${sora.variable} ${dmMono.variable}`}>
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@graph': [
+                {
+                  '@type': 'WebApplication',
+                  name: 'Terrain',
+                  url: 'https://terrain.ambrosiaventures.co',
+                  description:
+                    'Institutional-grade market intelligence for life sciences deal-makers. TAM/SAM/SOM analysis, competitive landscapes, partner matching, and regulatory pathways.',
+                  applicationCategory: 'BusinessApplication',
+                  operatingSystem: 'Web',
+                  offers: {
+                    '@type': 'AggregateOffer',
+                    lowPrice: '0',
+                    highPrice: '799',
+                    priceCurrency: 'USD',
+                  },
+                  creator: {
+                    '@type': 'Organization',
+                    name: 'Ambrosia Ventures',
+                    url: 'https://ambrosiaventures.co',
+                  },
+                },
+                {
+                  '@type': 'Organization',
+                  name: 'Ambrosia Ventures',
+                  url: 'https://ambrosiaventures.co',
+                  description: 'Boutique life sciences M&A and strategy advisory firm.',
+                },
+              ],
+            }),
+          }}
+        />
         {supabaseHost && <link rel="preconnect" href={supabaseHost} />}
         <link rel="preconnect" href="https://js.stripe.com" />
       </head>

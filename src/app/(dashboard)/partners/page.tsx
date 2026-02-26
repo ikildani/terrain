@@ -1,14 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Users } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { UpgradeGate } from '@/components/shared/UpgradeGate';
 import { useSubscription } from '@/hooks/useSubscription';
 import PartnerSearchForm from '@/components/partners/PartnerSearchForm';
-import PartnerDiscoveryReport from '@/components/partners/PartnerDiscoveryReport';
-import { PdfPreviewOverlay } from '@/components/shared/PdfPreviewOverlay';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
+
+const PartnerDiscoveryReport = dynamic(
+  () => import('@/components/partners/PartnerDiscoveryReport').then((m) => m.default),
+  { ssr: false },
+);
+const PdfPreviewOverlay = dynamic(
+  () => import('@/components/shared/PdfPreviewOverlay').then((m) => m.PdfPreviewOverlay),
+  { ssr: false },
+);
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { apiPost } from '@/lib/utils/api';
@@ -43,13 +52,10 @@ function EmptyState() {
   return (
     <div className="card noise p-12 text-center flex flex-col items-center">
       <Users className="w-12 h-12 text-navy-600 mb-4" />
-      <h3 className="font-display text-lg text-white mb-2">
-        Discover Your Ideal BD Partners
-      </h3>
+      <h3 className="font-display text-lg text-white mb-2">Discover Your Ideal BD Partners</h3>
       <p className="text-sm text-slate-500 max-w-md">
-        Enter your asset profile to screen 300+ biopharma companies and rank
-        the most likely partners based on therapeutic alignment, pipeline gaps,
-        deal history, geographic fit, and financial capacity.
+        Enter your asset profile to screen 300+ biopharma companies and rank the most likely partners based on
+        therapeutic alignment, pipeline gaps, deal history, geographic fit, and financial capacity.
       </p>
     </div>
   );
@@ -192,41 +198,44 @@ export default function PartnersPage() {
         subtitle="Find and rank potential BD partners for your asset."
         badge="Pro"
       />
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left panel -- Form */}
-        <div className="w-full lg:w-[380px] lg:flex-shrink-0">
-          <PartnerSearchForm
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-          />
-        </div>
+      <ErrorBoundary>
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left panel -- Form */}
+          <div className="w-full lg:w-[380px] lg:flex-shrink-0">
+            <PartnerSearchForm onSubmit={handleSubmit} isLoading={isLoading} />
+          </div>
 
-        {/* Right panel -- Results */}
-        <div className="flex-1 min-w-0">
-          {isLoading && <ResultsSkeleton />}
-          {!isLoading && error && (
-            <div className="card noise p-8 text-center">
-              <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
-                {error}
-              </p>
-            </div>
-          )}
-          {!isLoading && !error && !results && <EmptyState />}
-          {!isLoading && !error && results && (
-            <PartnerDiscoveryReport
-              data={results}
-              input={lastInput ? {
-                indication: lastInput.indication,
-                mechanism: lastInput.mechanism,
-                development_stage: lastInput.development_stage,
-                geography_rights: lastInput.geography_rights,
-                deal_types: lastInput.deal_types,
-              } : undefined}
-              onPdfExport={() => setPreviewOpen(true)}
-            />
-          )}
+          {/* Right panel -- Results */}
+          <div className="flex-1 min-w-0">
+            {isLoading && <ResultsSkeleton />}
+            {!isLoading && error && (
+              <div className="card noise p-8 text-center">
+                <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
+                  {error}
+                </p>
+              </div>
+            )}
+            {!isLoading && !error && !results && <EmptyState />}
+            {!isLoading && !error && results && (
+              <PartnerDiscoveryReport
+                data={results}
+                input={
+                  lastInput
+                    ? {
+                        indication: lastInput.indication,
+                        mechanism: lastInput.mechanism,
+                        development_stage: lastInput.development_stage,
+                        geography_rights: lastInput.geography_rights,
+                        deal_types: lastInput.deal_types,
+                      }
+                    : undefined
+                }
+                onPdfExport={() => setPreviewOpen(true)}
+              />
+            )}
+          </div>
         </div>
-      </div>
+      </ErrorBoundary>
 
       {/* PDF Preview Overlay */}
       {results && (
@@ -239,13 +248,17 @@ export default function PartnersPage() {
         >
           <PartnerDiscoveryReport
             data={results}
-            input={lastInput ? {
-              indication: lastInput.indication,
-              mechanism: lastInput.mechanism,
-              development_stage: lastInput.development_stage,
-              geography_rights: lastInput.geography_rights,
-              deal_types: lastInput.deal_types,
-            } : undefined}
+            input={
+              lastInput
+                ? {
+                    indication: lastInput.indication,
+                    mechanism: lastInput.mechanism,
+                    development_stage: lastInput.development_stage,
+                    geography_rights: lastInput.geography_rights,
+                    deal_types: lastInput.deal_types,
+                  }
+                : undefined
+            }
             previewMode
           />
         </PdfPreviewOverlay>

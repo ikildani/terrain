@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { PLAN_LIMITS, type PlanKey } from '@/lib/subscription';
+import { rateLimit } from '@/lib/rate-limit';
 import type { ApiResponse } from '@/types';
 
 export async function GET() {
@@ -13,6 +14,13 @@ export async function GET() {
   if (authError || !user) {
     return NextResponse.json({ success: false, error: 'Authentication required.' } satisfies ApiResponse<never>, {
       status: 401,
+    });
+  }
+
+  const rateLimitResult = await rateLimit(`usage:${user.id}`, { limit: 60, windowMs: 60 * 1000 });
+  if (!rateLimitResult.success) {
+    return NextResponse.json({ success: false, error: 'Rate limit exceeded' } satisfies ApiResponse<never>, {
+      status: 429,
     });
   }
 

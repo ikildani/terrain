@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { rateLimit } from '@/lib/rate-limit';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 const patchSchema = z.object({
-  title: z.string().min(1).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   is_starred: z.boolean().optional(),
   status: z.enum(['draft', 'final']).optional(),
   tags: z.array(z.string()).optional(),
@@ -21,6 +22,11 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 
   if (authError || !user) {
     return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
+  }
+
+  const rateLimitResult = await rateLimit(`report_id:${user.id}`, { limit: 60, windowMs: 60 * 1000 });
+  if (!rateLimitResult.success) {
+    return NextResponse.json({ success: false, error: 'Rate limit exceeded' }, { status: 429 });
   }
 
   // Check ownership first
@@ -61,6 +67,11 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
     return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
   }
 
+  const rateLimitResultDel = await rateLimit(`report_id:${user.id}`, { limit: 60, windowMs: 60 * 1000 });
+  if (!rateLimitResultDel.success) {
+    return NextResponse.json({ success: false, error: 'Rate limit exceeded' }, { status: 429 });
+  }
+
   const { error } = await supabase.from('reports').delete().eq('id', id).eq('user_id', user.id);
 
   if (error) {
@@ -80,6 +91,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
   if (authError || !user) {
     return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
+  }
+
+  const rateLimitResultPatch = await rateLimit(`report_id:${user.id}`, { limit: 60, windowMs: 60 * 1000 });
+  if (!rateLimitResultPatch.success) {
+    return NextResponse.json({ success: false, error: 'Rate limit exceeded' }, { status: 429 });
   }
 
   try {

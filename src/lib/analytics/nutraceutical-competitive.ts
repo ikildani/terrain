@@ -73,32 +73,32 @@ const CHANNEL_MAP: Record<string, NutraceuticalChannel> = {
 
 /** Consumer importance rankings for common certifications. */
 const CERTIFICATION_IMPORTANCE: Record<string, 'high' | 'moderate' | 'low'> = {
-  'Organic': 'high',
+  Organic: 'high',
   'NSF Certified for Sport': 'high',
   'USP Verified': 'high',
   'Non-GMO Project': 'high',
   'Third-party tested': 'moderate',
-  'GMP': 'moderate',
-  'Vegan': 'moderate',
+  GMP: 'moderate',
+  Vegan: 'moderate',
   'Gluten-free': 'moderate',
-  'Kosher': 'low',
-  'Halal': 'low',
+  Kosher: 'low',
+  Halal: 'low',
   'B Corp': 'low',
   'Carbon Neutral': 'low',
 };
 
 /** Estimated cost (in $K) to obtain each certification. */
 const CERTIFICATION_COST_K: Record<string, number> = {
-  'Organic': 15,
+  Organic: 15,
   'NSF Certified for Sport': 25,
   'USP Verified': 50,
   'Non-GMO Project': 10,
   'Third-party tested': 5,
-  'GMP': 20,
-  'Vegan': 3,
+  GMP: 20,
+  Vegan: 3,
   'Gluten-free': 5,
-  'Kosher': 8,
-  'Halal': 8,
+  Kosher: 8,
+  Halal: 8,
   'B Corp': 12,
   'Carbon Neutral': 20,
 };
@@ -164,17 +164,14 @@ interface BrandSplit {
 
 function splitBrandsByTier(brands: NutraceuticalBrandEntry[]): BrandSplit {
   // Sort by revenue descending
-  const sorted = [...brands].sort(
-    (a, b) => b.estimated_annual_revenue_m - a.estimated_annual_revenue_m
-  );
+  const sorted = [...brands].sort((a, b) => b.estimated_annual_revenue_m - a.estimated_annual_revenue_m);
 
   const top_brands = sorted.slice(0, 10);
 
   // Emerging: either outside top 10 or launched within last 3 years
   const emergingThreshold = CURRENT_YEAR - 3;
   const emerging_brands = sorted.filter(
-    (brand) =>
-      !top_brands.includes(brand) || brand.year_launched >= emergingThreshold
+    (brand) => !top_brands.includes(brand) || brand.year_launched >= emergingThreshold,
   );
 
   // De-duplicate: if a brand is in top_brands AND qualifies as emerging, keep in top only
@@ -184,7 +181,7 @@ function splitBrandsByTier(brands: NutraceuticalBrandEntry[]): BrandSplit {
   // Re-add recently launched top brands to emerging list as well (they appear in both)
   const recentTopBrands = top_brands.filter((b) => b.year_launched >= emergingThreshold);
   const finalEmerging = [...dedupedEmerging, ...recentTopBrands].sort(
-    (a, b) => b.year_launched - a.year_launched || b.estimated_annual_revenue_m - a.estimated_annual_revenue_m
+    (a, b) => b.year_launched - a.year_launched || b.estimated_annual_revenue_m - a.estimated_annual_revenue_m,
   );
 
   return { top_brands: sorted.slice(0, 10), emerging_brands: finalEmerging };
@@ -242,9 +239,7 @@ function computeEvidenceStrength(entry: NutraceuticalBrandEntry): number {
 
   // Certification weight: science-oriented certifications count more
   const scienceCerts = ['NSF Certified for Sport', 'USP Verified', 'Third-party tested'];
-  const scienceCertCount = entry.certifications.filter((c) =>
-    scienceCerts.includes(c)
-  ).length;
+  const scienceCertCount = entry.certifications.filter((c) => scienceCerts.includes(c)).length;
   score += scienceCertCount * 0.8;
 
   // Minimum floor
@@ -267,7 +262,9 @@ function computeStrengths(entry: NutraceuticalBrandEntry): string[] {
   if (entry.clinical_studies_count >= 3) {
     strengths.push(`Robust clinical evidence base (${entry.clinical_studies_count} published studies)`);
   } else if (entry.clinical_studies_count >= 1) {
-    strengths.push(`Clinical evidence backing (${entry.clinical_studies_count} study${entry.clinical_studies_count > 1 ? 'ies' : 'y'})`);
+    strengths.push(
+      `Clinical evidence backing (${entry.clinical_studies_count} study${entry.clinical_studies_count > 1 ? 'ies' : 'y'})`,
+    );
   }
 
   if (entry.amazon_rating && entry.amazon_rating >= 4.4) {
@@ -370,9 +367,7 @@ function convertToBrandCompetitor(entry: NutraceuticalBrandEntry): NutraBrandCom
 // Step 4: Pricing Landscape
 // =============================================================================
 
-function buildPricingLandscape(
-  brands: NutraceuticalBrandEntry[]
-): NutraPricingLandscapeEntry[] {
+function buildPricingLandscape(brands: NutraceuticalBrandEntry[]): NutraPricingLandscapeEntry[] {
   const tiers: NutraPriceTier[] = ['mass', 'premium', 'clinical_grade', 'luxury'];
   const landscape: NutraPricingLandscapeEntry[] = [];
 
@@ -417,9 +412,7 @@ function buildPricingLandscape(
 // =============================================================================
 
 function buildAmazonIntelligence(brands: NutraceuticalBrandEntry[]): NutraAmazonIntelligenceAgg {
-  const amazonBrands = brands.filter(
-    (b) => b.amazon_bsr_estimate != null && b.amazon_review_count != null
-  );
+  const amazonBrands = brands.filter((b) => b.amazon_bsr_estimate != null && b.amazon_review_count != null);
 
   if (amazonBrands.length === 0) {
     return {
@@ -429,23 +422,19 @@ function buildAmazonIntelligence(brands: NutraceuticalBrandEntry[]): NutraAmazon
       review_velocity_monthly: 0,
       ppc_competitiveness: 'low',
       subscribe_save_pct: 0,
-      narrative:
-        'Limited Amazon presence in this category — most brands sell DTC or through specialty retail.',
+      narrative: 'Limited Amazon presence in this category — most brands sell DTC or through specialty retail.',
     };
   }
 
   // Sort by BSR ascending (lower = better seller) for top 10
   const sortedByBSR = [...amazonBrands].sort(
-    (a, b) => (a.amazon_bsr_estimate || Infinity) - (b.amazon_bsr_estimate || Infinity)
+    (a, b) => (a.amazon_bsr_estimate || Infinity) - (b.amazon_bsr_estimate || Infinity),
   );
   const top10 = sortedByBSR.slice(0, 10);
 
-  const avgBSR =
-    top10.reduce((sum, b) => sum + (b.amazon_bsr_estimate || 0), 0) / top10.length;
-  const avgReviews =
-    top10.reduce((sum, b) => sum + (b.amazon_review_count || 0), 0) / top10.length;
-  const avgRating =
-    top10.reduce((sum, b) => sum + (b.amazon_rating || 0), 0) / top10.length;
+  const avgBSR = top10.reduce((sum, b) => sum + (b.amazon_bsr_estimate || 0), 0) / top10.length;
+  const avgReviews = top10.reduce((sum, b) => sum + (b.amazon_review_count || 0), 0) / top10.length;
+  const avgRating = top10.reduce((sum, b) => sum + (b.amazon_rating || 0), 0) / top10.length;
 
   // Estimate review velocity: total reviews / estimated years on Amazon / 12
   const totalReviews = amazonBrands.reduce((sum, b) => sum + (b.amazon_review_count || 0), 0);
@@ -462,8 +451,7 @@ function buildAmazonIntelligence(brands: NutraceuticalBrandEntry[]): NutraAmazon
 
   // Subscribe & Save percentage
   const subBrands = brands.filter((b) => b.subscription_available);
-  const subscribeSavePct =
-    brands.length > 0 ? Math.round((subBrands.length / brands.length) * 100) : 0;
+  const subscribeSavePct = brands.length > 0 ? Math.round((subBrands.length / brands.length) * 100) : 0;
 
   // Build narrative
   const narrativeParts: string[] = [];
@@ -475,16 +463,14 @@ function buildAmazonIntelligence(brands: NutraceuticalBrandEntry[]): NutraAmazon
 
   if (avgReviews > 20000) {
     narrativeParts.push(
-      `Heavy review accumulation (~${(avgReviews / 1000).toFixed(0)}K avg) creates a significant barrier to entry for new brands.`
+      `Heavy review accumulation (~${(avgReviews / 1000).toFixed(0)}K avg) creates a significant barrier to entry for new brands.`,
     );
   } else if (avgReviews > 5000) {
     narrativeParts.push(
-      `Moderate review depth (~${(avgReviews / 1000).toFixed(0)}K avg) — new entrants can compete with targeted launch strategy.`
+      `Moderate review depth (~${(avgReviews / 1000).toFixed(0)}K avg) — new entrants can compete with targeted launch strategy.`,
     );
   } else {
-    narrativeParts.push(
-      `Review counts are modest — Amazon channel has room for well-positioned new entrants.`
-    );
+    narrativeParts.push(`Review counts are modest — Amazon channel has room for well-positioned new entrants.`);
   }
 
   if (ppcCompetitiveness === 'high') {
@@ -507,7 +493,7 @@ function buildAmazonIntelligence(brands: NutraceuticalBrandEntry[]): NutraAmazon
 // =============================================================================
 
 function buildChannelDistribution(
-  brands: NutraceuticalBrandEntry[]
+  brands: NutraceuticalBrandEntry[],
 ): { channel: NutraceuticalChannel; brand_count: number; share_pct: number }[] {
   const channelCounts = new Map<NutraceuticalChannel, number>();
 
@@ -535,7 +521,7 @@ function buildChannelDistribution(
 
 function buildClinicalEvidenceGaps(
   brands: NutraceuticalBrandEntry[],
-  primaryIngredient: string
+  primaryIngredient: string,
 ): NutraClinicalEvidenceGap[] {
   const gaps: NutraClinicalEvidenceGap[] = [];
 
@@ -576,9 +562,7 @@ function buildClinicalEvidenceGaps(
     const brandsWithEvidence = brands.filter(
       (b) =>
         b.clinical_studies_count > 0 &&
-        b.primary_ingredients.some(
-          (pi) => pi.toLowerCase().includes(ingredient.toLowerCase().split('(')[0].trim())
-        )
+        b.primary_ingredients.some((pi) => pi.toLowerCase().includes(ingredient.toLowerCase().split('(')[0].trim())),
     );
 
     // Identify opportunity based on evidence gaps
@@ -610,9 +594,7 @@ function buildClinicalEvidenceGaps(
 // Step 8: Certification Matrix
 // =============================================================================
 
-function buildCertificationMatrix(
-  brands: NutraceuticalBrandEntry[]
-): NutraCertificationMatrix[] {
+function buildCertificationMatrix(brands: NutraceuticalBrandEntry[]): NutraCertificationMatrix[] {
   // Collect all unique certifications across brands
   const allCerts = new Set<string>();
   for (const brand of brands) {
@@ -624,12 +606,8 @@ function buildCertificationMatrix(
   const matrix: NutraCertificationMatrix[] = [];
 
   for (const cert of Array.from(allCerts)) {
-    const brandsWith = brands
-      .filter((b) => b.certifications.includes(cert))
-      .map((b) => b.brand_name);
-    const brandsWithout = brands
-      .filter((b) => !b.certifications.includes(cert))
-      .map((b) => b.brand_name);
+    const brandsWith = brands.filter((b) => b.certifications.includes(cert)).map((b) => b.brand_name);
+    const brandsWithout = brands.filter((b) => !b.certifications.includes(cert)).map((b) => b.brand_name);
 
     matrix.push({
       certification: cert,
@@ -655,7 +633,7 @@ function buildCertificationMatrix(
 
 function computeCrowdingScore(
   brands: NutraceuticalBrandEntry[],
-  amazonIntel: NutraAmazonIntelligenceAgg
+  amazonIntel: NutraAmazonIntelligenceAgg,
 ): { score: number; label: 'Low' | 'Moderate' | 'High' | 'Extremely High' } {
   if (brands.length === 0) {
     return { score: 1, label: 'Low' };
@@ -705,7 +683,7 @@ function computeCrowdingScore(
 
   // Factor 4: Clinical evidence density (0-2 points)
   const brandsWithStudies = brands.filter((b) => b.clinical_studies_count > 0).length;
-  const evidenceDensity = brandsWithStudies / brands.length;
+  const evidenceDensity = brands.length > 0 ? brandsWithStudies / brands.length : 0;
   if (evidenceDensity > 0.5) {
     score += 2;
   } else if (evidenceDensity > 0.25) {
@@ -736,7 +714,7 @@ function identifyWhiteSpace(
   brands: NutraceuticalBrandEntry[],
   pricingLandscape: NutraPricingLandscapeEntry[],
   channelDist: { channel: NutraceuticalChannel; brand_count: number; share_pct: number }[],
-  certMatrix: NutraCertificationMatrix[]
+  certMatrix: NutraCertificationMatrix[],
 ): string[] {
   const whiteSpaces: string[] = [];
 
@@ -761,7 +739,7 @@ function identifyWhiteSpace(
   for (const cd of channelDist) {
     if (cd.brand_count <= 1 && representedChannels.has(cd.channel)) {
       whiteSpaces.push(
-        `Only ${cd.brand_count} brand${cd.brand_count > 1 ? 's' : ''} in ${cd.channel.replace(/_/g, ' ')} — low competition in this channel`
+        `Only ${cd.brand_count} brand${cd.brand_count > 1 ? 's' : ''} in ${cd.channel.replace(/_/g, ' ')} — low competition in this channel`,
       );
     }
   }
@@ -770,23 +748,20 @@ function identifyWhiteSpace(
   for (const tier of pricingLandscape) {
     if (tier.brand_count === 0) {
       whiteSpaces.push(
-        `No brands in the ${tier.tier.replace(/_/g, ' ')} price tier — potential positioning opportunity`
+        `No brands in the ${tier.tier.replace(/_/g, ' ')} price tier — potential positioning opportunity`,
       );
     } else if (tier.brand_count <= 2 && tier.tier !== 'luxury') {
       whiteSpaces.push(
-        `Only ${tier.brand_count} brand${tier.brand_count > 1 ? 's' : ''} in the ${tier.tier.replace(/_/g, ' ')} tier — room for a differentiated offering`
+        `Only ${tier.brand_count} brand${tier.brand_count > 1 ? 's' : ''} in the ${tier.tier.replace(/_/g, ' ')} tier — room for a differentiated offering`,
       );
     }
   }
 
   // Certification gaps: high-importance certifications with low adoption
   for (const cert of certMatrix) {
-    if (
-      cert.consumer_importance === 'high' &&
-      cert.brands_without.length > cert.brands_with.length
-    ) {
+    if (cert.consumer_importance === 'high' && cert.brands_without.length > cert.brands_with.length) {
       whiteSpaces.push(
-        `${cert.certification} certification held by only ${cert.brands_with.length}/${cert.brands_with.length + cert.brands_without.length} brands — securing it creates competitive differentiation`
+        `${cert.certification} certification held by only ${cert.brands_with.length}/${cert.brands_with.length + cert.brands_without.length} brands — securing it creates competitive differentiation`,
       );
     }
   }
@@ -795,23 +770,21 @@ function identifyWhiteSpace(
   const singleIngredientBrands = brands.filter((b) => b.primary_ingredients.length === 1);
   if (singleIngredientBrands.length > brands.length * 0.6) {
     whiteSpaces.push(
-      'Majority of brands use single-ingredient formulations — combination products could capture synergy-seeking consumers'
+      'Majority of brands use single-ingredient formulations — combination products could capture synergy-seeking consumers',
     );
   }
 
   // No subscription in category
   const subBrands = brands.filter((b) => b.subscription_available);
   if (subBrands.length < brands.length * 0.3) {
-    whiteSpaces.push(
-      'Low subscription adoption in category — subscription-first model could differentiate'
-    );
+    whiteSpaces.push('Low subscription adoption in category — subscription-first model could differentiate');
   }
 
   // No clinical studies in category
   const evidenceBrands = brands.filter((b) => b.clinical_studies_count > 0);
   if (evidenceBrands.length < brands.length * 0.2) {
     whiteSpaces.push(
-      'Very few brands invest in clinical evidence — a single RCT could create outsized differentiation'
+      'Very few brands invest in clinical evidence — a single RCT could create outsized differentiation',
     );
   }
 
@@ -822,9 +795,7 @@ function identifyWhiteSpace(
 // Step 11: Comparison Matrix
 // =============================================================================
 
-function buildComparisonMatrix(
-  topBrands: NutraBrandCompetitor[]
-): CompetitiveComparisonAttribute[] {
+function buildComparisonMatrix(topBrands: NutraBrandCompetitor[]): CompetitiveComparisonAttribute[] {
   if (topBrands.length === 0) return [];
 
   const attributes: CompetitiveComparisonAttribute[] = [];
@@ -865,9 +836,7 @@ function buildComparisonMatrix(
     competitors: {},
   };
   for (const brand of topBrands) {
-    ratingRow.competitors[brand.brand] = brand.amazon_rating
-      ? `${brand.amazon_rating}/5.0`
-      : 'N/A';
+    ratingRow.competitors[brand.brand] = brand.amazon_rating ? `${brand.amazon_rating}/5.0` : 'N/A';
   }
   attributes.push(ratingRow);
 
@@ -877,9 +846,7 @@ function buildComparisonMatrix(
     competitors: {},
   };
   for (const brand of topBrands) {
-    reviewRow.competitors[brand.brand] = brand.amazon_reviews
-      ? `${(brand.amazon_reviews / 1000).toFixed(1)}K`
-      : 'N/A';
+    reviewRow.competitors[brand.brand] = brand.amazon_reviews ? `${(brand.amazon_reviews / 1000).toFixed(1)}K` : 'N/A';
   }
   attributes.push(reviewRow);
 
@@ -909,9 +876,7 @@ function buildComparisonMatrix(
     competitors: {},
   };
   for (const brand of topBrands) {
-    channelRow.competitors[brand.brand] = brand.channels
-      .map((c) => c.replace(/_/g, ' '))
-      .join(', ');
+    channelRow.competitors[brand.brand] = brand.channels.map((c) => c.replace(/_/g, ' ')).join(', ');
   }
   attributes.push(channelRow);
 
@@ -1000,7 +965,7 @@ function buildSummary(
   crowding: { score: number; label: 'Low' | 'Moderate' | 'High' | 'Extremely High' },
   pricingLandscape: NutraPricingLandscapeEntry[],
   whiteSpaces: string[],
-  primaryIngredient: string
+  primaryIngredient: string,
 ): NutraceuticalCompetitiveLandscapeOutput['summary'] {
   const totalRevenue = brands.reduce((sum, b) => sum + b.estimated_annual_revenue_m, 0);
 
@@ -1013,9 +978,7 @@ function buildSummary(
 
   // Key insight
   let keyInsight = '';
-  const topBrand = [...brands].sort(
-    (a, b) => b.estimated_annual_revenue_m - a.estimated_annual_revenue_m
-  )[0];
+  const topBrand = [...brands].sort((a, b) => b.estimated_annual_revenue_m - a.estimated_annual_revenue_m)[0];
 
   if (crowding.score >= 7) {
     keyInsight = `The ${primaryIngredient} competitive landscape is intensely crowded (${brands.length} brands, $${totalRevenue}M combined revenue). Differentiation through clinical evidence, novel delivery, or underserved channel strategy is essential for market entry.`;
@@ -1046,14 +1009,13 @@ function buildSummary(
  * certification matrix, and white space identification.
  */
 export function analyzeNutraceuticalCompetitiveLandscape(
-  input: NutraceuticalCompetitiveLandscapeInput
+  input: NutraceuticalCompetitiveLandscapeInput,
 ): NutraceuticalCompetitiveLandscapeOutput {
   // ── Step 1: Ingredient / category matching ──────────────────────────────
   const matchedBrands = findMatchingBrands(input);
 
   // ── Step 2: Brand retrieval + sort by revenue ───────────────────────────
-  const { top_brands: topBrandEntries, emerging_brands: emergingBrandEntries } =
-    splitBrandsByTier(matchedBrands);
+  const { top_brands: topBrandEntries, emerging_brands: emergingBrandEntries } = splitBrandsByTier(matchedBrands);
 
   // ── Step 3: Convert NutraceuticalBrandEntry → NutraBrandCompetitor ──────
   const topBrands = topBrandEntries.map(convertToBrandCompetitor);
@@ -1069,10 +1031,7 @@ export function analyzeNutraceuticalCompetitiveLandscape(
   const channelDistribution = buildChannelDistribution(matchedBrands);
 
   // ── Step 7: Clinical evidence gap analysis ──────────────────────────────
-  const clinicalEvidenceGaps = buildClinicalEvidenceGaps(
-    matchedBrands,
-    input.primary_ingredient
-  );
+  const clinicalEvidenceGaps = buildClinicalEvidenceGaps(matchedBrands, input.primary_ingredient);
 
   // ── Step 8: Certification matrix ────────────────────────────────────────
   const certificationMatrix = buildCertificationMatrix(matchedBrands);
@@ -1081,12 +1040,7 @@ export function analyzeNutraceuticalCompetitiveLandscape(
   const crowding = computeCrowdingScore(matchedBrands, amazonIntelligence);
 
   // ── Step 10: White space identification ─────────────────────────────────
-  const whiteSpaces = identifyWhiteSpace(
-    matchedBrands,
-    pricingLandscape,
-    channelDistribution,
-    certificationMatrix
-  );
+  const whiteSpaces = identifyWhiteSpace(matchedBrands, pricingLandscape, channelDistribution, certificationMatrix);
 
   // ── Step 11: Comparison matrix ──────────────────────────────────────────
   const comparisonMatrix = buildComparisonMatrix(topBrands);
@@ -1096,13 +1050,7 @@ export function analyzeNutraceuticalCompetitiveLandscape(
   // from the convertToBrandCompetitor function.
 
   // ── Step 13: Output assembly ────────────────────────────────────────────
-  const summary = buildSummary(
-    matchedBrands,
-    crowding,
-    pricingLandscape,
-    whiteSpaces,
-    input.primary_ingredient
-  );
+  const summary = buildSummary(matchedBrands, crowding, pricingLandscape, whiteSpaces, input.primary_ingredient);
 
   const dataSources = buildDataSources(matchedBrands);
 

@@ -2,7 +2,10 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { INDICATION_DATA, type IndicationData } from '@/lib/data/indication-map';
+import { INDICATION_AUTOCOMPLETE_DATA, type IndicationAutocompleteItem } from '@/lib/data/indication-autocomplete';
+
+// Alias the lean type so the rest of the file works unchanged
+type IndicationData = IndicationAutocompleteItem;
 import { cn } from '@/lib/utils/cn';
 import { Search, AlertTriangle, Clock, TrendingUp, ChevronsUpDown, CornerDownLeft } from 'lucide-react';
 
@@ -55,8 +58,14 @@ function fuzzyScore(target: string, query: string): number {
   for (const qt of queryTokens) {
     if (qt.length < 2) continue;
     for (const tt of targetTokens) {
-      if (tt.startsWith(qt)) { tokenScore += 20; break; }
-      if (tt.includes(qt)) { tokenScore += 10; break; }
+      if (tt.startsWith(qt)) {
+        tokenScore += 20;
+        break;
+      }
+      if (tt.includes(qt)) {
+        tokenScore += 10;
+        break;
+      }
     }
   }
   if (tokenScore > 0) return Math.min(60, tokenScore);
@@ -82,12 +91,9 @@ function fuzzyScore(target: string, query: string): number {
 function searchIndications(query: string): IndicationData[] {
   if (query.length < 2) return [];
 
-  const scored = INDICATION_DATA.map((ind) => {
+  const scored = INDICATION_AUTOCOMPLETE_DATA.map((ind) => {
     const nameScore = fuzzyScore(ind.name, query);
-    const synonymScore = Math.max(
-      ...ind.synonyms.map((s) => fuzzyScore(s, query)),
-      0
-    );
+    const synonymScore = Math.max(...ind.synonyms.map((s) => fuzzyScore(s, query)), 0);
     return { ind, score: Math.max(nameScore, synonymScore) };
   })
     .filter((s) => s.score > 0)
@@ -106,9 +112,7 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
   return (
     <>
       {text.slice(0, idx)}
-      <span className="text-teal-400 font-medium">
-        {text.slice(idx, idx + query.length)}
-      </span>
+      <span className="text-teal-400 font-medium">{text.slice(idx, idx + query.length)}</span>
       {text.slice(idx + query.length)}
     </>
   );
@@ -123,9 +127,7 @@ interface GroupedResults {
 function groupByTherapyArea(items: IndicationData[]): GroupedResults[] {
   const map = new Map<string, IndicationData[]>();
   for (const item of items) {
-    const cat = item.therapy_area
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, (c) => c.toUpperCase()) || 'Other';
+    const cat = item.therapy_area.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) || 'Other';
     const group = map.get(cat);
     if (group) group.push(item);
     else map.set(cat, [item]);
@@ -150,13 +152,7 @@ interface IndicationAutocompleteProps {
   label?: string;
 }
 
-export function IndicationAutocomplete({
-  value,
-  onChange,
-  error,
-  placeholder,
-  label,
-}: IndicationAutocompleteProps) {
+export function IndicationAutocomplete({ value, onChange, error, placeholder, label }: IndicationAutocompleteProps) {
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -174,16 +170,16 @@ export function IndicationAutocomplete({
   const recentIndications = useMemo(() => {
     const names = getRecentIndications();
     return names
-      .map((n) => INDICATION_DATA.find((ind) => ind.name === n))
+      .map((n) => INDICATION_AUTOCOMPLETE_DATA.find((ind) => ind.name === n))
       .filter(Boolean) as IndicationData[];
   }, []);
 
   const popularIndications = useMemo(
     () =>
-      POPULAR_NAMES.map((n) => INDICATION_DATA.find((ind) => ind.name === n)).filter(
-        Boolean
+      POPULAR_NAMES.map((n) => INDICATION_AUTOCOMPLETE_DATA.find((ind) => ind.name === n)).filter(
+        Boolean,
       ) as IndicationData[],
-    []
+    [],
   );
 
   // Show recent/popular when focused with empty or short query
@@ -191,9 +187,7 @@ export function IndicationAutocomplete({
   const showResults = open && query.length >= 2 && results.length > 0;
   const showNoResults = open && query.length >= 2 && results.length === 0;
 
-  const isValidIndication = INDICATION_DATA.some(
-    (ind) => ind.name.toLowerCase() === query.toLowerCase()
-  );
+  const isValidIndication = INDICATION_AUTOCOMPLETE_DATA.some((ind) => ind.name.toLowerCase() === query.toLowerCase());
 
   // All selectable items for keyboard nav
   const allItems = useMemo(() => {
@@ -215,7 +209,7 @@ export function IndicationAutocomplete({
       setActiveIndex(-1);
       saveRecentIndication(name);
     },
-    [onChange]
+    [onChange],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -283,7 +277,7 @@ export function IndicationAutocomplete({
         onMouseEnter={() => setActiveIndex(i)}
         className={cn(
           'w-full px-3 py-2.5 flex items-center justify-between text-left transition-colors duration-75',
-          i === activeIndex ? 'bg-teal-500/10 text-white' : 'text-slate-300 hover:bg-navy-700/70'
+          i === activeIndex ? 'bg-teal-500/10 text-white' : 'text-slate-300 hover:bg-navy-700/70',
         )}
       >
         <span className="text-sm truncate">
@@ -301,12 +295,16 @@ export function IndicationAutocomplete({
 
   return (
     <div ref={containerRef} className="relative">
-      {label && <label htmlFor="indication-input" className="input-label">{label}</label>}
+      {label && (
+        <label htmlFor="indication-input" className="input-label">
+          {label}
+        </label>
+      )}
       <div className="relative mt-1">
         <Search
           className={cn(
             'absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none transition-colors duration-150',
-            open ? 'text-teal-500' : 'text-slate-500'
+            open ? 'text-teal-500' : 'text-slate-500',
           )}
           aria-hidden="true"
         />
@@ -334,7 +332,7 @@ export function IndicationAutocomplete({
           className={cn(
             'input pl-9',
             open && 'border-teal-500/40 ring-1 ring-teal-500/20',
-            error && 'border-signal-red focus:ring-signal-red/30'
+            error && 'border-signal-red focus:ring-signal-red/30',
           )}
           autoComplete="off"
         />
@@ -363,7 +361,7 @@ export function IndicationAutocomplete({
             {/* Header */}
             <div className="px-3 py-1.5 flex items-center justify-between border-b border-navy-700/60 sticky top-0 bg-navy-800/95 backdrop-blur-sm z-10">
               <span className="text-2xs font-mono text-slate-500">
-                {results.length} of {INDICATION_DATA.length}
+                {results.length} of {INDICATION_AUTOCOMPLETE_DATA.length}
               </span>
               <span className="text-2xs font-mono text-slate-600 flex items-center gap-1.5">
                 <ChevronsUpDown className="w-2.5 h-2.5" />
@@ -384,9 +382,7 @@ export function IndicationAutocomplete({
                     </span>
                   </div>
                 )}
-                {group.items.map((ind, iIdx) =>
-                  renderItem(ind, getFlatIndex(gIdx, iIdx), true)
-                )}
+                {group.items.map((ind, iIdx) => renderItem(ind, getFlatIndex(gIdx, iIdx), true))}
               </div>
             ))}
           </motion.div>
@@ -410,18 +406,14 @@ export function IndicationAutocomplete({
               <>
                 <div className="px-3 py-1.5 flex items-center gap-1.5 border-b border-navy-700/60">
                   <Clock className="w-3 h-3 text-slate-600" />
-                  <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">
-                    Recently Used
-                  </span>
+                  <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">Recently Used</span>
                 </div>
                 {recentIndications.map((ind, i) => renderItem(ind, i, false))}
               </>
             )}
             <div className="px-3 py-1.5 flex items-center gap-1.5 border-b border-navy-700/60">
               <TrendingUp className="w-3 h-3 text-slate-600" />
-              <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">
-                Popular
-              </span>
+              <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">Popular</span>
             </div>
             {popularIndications
               .filter((p) => !recentIndications.some((r) => r.name === p.name))
@@ -429,7 +421,7 @@ export function IndicationAutocomplete({
             {/* Footer hint */}
             <div className="px-3 py-1.5 border-t border-navy-700/60 flex items-center justify-between">
               <span className="text-2xs font-mono text-slate-600">
-                {INDICATION_DATA.length} indications
+                {INDICATION_AUTOCOMPLETE_DATA.length} indications
               </span>
               <span className="text-2xs font-mono text-slate-600 flex items-center gap-1.5">
                 <ChevronsUpDown className="w-2.5 h-2.5" />
@@ -464,7 +456,11 @@ export function IndicationAutocomplete({
         )}
       </AnimatePresence>
 
-      {error && <p id="indication-error" role="alert" className="text-xs text-signal-red mt-1">{error}</p>}
+      {error && (
+        <p id="indication-error" role="alert" className="text-xs text-signal-red mt-1">
+          {error}
+        </p>
+      )}
       {/* Screen reader announcement for results count */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {showResults && `${results.length} suggestion${results.length === 1 ? '' : 's'} available`}

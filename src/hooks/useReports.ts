@@ -27,8 +27,8 @@ export function useReports() {
     queryFn: fetchReports,
     enabled: !!user && !userLoading,
     staleTime: 2 * 60 * 1000,
-    refetchInterval: 30_000,
-    refetchIntervalInBackground: true,
+    refetchInterval: 5 * 60_000,
+    refetchIntervalInBackground: false,
   });
 
   const saveMutation = useMutation({
@@ -45,9 +45,7 @@ export function useReports() {
       throw new Error(res.error ?? 'Failed to save report');
     },
     onSuccess: (newReport) => {
-      queryClient.setQueryData<Report[]>(REPORTS_KEY, (old) =>
-        old ? [newReport, ...old] : [newReport]
-      );
+      queryClient.setQueryData<Report[]>(REPORTS_KEY, (old) => (old ? [newReport, ...old] : [newReport]));
       toast.success('Report saved');
     },
     onError: () => {
@@ -62,9 +60,7 @@ export function useReports() {
       return id;
     },
     onSuccess: (deletedId) => {
-      queryClient.setQueryData<Report[]>(REPORTS_KEY, (old) =>
-        old ? old.filter((r) => r.id !== deletedId) : []
-      );
+      queryClient.setQueryData<Report[]>(REPORTS_KEY, (old) => (old ? old.filter((r) => r.id !== deletedId) : []));
       toast.success('Report deleted');
     },
     onError: () => {
@@ -85,7 +81,7 @@ export function useReports() {
     },
     onSuccess: (updated) => {
       queryClient.setQueryData<Report[]>(REPORTS_KEY, (old) =>
-        old ? old.map((r) => (r.id === updated.id ? updated : r)) : []
+        old ? old.map((r) => (r.id === updated.id ? updated : r)) : [],
       );
       toast.success(updated.is_starred ? 'Report starred' : 'Star removed');
     },

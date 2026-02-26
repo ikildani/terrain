@@ -90,7 +90,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {isOpen && (
             <button
               onClick={onClose}
-              className="lg:hidden p-1 rounded hover:bg-navy-800 transition-colors"
+              className="lg:hidden p-2 rounded hover:bg-navy-800 transition-colors"
               aria-label="Close sidebar"
             >
               <X className="w-4 h-4 text-slate-400" />

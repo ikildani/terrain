@@ -110,9 +110,7 @@ export default function SettingsPage() {
   }
 
   function toggleArea(area: string) {
-    setSelectedAreas((prev) =>
-      prev.includes(area) ? prev.filter((a) => a !== area) : [...prev, area]
-    );
+    setSelectedAreas((prev) => (prev.includes(area) ? prev.filter((a) => a !== area) : [...prev, area]));
   }
 
   if (loading) {
@@ -137,12 +135,7 @@ export default function SettingsPage() {
         title="Settings"
         subtitle="Manage your account and preferences."
         actions={
-          <Button
-            variant="primary"
-            onClick={handleSave}
-            isLoading={saving}
-            disabled={saving}
-          >
+          <Button variant="primary" onClick={handleSave} isLoading={saving} disabled={saving}>
             {saved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
             {saved ? 'Saved' : 'Save Changes'}
           </Button>
@@ -152,7 +145,7 @@ export default function SettingsPage() {
       <div className="space-y-6 max-w-2xl">
         {/* Profile */}
         <div className="card noise p-6 space-y-5">
-          <h3 className="text-sm font-medium text-white">Profile</h3>
+          <h2 className="text-sm font-medium text-white">Profile</h2>
 
           <Input
             label="Full Name"
@@ -161,12 +154,7 @@ export default function SettingsPage() {
             placeholder="Your full name"
           />
 
-          <Input
-            label="Email"
-            value={user?.email ?? ''}
-            disabled
-            className="opacity-60"
-          />
+          <Input label="Email" value={user?.email ?? ''} disabled className="opacity-60" />
 
           <Input
             label="Company"
@@ -175,17 +163,12 @@ export default function SettingsPage() {
             placeholder="Your company or organization"
           />
 
-          <Select
-            label="Role"
-            options={ROLE_OPTIONS}
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          />
+          <Select label="Role" options={ROLE_OPTIONS} value={role} onChange={(e) => setRole(e.target.value)} />
         </div>
 
         {/* Therapy Areas */}
         <div className="card noise p-6">
-          <h3 className="text-sm font-medium text-white mb-1">Therapy Areas of Interest</h3>
+          <h2 className="text-sm font-medium text-white mb-1">Therapy Areas of Interest</h2>
           <p className="text-xs text-slate-500 mb-4">
             Select the areas relevant to your work. This helps personalize your dashboard.
           </p>
@@ -212,7 +195,7 @@ export default function SettingsPage() {
 
         {/* Danger Zone */}
         <div className="card noise p-6 border-signal-red/20">
-          <h3 className="text-sm font-medium text-signal-red mb-1">Danger Zone</h3>
+          <h2 className="text-sm font-medium text-signal-red mb-1">Danger Zone</h2>
           <p className="text-xs text-slate-500 mb-4">
             Permanently delete your account and all associated data. This cannot be undone.
           </p>
@@ -224,10 +207,24 @@ export default function SettingsPage() {
 
       {/* Delete Account Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-modal-title"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setShowDeleteModal(false);
+              setDeleteConfirm('');
+            }
+          }}
+        >
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => { setShowDeleteModal(false); setDeleteConfirm(''); }}
+            onClick={() => {
+              setShowDeleteModal(false);
+              setDeleteConfirm('');
+            }}
           />
           <div className="relative card noise p-6 max-w-md w-full border-signal-red/30">
             <div className="flex items-center gap-3 mb-4">
@@ -235,13 +232,15 @@ export default function SettingsPage() {
                 <AlertTriangle className="w-5 h-5 text-signal-red" />
               </div>
               <div>
-                <h3 className="text-sm font-medium text-white">Delete Account</h3>
+                <h3 id="delete-modal-title" className="text-sm font-medium text-white">
+                  Delete Account
+                </h3>
                 <p className="text-xs text-slate-400">This action is permanent and irreversible.</p>
               </div>
             </div>
             <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-              All your saved reports, analyses, and profile data will be permanently deleted.
-              Your subscription will be canceled immediately with no refund.
+              All your saved reports, analyses, and profile data will be permanently deleted. Your subscription will be
+              canceled immediately with no refund.
             </p>
             <div className="mb-4">
               <label className="block text-xs text-slate-500 mb-1.5">
@@ -259,7 +258,10 @@ export default function SettingsPage() {
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => { setShowDeleteModal(false); setDeleteConfirm(''); }}
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirm('');
+                }}
               >
                 Cancel
               </Button>

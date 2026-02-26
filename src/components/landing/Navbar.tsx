@@ -27,7 +27,7 @@ export function Navbar() {
             Terrain
           </span>
           <span className="hidden sm:block w-px h-5 bg-navy-700/80" />
-          <span className="text-[9px] sm:text-[11px] text-slate-500 group-hover:text-slate-400 transition-colors leading-tight">
+          <span className="text-[9px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 transition-colors leading-tight">
             Powered by{' '}
             <span className="text-slate-400 group-hover:text-teal-400 transition-colors font-medium">
               Ambrosia Ventures

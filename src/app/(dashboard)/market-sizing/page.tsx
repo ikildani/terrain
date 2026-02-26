@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { BarChart3 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import MarketSizingForm from '@/components/market-sizing/MarketSizingForm';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
 
 // Dynamic imports — heavy report components loaded on demand
@@ -183,26 +184,28 @@ export default function MarketSizingPage() {
         title="Market Sizing"
         subtitle="Quantify your opportunity with investor-grade TAM/SAM/SOM analysis."
       />
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left panel — Form */}
-        <div className="w-full lg:w-[380px] lg:flex-shrink-0">
-          <MarketSizingForm onSubmit={handleSubmit} isLoading={isLoading} />
-        </div>
+      <ErrorBoundary>
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left panel — Form */}
+          <div className="w-full lg:w-[380px] lg:flex-shrink-0">
+            <MarketSizingForm onSubmit={handleSubmit} isLoading={isLoading} />
+          </div>
 
-        {/* Right panel — Results */}
-        <div className="flex-1 min-w-0">
-          {isLoading && <ResultsSkeleton />}
-          {!isLoading && error && (
-            <div className="card noise p-8 text-center">
-              <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
-                {error}
-              </p>
-            </div>
-          )}
-          {!isLoading && !error && !results && <EmptyState />}
-          {!isLoading && !error && results && formInput && renderReport()}
+          {/* Right panel — Results */}
+          <div className="flex-1 min-w-0">
+            {isLoading && <ResultsSkeleton />}
+            {!isLoading && error && (
+              <div className="card noise p-8 text-center">
+                <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
+                  {error}
+                </p>
+              </div>
+            )}
+            {!isLoading && !error && !results && <EmptyState />}
+            {!isLoading && !error && results && formInput && renderReport()}
+          </div>
         </div>
-      </div>
+      </ErrorBoundary>
 
       {/* PDF Preview Overlay */}
       <PdfPreviewOverlay

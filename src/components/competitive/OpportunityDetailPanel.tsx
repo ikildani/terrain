@@ -80,6 +80,11 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Reset stale detail data when indication changes
+  useEffect(() => {
+    setDetail(null);
+  }, [indication]);
+
   useEffect(() => {
     if (!isOpen || detail) return;
 

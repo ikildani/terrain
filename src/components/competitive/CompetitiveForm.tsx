@@ -3,15 +3,13 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Crosshair, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { IndicationAutocomplete } from '@/components/ui/IndicationAutocomplete';
 import { FuzzyAutocomplete } from '@/components/ui/FuzzyAutocomplete';
 import { ProductTypeSelector } from '@/components/shared/ProductTypeSelector';
-import { getCoveredIndications } from '@/lib/data/competitor-database';
+import { COVERED_INDICATIONS, COVERED_PROCEDURES, COVERED_BIOMARKERS } from '@/lib/data/competitive-suggestions';
 import { MECHANISM_SUGGESTIONS, POPULAR_MECHANISMS } from '@/lib/data/suggestion-lists';
-import { getCoveredProcedures } from '@/lib/data/device-competitor-database';
-import { getCoveredBiomarkers } from '@/lib/data/cdx-competitor-database';
 import type { ProductCategory } from '@/types/devices-diagnostics';
 
 // ────────────────────────────────────────────────────────────
@@ -103,7 +101,14 @@ function isPharmaCategory(cat: ProductCategory): boolean {
 }
 
 function isDeviceCategory(cat: ProductCategory): boolean {
-  return cat.startsWith('device_') || cat === 'device_implantable' || cat === 'device_surgical' || cat === 'device_monitoring' || cat === 'device_digital_health' || cat === 'device_capital_equipment';
+  return (
+    cat.startsWith('device_') ||
+    cat === 'device_implantable' ||
+    cat === 'device_surgical' ||
+    cat === 'device_monitoring' ||
+    cat === 'device_digital_health' ||
+    cat === 'device_capital_equipment'
+  );
 }
 
 function isCDxCategory(cat: ProductCategory): boolean {
@@ -155,22 +160,27 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
 
   // ── Pharma coverage check ────────────────────────────────
   const indicationValue = pharmaForm.watch('indication');
-  const coveredIndications = useMemo(() => getCoveredIndications(), []);
-  const hasCoverage = indicationValue.length > 0 && coveredIndications.has(indicationValue);
+  const hasCoverage = indicationValue.length > 0 && COVERED_INDICATIONS.has(indicationValue);
 
   // ── Device coverage check ────────────────────────────────
   const procedureValue = deviceForm.watch('procedure_or_condition');
-  const coveredProcedures = useMemo(() => getCoveredProcedures(), []);
-  const hasProcedureCoverage = procedureValue.length > 0 && coveredProcedures.some(p =>
-    p.toLowerCase().includes(procedureValue.toLowerCase()) || procedureValue.toLowerCase().includes(p.toLowerCase())
-  );
+  const hasProcedureCoverage =
+    procedureValue.length > 0 &&
+    COVERED_PROCEDURES.some(
+      (p) =>
+        p.toLowerCase().includes(procedureValue.toLowerCase()) ||
+        procedureValue.toLowerCase().includes(p.toLowerCase()),
+    );
 
   // ── CDx coverage check ──────────────────────────────────
   const biomarkerValue = cdxForm.watch('biomarker');
-  const coveredBiomarkers = useMemo(() => getCoveredBiomarkers(), []);
-  const hasBiomarkerCoverage = biomarkerValue.length > 0 && coveredBiomarkers.some(b =>
-    b.toLowerCase().includes(biomarkerValue.toLowerCase()) || biomarkerValue.toLowerCase().includes(b.toLowerCase())
-  );
+  const hasBiomarkerCoverage =
+    biomarkerValue.length > 0 &&
+    COVERED_BIOMARKERS.some(
+      (b) =>
+        b.toLowerCase().includes(biomarkerValue.toLowerCase()) ||
+        biomarkerValue.toLowerCase().includes(b.toLowerCase()),
+    );
 
   // ── Submit handler ───────────────────────────────────────
   function handleFormSubmit(e: React.FormEvent) {
@@ -232,8 +242,8 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
                 label="Indication"
                 placeholder="e.g., Non-Small Cell Lung Cancer"
               />
-              {indicationValue.length > 2 && (
-                hasCoverage ? (
+              {indicationValue.length > 2 &&
+                (hasCoverage ? (
                   <div className="flex items-center gap-1.5 mt-1.5">
                     <CheckCircle2 className="h-3 w-3 text-signal-green" />
                     <span className="text-[11px] text-signal-green">Competitive data available</span>
@@ -241,10 +251,11 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
                 ) : (
                   <div className="flex items-center gap-1.5 mt-1.5">
                     <AlertTriangle className="h-3 w-3 text-signal-amber" />
-                    <span className="text-[11px] text-signal-amber">Limited competitive data — white-space analysis will be generated</span>
+                    <span className="text-[11px] text-signal-amber">
+                      Limited competitive data — white-space analysis will be generated
+                    </span>
                   </div>
-                )
-              )}
+                ))}
             </div>
             <FuzzyAutocomplete
               label="Mechanism of Action (Optional)"
@@ -262,7 +273,9 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
         {isDeviceCategory(productCategory) && (
           <>
             <div>
-              <label className="input-label" htmlFor="procedure_or_condition">Procedure / Condition</label>
+              <label className="input-label" htmlFor="procedure_or_condition">
+                Procedure / Condition
+              </label>
               <input
                 id="procedure_or_condition"
                 type="text"
@@ -271,10 +284,12 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
                 {...deviceForm.register('procedure_or_condition')}
               />
               {deviceForm.formState.errors.procedure_or_condition && (
-                <p className="text-[11px] text-signal-red mt-1">{deviceForm.formState.errors.procedure_or_condition.message}</p>
+                <p className="text-[11px] text-signal-red mt-1">
+                  {deviceForm.formState.errors.procedure_or_condition.message}
+                </p>
               )}
-              {procedureValue.length > 2 && (
-                hasProcedureCoverage ? (
+              {procedureValue.length > 2 &&
+                (hasProcedureCoverage ? (
                   <div className="flex items-center gap-1.5 mt-1.5">
                     <CheckCircle2 className="h-3 w-3 text-signal-green" />
                     <span className="text-[11px] text-signal-green">Device competitor data available</span>
@@ -282,25 +297,28 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
                 ) : (
                   <div className="flex items-center gap-1.5 mt-1.5">
                     <AlertTriangle className="h-3 w-3 text-signal-amber" />
-                    <span className="text-[11px] text-signal-amber">Limited device data — white-space analysis will be generated</span>
+                    <span className="text-[11px] text-signal-amber">
+                      Limited device data — white-space analysis will be generated
+                    </span>
                   </div>
-                )
-              )}
+                ))}
             </div>
             <div>
-              <label className="input-label" htmlFor="device_category">Device Category (Optional)</label>
-              <select
-                id="device_category"
-                className="input-field mt-1"
-                {...deviceForm.register('device_category')}
-              >
+              <label className="input-label" htmlFor="device_category">
+                Device Category (Optional)
+              </label>
+              <select id="device_category" className="input-field mt-1" {...deviceForm.register('device_category')}>
                 {DEVICE_CATEGORIES.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="input-label" htmlFor="technology_type">Technology Type (Optional)</label>
+              <label className="input-label" htmlFor="technology_type">
+                Technology Type (Optional)
+              </label>
               <input
                 id="technology_type"
                 type="text"
@@ -316,7 +334,9 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
         {isCDxCategory(productCategory) && (
           <>
             <div>
-              <label className="input-label" htmlFor="biomarker">Biomarker</label>
+              <label className="input-label" htmlFor="biomarker">
+                Biomarker
+              </label>
               <input
                 id="biomarker"
                 type="text"
@@ -327,8 +347,8 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               {cdxForm.formState.errors.biomarker && (
                 <p className="text-[11px] text-signal-red mt-1">{cdxForm.formState.errors.biomarker.message}</p>
               )}
-              {biomarkerValue.length > 1 && (
-                hasBiomarkerCoverage ? (
+              {biomarkerValue.length > 1 &&
+                (hasBiomarkerCoverage ? (
                   <div className="flex items-center gap-1.5 mt-1.5">
                     <CheckCircle2 className="h-3 w-3 text-signal-green" />
                     <span className="text-[11px] text-signal-green">CDx competitor data available</span>
@@ -338,11 +358,12 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
                     <AlertTriangle className="h-3 w-3 text-signal-amber" />
                     <span className="text-[11px] text-signal-amber">Limited CDx data for this biomarker</span>
                   </div>
-                )
-              )}
+                ))}
             </div>
             <div>
-              <label className="input-label" htmlFor="cdx_indication">Indication (Optional)</label>
+              <label className="input-label" htmlFor="cdx_indication">
+                Indication (Optional)
+              </label>
               <input
                 id="cdx_indication"
                 type="text"
@@ -352,19 +373,21 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               />
             </div>
             <div>
-              <label className="input-label" htmlFor="test_type">Test Platform (Optional)</label>
-              <select
-                id="test_type"
-                className="input-field mt-1"
-                {...cdxForm.register('test_type')}
-              >
+              <label className="input-label" htmlFor="test_type">
+                Test Platform (Optional)
+              </label>
+              <select id="test_type" className="input-field mt-1" {...cdxForm.register('test_type')}>
                 {CDX_PLATFORMS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="input-label" htmlFor="linked_drug">Linked Drug (Optional)</label>
+              <label className="input-label" htmlFor="linked_drug">
+                Linked Drug (Optional)
+              </label>
               <input
                 id="linked_drug"
                 type="text"
@@ -380,7 +403,9 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
         {isNutraCategory(productCategory) && (
           <>
             <div>
-              <label className="input-label" htmlFor="primary_ingredient">Primary Ingredient</label>
+              <label className="input-label" htmlFor="primary_ingredient">
+                Primary Ingredient
+              </label>
               <input
                 id="primary_ingredient"
                 type="text"
@@ -389,11 +414,15 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
                 {...nutraForm.register('primary_ingredient')}
               />
               {nutraForm.formState.errors.primary_ingredient && (
-                <p className="text-[11px] text-signal-red mt-1">{nutraForm.formState.errors.primary_ingredient.message}</p>
+                <p className="text-[11px] text-signal-red mt-1">
+                  {nutraForm.formState.errors.primary_ingredient.message}
+                </p>
               )}
             </div>
             <div>
-              <label className="input-label" htmlFor="health_focus">Health Focus (Optional)</label>
+              <label className="input-label" htmlFor="health_focus">
+                Health Focus (Optional)
+              </label>
               <input
                 id="health_focus"
                 type="text"
@@ -403,7 +432,9 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               />
             </div>
             <div>
-              <label className="input-label" htmlFor="ingredient_category">Ingredient Category (Optional)</label>
+              <label className="input-label" htmlFor="ingredient_category">
+                Ingredient Category (Optional)
+              </label>
               <input
                 id="ingredient_category"
                 type="text"
@@ -416,11 +447,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
         )}
 
         {/* Submit */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="btn btn-primary btn-lg w-full"
-        >
+        <button type="submit" disabled={isLoading} className="btn btn-primary btn-lg w-full">
           {isLoading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />

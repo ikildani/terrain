@@ -67,16 +67,17 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
       .select('created_at')
       .eq('user_id', userId)
       .gte('created_at', thirtyDaysAgo)
-      .order('created_at', { ascending: true }),
+      .order('created_at', { ascending: true })
+      .limit(1000),
 
     // New: module breakdown (all time)
-    supabase.from('usage_events').select('feature').eq('user_id', userId),
+    supabase.from('usage_events').select('feature').eq('user_id', userId).limit(1000),
 
     // New: top indications
-    supabase.from('usage_events').select('indication').eq('user_id', userId).not('indication', 'is', null),
+    supabase.from('usage_events').select('indication').eq('user_id', userId).not('indication', 'is', null).limit(1000),
 
     // New: reports by type
-    supabase.from('reports').select('report_type').eq('user_id', userId),
+    supabase.from('reports').select('report_type').eq('user_id', userId).limit(1000),
   ]);
 
   // Extract results with graceful fallbacks for failed queries

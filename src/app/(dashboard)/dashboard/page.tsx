@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { StatCard } from '@/components/shared/StatCard';
@@ -23,8 +24,10 @@ import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { PLAN_LIMITS } from '@/lib/subscription';
-import { INDICATION_DATA } from '@/lib/data/indication-map';
-import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
+// Pre-computed counts to avoid importing heavy data files into the client bundle.
+// INDICATION_DATA has 213 entries; PRICING_BENCHMARKS has 181 entries.
+const INDICATION_COUNT = 213;
+const PRICING_BENCHMARK_COUNT = 181;
 import { formatDistanceToNow } from 'date-fns';
 import ActivityTrendChart from '@/components/dashboard/ActivityTrendChart';
 import ModuleBreakdownChart from '@/components/dashboard/ModuleBreakdownChart';
@@ -112,29 +115,31 @@ export default function DashboardPage() {
     isLoading: statsLoading,
     dataUpdatedAt,
   } = useDashboardStats();
-  const recentReports = reports.slice(0, 8);
+  const recentReports = useMemo(() => reports.slice(0, 8), [reports]);
   const firstName = fullName?.split(' ')[0];
 
   // Derived insights
   const totalAllTimeAnalyses = dailyActivity.reduce((sum, d) => sum + d.count, 0);
   const mostUsedModule = moduleBreakdown.length > 0 ? moduleBreakdown[0] : null;
   const topIndication = topIndications.length > 0 ? topIndications[0] : null;
-  const activeStreak = (() => {
+  const activeStreak = useMemo(() => {
     let streak = 0;
     for (let i = dailyActivity.length - 1; i >= 0; i--) {
       if (dailyActivity[i].count > 0) streak++;
       else break;
     }
     return streak;
-  })();
+  }, [dailyActivity]);
 
   // Week-over-week trend: last 7 days vs prior 7 days
-  const last7 = dailyActivity.slice(-7).reduce((s, d) => s + d.count, 0);
-  const prior7 = dailyActivity.slice(-14, -7).reduce((s, d) => s + d.count, 0);
-  const weekTrendPct = prior7 > 0 ? Math.round(((last7 - prior7) / prior7) * 100) : last7 > 0 ? 100 : 0;
-  const weekTrendLabel =
-    weekTrendPct > 0 ? `+${weekTrendPct}% WoW` : weekTrendPct < 0 ? `${weekTrendPct}% WoW` : 'Flat WoW';
-  const weekTrendDir: 'up' | 'down' | 'flat' = weekTrendPct > 0 ? 'up' : weekTrendPct < 0 ? 'down' : 'flat';
+  const { weekTrendLabel, weekTrendDir } = useMemo(() => {
+    const last7 = dailyActivity.slice(-7).reduce((s, d) => s + d.count, 0);
+    const prior7 = dailyActivity.slice(-14, -7).reduce((s, d) => s + d.count, 0);
+    const pct = prior7 > 0 ? Math.round(((last7 - prior7) / prior7) * 100) : last7 > 0 ? 100 : 0;
+    const label = pct > 0 ? `+${pct}% WoW` : pct < 0 ? `${pct}% WoW` : 'Flat WoW';
+    const dir: 'up' | 'down' | 'flat' = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
+    return { weekTrendLabel: label, weekTrendDir: dir };
+  }, [dailyActivity]);
 
   return (
     <>
@@ -168,7 +173,7 @@ export default function DashboardPage() {
               <h3 className="text-sm font-semibold text-white mb-1 group-hover:text-teal-400 transition-colors">
                 {action.label}
               </h3>
-              <p className="text-xs text-slate-500">{action.desc}</p>
+              <p className="text-xs text-slate-400">{action.desc}</p>
               <ArrowRight className="w-3.5 h-3.5 text-slate-600 mt-3 group-hover:text-teal-500 group-hover:translate-x-1 transition-all" />
             </Link>
           );
@@ -214,13 +219,13 @@ export default function DashboardPage() {
           />
           <StatCard
             label="Indications Covered"
-            value={String(INDICATION_DATA.length)}
+            value={String(INDICATION_COUNT)}
             subvalue="In database"
             source="Terrain Curated Dataset"
           />
           <StatCard
             label="Pricing Benchmarks"
-            value={String(PRICING_BENCHMARKS.length)}
+            value={String(PRICING_BENCHMARK_COUNT)}
             subvalue="Drug reference points"
             source="Public Filings & Industry Data"
           />

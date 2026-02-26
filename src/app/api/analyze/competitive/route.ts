@@ -9,6 +9,7 @@ import { analyzeCDxCompetitiveLandscape } from '@/lib/analytics/cdx-competitive'
 import { analyzeNutraceuticalCompetitiveLandscape } from '@/lib/analytics/nutraceutical-competitive';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, withTiming, logApiRequest, logApiResponse } from '@/lib/logger';
+import { sanitizePostgrestValue } from '@/lib/utils/sanitize';
 import type { ApiResponse } from '@/types';
 import type { DeviceCategory, CDxPlatform, NutraceuticalCategory } from '@/types/devices-diagnostics';
 
@@ -247,7 +248,7 @@ export async function POST(request: NextRequest) {
     let recent_fda_activity: unknown[] = [];
 
     try {
-      const searchTerm = indication.trim();
+      const searchTerm = sanitizePostgrestValue(indication.trim());
 
       if (searchTerm) {
         // Query clinical_trials_cache for trials matching the indication

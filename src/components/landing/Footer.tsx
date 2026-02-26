@@ -8,32 +8,32 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <span className="font-display text-lg text-white">Terrain</span>
-            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
               Market Opportunity Intelligence for life sciences. Built by Ambrosia Ventures.
             </p>
           </div>
 
           {/* Product */}
           <div>
-            <h4 className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-4">Product</h4>
+            <p className="text-xs font-mono font-semibold text-slate-400 uppercase tracking-wider mb-4">Product</p>
             <ul className="space-y-2.5">
               <li>
-                <a href="#modules" className="text-sm text-slate-500 hover:text-white transition-colors">
+                <a href="#modules" className="text-sm text-slate-400 hover:text-white transition-colors">
                   Market Sizing
                 </a>
               </li>
               <li>
-                <a href="#modules" className="text-sm text-slate-500 hover:text-white transition-colors">
+                <a href="#modules" className="text-sm text-slate-400 hover:text-white transition-colors">
                   Competitive Landscape
                 </a>
               </li>
               <li>
-                <a href="#modules" className="text-sm text-slate-500 hover:text-white transition-colors">
+                <a href="#modules" className="text-sm text-slate-400 hover:text-white transition-colors">
                   Partner Discovery
                 </a>
               </li>
               <li>
-                <a href="#modules" className="text-sm text-slate-500 hover:text-white transition-colors">
+                <a href="#modules" className="text-sm text-slate-400 hover:text-white transition-colors">
                   Regulatory Intelligence
                 </a>
               </li>
@@ -42,25 +42,25 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <h4 className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-4">Company</h4>
+            <p className="text-xs font-mono font-semibold text-slate-400 uppercase tracking-wider mb-4">Company</p>
             <ul className="space-y-2.5">
               <li>
                 <a
                   href="https://ambrosiaventures.co"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-slate-500 hover:text-white transition-colors"
+                  className="text-sm text-slate-400 hover:text-white transition-colors"
                 >
                   Ambrosia Ventures
                 </a>
               </li>
               <li>
-                <a href="#pricing" className="text-sm text-slate-500 hover:text-white transition-colors">
+                <a href="#pricing" className="text-sm text-slate-400 hover:text-white transition-colors">
                   Pricing
                 </a>
               </li>
               <li>
-                <a href="#faq" className="text-sm text-slate-500 hover:text-white transition-colors">
+                <a href="#faq" className="text-sm text-slate-400 hover:text-white transition-colors">
                   FAQ
                 </a>
               </li>
@@ -69,20 +69,20 @@ export function Footer() {
 
           {/* Account */}
           <div>
-            <h4 className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-4">Account</h4>
+            <p className="text-xs font-mono font-semibold text-slate-400 uppercase tracking-wider mb-4">Account</p>
             <ul className="space-y-2.5">
               <li>
-                <Link href="/login" className="text-sm text-slate-500 hover:text-white transition-colors">
+                <Link href="/login" className="text-sm text-slate-400 hover:text-white transition-colors">
                   Sign in
                 </Link>
               </li>
               <li>
-                <Link href="/signup" className="text-sm text-slate-500 hover:text-white transition-colors">
+                <Link href="/signup" className="text-sm text-slate-400 hover:text-white transition-colors">
                   Create account
                 </Link>
               </li>
               <li>
-                <Link href="/signup?plan=pro" className="text-sm text-slate-500 hover:text-white transition-colors">
+                <Link href="/signup?plan=pro" className="text-sm text-slate-400 hover:text-white transition-colors">
                   Start Pro trial
                 </Link>
               </li>

@@ -238,8 +238,9 @@ export default function TeamPage() {
                   </span>
                   <button
                     onClick={() => handleRemoveMember(member.id)}
-                    className="p-1 rounded hover:bg-red-500/10 text-slate-500 hover:text-signal-red transition-colors"
+                    className="p-2 rounded hover:bg-red-500/10 text-slate-500 hover:text-signal-red transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                     title="Remove member"
+                    aria-label="Remove team member"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -283,8 +284,9 @@ export default function TeamPage() {
                     <span className="text-2xs text-amber-400">Pending</span>
                     <button
                       onClick={() => handleRevokeInvite(inv.id)}
-                      className="p-1 rounded hover:bg-red-500/10 text-slate-500 hover:text-signal-red transition-colors"
+                      className="p-2 rounded hover:bg-red-500/10 text-slate-500 hover:text-signal-red transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                       title="Revoke invitation"
+                      aria-label="Revoke invitation"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>

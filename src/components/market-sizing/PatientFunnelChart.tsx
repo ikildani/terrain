@@ -29,49 +29,51 @@ export default function PatientFunnelChart({ funnel }: PatientFunnelChartProps) 
   return (
     <div className="chart-container noise">
       <div className="chart-title">Patient Population Funnel (US)</div>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data} margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(16,34,54,0.8)" />
-          <XAxis
-            dataKey="stage"
-            tick={{ fontSize: 11, fontFamily: 'Sora', fill: '#94A3B8' }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis
-            tickFormatter={(val) => formatNumber(val)}
-            tick={{ fontSize: 11, fontFamily: '"DM Mono"', fill: '#64748B' }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip
-            content={({ active, payload }) => {
-              if (!active || !payload?.[0]) return null;
-              const d = payload[0].payload as FunnelStage;
-              return (
-                <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
-                  <div className="text-slate-300 font-medium mb-1">{d.stage}</div>
-                  <div className="metric text-white">{formatNumber(d.count)}</div>
-                  {d.rate < 1 && (
-                    <div className="text-slate-500 mt-1">{formatPercent(d.rate * 100, 0)} of prior stage</div>
-                  )}
-                </div>
-              );
-            }}
-          />
-          <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={52}>
-            {data.map((_, i) => (
-              <Cell key={i} fill={FUNNEL_COLORS[i]} />
-            ))}
-            <LabelList
-              dataKey="count"
-              position="top"
-              formatter={(val: number) => formatNumber(val)}
-              style={{ fontFamily: '"DM Mono"', fontSize: 11, fill: '#94A3B8' }}
+      <div role="img" aria-label="Patient population funnel chart">
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={data} margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(16,34,54,0.8)" />
+            <XAxis
+              dataKey="stage"
+              tick={{ fontSize: 11, fontFamily: 'Sora', fill: '#94A3B8' }}
+              axisLine={false}
+              tickLine={false}
             />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+            <YAxis
+              tickFormatter={(val) => formatNumber(val)}
+              tick={{ fontSize: 11, fontFamily: '"DM Mono"', fill: '#64748B' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.[0]) return null;
+                const d = payload[0].payload as FunnelStage;
+                return (
+                  <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
+                    <div className="text-slate-300 font-medium mb-1">{d.stage}</div>
+                    <div className="metric text-white">{formatNumber(d.count)}</div>
+                    {d.rate < 1 && (
+                      <div className="text-slate-500 mt-1">{formatPercent(d.rate * 100, 0)} of prior stage</div>
+                    )}
+                  </div>
+                );
+              }}
+            />
+            <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={52}>
+              {data.map((_, i) => (
+                <Cell key={i} fill={FUNNEL_COLORS[i]} />
+              ))}
+              <LabelList
+                dataKey="count"
+                position="top"
+                formatter={(val: number) => formatNumber(val)}
+                style={{ fontFamily: '"DM Mono"', fontSize: 11, fill: '#94A3B8' }}
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
       {/* Conversion rates */}
       <div className="flex justify-around mt-1 px-12">
         {data.slice(1).map((d, i) => (

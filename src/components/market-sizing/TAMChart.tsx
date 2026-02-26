@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Cell,
-  ResponsiveContainer,
-  LabelList,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, ResponsiveContainer, LabelList } from 'recharts';
 import { cn } from '@/lib/utils/cn';
 import { formatMetric } from '@/lib/utils/format';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
@@ -28,9 +19,9 @@ const COLORS = {
 };
 
 const BAR_FILLS = {
-  TAM: '#475569',   // slate-600
-  SAM: '#002E27',   // tealDark
-  SOM: '#00C9A7',   // teal
+  TAM: '#475569', // slate-600
+  SAM: '#002E27', // tealDark
+  SOM: '#00C9A7', // teal
 };
 
 interface TAMChartProps {
@@ -69,7 +60,7 @@ export default function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
               'text-2xs font-mono uppercase',
               globalTam.confidence === 'high' && 'confidence-high',
               globalTam.confidence === 'medium' && 'confidence-medium',
-              globalTam.confidence === 'low' && 'confidence-low'
+              globalTam.confidence === 'low' && 'confidence-low',
             )}
           >
             {globalTam.confidence}
@@ -80,67 +71,63 @@ export default function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
       {/* Section header */}
       <div className="label">TAM / SAM / SOM</div>
 
-      <ResponsiveContainer width="100%" height={200}>
-        <BarChart
-          layout="vertical"
-          data={data}
-          margin={{ top: 10, right: 80, left: 10, bottom: 10 }}
-        >
-          <XAxis type="number" hide />
-          <YAxis
-            type="category"
-            dataKey="name"
-            width={48}
-            tick={{ fontSize: 12, fontFamily: '"DM Mono"', fill: COLORS.text }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip
-            cursor={{ fill: COLORS.navyLight }}
-            content={({ active, payload }) => {
-              if (!active || !payload?.[0]) return null;
-              const d = payload[0].payload as ChartDatum;
-              return (
-                <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
-                  <div className="text-slate-300 font-medium mb-1">{d.name}</div>
-                  <div className="font-mono text-white text-sm">
-                    {formatMetric(d.value, d.unit)}
+      <div role="img" aria-label="TAM SAM SOM waterfall chart">
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart layout="vertical" data={data} margin={{ top: 10, right: 80, left: 10, bottom: 10 }}>
+            <XAxis type="number" hide />
+            <YAxis
+              type="category"
+              dataKey="name"
+              width={48}
+              tick={{ fontSize: 12, fontFamily: '"DM Mono"', fill: COLORS.text }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip
+              cursor={{ fill: COLORS.navyLight }}
+              content={({ active, payload }) => {
+                if (!active || !payload?.[0]) return null;
+                const d = payload[0].payload as ChartDatum;
+                return (
+                  <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
+                    <div className="text-slate-300 font-medium mb-1">{d.name}</div>
+                    <div className="font-mono text-white text-sm">{formatMetric(d.value, d.unit)}</div>
+                    <div
+                      className={cn(
+                        'text-2xs font-mono uppercase mt-1',
+                        d.confidence === 'high' && 'confidence-high',
+                        d.confidence === 'medium' && 'confidence-medium',
+                        d.confidence === 'low' && 'confidence-low',
+                      )}
+                    >
+                      {d.confidence} confidence
+                    </div>
                   </div>
-                  <div
-                    className={cn(
-                      'text-2xs font-mono uppercase mt-1',
-                      d.confidence === 'high' && 'confidence-high',
-                      d.confidence === 'medium' && 'confidence-medium',
-                      d.confidence === 'low' && 'confidence-low'
-                    )}
-                  >
-                    {d.confidence} confidence
-                  </div>
-                </div>
-              );
-            }}
-          />
-          <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={36}>
-            {data.map((entry, i) => (
-              <Cell key={i} fill={entry.fill} />
-            ))}
-            <LabelList
-              dataKey="value"
-              position="right"
-              formatter={(val: number) => {
-                const item = data.find((d) => d.value === val);
-                return formatMetric(val, item?.unit || 'B');
-              }}
-              style={{
-                fontFamily: '"DM Mono"',
-                fontSize: 13,
-                fill: '#F0F4F8',
-                fontWeight: 500,
+                );
               }}
             />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={36}>
+              {data.map((entry, i) => (
+                <Cell key={i} fill={entry.fill} />
+              ))}
+              <LabelList
+                dataKey="value"
+                position="right"
+                formatter={(val: number) => {
+                  const item = data.find((d) => d.value === val);
+                  return formatMetric(val, item?.unit || 'B');
+                }}
+                style={{
+                  fontFamily: '"DM Mono"',
+                  fontSize: 13,
+                  fill: '#F0F4F8',
+                  fontWeight: 500,
+                }}
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
       {/* Legend with confidence badges */}
       <div className="flex gap-6 mt-3 px-2">
@@ -153,7 +140,7 @@ export default function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
                 'text-2xs font-mono uppercase',
                 d.confidence === 'high' && 'confidence-high',
                 d.confidence === 'medium' && 'confidence-medium',
-                d.confidence === 'low' && 'confidence-low'
+                d.confidence === 'low' && 'confidence-low',
               )}
             >
               {d.confidence}

@@ -27,9 +27,14 @@ export async function GET(request: Request) {
             'Content-Type': 'application/json',
             Cookie: cookieHeader,
           },
-        }).catch(() => {}); // Fire and forget
-      } catch {
-        // Don't block redirect if welcome email fails
+        }).catch((err) => {
+          console.warn('[auth/callback] Welcome email fetch failed:', err instanceof Error ? err.message : err);
+        });
+      } catch (emailErr) {
+        console.warn(
+          '[auth/callback] Welcome email trigger failed:',
+          emailErr instanceof Error ? emailErr.message : emailErr,
+        );
       }
 
       return NextResponse.redirect(`${origin}${safePath}`);

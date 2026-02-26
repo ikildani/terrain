@@ -11,7 +11,7 @@ import * as Sentry from '@sentry/nextjs';
 import { createClient } from '@/lib/supabase/server';
 import { checkUsage, recordUsage } from '@/lib/usage';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
-import { logger, withTiming, logApiRequest, logApiResponse } from '@/lib/logger';
+import { logger, withTiming, logApiRequest, logApiResponse, logBusinessEvent } from '@/lib/logger';
 import { redis } from '@/lib/redis';
 import type { ApiResponse } from '@/types';
 import type { FeatureKey } from '@/lib/subscription';
@@ -217,9 +217,9 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
       const usageMeta = config.extractUsageMeta?.(validatedBody) ?? {};
       await recordUsage(user.id, config.feature, indication, usageMeta);
 
-      // ── Auto-save report ────────────────────────────────
+      // ── Save report (only when explicitly requested) ───
       let reportId: string | undefined;
-      {
+      if (body.save === true) {
         const reportType = FEATURE_REPORT_TYPE[config.feature] ?? config.feature;
         const titleSuffix = FEATURE_TITLE_SUFFIX[config.feature] ?? 'Analysis';
         const title = indication ? `${indication} ${titleSuffix}` : titleSuffix;
@@ -241,6 +241,7 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
       }
 
       // ── Success ───────────────────────────────────────────
+      logBusinessEvent('analysis_completed', { userId: user.id, feature: config.feature });
       logApiResponse({
         route: config.route,
         status: 200,
@@ -265,9 +266,9 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
         { status: 200, headers: { 'Cache-Control': 'private, no-store', 'X-Request-Id': requestId } },
       );
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : `${config.feature} analysis failed.`;
+      const message = `${config.feature} analysis failed. Please try again.`;
       logger.error(`${config.rateKey}_analysis_error`, {
-        error: message,
+        error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
         requestId,
       });

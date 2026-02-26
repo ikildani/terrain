@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useIntelligenceFeed } from '@/hooks/useIntelligenceFeed';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
@@ -374,15 +374,20 @@ export default function IntelligenceFeedPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
   // Debounce search
-  const searchTimeout = useState<ReturnType<typeof setTimeout> | null>(null);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, []);
+
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    if (searchTimeout[0]) clearTimeout(searchTimeout[0]);
-    searchTimeout[1](
-      setTimeout(() => {
-        setDebouncedSearch(value);
-      }, 400),
-    );
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearch(value);
+    }, 400);
   };
 
   const { sources, trials, fda, sec, counts, isLoading, dataUpdatedAt } = useIntelligenceFeed({

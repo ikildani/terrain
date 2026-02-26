@@ -11,9 +11,14 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Skip auth enforcement when Supabase is not configured
+  // Deny access when Supabase is not configured — don't silently allow through
   if (!supabaseUrl || !supabaseKey) {
-    return response;
+    const isApiRoute = request.nextUrl.pathname.startsWith('/api/');
+    if (isApiRoute) {
+      return NextResponse.json({ error: 'Service unavailable' }, { status: 503 });
+    }
+    // For page routes, return 503
+    return new NextResponse('Service Unavailable', { status: 503 });
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
@@ -63,9 +68,9 @@ export async function updateSession(request: NextRequest) {
   const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) => request.nextUrl.pathname.startsWith(prefix));
 
   if (isProtectedRoute && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    return NextResponse.redirect(url);
+    const loginUrl = new URL('/login', request.nextUrl);
+    loginUrl.searchParams.set('next', request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   // Redirect authenticated users away from auth pages

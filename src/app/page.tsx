@@ -18,21 +18,26 @@ import { Footer } from '@/components/landing/Footer';
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-navy-950 text-slate-100">
+      <a href="#main-content" className="skip-to-content">
+        Skip to content
+      </a>
       <Navbar />
-      <HeroSection />
-      <StatsStrip />
-      <DataSourceStrip />
-      <PersonasSection />
-      <CredibilityStrip />
-      <ModulesSection />
-      <HowItWorksSection />
-      <DemoSection />
-      <BeforeAfterSection />
-      <ProductPreviewSection />
-      <ValuePropsSection />
-      <PricingSection />
-      <FaqSection />
-      <CtaSection />
+      <main id="main-content">
+        <HeroSection />
+        <StatsStrip />
+        <DataSourceStrip />
+        <PersonasSection />
+        <CredibilityStrip />
+        <ModulesSection />
+        <HowItWorksSection />
+        <DemoSection />
+        <BeforeAfterSection />
+        <ProductPreviewSection />
+        <ValuePropsSection />
+        <PricingSection />
+        <FaqSection />
+        <CtaSection />
+      </main>
       <Footer />
     </div>
   );

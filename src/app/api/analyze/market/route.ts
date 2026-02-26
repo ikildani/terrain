@@ -7,7 +7,8 @@ import { calculateMarketSizing } from '@/lib/analytics/market-sizing';
 import { calculateDeviceMarketSizing, calculateCDxMarketSizing } from '@/lib/analytics/device-market-sizing';
 import { calculateNutraceuticalMarketSizing } from '@/lib/analytics/nutraceutical-market-sizing';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
-import { logger, withTiming, logApiRequest, logApiResponse } from '@/lib/logger';
+import { logger, withTiming, logApiRequest, logApiResponse, logBusinessEvent } from '@/lib/logger';
+import { sanitizePostgrestValue } from '@/lib/utils/sanitize';
 import type { ApiResponse } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -306,7 +307,7 @@ export async function POST(request: NextRequest) {
     } = { active_trials_count: 0, recent_fda_approvals: [], data_as_of: new Date().toISOString() };
 
     try {
-      const searchTerm = indication.trim();
+      const searchTerm = sanitizePostgrestValue(indication.trim());
 
       if (searchTerm) {
         const liveSupabase = createClient();
@@ -359,7 +360,7 @@ export async function POST(request: NextRequest) {
 
     // ── Save report (skip for demo, respect save parameter) ──
     let reportId: string | undefined;
-    if (!isDemo && user && save !== false) {
+    if (!isDemo && user && save === true) {
       const supabase = createClient();
       const title = indication ? `${indication} Market Assessment` : 'Market Assessment';
       const { data: saved } = await supabase
@@ -381,6 +382,11 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Success ─────────────────────────────────────────────
+    logBusinessEvent('analysis_completed', {
+      userId: user?.id,
+      feature: 'market_sizing',
+      indication: input.indication,
+    });
     logApiResponse({
       route: '/api/analyze/market',
       status: 200,

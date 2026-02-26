@@ -8,6 +8,7 @@ import { logger, logApiRequest, logApiResponse } from '@/lib/logger';
 import { getCompetitorsForIndication, type CompetitorRecord } from '@/lib/data/competitor-database';
 import { PHARMA_PARTNER_DATABASE } from '@/lib/data/partner-database';
 import { findIndicationByName } from '@/lib/data/indication-map';
+import { sanitizePostgrestValue } from '@/lib/utils/sanitize';
 import type { ApiResponse } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -230,7 +231,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Supabase cache queries (in parallel) ────────────────
-    const searchTerm = indication.trim();
+    const searchTerm = sanitizePostgrestValue(indication.trim());
 
     const [trialsResult, secResult, fdaResult] = await Promise.all([
       // Clinical trials: search by indication in conditions or title
@@ -246,7 +247,7 @@ export async function POST(request: NextRequest) {
         ? supabase
             .from('sec_filings_cache')
             .select(SEC_COLUMNS)
-            .or(competitorCompanies.map((c) => `company_name.ilike.%${c}%`).join(','))
+            .or(competitorCompanies.map((c) => `company_name.ilike.%${sanitizePostgrestValue(c)}%`).join(','))
             .order('filed_date', { ascending: false })
             .limit(10)
         : Promise.resolve({ data: [] as SecFiling[], error: null }),
