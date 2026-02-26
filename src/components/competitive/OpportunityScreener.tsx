@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Radar, TrendingUp, Users, Target, BarChart3 } from 'lucide-react';
+import { Radar, TrendingUp, Users, Target, BarChart3, Search, Download } from 'lucide-react';
 import { OpportunityFilterBar, type ScreenerFilters } from './OpportunityFilterBar';
 import { OpportunityTable } from './OpportunityTable';
 import { OpportunityScoreBar } from './OpportunityScoreBar';
@@ -168,7 +168,54 @@ const AVAILABLE_THERAPY_AREAS = [
   'rare_disease',
 ];
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 250;
+
+// ── CSV Export ────────────────────────────────────────────
+
+function exportCsv(data: OpportunityRow[]) {
+  const headers = [
+    'Indication',
+    'Therapy Area',
+    'Opportunity Score',
+    'Global Prevalence',
+    'US Prevalence',
+    'Crowding Score',
+    'Crowding Label',
+    'Competitors',
+    'Treatment Rate %',
+    'Diagnosis Rate %',
+    'CAGR 5yr %',
+    'Top Competitors',
+    'White Space',
+  ];
+  const csvRows = [headers.join(',')];
+  for (const r of data) {
+    csvRows.push(
+      [
+        `"${r.indication}"`,
+        r.therapy_area,
+        r.opportunity_score.toFixed(1),
+        r.global_prevalence,
+        r.us_prevalence,
+        r.crowding_score.toFixed(1),
+        r.crowding_label,
+        r.competitor_count,
+        (r.treatment_rate * 100).toFixed(0),
+        (r.diagnosis_rate * 100).toFixed(0),
+        r.cagr_5yr.toFixed(1),
+        `"${r.top_competitors.join('; ')}"`,
+        `"${r.white_space_hints.join('; ')}"`,
+      ].join(','),
+    );
+  }
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `opportunity-screener-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function OpportunityScreener() {
   const [filters, setFilters] = useState<ScreenerFilters>(DEFAULT_FILTERS);
@@ -178,6 +225,13 @@ export default function OpportunityScreener() {
   const [rows, setRows] = useState<OpportunityRow[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [hasSearched, setHasSearched] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [generatedAt, setGeneratedAt] = useState<string | null>(null);
+
+  // Client-side text filtering on indication name
+  const filteredRows = searchQuery.trim()
+    ? rows.filter((r) => r.indication.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    : rows;
 
   const mutation = useMutation({
     mutationFn: async (params: {
@@ -213,6 +267,7 @@ export default function OpportunityScreener() {
       if (result.data) {
         setRows(result.data.opportunities);
         setTotalCount(result.data.total_count);
+        setGeneratedAt(result.data.generated_at);
       }
       setHasSearched(true);
     },
@@ -268,8 +323,8 @@ export default function OpportunityScreener() {
         totalCount={hasSearched ? totalCount : undefined}
       />
 
-      {/* Apply filters button */}
-      <div className="flex items-center gap-3">
+      {/* Apply filters button + search + export */}
+      <div className="flex items-center gap-3 flex-wrap">
         <button
           onClick={() => handleApplyFilters()}
           disabled={isLoading}
@@ -287,6 +342,29 @@ export default function OpportunityScreener() {
             </>
           )}
         </button>
+
+        {hasSearched && !isLoading && (
+          <button
+            onClick={() => exportCsv(filteredRows)}
+            className="btn text-sm px-4 py-2 inline-flex items-center gap-2 border border-navy-700 bg-navy-800/50 text-slate-400 hover:border-navy-600 hover:text-slate-300 transition-colors rounded-md"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        )}
+
+        {/* Indication text search */}
+        <div className="relative ml-auto">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search indications..."
+            className="pl-8 pr-3 py-2 text-sm bg-navy-800/50 border border-navy-700 rounded-md text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 w-56"
+          />
+        </div>
+
         {hasSearched && !isLoading && (
           <span className="text-xs text-slate-500">
             Sorted by <span className="text-slate-400 font-mono">{sortBy.replaceAll('_', ' ')}</span>{' '}
@@ -308,19 +386,27 @@ export default function OpportunityScreener() {
       )}
 
       {/* Summary stats */}
-      {hasSearched && !isLoading && <SummaryStats rows={rows} totalCount={totalCount} />}
+      {hasSearched && !isLoading && <SummaryStats rows={filteredRows} totalCount={filteredRows.length} />}
+
+      {/* Generated at timestamp */}
+      {hasSearched && !isLoading && generatedAt && (
+        <p className="text-[10px] font-mono text-slate-600">
+          Screened at {new Date(generatedAt).toLocaleString()} &middot; {filteredRows.length}
+          {searchQuery.trim() ? ` of ${totalCount}` : ''} indications
+        </p>
+      )}
 
       {/* Results table */}
       {hasSearched && (
         <>
           <OpportunityTable
-            rows={rows}
+            rows={filteredRows}
             sortBy={sortBy}
             sortOrder={sortOrder}
             onSort={handleSort}
             isLoading={isLoading}
           />
-          <Pagination offset={offset} limit={PAGE_SIZE} total={totalCount} onPageChange={runScreener} />
+          <Pagination offset={offset} limit={PAGE_SIZE} total={filteredRows.length} onPageChange={runScreener} />
         </>
       )}
 

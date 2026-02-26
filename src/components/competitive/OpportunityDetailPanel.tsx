@@ -105,6 +105,14 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
     fetchDetail();
   }, [isOpen, indication, detail]);
 
+  const tabCounts: Partial<Record<DetailTab, number>> = detail
+    ? {
+        trials: detail.trials.length,
+        sec: detail.sec_filings.length,
+        fda: detail.fda_approvals.length,
+      }
+    : {};
+
   if (!isOpen) return null;
 
   return (
@@ -115,6 +123,8 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
           <div className="flex gap-1 mb-4 border-b border-navy-700/40 pb-px">
             {TABS.map((tab) => {
               const Icon = tab.icon;
+              const count = tabCounts[tab.id];
+              const isEmpty = detail && count === 0;
               return (
                 <button
                   key={tab.id}
@@ -123,11 +133,18 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
                     'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-t-md transition-colors',
                     activeTab === tab.id
                       ? 'text-teal-400 bg-navy-800 border-b-2 border-teal-500'
-                      : 'text-slate-500 hover:text-slate-300 hover:bg-navy-800/50',
+                      : isEmpty
+                        ? 'text-slate-600 hover:text-slate-400 hover:bg-navy-800/50'
+                        : 'text-slate-500 hover:text-slate-300 hover:bg-navy-800/50',
                   )}
                 >
                   <Icon className="w-3.5 h-3.5" />
                   {tab.label}
+                  {detail && count !== undefined && (
+                    <span className="ml-1 px-1 py-0.5 rounded bg-navy-700/60 text-[9px] font-mono text-slate-500 tabular-nums">
+                      {count}
+                    </span>
+                  )}
                 </button>
               );
             })}
