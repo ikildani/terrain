@@ -22,6 +22,7 @@ import type { CompetitorRecord } from '@/lib/data/competitor-database';
 import { LOA_BY_PHASE_AND_AREA } from '@/lib/data/loa-tables';
 import { PHARMA_PARTNER_DATABASE } from '@/lib/data/partner-database';
 import { TERRITORY_MULTIPLIERS } from '@/lib/data/territory-multipliers';
+import { getRegionalFactors } from '@/lib/data/regional-prevalence-factors';
 import type { DevelopmentStage } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -32,14 +33,6 @@ const US_POP_M = 336;
 
 /** Key territory codes used for global prevalence extrapolation. */
 const GLOBAL_TERRITORY_CODES = ['US', 'EU5', 'Japan', 'China', 'RoW'] as const;
-
-/**
- * Sum of populations from key territories:
- * US(336) + EU5(330) + Japan(124) + China(1410) + RoW(6000) = ~8200M
- */
-const GLOBAL_POP_M = TERRITORY_MULTIPLIERS.filter((t) =>
-  (GLOBAL_TERRITORY_CODES as readonly string[]).includes(t.code),
-).reduce((sum, t) => sum + t.population_m, 0);
 
 /** Phase weights for crowding score computation. */
 const PHASE_WEIGHTS: Record<string, number> = {
@@ -333,19 +326,62 @@ interface GlobalEpidemiology {
   globalIncidence: number;
 }
 
+/** Territory populations keyed by code for quick lookup. */
+const TERRITORY_POP: Record<string, number> = Object.fromEntries(
+  TERRITORY_MULTIPLIERS.filter((t) => (GLOBAL_TERRITORY_CODES as readonly string[]).includes(t.code)).map((t) => [
+    t.code,
+    t.population_m,
+  ]),
+);
+
 /**
  * Extrapolates US epidemiology data to global estimates using
- * territory population data. Uses a simple per-capita rate
- * extrapolation across key territories.
+ * territory-specific disease burden adjustment factors.
+ *
+ * Instead of assuming identical per-capita rates worldwide (which
+ * dramatically over- or under-estimates for many therapy areas),
+ * this applies curated regional prevalence multipliers from
+ * WHO GBD / GLOBOCAN / published literature.
+ *
+ * For each territory:
+ *   territory_cases = (US_rate_per_million) × (territory_pop_M) × (regional_factor)
+ *
+ * Global total = US + EU5 + Japan + China + RoW (sum of adjusted territories).
  */
 function computeGlobalEpidemiology(indication: IndicationData): GlobalEpidemiology {
-  const prevalenceRatePerM = indication.us_prevalence / US_POP_M;
-  const globalPrevalence = Math.round(prevalenceRatePerM * GLOBAL_POP_M);
+  const factors = getRegionalFactors(indication.therapy_area);
 
-  const incidenceRatePerM = indication.us_incidence / US_POP_M;
-  const globalIncidence = Math.round(incidenceRatePerM * GLOBAL_POP_M);
+  const usPrevalenceRatePerM = indication.us_prevalence / US_POP_M;
+  const usIncidenceRatePerM = indication.us_incidence / US_POP_M;
 
-  return { globalPrevalence, globalIncidence };
+  // US contribution (factor = 1.0 by definition)
+  let totalPrevalence = indication.us_prevalence;
+  let totalIncidence = indication.us_incidence;
+
+  // EU5 contribution
+  const eu5Pop = TERRITORY_POP['EU5'] ?? 330;
+  totalPrevalence += usPrevalenceRatePerM * eu5Pop * factors.eu5;
+  totalIncidence += usIncidenceRatePerM * eu5Pop * factors.eu5;
+
+  // Japan contribution
+  const japanPop = TERRITORY_POP['Japan'] ?? 124;
+  totalPrevalence += usPrevalenceRatePerM * japanPop * factors.japan;
+  totalIncidence += usIncidenceRatePerM * japanPop * factors.japan;
+
+  // China contribution
+  const chinaPop = TERRITORY_POP['China'] ?? 1410;
+  totalPrevalence += usPrevalenceRatePerM * chinaPop * factors.china;
+  totalIncidence += usIncidenceRatePerM * chinaPop * factors.china;
+
+  // Rest of World contribution
+  const rowPop = TERRITORY_POP['RoW'] ?? 6000;
+  totalPrevalence += usPrevalenceRatePerM * rowPop * factors.row;
+  totalIncidence += usIncidenceRatePerM * rowPop * factors.row;
+
+  return {
+    globalPrevalence: Math.round(totalPrevalence),
+    globalIncidence: Math.round(totalIncidence),
+  };
 }
 
 // ────────────────────────────────────────────────────────────
@@ -403,16 +439,64 @@ function scoreDevelopmentFeasibility(therapyArea: string): number {
 }
 
 /**
+ * Alias map for fuzzy therapy area matching between the screener's
+ * standard therapy_area names and the varied naming in partner profiles.
+ * Each standard area maps to additional tokens that should count as a match.
+ */
+const THERAPY_AREA_ALIASES: Record<string, string[]> = {
+  neurology: ['neuroscience', 'neuro', 'cns'],
+  gastroenterology: ['gi', 'gastrointestinal', 'digestive'],
+  pulmonology: ['respiratory', 'pulmonary', 'lung'],
+  nephrology: ['renal', 'kidney'],
+  hepatology: ['liver', 'hepatic', 'hepatitis'],
+  musculoskeletal: ['orthopedic', 'bone', 'joint', 'rheumatology'],
+  pain_management: ['pain', 'analgesic', 'analgesia'],
+  endocrinology: ['endocrine', 'diabetes', 'thyroid', 'hormonal'],
+  psychiatry: ['mental health', 'behavioral', 'psychiatric'],
+  immunology: ['autoimmune', 'inflammation', 'immune'],
+  cardiovascular: ['cardiology', 'cardiac', 'heart', 'vascular'],
+  metabolic: ['metabolism', 'obesity', 'lipid'],
+  infectious_disease: ['infectious', 'anti-infective', 'antiviral', 'antibacterial', 'vaccines'],
+  ophthalmology: ['ophthalmic', 'eye', 'retinal', 'vision'],
+  dermatology: ['skin', 'dermatologic'],
+  rare_disease: ['orphan', 'ultra-rare', 'genetic disease'],
+  oncology: ['cancer', 'tumor', 'immuno-oncology', 'io'],
+  hematology: ['blood', 'hemophilia', 'thrombosis'],
+};
+
+/**
+ * Returns true if the partner's listed therapeutic area matches the
+ * screener's standard therapy_area. Uses bidirectional includes +
+ * alias expansion for robust matching.
+ */
+function matchesTherapyArea(partnerArea: string, indicationArea: string): boolean {
+  const pa = partnerArea.toLowerCase();
+  const ia = indicationArea.toLowerCase();
+
+  // Direct bidirectional includes
+  if (pa.includes(ia) || ia.includes(pa)) return true;
+
+  // Alias expansion: check if partner area matches any alias of the indication area
+  const aliases = THERAPY_AREA_ALIASES[ia];
+  if (aliases) {
+    for (const alias of aliases) {
+      if (pa.includes(alias) || alias.includes(pa)) return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Partner Landscape (0-10):
  * Count of active or very-active BD partners whose therapeutic_areas
  * overlap with the indication's therapy area, normalized to a 20-partner
  * ceiling (20+ active partners = max score).
  */
 function scorePartnerLandscape(therapyArea: string): { score: number; activeCount: number } {
-  const taLower = therapyArea.toLowerCase();
   const activePartners = PHARMA_PARTNER_DATABASE.filter(
     (p) =>
-      p.therapeutic_areas.some((ta) => ta.toLowerCase().includes(taLower)) &&
+      p.therapeutic_areas.some((ta) => matchesTherapyArea(ta, therapyArea)) &&
       (p.bd_activity === 'active' || p.bd_activity === 'very_active'),
   );
   const count = activePartners.length;
