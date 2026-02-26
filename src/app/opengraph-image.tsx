@@ -14,12 +14,10 @@ export default async function Image() {
         width: '100%',
         height: '100%',
         display: 'flex',
-        padding: '0',
         position: 'relative',
-        overflow: 'hidden',
       }}
     >
-      {/* Subtle grid */}
+      {/* Grid overlay */}
       <div
         style={{
           position: 'absolute',
@@ -27,7 +25,7 @@ export default async function Image() {
           left: 0,
           right: 0,
           bottom: 0,
-          opacity: 0.035,
+          opacity: 0.03,
           backgroundImage:
             'linear-gradient(rgba(0,201,167,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,201,167,0.5) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
@@ -35,12 +33,12 @@ export default async function Image() {
         }}
       />
 
-      {/* Top-left glow */}
+      {/* Glow */}
       <div
         style={{
           position: 'absolute',
-          top: '-120px',
-          left: '20%',
+          top: '-100px',
+          left: '200px',
           width: '600px',
           height: '400px',
           background: 'radial-gradient(ellipse, rgba(0,201,167,0.10), transparent 70%)',
@@ -48,7 +46,7 @@ export default async function Image() {
         }}
       />
 
-      {/* Left panel — branding + headline */}
+      {/* Left — branding */}
       <div
         style={{
           display: 'flex',
@@ -56,7 +54,6 @@ export default async function Image() {
           justifyContent: 'center',
           width: '520px',
           padding: '56px 56px 56px 64px',
-          position: 'relative',
         }}
       >
         {/* Logo */}
@@ -91,8 +88,7 @@ export default async function Image() {
                 style={{
                   width: '22px',
                   height: '5px',
-                  background: 'linear-gradient(180deg, #00E4BF, #00C9A7)',
-                  borderRadius: '1px 1px 0 0',
+                  background: '#00C9A7',
                   display: 'flex',
                 }}
               />
@@ -101,7 +97,6 @@ export default async function Image() {
                   width: '7px',
                   height: '14px',
                   background: '#00C9A7',
-                  borderRadius: '0 0 1px 1px',
                   display: 'flex',
                 }}
               />
@@ -112,8 +107,6 @@ export default async function Image() {
               fontSize: '24px',
               fontWeight: 600,
               color: '#F0F4F8',
-              fontFamily: 'serif',
-              letterSpacing: '-0.02em',
             }}
           >
             Terrain
@@ -123,89 +116,85 @@ export default async function Image() {
         {/* Headline */}
         <div
           style={{
-            fontSize: '44px',
-            fontWeight: 700,
-            color: '#F0F4F8',
-            lineHeight: 1.1,
-            fontFamily: 'serif',
-            letterSpacing: '-0.02em',
-            marginBottom: '16px',
             display: 'flex',
             flexDirection: 'column',
+            marginBottom: '16px',
           }}
         >
-          <span>Know the market</span>
-          <span style={{ color: '#00C9A7' }}>before the deal.</span>
+          <span
+            style={{
+              fontSize: '44px',
+              fontWeight: 700,
+              color: '#F0F4F8',
+              lineHeight: 1.1,
+            }}
+          >
+            Know the market
+          </span>
+          <span
+            style={{
+              fontSize: '44px',
+              fontWeight: 700,
+              color: '#00C9A7',
+              lineHeight: 1.1,
+            }}
+          >
+            before the deal.
+          </span>
         </div>
 
-        {/* Subline */}
-        <div
+        {/* Sub */}
+        <span
           style={{
             fontSize: '16px',
             color: '#94A3B8',
             lineHeight: 1.55,
-            maxWidth: '400px',
-            display: 'flex',
           }}
         >
-          TAM analysis, competitive landscapes, and partner matching for biotech professionals — in seconds, not weeks.
-        </div>
+          TAM analysis, competitive landscapes, and partner matching for biotech professionals.
+        </span>
 
-        {/* Bottom tag */}
+        {/* Attribution */}
         <div
           style={{
-            position: 'absolute',
-            bottom: '40px',
-            left: '64px',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
+            marginTop: '40px',
           }}
         >
           <span style={{ fontSize: '12px', color: '#475569' }}>Built by</span>
-          <span
-            style={{
-              fontSize: '12px',
-              color: '#94A3B8',
-              fontWeight: 500,
-            }}
-          >
-            Ambrosia Ventures
-          </span>
+          <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>Ambrosia Ventures</span>
         </div>
       </div>
 
-      {/* Right panel — product preview mock */}
+      {/* Right — terminal mock */}
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
           flex: 1,
-          padding: '40px 48px 40px 0',
+          padding: '48px 48px 48px 0',
           justifyContent: 'center',
         }}
       >
-        {/* Terminal card */}
         <div
           style={{
             background: '#07101E',
             borderRadius: '12px',
-            border: '1px solid rgba(16,34,54,0.8)',
+            border: '1px solid #102236',
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'hidden',
-            boxShadow: '0 24px 48px rgba(0,0,0,0.4)',
           }}
         >
-          {/* Chrome bar */}
+          {/* Chrome */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               padding: '12px 16px',
-              borderBottom: '1px solid rgba(16,34,54,0.8)',
-              background: 'rgba(7,16,30,0.6)',
+              borderBottom: '1px solid #102236',
             }}
           >
             <div
@@ -213,7 +202,8 @@ export default async function Image() {
                 width: '8px',
                 height: '8px',
                 borderRadius: '50%',
-                background: 'rgba(248,113,113,0.5)',
+                background: '#F87171',
+                opacity: 0.5,
                 display: 'flex',
               }}
             />
@@ -222,7 +212,8 @@ export default async function Image() {
                 width: '8px',
                 height: '8px',
                 borderRadius: '50%',
-                background: 'rgba(251,191,36,0.5)',
+                background: '#FBBF24',
+                opacity: 0.5,
                 display: 'flex',
               }}
             />
@@ -231,7 +222,8 @@ export default async function Image() {
                 width: '8px',
                 height: '8px',
                 borderRadius: '50%',
-                background: 'rgba(52,211,153,0.5)',
+                background: '#34D399',
+                opacity: 0.5,
                 display: 'flex',
               }}
             />
@@ -240,103 +232,81 @@ export default async function Image() {
                 marginLeft: '8px',
                 fontSize: '10px',
                 color: '#475569',
-                fontFamily: 'monospace',
               }}
             >
               terrain — market-sizing
             </span>
           </div>
 
-          {/* Terminal body */}
+          {/* Body */}
           <div
             style={{
               padding: '20px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '8px',
-              fontFamily: 'monospace',
+              gap: '10px',
               fontSize: '13px',
             }}
           >
-            {/* Query */}
-            <div style={{ color: '#64748B', display: 'flex' }}>{'>'} KRAS G12C inhibitor · NSCLC · Phase 2</div>
+            <span style={{ color: '#64748B' }}>&gt; KRAS G12C inhibitor · NSCLC · Phase 2</span>
 
-            {/* Divider */}
             <div
               style={{
                 height: '1px',
-                background: 'rgba(16,34,54,0.6)',
+                background: '#102236',
                 display: 'flex',
-                margin: '4px 0',
               }}
             />
 
-            {/* Metrics */}
-            {[
-              { label: 'US TAM', value: '$24.8B', color: '#00C9A7' },
-              { label: 'US SAM', value: '$8.2B', color: '#00C9A7' },
-              { label: 'Peak Revenue', value: '$1.4B', color: '#F0F4F8' },
-              { label: '5-yr CAGR', value: '+12.3%', color: '#34D399' },
-            ].map((m) => (
-              <div
-                key={m.label}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <span style={{ color: '#94A3B8' }}>{m.label}</span>
-                <span style={{ color: m.color, fontWeight: 500 }}>{m.value}</span>
-              </div>
-            ))}
-
-            {/* Divider */}
-            <div
-              style={{
-                height: '1px',
-                background: 'rgba(16,34,54,0.6)',
-                display: 'flex',
-                margin: '4px 0',
-              }}
-            />
-
-            {/* Competitive */}
-            {[
-              {
-                label: 'Competitive Density',
-                value: '7/10',
-                color: '#FBBF24',
-              },
-              { label: 'Top Partner Match', value: 'Merck (92/100)', color: '#00C9A7' },
-            ].map((m) => (
-              <div
-                key={m.label}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <span style={{ color: '#94A3B8' }}>{m.label}</span>
-                <span style={{ color: m.color, fontWeight: 500 }}>{m.value}</span>
-              </div>
-            ))}
-
-            {/* Footer */}
-            <div
-              style={{
-                height: '1px',
-                background: 'rgba(16,34,54,0.6)',
-                display: 'flex',
-                margin: '4px 0',
-              }}
-            />
-            <div style={{ color: '#475569', fontSize: '11px', display: 'flex' }}>
-              Generated in 4.2s · 6 data sources · High confidence
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#94A3B8' }}>US TAM</span>
+              <span style={{ color: '#00C9A7', fontWeight: 500 }}>$24.8B</span>
             </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#94A3B8' }}>US SAM</span>
+              <span style={{ color: '#00C9A7', fontWeight: 500 }}>$8.2B</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#94A3B8' }}>Peak Revenue</span>
+              <span style={{ color: '#F0F4F8', fontWeight: 500 }}>$1.4B</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#94A3B8' }}>5-yr CAGR</span>
+              <span style={{ color: '#34D399', fontWeight: 500 }}>+12.3%</span>
+            </div>
+
+            <div
+              style={{
+                height: '1px',
+                background: '#102236',
+                display: 'flex',
+              }}
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#94A3B8' }}>Competitive Density</span>
+              <span style={{ color: '#FBBF24', fontWeight: 500 }}>7/10</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#94A3B8' }}>Top Partner Match</span>
+              <span style={{ color: '#00C9A7', fontWeight: 500 }}>Merck (92/100)</span>
+            </div>
+
+            <div
+              style={{
+                height: '1px',
+                background: '#102236',
+                display: 'flex',
+              }}
+            />
+
+            <span style={{ color: '#475569', fontSize: '11px' }}>
+              Generated in 4.2s · 6 data sources · High confidence
+            </span>
           </div>
         </div>
 
-        {/* Mini stats below terminal */}
+        {/* Stats row */}
         <div
           style={{
             display: 'flex',
@@ -345,50 +315,48 @@ export default async function Image() {
             justifyContent: 'center',
           }}
         >
-          {[
-            { val: '150+', label: 'Indications' },
-            { val: '300+', label: 'Partners' },
-            { val: '<30s', label: 'Results' },
-          ].map((s) => (
-            <div
-              key={s.label}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 14px',
-                borderRadius: '6px',
-                border: '1px solid rgba(16,34,54,0.6)',
-                background: 'rgba(7,16,30,0.4)',
-              }}
-            >
-              <span
-                style={{
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  color: '#00C9A7',
-                  fontFamily: 'monospace',
-                }}
-              >
-                {s.val}
-              </span>
-              <span
-                style={{
-                  fontSize: '10px',
-                  color: '#64748B',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
-                {s.label}
-              </span>
-            </div>
-          ))}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '6px',
+              border: '1px solid #102236',
+            }}
+          >
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#00C9A7' }}>150+</span>
+            <span style={{ fontSize: '10px', color: '#64748B' }}>INDICATIONS</span>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '6px',
+              border: '1px solid #102236',
+            }}
+          >
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#00C9A7' }}>300+</span>
+            <span style={{ fontSize: '10px', color: '#64748B' }}>PARTNERS</span>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '6px',
+              border: '1px solid #102236',
+            }}
+          >
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#00C9A7' }}>30s</span>
+            <span style={{ fontSize: '10px', color: '#64748B' }}>RESULTS</span>
+          </div>
         </div>
       </div>
     </div>,
-    {
-      ...size,
-    },
+    { ...size },
   );
 }
