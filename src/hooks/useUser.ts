@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import * as Sentry from '@sentry/nextjs';
 import { createClient } from '@/lib/supabase/client';
+import { posthog, POSTHOG_KEY } from '@/lib/posthog';
 import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 interface UserState {
@@ -28,6 +29,11 @@ export function useUser(): UserState {
       const resolvedUser = data.user ?? null;
       setUser(resolvedUser);
       Sentry.setUser(resolvedUser ? { id: resolvedUser.id } : null);
+      if (POSTHOG_KEY && resolvedUser) {
+        posthog.identify(resolvedUser.id, { email: resolvedUser.email });
+      } else if (POSTHOG_KEY) {
+        posthog.reset();
+      }
       setIsLoading(false);
     }
     getInitialUser();
@@ -39,6 +45,11 @@ export function useUser(): UserState {
       const sessionUser = session?.user ?? null;
       setUser(sessionUser);
       Sentry.setUser(sessionUser ? { id: sessionUser.id } : null);
+      if (POSTHOG_KEY && sessionUser) {
+        posthog.identify(sessionUser.id, { email: sessionUser.email });
+      } else if (POSTHOG_KEY && _event === 'SIGNED_OUT') {
+        posthog.reset();
+      }
     });
 
     return () => subscription.unsubscribe();

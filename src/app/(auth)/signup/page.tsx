@@ -8,7 +8,11 @@ import { createClient } from '@/lib/supabase/client';
 const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 
-function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
+function getPasswordStrength(pw: string): {
+  score: number;
+  label: string;
+  color: string;
+} {
   let score = 0;
   if (pw.length >= 8) score++;
   if (pw.length >= 12) score++;
@@ -65,7 +69,7 @@ export default function SignupPage() {
       return;
     }
 
-    router.push('/dashboard');
+    router.push('/onboarding');
     router.refresh();
   }
 

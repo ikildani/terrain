@@ -482,7 +482,7 @@ function buildPayerMixEvolution(launchYear: number, therapyArea: string, years: 
   const profile = PAYER_MIX_PROFILES[therapyArea.toLowerCase()] ?? PAYER_MIX_PROFILES.default;
 
   return Array.from({ length: years }, (_, i) => {
-    const t = i / (years - 1); // 0 to 1 interpolation
+    const t = years <= 1 ? 0 : i / (years - 1); // 0 to 1 interpolation
 
     const commercial = profile.yr1_commercial + (profile.yr10_commercial - profile.yr1_commercial) * t;
     const medicare = profile.yr1_medicare + (profile.yr10_medicare - profile.yr1_medicare) * t;

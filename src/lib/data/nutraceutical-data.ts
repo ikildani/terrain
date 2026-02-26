@@ -340,6 +340,7 @@ export interface NutraceuticalIngredient {
   key_brands: string[];
   ip_landscape: string;
   trending: boolean;
+  target_demographic?: string[];
 }
 
 export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
@@ -358,6 +359,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['ProHealth Longevity', 'Wonderfeel', 'Renue By Science', 'DoNotAge'],
     ip_landscape: 'Sinclair/Harvard patents on NMN for NAD+ (licensed to Metro International). Expiring 2030s.',
     trending: true,
+    target_demographic: ['Adults 40+', 'Longevity-focused consumers', 'Biohackers', 'Anti-aging enthusiasts'],
   },
   {
     name: 'NR (Nicotinamide Riboside)',
@@ -372,6 +374,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Tru Niagen (ChromaDex)', 'Elysium Basis', 'Life Extension'],
     ip_landscape: 'ChromaDex holds key patents on Niagen (NR chloride). Dartmouth/Cornell origin patents.',
     trending: true,
+    target_demographic: ['Adults 40+', 'Longevity-focused consumers', 'Biohackers', 'Health-conscious professionals'],
   },
   {
     name: 'Resveratrol',
@@ -386,6 +389,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Life Extension', 'NOW Foods', 'Thorne'],
     ip_landscape: 'Largely off-patent. Bioavailability-enhanced formulations patentable.',
     trending: false,
+    target_demographic: [
+      'Adults 40+',
+      'Longevity-focused consumers',
+      'Cardiovascular risk-conscious adults',
+      'Wine enthusiasts seeking health benefits',
+    ],
   },
   {
     name: 'Spermidine',
@@ -400,6 +409,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['spermidineLIFE', 'Oxford Healthspan', 'DoNotAge'],
     ip_landscape: 'Lonza partnership with spermidineLIFE. Wheat germ-derived broadly accessible.',
     trending: true,
+    target_demographic: [
+      'Adults 40+',
+      'Longevity-focused consumers',
+      'Biohackers',
+      'Autophagy-aware health enthusiasts',
+    ],
   },
   {
     name: 'Fisetin',
@@ -414,6 +429,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Life Extension', "Doctor's Best", 'Swanson'],
     ip_landscape: 'Open — no dominant patents. Mayo Clinic trials on senolytic protocols.',
     trending: true,
+    target_demographic: ['Adults 50+', 'Longevity-focused consumers', 'Biohackers', 'Senolytic protocol followers'],
   },
 
   // ═══ GUT / MICROBIOME ═══
@@ -430,6 +446,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Seed', 'Culturelle', 'Align', 'VSL#3', 'Garden of Life'],
     ip_landscape: 'Strain-specific patents (Probi, Chr. Hansen). Formulation IP is primary moat.',
     trending: false,
+    target_demographic: [
+      'Adults with digestive issues',
+      'IBS sufferers',
+      'Immune-conscious consumers',
+      'Post-antibiotic recovery',
+    ],
   },
   {
     name: 'Postbiotics (Urolithin A)',
@@ -444,6 +466,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Timeline (Amazentis)', 'Mitopure'],
     ip_landscape: 'Amazentis/Nestle holds composition and use patents. Strong IP moat.',
     trending: true,
+    target_demographic: [
+      'Adults 40+',
+      'Aging adults concerned about muscle decline',
+      'Longevity-focused consumers',
+      'Exercise recovery seekers',
+    ],
   },
 
   // ═══ COGNITIVE / NOOTROPICS ═══
@@ -460,6 +488,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Host Defense (Paul Stamets)', 'Real Mushrooms', 'Four Sigmatic', 'Nootropics Depot'],
     ip_landscape: 'Open — no dominant patents on whole extract. Erinacine-enriched standardizations patentable.',
     trending: true,
+    target_demographic: [
+      'Cognitive performance seekers',
+      'Students',
+      'Adults 50+',
+      'Neurodegenerative risk individuals',
+    ],
   },
   {
     name: 'Creatine Monohydrate',
@@ -474,6 +508,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Thorne', 'NOW', 'Optimum Nutrition', 'Momentous'],
     ip_landscape: 'Open — base creatine monohydrate off-patent. Novel delivery forms patentable.',
     trending: true,
+    target_demographic: ['Athletes', 'Strength trainers', 'Aging adults 50+', 'Cognitive performance seekers'],
   },
 
   // ═══ METABOLIC / WEIGHT MANAGEMENT ═══
@@ -491,6 +526,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Thorne', 'NOW', 'Life Extension'],
     ip_landscape: 'Open — berberine HCl widely available. Novel delivery (dihydroberberine) patented.',
     trending: true,
+    target_demographic: [
+      'Metabolic syndrome patients',
+      'Blood sugar-conscious adults',
+      'Statin-averse consumers',
+      'Weight management seekers',
+    ],
   },
   {
     name: 'GLP-1 Support Supplements',
@@ -505,6 +546,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Pendulum GLP-1 Probiotic', 'Goli', 'Various DTC brands'],
     ip_landscape: 'Pendulum has IP on Akkermansia muciniphila strain for GLP-1 modulation.',
     trending: true,
+    target_demographic: [
+      'Weight management seekers',
+      'GLP-1 drug users seeking adjuncts',
+      'Adults with obesity',
+      'Metabolic health-conscious consumers',
+    ],
   },
 
   // ═══ IMMUNE / FOUNDATIONAL ═══
@@ -521,6 +568,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Nature Made', 'NOW', 'Thorne', 'Nordic Naturals'],
     ip_landscape: 'Open — commodity ingredient. Delivery innovations (liposomal, gummy, spray) patentable.',
     trending: false,
+    target_demographic: [
+      'General population',
+      'Northern latitude residents',
+      'Elderly 65+',
+      'Dark-skinned individuals',
+    ],
   },
   {
     name: 'Omega-3 (EPA/DHA)',
@@ -536,6 +589,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Nordic Naturals', 'Carlson', 'Thorne Super EPA', 'Sports Research'],
     ip_landscape: "Amarin's Vascepa patent litigation created precedent. Supplement-grade fish oil is open.",
     trending: false,
+    target_demographic: ['Cardiovascular risk patients', 'Pregnant women', 'Aging adults', 'Athletes'],
   },
   {
     name: 'Magnesium (various forms)',
@@ -550,6 +604,13 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Natural Calm', 'Thorne', 'NOW', 'BiOptimizers'],
     ip_landscape: 'Magtein (magnesium L-threonate) patented for cognitive function. Other forms open.',
     trending: true,
+    target_demographic: [
+      'Sleep-deprived adults',
+      'Stress-prone professionals',
+      'Athletes',
+      'Women 30+',
+      'General population',
+    ],
   },
   {
     name: 'Collagen Peptides',
@@ -564,6 +625,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Vital Proteins', 'Sports Research', 'Ancient Nutrition', 'Momentous'],
     ip_landscape: 'Open — commodity peptide. Branded forms (Verisol, Fortigel, UC-II) have IP.',
     trending: false,
+    target_demographic: ['Women 30+', 'Beauty-conscious consumers', 'Joint health seekers', 'Athletes'],
   },
   {
     name: 'Ashwagandha (KSM-66 / Sensoril)',
@@ -578,6 +640,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Thorne', 'NOW', 'Jarrow', 'Nootropics Depot'],
     ip_landscape: 'KSM-66 (Ixoreal) and Sensoril (Natreon) are patented standardized extracts.',
     trending: true,
+    target_demographic: ['Stress-prone adults', 'Athletes', 'Sleep quality seekers', "Men's health"],
   },
 
   // ═══ CARDIOVASCULAR / MITOCHONDRIAL ═══
@@ -595,6 +658,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Qunol', 'NOW', 'Life Extension'],
     ip_landscape: 'Kaneka holds key patents on biofermented ubiquinol (QH). Generic CoQ10 (ubiquinone) is open.',
     trending: false,
+    target_demographic: ['Statin users', 'Cardiovascular risk patients', 'Adults 50+', 'Energy-deficient individuals'],
   },
 
   // ═══ COGNITIVE / RELAXATION ═══
@@ -611,6 +675,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Thorne', 'NOW', 'Sports Research'],
     ip_landscape: 'Open — commodity amino acid. Suntheanine (Taiyo) is a branded, patented form.',
     trending: true,
+    target_demographic: [
+      'Anxiety-prone adults',
+      'Caffeine users seeking calm focus',
+      'Students',
+      'Sleep quality seekers',
+    ],
   },
 
   // ═══ ANTI-INFLAMMATORY ═══
@@ -628,6 +698,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Meriva (Indena), Longvida (Verdure Sciences), and Theracurmin (Theravalues) hold phytosome/nanoparticle patents. Base curcumin is open.',
     trending: false,
+    target_demographic: ['Joint pain sufferers', 'Arthritis patients', 'Aging adults 50+', 'Athletes seeking recovery'],
   },
 
   // ═══ IMMUNE ═══
@@ -645,6 +716,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Sambucol', 'Nature Made', 'Garden of Life'],
     ip_landscape: 'Sambucol has proprietary extract. Commodity elderberry extract widely available.',
     trending: false,
+    target_demographic: [
+      'Immune-conscious consumers',
+      'Parents with children',
+      'Cold/flu season preparers',
+      'General population',
+    ],
   },
   {
     name: 'Zinc',
@@ -660,6 +737,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Thorne', 'NOW', 'Nature Made'],
     ip_landscape: 'Open — commodity mineral. Chelated forms (zinc bisglycinate, zinc carnosine) may have limited IP.',
     trending: false,
+    target_demographic: [
+      'Immune-conscious consumers',
+      'Men (testosterone support)',
+      'Vegetarians/vegans',
+      'Elderly 65+',
+    ],
   },
 
   // ═══ SLEEP ═══
@@ -677,6 +760,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Natrol', 'NOW', 'Life Extension'],
     ip_landscape: 'Open — commodity ingredient. Extended-release and novel delivery forms patentable.',
     trending: false,
+    target_demographic: [
+      'Sleep-deprived adults',
+      'Shift workers',
+      'Jet lag sufferers',
+      'Elderly with circadian disruption',
+    ],
   },
 
   // ═══ ANTIOXIDANT / RESPIRATORY ═══
@@ -694,6 +783,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['NOW', 'Life Extension', 'Thorne'],
     ip_landscape: 'Open — off-patent pharmaceutical ingredient. Supplement status depends on FDA enforcement posture.',
     trending: true,
+    target_demographic: [
+      'Liver health seekers',
+      'Respiratory health seekers',
+      'Detox-conscious consumers',
+      'Mental health support seekers',
+    ],
   },
 
   // ═══ COGNITIVE (CHOLINE) ═══
@@ -710,6 +805,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Nootropics Depot', 'NOW', 'Jarrow'],
     ip_landscape: 'Open — commodity choline source. Branded standardized forms limited.',
     trending: true,
+    target_demographic: [
+      'Nootropic users',
+      'Students',
+      'Athletes seeking power output',
+      'Adults 50+ (cognitive maintenance)',
+    ],
   },
 
   // ═══ IMMUNE / SENOLYTIC ═══
@@ -727,6 +828,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity flavonoid. Phytosome-enhanced quercetin (Quercefit) has IP. Mayo Clinic senolytic protocol research.',
     trending: true,
+    target_demographic: [
+      'Immune-conscious consumers',
+      'Allergy sufferers',
+      'Longevity-focused adults 50+',
+      'Senolytic protocol followers',
+    ],
   },
 
   // ═══ HORMONE ═══
@@ -745,6 +852,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'LJ100 (HP Ingredients) is a patented standardized extract. Generic tongkat ali extracts widely available.',
     trending: true,
+    target_demographic: [
+      "Men's health seekers",
+      'Athletes',
+      'Men 30+ (testosterone optimization)',
+      'Stress-recovery adults',
+    ],
   },
 
   // ═══ LONGEVITY / CARDIOVASCULAR ═══
@@ -762,6 +875,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['NOW', 'Life Extension', 'Thorne'],
     ip_landscape: 'Open — commodity amino acid. No dominant patents. Longevity positioning is new.',
     trending: true,
+    target_demographic: [
+      'Longevity-focused consumers',
+      'Athletes',
+      'Cardiovascular health seekers',
+      'Aging adults 50+',
+    ],
   },
 
   // ═══ SLEEP / LONGEVITY ═══
@@ -778,6 +897,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Thorne', 'NOW', 'BulkSupplements'],
     ip_landscape: 'Open — commodity amino acid. No meaningful IP barriers.',
     trending: true,
+    target_demographic: [
+      'Sleep quality seekers',
+      'Collagen production seekers',
+      'Longevity-focused adults',
+      'Biohackers',
+    ],
   },
 
   // ═══ DIGESTIVE / METABOLIC ═══
@@ -795,6 +920,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Metamucil', 'NOW', 'Konsyl'],
     ip_landscape: 'Open — commodity fiber. Metamucil (P&G) dominates brand recognition but ingredient is unpatentable.',
     trending: false,
+    target_demographic: [
+      'Digestive health seekers',
+      'Cholesterol-conscious adults',
+      'Diabetic/pre-diabetic adults',
+      'Elderly 60+',
+    ],
   },
 
   // ═══ BONE / CARDIOVASCULAR ═══
@@ -813,6 +944,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'MenaQ7 (NattoPharma/Gnosis by Lesaffre) holds key patents on fermentation-derived MK-7. Synthetic MK-7 alternatives emerging.',
     trending: true,
+    target_demographic: [
+      'Bone health seekers',
+      'Postmenopausal women',
+      'Vitamin D supplement users',
+      'Cardiovascular health-conscious adults',
+    ],
   },
 
   // ═══ URINARY TRACT ═══
@@ -829,6 +966,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['NOW', 'Solaray', "Nature's Way"],
     ip_landscape: 'Open — commodity monosaccharide. No meaningful IP barriers. Formulation combinations patentable.',
     trending: false,
+    target_demographic: ['Women prone to UTIs', 'Bladder health seekers', 'Antibiotic-averse consumers', 'Women 25-55'],
   },
 
   // ═══ ESSENTIAL VITAMINS ═══
@@ -847,6 +985,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity vitamin. No meaningful IP barriers. Novel delivery forms (liposomal, nanoemulsion) patentable.',
     trending: false,
+    target_demographic: [
+      'General population',
+      'Immune-conscious consumers',
+      'Skin health seekers',
+      'Pregnant/nursing women',
+    ],
   },
   {
     name: 'Vitamin B Complex (B1, B2, B3, B5, B6)',
@@ -868,6 +1012,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity vitamins. Methylated/coenzyme forms command premium. Branded ingredients: Quatrefolic (5-MTHF), MecobalActive.',
     trending: true,
+    target_demographic: [
+      'General population',
+      'Energy-deficient adults',
+      'Stress-prone professionals',
+      'Vegetarians/vegans',
+    ],
   },
   {
     name: 'Vitamin B12 (Methylcobalamin / Cyanocobalamin)',
@@ -885,6 +1035,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity vitamin. Methylcobalamin and adenosylcobalamin forms widely available. Liposomal delivery patentable.',
     trending: false,
+    target_demographic: ['Vegetarians/vegans', 'Elderly 65+', 'Pernicious anemia patients', 'Energy-deficient adults'],
   },
   {
     name: 'Folate / 5-MTHF (Methylfolate)',
@@ -902,6 +1053,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Gnosis by Lesaffre holds patents on Quatrefolic (glucosamine salt of 5-MTHF). Merck & Cie holds Metafolin (calcium salt of 5-MTHF). Branded ingredient premiums.',
     trending: true,
+    target_demographic: [
+      'Women of childbearing age',
+      'Pregnant women',
+      'MTHFR mutation carriers',
+      'Depression/mood support seekers',
+    ],
   },
   {
     name: 'Vitamin C (Ascorbic Acid / Liposomal)',
@@ -918,6 +1075,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity vitamin. Liposomal delivery forms patentable and command 3-5x price premium. Branded ingredients: Quali-C (Scottish manufacturing), Ester-C (patented calcium ascorbate).',
     trending: false,
+    target_demographic: ['General population', 'Immune-conscious consumers', 'Smokers', 'High-stress individuals'],
   },
   {
     name: 'Vitamin E (Tocopherols / Tocotrienols)',
@@ -934,6 +1092,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open for tocopherols. Tocotrienol-specific patents held by American River Nutrition (DeltaGold), ExcelVite (EVNol SupraBio). Annatto-derived tocotrienols trending.',
     trending: false,
+    target_demographic: [
+      'Cardiovascular health seekers',
+      'Skin health-conscious adults',
+      'Aging adults 50+',
+      'Antioxidant-seeking consumers',
+    ],
   },
   {
     name: 'Thiamine (Vitamin B1) / Benfotiamine',
@@ -950,6 +1114,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity vitamin. Benfotiamine manufacturing processes patented but ingredient widely available.',
     trending: false,
+    target_demographic: [
+      'Diabetic neuropathy patients',
+      'Heavy alcohol consumers',
+      'Energy-deficient adults',
+      'Elderly 65+',
+    ],
   },
   {
     name: 'Riboflavin (Vitamin B2) / Riboflavin 5-Phosphate',
@@ -965,6 +1135,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['Thorne', 'Pure Encapsulations', 'NOW', 'Life Extension'],
     ip_landscape: 'Open — commodity vitamin. Active coenzyme form (R5P) widely available. No significant IP barriers.',
     trending: false,
+    target_demographic: [
+      'Migraine sufferers',
+      'Energy-deficient adults',
+      'Mitochondrial health seekers',
+      'Women on oral contraceptives',
+    ],
   },
 
   // ═══ ESSENTIAL MINERALS ═══
@@ -983,6 +1159,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity mineral. Chelated forms (Ferrochel by Albion Minerals) patented. Branded ingredients command premium.',
     trending: false,
+    target_demographic: ['Women of menstruating age', 'Pregnant women', 'Vegetarians/vegans', 'Anemia patients'],
   },
   {
     name: 'Selenium (Selenomethionine / Sodium Selenite)',
@@ -1000,6 +1177,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity mineral. SelenoExcell (high-selenium yeast) is a branded form. Organic selenium forms command slight premium.',
     trending: false,
+    target_demographic: [
+      'Thyroid health seekers',
+      'Cancer risk-conscious adults',
+      'Immune-conscious consumers',
+      'Selenium-deficient regions',
+    ],
   },
   {
     name: 'Chromium (Picolinate / GTF)',
@@ -1016,6 +1199,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Nutrition 21 holds patents on Chromax (chromium picolinate). Generic chromium forms widely available. IP for novel chelation forms.',
     trending: false,
+    target_demographic: [
+      'Diabetic/pre-diabetic adults',
+      'Insulin resistance patients',
+      'Weight management seekers',
+      'Metabolic syndrome adults',
+    ],
   },
   {
     name: 'Manganese (Bisglycinate / Gluconate)',
@@ -1031,6 +1220,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     key_brands: ['NOW', 'Thorne', 'Pure Encapsulations', 'Solaray'],
     ip_landscape: 'Open — commodity mineral. Chelated forms (Albion) patented but generic alternatives available.',
     trending: false,
+    target_demographic: [
+      'Bone health seekers',
+      'Elderly 65+',
+      'Athletes (joint support)',
+      'General wellness consumers',
+    ],
   },
   {
     name: 'Iodine (Potassium Iodide / Kelp)',
@@ -1047,6 +1242,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       "Open — commodity mineral and natural source (kelp). Iodoral and Lugol's solution are established formulations. No significant IP barriers.",
     trending: false,
+    target_demographic: [
+      'Thyroid health seekers',
+      'Pregnant/nursing women',
+      'Iodine-deficient populations',
+      'Hypothyroid patients',
+    ],
   },
   {
     name: 'Potassium (Citrate / Gluconate / Chloride)',
@@ -1063,6 +1264,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity mineral. Electrolyte formulation blends patentable. Branded electrolyte products differentiate on taste and formulation.',
     trending: true,
+    target_demographic: ['Athletes', 'Keto/fasting dieters', 'Blood pressure-conscious adults', 'General population'],
   },
 
   // ═══ AMINO ACIDS ═══
@@ -1082,6 +1284,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity amino acid derivative. Sigma-Tau (now Alfasigma) held early patents on ALCAR, now expired. Novel combination formulas patentable.',
     trending: false,
+    target_demographic: [
+      'Cognitive performance seekers',
+      'Adults 50+',
+      'Athletes (fat metabolism)',
+      'Neuropathy patients',
+    ],
   },
   {
     name: 'L-Arginine',
@@ -1099,6 +1307,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity amino acid. Being partially displaced by L-citrulline for NO production. Novel arginine salt forms patentable.',
     trending: false,
+    target_demographic: [
+      'Athletes',
+      'Cardiovascular health seekers',
+      "Men's health (erectile function)",
+      'Pre-workout users',
+    ],
   },
   {
     name: 'L-Citrulline',
@@ -1116,6 +1330,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity amino acid. Citrulline malate salt widely available. Kyowa Quality (Kyowa Hakko) branded ingredient.',
     trending: true,
+    target_demographic: ['Athletes', 'Pre-workout users', 'Blood pressure-conscious adults', 'Endurance athletes'],
   },
   {
     name: 'BCAAs (Branched-Chain Amino Acids)',
@@ -1133,6 +1348,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity amino acids. Ajinomoto (AjiPure) is premium fermented BCAA source. Ratio formulations and novel delivery patentable.',
     trending: false,
+    target_demographic: ['Athletes', 'Bodybuilders', 'Endurance athletes', 'Muscle recovery seekers'],
   },
   {
     name: 'L-Glutamine',
@@ -1149,6 +1365,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity amino acid. Kyowa Quality (Kyowa Hakko) fermented L-glutamine is premium branded ingredient. Gut-specific formulations patentable.',
     trending: false,
+    target_demographic: [
+      'Athletes',
+      'Gut health seekers (leaky gut)',
+      'Immune-compromised individuals',
+      'Post-surgery recovery',
+    ],
   },
   {
     name: 'L-Tyrosine / N-Acetyl L-Tyrosine (NALT)',
@@ -1166,6 +1388,7 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — commodity amino acid. NALT (acetylated form) slightly more expensive but debated bioavailability advantage. No significant IP barriers.',
     trending: true,
+    target_demographic: ['Nootropic users', 'High-stress professionals', 'Students', 'Thyroid health seekers'],
   },
 
   // ═══ MEDICINAL MUSHROOMS ═══
@@ -1184,6 +1407,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — natural mushroom extract. Cultivation methods patentable. Cordycepin standardization and extraction IP emerging. CS-4 mycelium strain widely used.',
     trending: true,
+    target_demographic: [
+      'Athletes',
+      'Endurance sport enthusiasts',
+      'Energy-seeking adults',
+      'Traditional medicine followers',
+    ],
   },
   {
     name: 'Reishi (Ganoderma lucidum)',
@@ -1201,6 +1430,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — natural mushroom extract. Specific triterpene extractions and spore-cracking technologies patentable. Branded cultivation strains exist.',
     trending: false,
+    target_demographic: [
+      'Stress-prone adults',
+      'Immune-conscious consumers',
+      'Sleep quality seekers',
+      'Longevity-focused adults',
+    ],
   },
   {
     name: 'Turkey Tail (Trametes versicolor)',
@@ -1217,6 +1452,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'PSK/Krestin patents (Kureha Chemical) expired. Open for generic extracts. NIH-funded research ongoing. Extraction method IP possible.',
     trending: true,
+    target_demographic: [
+      'Immune-conscious consumers',
+      'Cancer patients (adjunct therapy)',
+      'Gut health seekers',
+      'Integrative medicine patients',
+    ],
   },
   {
     name: 'Chaga (Inonotus obliquus)',
@@ -1234,6 +1475,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — wild-harvested natural product. Sustainable cultivation efforts underway. Betulinic acid extraction standardization patentable.',
     trending: false,
+    target_demographic: [
+      'Immune-conscious consumers',
+      'Antioxidant seekers',
+      'Blood sugar-conscious adults',
+      'Functional mushroom enthusiasts',
+    ],
   },
 
   // ═══ HERBAL / BOTANICAL ═══
@@ -1253,6 +1500,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — botanical extract. Standardization ratios (rosavins:salidroside) differentiating. Swedish Herbal Institute research foundational. Cultivation reducing wild-harvest dependency.',
     trending: true,
+    target_demographic: [
+      'Stress-prone professionals',
+      'Athletes (endurance)',
+      'Students during exam periods',
+      'Burnout-prone adults',
+    ],
   },
   {
     name: 'Maca Root (Lepidium meyenii)',
@@ -1269,6 +1522,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — traditional food/botanical. Peruvian government restricts raw maca export. Color-specific extract patents emerging. MacaPure is a branded standardized extract.',
     trending: false,
+    target_demographic: [
+      'Men (libido/fertility)',
+      'Women (hormonal balance/menopause)',
+      'Athletes',
+      'Energy-seeking adults',
+    ],
   },
   {
     name: 'Ginseng (Panax ginseng / americanus)',
@@ -2031,6 +2290,12 @@ export const NUTRACEUTICAL_INGREDIENTS: NutraceuticalIngredient[] = [
     ip_landscape:
       'Open — multiple manufacturers. Stability is key differentiator. Gnosis by Lesaffre (Adomet) is major bulk supplier. Enteric coating and stabilization technologies patentable. High manufacturing cost limits competition.',
     trending: false,
+    target_demographic: [
+      'Depression/mood support seekers',
+      'Joint pain sufferers',
+      'Liver health seekers',
+      'Adults 40+',
+    ],
   },
   {
     name: '5-HTP (5-Hydroxytryptophan)',

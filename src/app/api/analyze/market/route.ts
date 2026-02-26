@@ -15,53 +15,51 @@ import type { ApiResponse } from '@/types';
 // ────────────────────────────────────────────────────────────
 
 const RequestSchema = z.object({
-  input: z
-    .object({
-      // Pharma fields
-      indication: z.string().trim().max(500).optional(),
-      subtype: z.string().trim().max(500).optional(),
-      mechanism: z.string().trim().max(500).optional(),
-      molecular_target: z.string().trim().max(500).optional(),
-      patient_segment: z.string().trim().max(500).optional(),
-      pricing_assumption: z.enum(['conservative', 'base', 'premium']).optional(),
-      development_stage: z.string().trim().max(200).optional(),
+  input: z.object({
+    // Pharma fields
+    indication: z.string().trim().max(500).optional(),
+    subtype: z.string().trim().max(500).optional(),
+    mechanism: z.string().trim().max(500).optional(),
+    molecular_target: z.string().trim().max(500).optional(),
+    patient_segment: z.string().trim().max(500).optional(),
+    pricing_assumption: z.enum(['conservative', 'base', 'premium']).optional(),
+    development_stage: z.string().trim().max(200).optional(),
 
-      // Device fields
-      product_name: z.string().trim().max(500).optional(),
-      device_category: z.string().trim().max(200).optional(),
-      product_category: z.string().trim().max(200).optional(),
-      procedure_or_condition: z.string().trim().max(500).optional(),
-      target_setting: z.array(z.string().trim().max(200)).optional(),
-      pricing_model: z.string().trim().max(200).optional(),
-      unit_ase: z.number().optional(),
-      disposables_per_procedure: z.number().optional(),
-      disposable_ase: z.number().optional(),
-      service_contract_annual: z.number().optional(),
-      reimbursement_status: z.string().trim().max(200).optional(),
-      physician_specialty: z.array(z.string().trim().max(200)).optional(),
+    // Device fields
+    product_name: z.string().trim().max(500).optional(),
+    device_category: z.string().trim().max(200).optional(),
+    product_category: z.string().trim().max(200).optional(),
+    procedure_or_condition: z.string().trim().max(500).optional(),
+    target_setting: z.array(z.string().trim().max(200)).optional(),
+    pricing_model: z.string().trim().max(200).optional(),
+    unit_ase: z.number().optional(),
+    disposables_per_procedure: z.number().optional(),
+    disposable_ase: z.number().optional(),
+    service_contract_annual: z.number().optional(),
+    reimbursement_status: z.string().trim().max(200).optional(),
+    physician_specialty: z.array(z.string().trim().max(200)).optional(),
 
-      // CDx fields
-      drug_name: z.string().trim().max(500).optional(),
-      drug_indication: z.string().trim().max(500).optional(),
-      biomarker: z.string().trim().max(500).optional(),
-      biomarker_prevalence_pct: z.number().optional(),
-      test_type: z.string().trim().max(200).optional(),
-      test_setting: z.array(z.string().trim().max(200)).optional(),
-      drug_development_stage: z.string().trim().max(200).optional(),
-      cdx_development_stage: z.string().trim().max(200).optional(),
-      test_ase: z.number().optional(),
-      is_standalone: z.boolean().optional(),
-      drug_partner: z.string().trim().max(500).optional(),
+    // CDx fields
+    drug_name: z.string().trim().max(500).optional(),
+    drug_indication: z.string().trim().max(500).optional(),
+    biomarker: z.string().trim().max(500).optional(),
+    biomarker_prevalence_pct: z.number().optional(),
+    test_type: z.string().trim().max(200).optional(),
+    test_setting: z.array(z.string().trim().max(200)).optional(),
+    drug_development_stage: z.string().trim().max(200).optional(),
+    cdx_development_stage: z.string().trim().max(200).optional(),
+    test_ase: z.number().optional(),
+    is_standalone: z.boolean().optional(),
+    drug_partner: z.string().trim().max(500).optional(),
 
-      // Shared fields
-      geography: z.array(z.string().trim().max(100)).min(1, 'At least one geography is required.'),
-      launch_year: z
-        .number()
-        .int()
-        .min(2024, 'Launch year must be 2024 or later.')
-        .max(2045, 'Launch year must be 2045 or earlier.'),
-    })
-    .passthrough(),
+    // Shared fields
+    geography: z.array(z.string().trim().max(100)).min(1, 'At least one geography is required.'),
+    launch_year: z
+      .number()
+      .int()
+      .min(2024, 'Launch year must be 2024 or later.')
+      .max(2045, 'Launch year must be 2045 or earlier.'),
+  }),
 
   product_category: z.string().trim().max(200).min(1, 'product_category is required.'),
   save: z.boolean().optional(),
@@ -120,8 +118,7 @@ export async function POST(request: NextRequest) {
 
     if (isDemo) {
       // Rate limit demo requests by IP
-      const ip =
-        request.headers.get('x-real-ip') || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+      const ip = request.headers.get('x-real-ip') || 'unknown';
       if (await isDemoRateLimited(ip)) {
         return NextResponse.json(
           {
@@ -212,7 +209,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { input, product_category } = parsed.data;
+    const { input, product_category, save } = parsed.data;
 
     // ── Additional validation by category ───────────────────
     if (isPharma(product_category)) {
@@ -301,14 +298,68 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ── Fetch live data from Supabase caches ─────────────────
+    const live_data: {
+      active_trials_count: number;
+      recent_fda_approvals: unknown[];
+      data_as_of: string;
+    } = { active_trials_count: 0, recent_fda_approvals: [], data_as_of: new Date().toISOString() };
+
+    try {
+      const searchTerm = indication.trim();
+
+      if (searchTerm) {
+        const liveSupabase = createClient();
+
+        // Count active clinical trials as a competitive density signal
+        const { count: trialsCount, error: trialsError } = await liveSupabase
+          .from('clinical_trials_cache')
+          .select('nct_id', { count: 'exact', head: true })
+          .or(`conditions.cs.{${searchTerm}},title.ilike.%${searchTerm}%`);
+
+        if (trialsError) {
+          logger.warn('market_live_trials_count_failed', {
+            error: trialsError.message,
+            indication: searchTerm,
+          });
+        } else {
+          live_data.active_trials_count = trialsCount ?? 0;
+        }
+
+        // Query recent FDA approvals related to the indication
+        const { data: fdaData, error: fdaError } = await liveSupabase
+          .from('fda_approvals_cache')
+          .select('*')
+          .or(`brand_name.ilike.%${searchTerm}%,generic_name.ilike.%${searchTerm}%`)
+          .limit(10);
+
+        if (fdaError) {
+          logger.warn('market_fda_approvals_query_failed', {
+            error: fdaError.message,
+            indication: searchTerm,
+          });
+        } else {
+          live_data.recent_fda_approvals = fdaData || [];
+        }
+
+        live_data.data_as_of = new Date().toISOString();
+      }
+    } catch (liveDataError) {
+      logger.warn('market_live_data_fetch_failed', {
+        error: liveDataError instanceof Error ? liveDataError.message : 'Unknown error',
+        indication,
+      });
+      // Continue with static data only — live data is supplementary
+    }
+
     // ── Record usage (skip for demo) ─────────────────────────
     if (!isDemo && user) {
       await recordUsage(user.id, 'market_sizing', indication, { product_category });
     }
 
-    // ── Auto-save report (skip for demo) ──────────────────────
+    // ── Save report (skip for demo, respect save parameter) ──
     let reportId: string | undefined;
-    if (!isDemo && user) {
+    if (!isDemo && user && save !== false) {
       const supabase = createClient();
       const title = indication ? `${indication} Market Assessment` : 'Market Assessment';
       const { data: saved } = await supabase
@@ -342,6 +393,7 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         data: result,
+        live_data,
         report_id: reportId,
         usage: {
           feature: 'market_sizing',
@@ -349,7 +401,7 @@ export async function POST(request: NextRequest) {
           limit: usage.limit,
           remaining: usage.remaining === -1 ? -1 : Math.max(0, usage.remaining - 1),
         },
-      } satisfies ApiResponse<typeof result> & { usage: unknown; report_id?: string },
+      } satisfies ApiResponse<typeof result> & { usage: unknown; report_id?: string; live_data: unknown },
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } },
     );
   } catch (error: unknown) {
@@ -360,6 +412,9 @@ export async function POST(request: NextRequest) {
       status: 500,
       durationMs: Math.round(performance.now() - routeStart),
     });
-    return NextResponse.json({ success: false, error: message } satisfies ApiResponse<never>, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Market analysis failed. Please try again.' } satisfies ApiResponse<never>,
+      { status: 500 },
+    );
   }
 }

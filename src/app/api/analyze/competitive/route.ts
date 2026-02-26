@@ -10,6 +10,7 @@ import { analyzeNutraceuticalCompetitiveLandscape } from '@/lib/analytics/nutrac
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, withTiming, logApiRequest, logApiResponse } from '@/lib/logger';
 import type { ApiResponse } from '@/types';
+import type { DeviceCategory, CDxPlatform, NutraceuticalCategory } from '@/types/devices-diagnostics';
 
 // ────────────────────────────────────────────────────────────
 // CATEGORY ROUTING HELPERS
@@ -41,28 +42,26 @@ function isNutraceutical(category: string): boolean {
 // ────────────────────────────────────────────────────────────
 
 const RequestSchema = z.object({
-  input: z
-    .object({
-      // Pharma fields
-      indication: z.string().optional(),
-      mechanism: z.string().optional(),
+  input: z.object({
+    // Pharma fields
+    indication: z.string().optional(),
+    mechanism: z.string().optional(),
 
-      // Device fields
-      procedure_or_condition: z.string().optional(),
-      device_category: z.string().optional(),
-      technology_type: z.string().optional(),
+    // Device fields
+    procedure_or_condition: z.string().optional(),
+    device_category: z.string().optional(),
+    technology_type: z.string().optional(),
 
-      // CDx fields
-      biomarker: z.string().optional(),
-      test_type: z.string().optional(),
-      linked_drug: z.string().optional(),
+    // CDx fields
+    biomarker: z.string().optional(),
+    test_type: z.string().optional(),
+    linked_drug: z.string().optional(),
 
-      // Nutraceutical fields
-      primary_ingredient: z.string().optional(),
-      health_focus: z.string().optional(),
-      ingredient_category: z.string().optional(),
-    })
-    .passthrough(),
+    // Nutraceutical fields
+    primary_ingredient: z.string().optional(),
+    health_focus: z.string().optional(),
+    ingredient_category: z.string().optional(),
+  }),
 
   product_category: z.string().default('pharmaceutical'),
   save: z.boolean().optional(),
@@ -140,7 +139,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { input, product_category } = parsed.data;
+    const { input, product_category, save } = parsed.data;
 
     // ── Category-specific validation ──────────────────────────
     if (isPharma(product_category)) {
@@ -210,7 +209,7 @@ export async function POST(request: NextRequest) {
         async () =>
           analyzeDeviceCompetitiveLandscape({
             procedure_or_condition: input.procedure_or_condition!,
-            device_category: input.device_category as any,
+            device_category: input.device_category as DeviceCategory | undefined,
             technology_type: input.technology_type,
           }),
         { procedure: input.procedure_or_condition },
@@ -223,7 +222,7 @@ export async function POST(request: NextRequest) {
           analyzeCDxCompetitiveLandscape({
             biomarker: input.biomarker!,
             indication: input.indication,
-            test_type: input.test_type as any,
+            test_type: input.test_type as CDxPlatform | undefined,
             linked_drug: input.linked_drug,
           }),
         { biomarker: input.biomarker },
@@ -236,19 +235,68 @@ export async function POST(request: NextRequest) {
           analyzeNutraceuticalCompetitiveLandscape({
             primary_ingredient: input.primary_ingredient!,
             health_focus: input.health_focus,
-            ingredient_category: input.ingredient_category as any,
+            ingredient_category: input.ingredient_category as NutraceuticalCategory | undefined,
           }),
         { ingredient: input.primary_ingredient },
       );
       result = engineResult.result;
     }
 
+    // ── Fetch live pipeline & FDA data from Supabase caches ──
+    let live_pipeline: unknown[] = [];
+    let recent_fda_activity: unknown[] = [];
+
+    try {
+      const searchTerm = indication.trim();
+
+      if (searchTerm) {
+        // Query clinical_trials_cache for trials matching the indication
+        const { data: trialsData, error: trialsError } = await supabase
+          .from('clinical_trials_cache')
+          .select('nct_id, title, status, phase, sponsor, enrollment, conditions, interventions, last_update_posted')
+          .or(`conditions.cs.{${searchTerm}},title.ilike.%${searchTerm}%`)
+          .limit(20)
+          .order('last_update_posted', { ascending: false });
+
+        if (trialsError) {
+          logger.warn('competitive_live_pipeline_query_failed', {
+            error: trialsError.message,
+            indication: searchTerm,
+          });
+        } else {
+          live_pipeline = trialsData || [];
+        }
+
+        // Query fda_approvals_cache for recent FDA activity
+        const { data: fdaData, error: fdaError } = await supabase
+          .from('fda_approvals_cache')
+          .select('*')
+          .or(`brand_name.ilike.%${searchTerm}%,generic_name.ilike.%${searchTerm}%`)
+          .limit(10);
+
+        if (fdaError) {
+          logger.warn('competitive_fda_activity_query_failed', {
+            error: fdaError.message,
+            indication: searchTerm,
+          });
+        } else {
+          recent_fda_activity = fdaData || [];
+        }
+      }
+    } catch (liveDataError) {
+      logger.warn('competitive_live_data_fetch_failed', {
+        error: liveDataError instanceof Error ? liveDataError.message : 'Unknown error',
+        indication,
+      });
+      // Continue with static data only — live data is supplementary
+    }
+
     // ── Record usage ────────────────────────────────────────
     await recordUsage(user.id, 'competitive', indication, { product_category });
 
-    // ── Auto-save report ──────────────────────────────────────
+    // ── Save report (respect save parameter) ──────────────────
     let reportId: string | undefined;
-    {
+    if (save !== false) {
       const title = indication ? `${indication} Competitive Landscape` : 'Competitive Landscape';
       const { data: saved } = await supabase
         .from('reports')
@@ -280,6 +328,8 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         data: result,
+        live_pipeline,
+        recent_fda_activity,
         report_id: reportId,
         product_category,
         usage: {
@@ -302,6 +352,9 @@ export async function POST(request: NextRequest) {
       status: 500,
       durationMs: Math.round(performance.now() - routeStart),
     });
-    return NextResponse.json({ success: false, error: message } satisfies ApiResponse<never>, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Competitive analysis failed. Please try again.' } satisfies ApiResponse<never>,
+      { status: 500 },
+    );
   }
 }

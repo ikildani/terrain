@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Toaster } from 'sonner';
+import { PostHogProvider } from '@/components/PostHogProvider';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -14,12 +15,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
             refetchOnWindowFocus: false,
           },
         },
-      })
+      }),
   );
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <PostHogProvider>{children}</PostHogProvider>
       <Toaster
         theme="dark"
         position="bottom-right"
