@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getFeatureLimit, isUnlimited, type PlanKey, type FeatureKey } from '@/lib/subscription';
+import { logger } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 
 interface UsageCheckResult {
   allowed: boolean;
@@ -14,10 +16,7 @@ interface UsageCheckResult {
  * Check if a user has remaining usage for a feature this month.
  * Returns usage metadata for the API response.
  */
-export async function checkUsage(
-  userId: string,
-  feature: FeatureKey
-): Promise<UsageCheckResult> {
+export async function checkUsage(userId: string, feature: FeatureKey): Promise<UsageCheckResult> {
   const supabase = createClient();
 
   // Get user's plan
@@ -28,8 +27,7 @@ export async function checkUsage(
     .single();
 
   const plan: PlanKey =
-    subscription &&
-    (subscription.status === 'active' || subscription.status === 'trialing')
+    subscription && (subscription.status === 'active' || subscription.status === 'trialing')
       ? (subscription.plan as PlanKey)
       : 'free';
 
@@ -76,7 +74,7 @@ export async function recordUsage(
   userId: string,
   feature: string,
   indication?: string,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
 ) {
   const supabase = createClient();
 
@@ -88,6 +86,7 @@ export async function recordUsage(
   });
 
   if (error) {
-    console.error('[usage] Failed to record usage:', error.message, { userId, feature });
+    logger.error('usage_record_failed', { error: error.message, userId, feature });
+    captureApiError(new Error(`Failed to record usage: ${error.message}`), { userId, feature });
   }
 }

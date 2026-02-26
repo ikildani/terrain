@@ -30,7 +30,10 @@ export function useUser(): UserState {
       setUser(resolvedUser);
       Sentry.setUser(resolvedUser ? { id: resolvedUser.id } : null);
       if (POSTHOG_KEY && resolvedUser) {
-        posthog.identify(resolvedUser.id, { email: resolvedUser.email });
+        posthog.identify(resolvedUser.id, {
+          email: resolvedUser.email,
+          name: resolvedUser.user_metadata?.full_name || null,
+        });
       } else if (POSTHOG_KEY) {
         posthog.reset();
       }
@@ -46,7 +49,10 @@ export function useUser(): UserState {
       setUser(sessionUser);
       Sentry.setUser(sessionUser ? { id: sessionUser.id } : null);
       if (POSTHOG_KEY && sessionUser) {
-        posthog.identify(sessionUser.id, { email: sessionUser.email });
+        posthog.identify(sessionUser.id, {
+          email: sessionUser.email,
+          name: sessionUser.user_metadata?.full_name || null,
+        });
       } else if (POSTHOG_KEY && _event === 'SIGNED_OUT') {
         posthog.reset();
       }

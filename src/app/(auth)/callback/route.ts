@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
@@ -13,6 +14,24 @@ export async function GET(request: Request) {
     const supabase = createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      // Trigger welcome email (non-blocking, fire-and-forget)
+      try {
+        const cookieStore = cookies();
+        const cookieHeader = cookieStore
+          .getAll()
+          .map((c) => `${c.name}=${c.value}`)
+          .join('; ');
+        fetch(`${origin}/api/email/welcome`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Cookie: cookieHeader,
+          },
+        }).catch(() => {}); // Fire and forget
+      } catch {
+        // Don't block redirect if welcome email fails
+      }
+
       return NextResponse.redirect(`${origin}${safePath}`);
     }
   }

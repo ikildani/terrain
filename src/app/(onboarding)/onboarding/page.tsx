@@ -5,8 +5,12 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { createBrowserClient } from '@supabase/ssr';
+import { posthog, POSTHOG_KEY } from '@/lib/posthog';
 
-const supabase = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+);
 
 const ROLES = [
   { value: 'founder', label: 'Biotech Founder / CEO', desc: 'Building or leading a biotech company' },
@@ -40,6 +44,7 @@ export default function OnboardingPage() {
   const [therapyAreas, setTherapyAreas] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [error, setError] = useState('');
 
   // Check if onboarding already done
   useEffect(() => {
@@ -68,12 +73,16 @@ export default function OnboardingPage() {
 
   async function handleComplete() {
     setSaving(true);
+    setError('');
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setSaving(false);
+      return;
+    }
 
-    await supabase
+    const { error: updateError } = await supabase
       .from('profiles')
       .update({
         role,
@@ -82,6 +91,20 @@ export default function OnboardingPage() {
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id);
+
+    if (updateError) {
+      setSaving(false);
+      setError('Something went wrong saving your profile. Please try again.');
+      return;
+    }
+
+    if (POSTHOG_KEY) {
+      posthog.capture('onboarding_completed', {
+        role,
+        company: company || null,
+        therapy_areas_count: therapyAreas.length,
+      });
+    }
 
     router.push('/dashboard');
   }
@@ -238,6 +261,12 @@ export default function OnboardingPage() {
                     );
                   })}
                 </div>
+
+                {error && (
+                  <div className="mt-6 rounded-lg border border-red-400/20 bg-red-400/5 px-4 py-3 text-sm text-red-400">
+                    {error}
+                  </div>
+                )}
 
                 <div className="flex gap-3 mt-8">
                   <button

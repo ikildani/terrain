@@ -4,14 +4,8 @@ import { useRef, useState } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { BarChart3, Network, Users, Shield, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import {
-  REVENUE_BARS,
-  GEO_ROWS,
-  PARTNER_DATA,
-  PARTNER_PREVIEW_DATA,
-  REGULATORY_PREVIEW,
-} from '@/components/landing/data';
-import { fadeUp } from '@/components/landing/animations';
+import { REVENUE_BARS, GEO_ROWS, PARTNER_DATA, PARTNER_PREVIEW_DATA, REGULATORY_PREVIEW } from './data';
+import { Section } from './Section';
 
 // ────────────────────────────────────────────────────────────
 // WINDOW CHROME (reusable)
@@ -494,14 +488,7 @@ function ModuleShowcase() {
 
 export function ProductPreviewSection() {
   return (
-    <motion.section
-      className="py-24 px-6 border-t border-navy-700/60"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      variants={fadeUp}
-    >
+    <Section className="py-24 px-6 border-t border-navy-700/60">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <p className="text-xs font-mono text-teal-500 tracking-widest uppercase mb-3">See It In Action</p>
@@ -523,6 +510,6 @@ export function ProductPreviewSection() {
           </Link>
         </div>
       </div>
-    </motion.section>
+    </Section>
   );
 }

@@ -112,19 +112,6 @@ export function HeroSection() {
 
       <div className="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
         <div>
-          {/* Badge */}
-          <motion.div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-teal-500/20 bg-teal-500/5 mb-8"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-            <span className="text-xs font-mono text-teal-400 tracking-wide">
-              Built on 10,000+ biopharma transactions
-            </span>
-          </motion.div>
-
           {/* Headline */}
           <motion.h1
             className="font-display text-5xl sm:text-6xl lg:text-7xl text-white leading-[1.08] mb-6"

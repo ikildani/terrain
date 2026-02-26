@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Check, Search, Loader2, Sparkles } from 'lucide-react';
-import { DEMO_INDICATIONS, DEMO_STAGES, DEMO_SUGGESTIONS, STATUS_MESSAGES } from '@/components/landing/data';
-import { fadeUp } from '@/components/landing/animations';
+import { DEMO_INDICATIONS, DEMO_STAGES, DEMO_SUGGESTIONS, STATUS_MESSAGES } from './data';
+import { Section } from './Section';
 
 // ────────────────────────────────────────────────────────────
 // LIVE DEMO
@@ -373,15 +373,7 @@ function TryItYourself() {
 
 export function DemoSection() {
   return (
-    <motion.section
-      id="demo"
-      className="py-24 px-6 border-t border-navy-700/60"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      variants={fadeUp}
-    >
+    <Section id="demo" className="py-24 px-6 border-t border-navy-700/60">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
@@ -416,6 +408,6 @@ export function DemoSection() {
         {/* Interactive Demo */}
         <TryItYourself />
       </div>
-    </motion.section>
+    </Section>
   );
 }

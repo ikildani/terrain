@@ -8,7 +8,14 @@ import { captureApiError } from '@/lib/utils/sentry';
 
 const checkoutSchema = z.object({
   plan: z.enum(['pro', 'team']),
-  return_url: z.string().url().optional(),
+  return_url: z
+    .string()
+    .url()
+    .refine(
+      (url) => url.startsWith(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+      'return_url must be on the same domain',
+    )
+    .optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -20,24 +27,17 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required.' },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
     }
 
     const body = await request.json();
     const parsed = checkoutSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid request body.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Invalid request body.' }, { status: 400 });
     }
 
     const { plan, return_url } = parsed.data;
-    const priceId =
-      plan === 'pro' ? STRIPE_PRICES.pro_monthly : STRIPE_PRICES.team_monthly;
+    const priceId = plan === 'pro' ? STRIPE_PRICES.pro_monthly : STRIPE_PRICES.team_monthly;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
     // Look up existing Stripe customer ID
@@ -57,10 +57,7 @@ export async function POST(request: NextRequest) {
       });
       customerId = customer.id;
 
-      await supabase
-        .from('subscriptions')
-        .update({ stripe_customer_id: customerId })
-        .eq('user_id', user.id);
+      await supabase.from('subscriptions').update({ stripe_customer_id: customerId }).eq('user_id', user.id);
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -84,9 +81,6 @@ export async function POST(request: NextRequest) {
       stack: err instanceof Error ? err.stack : undefined,
     });
     captureApiError(err, { route: '/api/stripe/checkout' });
-    return NextResponse.json(
-      { success: false, error: 'Failed to create checkout session.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Failed to create checkout session.' }, { status: 500 });
   }
 }
