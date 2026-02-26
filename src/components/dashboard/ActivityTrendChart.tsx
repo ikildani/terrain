@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  ReferenceLine,
-} from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts';
 import { Activity } from 'lucide-react';
 
 const COLORS = {
@@ -65,90 +56,81 @@ export default function ActivityTrendChart({ data }: ActivityTrendChartProps) {
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <Activity className="w-8 h-8 text-navy-600 mb-3" />
           <p className="text-sm text-slate-500">No activity yet</p>
-          <p className="text-xs text-slate-600 mt-1">
-            Run an analysis to see your trend here.
-          </p>
+          <p className="text-xs text-slate-600 mt-1">Run an analysis to see your trend here.</p>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={220}>
-          <AreaChart
-            data={data}
-            margin={{ top: 4, right: 8, left: -16, bottom: 0 }}
-          >
-            <defs>
-              <linearGradient id="tealGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={COLORS.teal} stopOpacity={0.25} />
-                <stop offset="95%" stopColor={COLORS.teal} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={COLORS.grid}
-              vertical={false}
-            />
-            <XAxis
-              dataKey="date"
-              tickFormatter={formatDayLabel}
-              tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
-              axisLine={false}
-              tickLine={false}
-              interval="preserveStartEnd"
-              minTickGap={40}
-            />
-            <YAxis
-              allowDecimals={false}
-              tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
-              axisLine={false}
-              tickLine={false}
-              width={32}
-            />
-            <Tooltip
-              cursor={{ stroke: COLORS.teal, strokeWidth: 1, strokeDasharray: '3 3' }}
-              content={({ active, payload, label }) => {
-                if (!active || !payload?.[0]) return null;
-                return (
-                  <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
-                    <div className="text-slate-400 mb-1">
-                      {formatDayLabel(label as string)}
+        <div role="img" aria-label="Activity trend chart">
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+              <defs>
+                <linearGradient id="tealGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={COLORS.teal} stopOpacity={0.25} />
+                  <stop offset="95%" stopColor={COLORS.teal} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickFormatter={formatDayLabel}
+                tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
+                axisLine={false}
+                tickLine={false}
+                interval="preserveStartEnd"
+                minTickGap={40}
+              />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
+                axisLine={false}
+                tickLine={false}
+                width={32}
+              />
+              <Tooltip
+                cursor={{ stroke: COLORS.teal, strokeWidth: 1, strokeDasharray: '3 3' }}
+                content={({ active, payload, label }) => {
+                  if (!active || !payload?.[0]) return null;
+                  return (
+                    <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
+                      <div className="text-slate-400 mb-1">{formatDayLabel(label as string)}</div>
+                      <div className="font-mono text-white text-sm">
+                        {payload[0].value} {Number(payload[0].value) === 1 ? 'analysis' : 'analyses'}
+                      </div>
                     </div>
-                    <div className="font-mono text-white text-sm">
-                      {payload[0].value} {Number(payload[0].value) === 1 ? 'analysis' : 'analyses'}
-                    </div>
-                  </div>
-                );
-              }}
-            />
-            {avg > 0 && (
-              <ReferenceLine
-                y={avg}
-                stroke="#64748B"
-                strokeDasharray="4 4"
-                strokeWidth={1}
-                label={{
-                  value: `avg ${avg}`,
-                  position: 'right',
-                  fill: '#64748B',
-                  fontSize: 9,
-                  fontFamily: '"DM Mono"',
+                  );
                 }}
               />
-            )}
-            <Area
-              type="monotone"
-              dataKey="count"
-              stroke={COLORS.teal}
-              strokeWidth={2}
-              fill="url(#tealGradient)"
-              dot={false}
-              activeDot={{
-                r: 4,
-                fill: COLORS.teal,
-                stroke: COLORS.navy,
-                strokeWidth: 2,
-              }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+              {avg > 0 && (
+                <ReferenceLine
+                  y={avg}
+                  stroke="#64748B"
+                  strokeDasharray="4 4"
+                  strokeWidth={1}
+                  label={{
+                    value: `avg ${avg}`,
+                    position: 'right',
+                    fill: '#64748B',
+                    fontSize: 9,
+                    fontFamily: '"DM Mono"',
+                  }}
+                />
+              )}
+              <Area
+                type="monotone"
+                dataKey="count"
+                stroke={COLORS.teal}
+                strokeWidth={2}
+                fill="url(#tealGradient)"
+                dot={false}
+                activeDot={{
+                  r: 4,
+                  fill: COLORS.teal,
+                  stroke: COLORS.navy,
+                  strokeWidth: 2,
+                }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );

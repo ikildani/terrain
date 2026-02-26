@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  CartesianGrid,
-  Tooltip,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Tooltip } from 'recharts';
 import { formatCurrency, formatPercent } from '@/lib/utils/format';
 
 interface RevenueStream {
@@ -31,7 +23,7 @@ export default function RevenueStreamChart({ streams }: RevenueStreamChartProps)
       acc[s.stream] = s.gross_revenue_m;
       return acc;
     },
-    { name: 'Revenue' }
+    { name: 'Revenue' },
   );
 
   const data = [stackedData];
@@ -41,82 +33,63 @@ export default function RevenueStreamChart({ streams }: RevenueStreamChartProps)
     <div className="chart-container noise">
       <div className="chart-title">Revenue Streams Breakdown</div>
 
-      <ResponsiveContainer width="100%" height={120}>
-        <BarChart
-          data={data}
-          layout="vertical"
-          margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
-        >
-          <CartesianGrid
-            horizontal={false}
-            strokeDasharray="3 3"
-            stroke="rgba(100,116,139,0.08)"
-          />
-          <XAxis
-            type="number"
-            tickFormatter={(val) => `$${val}M`}
-            tick={{ fontSize: 11, fontFamily: '"DM Mono"', fill: '#64748B' }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis type="category" dataKey="name" hide />
-          <Tooltip
-            content={({ active, payload }) => {
-              if (!active || !payload?.length) return null;
-              return (
-                <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
-                  {payload.map((p, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 mb-1 last:mb-0"
-                    >
-                      <div
-                        className="w-2 h-2 rounded-sm flex-shrink-0"
-                        style={{ backgroundColor: p.color }}
-                      />
-                      <span className="text-slate-400">{p.name}:</span>
-                      <span className="metric text-white">
-                        ${(p.value as number).toFixed(1)}M
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              );
-            }}
-          />
-          {streams.map((s, i) => (
-            <Bar
-              key={s.stream}
-              dataKey={s.stream}
-              stackId="revenue"
-              fill={STREAM_COLORS[i % STREAM_COLORS.length]}
-              radius={
-                i === 0 && streams.length === 1
-                  ? [4, 4, 4, 4]
-                  : i === 0
-                    ? [4, 0, 0, 4]
-                    : i === streams.length - 1
-                      ? [0, 4, 4, 0]
-                      : [0, 0, 0, 0]
-              }
-              barSize={40}
+      <div role="img" aria-label="Revenue stream chart">
+        <ResponsiveContainer width="100%" height={120}>
+          <BarChart data={data} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 10 }}>
+            <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="rgba(100,116,139,0.08)" />
+            <XAxis
+              type="number"
+              tickFormatter={(val) => `$${val}M`}
+              tick={{ fontSize: 11, fontFamily: '"DM Mono"', fill: '#64748B' }}
+              axisLine={false}
+              tickLine={false}
             />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
+            <YAxis type="category" dataKey="name" hide />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                return (
+                  <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
+                    {payload.map((p, i) => (
+                      <div key={i} className="flex items-center gap-2 mb-1 last:mb-0">
+                        <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: p.color }} />
+                        <span className="text-slate-400">{p.name}:</span>
+                        <span className="metric text-white">${(p.value as number).toFixed(1)}M</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              }}
+            />
+            {streams.map((s, i) => (
+              <Bar
+                key={s.stream}
+                dataKey={s.stream}
+                stackId="revenue"
+                fill={STREAM_COLORS[i % STREAM_COLORS.length]}
+                radius={
+                  i === 0 && streams.length === 1
+                    ? [4, 4, 4, 4]
+                    : i === 0
+                      ? [4, 0, 0, 4]
+                      : i === streams.length - 1
+                        ? [0, 4, 4, 0]
+                        : [0, 0, 0, 0]
+                }
+                barSize={40}
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
       {/* Legend */}
       <div className="flex flex-wrap gap-5 mt-4 px-1">
         {streams.map((s, i) => (
           <div key={s.stream} className="flex items-center gap-2">
-            <div
-              className="w-3 h-3 rounded-sm"
-              style={{ backgroundColor: STREAM_COLORS[i % STREAM_COLORS.length] }}
-            />
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: STREAM_COLORS[i % STREAM_COLORS.length] }} />
             <span className="text-2xs text-slate-400">{s.stream}</span>
-            <span className="text-2xs font-mono text-slate-500">
-              {formatPercent(s.contribution_pct, 0)}
-            </span>
+            <span className="text-2xs font-mono text-slate-500">{formatPercent(s.contribution_pct, 0)}</span>
           </div>
         ))}
       </div>
@@ -158,9 +131,7 @@ export default function RevenueStreamChart({ streams }: RevenueStreamChartProps)
                   <span className="metric">${s.gross_revenue_m.toFixed(1)}M</span>
                 </td>
                 <td className="numeric">
-                  <span className="metric text-teal-400">
-                    {formatPercent(s.contribution_pct, 0)}
-                  </span>
+                  <span className="metric text-teal-400">{formatPercent(s.contribution_pct, 0)}</span>
                 </td>
               </tr>
             ))}
@@ -169,9 +140,7 @@ export default function RevenueStreamChart({ streams }: RevenueStreamChartProps)
               <td />
               <td />
               <td className="numeric">
-                <span className="metric text-white font-medium">
-                  ${totalRevenue.toFixed(1)}M
-                </span>
+                <span className="metric text-white font-medium">${totalRevenue.toFixed(1)}M</span>
               </td>
               <td className="numeric">
                 <span className="metric text-teal-400">100%</span>

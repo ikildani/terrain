@@ -8,7 +8,7 @@ import { analyzeDeviceCompetitiveLandscape } from '@/lib/analytics/device-compet
 import { analyzeCDxCompetitiveLandscape } from '@/lib/analytics/cdx-competitive';
 import { analyzeNutraceuticalCompetitiveLandscape } from '@/lib/analytics/nutraceutical-competitive';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
-import { logger, withTiming, logApiRequest, logApiResponse } from '@/lib/logger';
+import { logger, withTiming, logApiRequest, logApiResponse, logBusinessEvent } from '@/lib/logger';
 import { sanitizePostgrestValue } from '@/lib/utils/sanitize';
 import type { ApiResponse } from '@/types';
 import type { DeviceCategory, CDxPlatform, NutraceuticalCategory } from '@/types/devices-diagnostics';
@@ -297,7 +297,7 @@ export async function POST(request: NextRequest) {
 
     // ── Save report (respect save parameter) ──────────────────
     let reportId: string | undefined;
-    if (save !== false) {
+    if (save === true) {
       const title = indication ? `${indication} Competitive Landscape` : 'Competitive Landscape';
       const { data: saved } = await supabase
         .from('reports')
@@ -318,6 +318,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Success ─────────────────────────────────────────────
+    logBusinessEvent('analysis_completed', { userId: user.id, feature: 'competitive', indication });
     logApiResponse({
       route: '/api/analyze/competitive',
       status: 200,

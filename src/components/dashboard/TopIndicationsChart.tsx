@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Crosshair } from 'lucide-react';
 
 const COLORS = {
@@ -34,61 +26,47 @@ export default function TopIndicationsChart({ data }: TopIndicationsChartProps) 
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <Crosshair className="w-8 h-8 text-navy-600 mb-3" />
           <p className="text-sm text-slate-500">No indication data yet</p>
-          <p className="text-xs text-slate-600 mt-1">
-            Analyze indications to see your top focuses.
-          </p>
+          <p className="text-xs text-slate-600 mt-1">Analyze indications to see your top focuses.</p>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={Math.max(160, data.length * 40 + 20)}>
-          <BarChart
-            layout="vertical"
-            data={data}
-            margin={{ top: 4, right: 24, left: 8, bottom: 0 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={COLORS.grid}
-              horizontal={false}
-            />
-            <XAxis
-              type="number"
-              allowDecimals={false}
-              tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              type="category"
-              dataKey="indication"
-              width={160}
-              tick={{ fontSize: 11, fontFamily: '"Sora"', fill: COLORS.text }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              cursor={{ fill: COLORS.navyLight }}
-              content={({ active, payload }) => {
-                if (!active || !payload?.[0]) return null;
-                const d = payload[0].payload;
-                return (
-                  <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
-                    <div className="text-slate-400 mb-1">{d.indication}</div>
-                    <div className="font-mono text-white text-sm">
-                      {d.count} {d.count === 1 ? 'analysis' : 'analyses'}
+        <div role="img" aria-label="Top indications chart">
+          <ResponsiveContainer width="100%" height={Math.max(160, data.length * 40 + 20)}>
+            <BarChart layout="vertical" data={data} margin={{ top: 4, right: 24, left: 8, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} horizontal={false} />
+              <XAxis
+                type="number"
+                allowDecimals={false}
+                tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                type="category"
+                dataKey="indication"
+                width={160}
+                tick={{ fontSize: 11, fontFamily: '"Sora"', fill: COLORS.text }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                cursor={{ fill: COLORS.navyLight }}
+                content={({ active, payload }) => {
+                  if (!active || !payload?.[0]) return null;
+                  const d = payload[0].payload;
+                  return (
+                    <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
+                      <div className="text-slate-400 mb-1">{d.indication}</div>
+                      <div className="font-mono text-white text-sm">
+                        {d.count} {d.count === 1 ? 'analysis' : 'analyses'}
+                      </div>
                     </div>
-                  </div>
-                );
-              }}
-            />
-            <Bar
-              dataKey="count"
-              fill={COLORS.amber}
-              opacity={0.85}
-              radius={[0, 4, 4, 0]}
-              barSize={24}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+                  );
+                }}
+              />
+              <Bar dataKey="count" fill={COLORS.amber} opacity={0.85} radius={[0, 4, 4, 0]} barSize={24} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );

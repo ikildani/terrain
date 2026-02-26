@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -28,13 +29,14 @@ export async function GET(request: Request) {
             Cookie: cookieHeader,
           },
         }).catch((err) => {
-          console.warn('[auth/callback] Welcome email fetch failed:', err instanceof Error ? err.message : err);
+          logger.warn('[auth/callback] Welcome email fetch failed', {
+            error: err instanceof Error ? err.message : String(err),
+          });
         });
       } catch (emailErr) {
-        console.warn(
-          '[auth/callback] Welcome email trigger failed:',
-          emailErr instanceof Error ? emailErr.message : emailErr,
-        );
+        logger.warn('[auth/callback] Welcome email trigger failed', {
+          error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+        });
       }
 
       return NextResponse.redirect(`${origin}${safePath}`);

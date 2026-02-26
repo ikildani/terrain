@@ -1,16 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { Competitor } from '@/types';
 
 interface CompanyConcentrationChartProps {
@@ -70,42 +61,36 @@ export default function CompanyConcentrationChart({ competitors }: CompanyConcen
   return (
     <div className="card noise">
       <h3 className="chart-title mb-4">Company Concentration</h3>
-      <ResponsiveContainer width="100%" height={Math.max(200, companyData.length * 44)}>
-        <BarChart
-          data={companyData}
-          layout="vertical"
-          margin={{ top: 0, right: 24, bottom: 0, left: 0 }}
-        >
-          <CartesianGrid
-            horizontal={false}
-            strokeDasharray="3 3"
-            stroke="rgba(100, 116, 139, 0.08)"
-          />
-          <XAxis
-            type="number"
-            allowDecimals={false}
-            tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'DM Mono, monospace' }}
-            stroke="rgba(100, 116, 139, 0.15)"
-          />
-          <YAxis
-            type="category"
-            dataKey="name"
-            width={140}
-            tick={{ fill: '#94A3B8', fontSize: 11, fontFamily: 'DM Mono, monospace' }}
-            stroke="none"
-          />
-          <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(16, 34, 54, 0.4)' }} />
-          <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
-            {companyData.map((entry, idx) => (
-              <Cell
-                key={entry.name}
-                fill={idx === 0 ? '#00C9A7' : idx < 3 ? '#00E4BF' : '#0D9488'}
-                fillOpacity={idx === 0 ? 0.9 : 0.7 - idx * 0.04}
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <div role="img" aria-label="Company concentration chart">
+        <ResponsiveContainer width="100%" height={Math.max(200, companyData.length * 44)}>
+          <BarChart data={companyData} layout="vertical" margin={{ top: 0, right: 24, bottom: 0, left: 0 }}>
+            <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.08)" />
+            <XAxis
+              type="number"
+              allowDecimals={false}
+              tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'DM Mono, monospace' }}
+              stroke="rgba(100, 116, 139, 0.15)"
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              width={140}
+              tick={{ fill: '#94A3B8', fontSize: 11, fontFamily: 'DM Mono, monospace' }}
+              stroke="none"
+            />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(16, 34, 54, 0.4)' }} />
+            <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
+              {companyData.map((entry, idx) => (
+                <Cell
+                  key={entry.name}
+                  fill={idx === 0 ? '#00C9A7' : idx < 3 ? '#00E4BF' : '#0D9488'}
+                  fillOpacity={idx === 0 ? 0.9 : 0.7 - idx * 0.04}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

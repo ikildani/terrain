@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Layers } from 'lucide-react';
 
 const COLORS = {
@@ -47,61 +39,47 @@ export default function ModuleBreakdownChart({ data }: ModuleBreakdownChartProps
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <Layers className="w-8 h-8 text-navy-600 mb-3" />
           <p className="text-sm text-slate-500">No module usage yet</p>
-          <p className="text-xs text-slate-600 mt-1">
-            Start using modules to see your breakdown.
-          </p>
+          <p className="text-xs text-slate-600 mt-1">Start using modules to see your breakdown.</p>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={Math.max(160, chartData.length * 40 + 20)}>
-          <BarChart
-            layout="vertical"
-            data={chartData}
-            margin={{ top: 4, right: 24, left: 8, bottom: 0 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={COLORS.grid}
-              horizontal={false}
-            />
-            <XAxis
-              type="number"
-              allowDecimals={false}
-              tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              type="category"
-              dataKey="label"
-              width={120}
-              tick={{ fontSize: 11, fontFamily: '"Sora"', fill: COLORS.text }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              cursor={{ fill: COLORS.navyLight }}
-              content={({ active, payload }) => {
-                if (!active || !payload?.[0]) return null;
-                const d = payload[0].payload;
-                return (
-                  <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
-                    <div className="text-slate-400 mb-1">{d.label}</div>
-                    <div className="font-mono text-white text-sm">
-                      {d.count} {d.count === 1 ? 'use' : 'uses'}
+        <div role="img" aria-label="Module usage breakdown chart">
+          <ResponsiveContainer width="100%" height={Math.max(160, chartData.length * 40 + 20)}>
+            <BarChart layout="vertical" data={chartData} margin={{ top: 4, right: 24, left: 8, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} horizontal={false} />
+              <XAxis
+                type="number"
+                allowDecimals={false}
+                tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                type="category"
+                dataKey="label"
+                width={120}
+                tick={{ fontSize: 11, fontFamily: '"Sora"', fill: COLORS.text }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                cursor={{ fill: COLORS.navyLight }}
+                content={({ active, payload }) => {
+                  if (!active || !payload?.[0]) return null;
+                  const d = payload[0].payload;
+                  return (
+                    <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
+                      <div className="text-slate-400 mb-1">{d.label}</div>
+                      <div className="font-mono text-white text-sm">
+                        {d.count} {d.count === 1 ? 'use' : 'uses'}
+                      </div>
                     </div>
-                  </div>
-                );
-              }}
-            />
-            <Bar
-              dataKey="count"
-              fill={COLORS.teal}
-              opacity={0.85}
-              radius={[0, 4, 4, 0]}
-              barSize={24}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+                  );
+                }}
+              />
+              <Bar dataKey="count" fill={COLORS.teal} opacity={0.85} radius={[0, 4, 4, 0]} barSize={24} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );

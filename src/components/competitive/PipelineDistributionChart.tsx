@@ -1,16 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { Competitor, ClinicalPhase } from '@/types';
 
 interface PipelineDistributionChartProps {
@@ -90,13 +81,11 @@ export default function PipelineDistributionChart({ competitors }: PipelineDistr
       counts[c.phase] = (counts[c.phase] || 0) + 1;
     });
 
-    return PHASE_DISPLAY_ORDER.filter((phase) => counts[phase] && counts[phase] > 0).map(
-      (phase) => ({
-        name: phase,
-        count: counts[phase],
-        color: PHASE_COLORS[phase],
-      })
-    );
+    return PHASE_DISPLAY_ORDER.filter((phase) => counts[phase] && counts[phase] > 0).map((phase) => ({
+      name: phase,
+      count: counts[phase],
+      color: PHASE_COLORS[phase],
+    }));
   }, [competitors]);
 
   const mechanismData = useMemo<MechanismDistItem[]>(() => {
@@ -126,22 +115,14 @@ export default function PipelineDistributionChart({ competitors }: PipelineDistr
   }
 
   return (
-    <div className="card noise">
+    <div className="card noise" role="img" aria-label="Pipeline distribution chart">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Phase Distribution */}
         <div>
           <h3 className="chart-title">Phase Distribution</h3>
           <ResponsiveContainer width="100%" height={Math.max(200, phaseData.length * 44)}>
-            <BarChart
-              data={phaseData}
-              layout="vertical"
-              margin={{ top: 0, right: 24, bottom: 0, left: 0 }}
-            >
-              <CartesianGrid
-                horizontal={false}
-                strokeDasharray="3 3"
-                stroke="rgba(100, 116, 139, 0.08)"
-              />
+            <BarChart data={phaseData} layout="vertical" margin={{ top: 0, right: 24, bottom: 0, left: 0 }}>
+              <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.08)" />
               <XAxis
                 type="number"
                 allowDecimals={false}
@@ -169,16 +150,8 @@ export default function PipelineDistributionChart({ competitors }: PipelineDistr
         <div>
           <h3 className="chart-title">Mechanism Distribution</h3>
           <ResponsiveContainer width="100%" height={Math.max(200, mechanismData.length * 44)}>
-            <BarChart
-              data={mechanismData}
-              layout="vertical"
-              margin={{ top: 0, right: 24, bottom: 0, left: 0 }}
-            >
-              <CartesianGrid
-                horizontal={false}
-                strokeDasharray="3 3"
-                stroke="rgba(100, 116, 139, 0.08)"
-              />
+            <BarChart data={mechanismData} layout="vertical" margin={{ top: 0, right: 24, bottom: 0, left: 0 }}>
+              <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.08)" />
               <XAxis
                 type="number"
                 allowDecimals={false}
