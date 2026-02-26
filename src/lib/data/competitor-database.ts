@@ -19,6 +19,10 @@ import { CARDIO_METABOLIC_COMPETITORS } from './competitor-data-cardio-metabolic
 import { SPECIALTY_COMPETITORS_1 } from './competitor-data-specialty-1';
 import { SPECIALTY_COMPETITORS_2 } from './competitor-data-specialty-2';
 import { ADDITIONAL_COMPETITORS } from './competitor-data-additional';
+import { PSYCHIATRY_COMPETITORS } from './competitor-data-psychiatry';
+import { PAIN_HEPATO_ENDO_COMPETITORS } from './competitor-data-pain-hepato-endo';
+import { MSK_GASTRO_DERM_COMPETITORS } from './competitor-data-msk-gastro-derm';
+import { GAP_FILL_COMPETITORS } from './competitor-data-gap-fill';
 
 // ────────────────────────────────────────────────────────────
 // COMPETITOR RECORD TYPE
@@ -28,15 +32,15 @@ export interface CompetitorRecord {
   asset_name: string;
   generic_name?: string;
   company: string;
-  indication: string;                    // Normalized indication name
-  indication_specifics: string;          // Exact label or trial population
-  mechanism: string;                     // Human-readable mechanism
-  mechanism_category: string;            // Normalized category for grouping
+  indication: string; // Normalized indication name
+  indication_specifics: string; // Exact label or trial population
+  mechanism: string; // Human-readable mechanism
+  mechanism_category: string; // Normalized category for grouping
   molecular_target?: string;
   phase: ClinicalPhase;
   primary_endpoint?: string;
   key_data?: string;
-  line_of_therapy?: string;              // "1L", "2L", "2L+", "maintenance", "adjuvant", "neoadjuvant"
+  line_of_therapy?: string; // "1L", "2L", "2L+", "maintenance", "adjuvant", "neoadjuvant"
   partner?: string;
   nct_ids?: string[];
   first_in_class: boolean;
@@ -53,7 +57,6 @@ export interface CompetitorRecord {
 // ────────────────────────────────────────────────────────────
 
 const BASE_COMPETITORS: CompetitorRecord[] = [
-
   // ══════════════════════════════════════════════════════════
   // NON-SMALL CELL LUNG CANCER (NSCLC)
   // ══════════════════════════════════════════════════════════
@@ -242,7 +245,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: true,
-    strengths: ['First bispecific in NSCLC', 'Superiority vs Tagrisso in combination', 'Novel mechanism for EGFR ex20ins'],
+    strengths: [
+      'First bispecific in NSCLC',
+      'Superiority vs Tagrisso in combination',
+      'Novel mechanism for EGFR ex20ins',
+    ],
     weaknesses: ['IV administration', 'Infusion reactions', 'VTE risk'],
     source: 'FDA label; MARIPOSA/CHRYSALIS trials; J&J 2024',
     last_updated: '2025-01-15',
@@ -284,7 +291,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: true,
-    strengths: ['Head-to-head superiority vs Keytruda', 'Novel dual mechanism', 'Anti-angiogenic IO combination in single molecule'],
+    strengths: [
+      'Head-to-head superiority vs Keytruda',
+      'Novel dual mechanism',
+      'Anti-angiogenic IO combination in single molecule',
+    ],
     weaknesses: ['China-centric data (generalizability)', 'US confirmatory trials ongoing', 'Manufacturing complexity'],
     source: 'HARMONi-2 (NCT05499390); WCLC 2024',
     last_updated: '2024-11-01',
@@ -374,7 +385,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['OS benefit demonstrated', 'Broad population coverage', 'NATALEE adjuvant data emerging'],
-    weaknesses: ['QTc prolongation monitoring', 'Neutropenia management', 'Ibrance generic erosion pulling class pricing down'],
+    weaknesses: [
+      'QTc prolongation monitoring',
+      'Neutropenia management',
+      'Ibrance generic erosion pulling class pricing down',
+    ],
     source: 'FDA label; MONALEESA trials; Novartis 2024',
     last_updated: '2025-01-15',
   },
@@ -394,7 +409,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: true,
-    strengths: ['First oral ER degrader (PROTACs)', 'Novel mechanism for ESR1 mutations', 'Pfizer partnership validates approach'],
+    strengths: [
+      'First oral ER degrader (PROTACs)',
+      'Novel mechanism for ESR1 mutations',
+      'Pfizer partnership validates approach',
+    ],
     weaknesses: ['Phase 3 data pending', 'Competition from next-gen oral SERDs', 'Novel modality risk'],
     source: 'VERITAC-2 (NCT05654623); Arvinas/Pfizer 2024',
     last_updated: '2024-11-01',
@@ -441,7 +460,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: true,
     has_biomarker_selection: false,
-    strengths: ['Off-the-shelf bispecific (no manufacturing delay)', 'Deep responses in late-line', 'Moving to earlier lines'],
+    strengths: [
+      'Off-the-shelf bispecific (no manufacturing delay)',
+      'Deep responses in late-line',
+      'Moving to earlier lines',
+    ],
     weaknesses: ['CRS and ICANS risk', 'Infections from T-cell engagement', 'Step-up dosing required'],
     source: 'FDA label; MajesTEC-1 trial; J&J 2024',
     last_updated: '2025-01-15',
@@ -550,7 +573,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: true,
-    strengths: ['Targets dominant KRAS mutation in PDAC (~30%)', 'First KRAS G12D inhibitor', 'Transformative potential'],
+    strengths: [
+      'Targets dominant KRAS mutation in PDAC (~30%)',
+      'First KRAS G12D inhibitor',
+      'Transformative potential',
+    ],
     weaknesses: ['Very early data', 'Narrow patient selection', 'Combination strategy unclear'],
     source: 'AACR 2024; NCT05737706',
     last_updated: '2024-10-01',
@@ -598,7 +625,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: true,
     has_biomarker_selection: true,
     strengths: ['Biomarker-selected', 'Oral administration', 'Durable responses in IDH1+'],
-    weaknesses: ['Small patient subset (~8% AML)', 'Differentiation syndrome risk', 'Competition from broader-acting agents'],
+    weaknesses: [
+      'Small patient subset (~8% AML)',
+      'Differentiation syndrome risk',
+      'Competition from broader-acting agents',
+    ],
     source: 'FDA label; AGILE trial; Servier 2024',
     last_updated: '2025-01-15',
   },
@@ -713,7 +744,12 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: true,
     strengths: ['First anti-amyloid with traditional approval', 'Amyloid clearance', 'IV and SC formulations'],
-    weaknesses: ['ARIA-E/H risk (12.6%)', 'Modest clinical benefit debated', 'Infusion burden', 'Amyloid PET/CSF required'],
+    weaknesses: [
+      'ARIA-E/H risk (12.6%)',
+      'Modest clinical benefit debated',
+      'Infusion burden',
+      'Amyloid PET/CSF required',
+    ],
     source: 'FDA label; Clarity AD trial; Eisai 2024',
     last_updated: '2025-01-15',
   },
@@ -733,7 +769,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: true,
-    strengths: ['Higher magnitude benefit in low/med tau', 'Treatment completion (amyloid clearance endpoint)', 'Time-limited dosing'],
+    strengths: [
+      'Higher magnitude benefit in low/med tau',
+      'Treatment completion (amyloid clearance endpoint)',
+      'Time-limited dosing',
+    ],
     weaknesses: ['ARIA-E/H risk', 'Tau PET stratification complex', 'Amyloid PET required', 'High drug cost'],
     source: 'FDA label; TRAILBLAZER-ALZ 2; Eli Lilly 2024',
     last_updated: '2025-01-15',
@@ -755,7 +795,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: true,
     strengths: ['SC formulation', 'Fastest amyloid clearance', 'Could enable shortest treatment duration'],
-    weaknesses: ['ARIA risk may be higher with rapid clearance', 'Phase 3 not yet reported', 'Behind donanemab in development'],
+    weaknesses: [
+      'ARIA risk may be higher with rapid clearance',
+      'Phase 3 not yet reported',
+      'Behind donanemab in development',
+    ],
     source: 'NCT05463731; Eli Lilly 2024',
     last_updated: '2024-10-01',
   },
@@ -775,8 +819,18 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Established standard of care', 'Once-daily oral dosing', 'Generic availability', 'All severity stages'],
-    weaknesses: ['Symptomatic only (not disease-modifying)', 'GI side effects', 'Modest cognitive benefit', 'Effect wanes over time'],
+    strengths: [
+      'Established standard of care',
+      'Once-daily oral dosing',
+      'Generic availability',
+      'All severity stages',
+    ],
+    weaknesses: [
+      'Symptomatic only (not disease-modifying)',
+      'GI side effects',
+      'Modest cognitive benefit',
+      'Effect wanes over time',
+    ],
     source: 'FDA label; Eisai prescribing information',
     last_updated: '2025-01-15',
   },
@@ -791,13 +845,19 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     molecular_target: 'Filamin A',
     phase: 'Phase 3',
     primary_endpoint: 'ADAS-Cog11',
-    key_data: 'RETHINK-ALZ: Phase 3 ongoing; open-label showed sustained ADAS-Cog improvement over 12 months; oral BID dosing',
+    key_data:
+      'RETHINK-ALZ: Phase 3 ongoing; open-label showed sustained ADAS-Cog improvement over 12 months; oral BID dosing',
     line_of_therapy: '1L',
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['Oral administration (no infusion)', 'Non-amyloid mechanism', 'Low cost potential if approved'],
-    weaknesses: ['Data integrity controversies', 'SEC investigation history', 'Phase 3 results pending', 'Novel unvalidated target'],
+    weaknesses: [
+      'Data integrity controversies',
+      'SEC investigation history',
+      'Phase 3 results pending',
+      'Novel unvalidated target',
+    ],
     source: 'NCT04994483; Cassava Sciences 2024',
     last_updated: '2024-12-01',
   },
@@ -817,12 +877,17 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     molecular_target: 'Alpha-synuclein',
     phase: 'Phase 2/3',
     primary_endpoint: 'MDS-UPDRS Part III',
-    key_data: 'PADOVA: 28% reduction in motor progression in rapidly progressing subgroup; PASADENA: signals in motor function',
+    key_data:
+      'PADOVA: 28% reduction in motor progression in rapidly progressing subgroup; PASADENA: signals in motor function',
     line_of_therapy: '1L',
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['First anti-synuclein to show motor benefit', 'Disease modification potential', 'Strong Roche partnership'],
+    strengths: [
+      'First anti-synuclein to show motor benefit',
+      'Disease modification potential',
+      'Strong Roche partnership',
+    ],
     weaknesses: ['Missed primary endpoint in PASADENA', 'Subgroup-driven benefit', 'Long development timeline'],
     source: 'PADOVA (NCT04777331); Roche/Prothena 2024',
     last_updated: '2024-12-01',
@@ -870,7 +935,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['Superior to adalimumab in ACR50', 'Oral convenience', 'Multiple autoimmune indications'],
-    weaknesses: ['JAK class boxed warning (CV, thrombotic events)', 'FDA label restrictions post-ORAL Surveillance', 'Regulatory headwinds'],
+    weaknesses: [
+      'JAK class boxed warning (CV, thrombotic events)',
+      'FDA label restrictions post-ORAL Surveillance',
+      'Regulatory headwinds',
+    ],
     source: 'FDA label; SELECT trials; AbbVie 2024',
     last_updated: '2025-01-15',
   },
@@ -937,7 +1006,7 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Clean safety profile', 'Growing IL-23 class evidence', 'Dual IBD indication (UC + Crohn\'s)'],
+    strengths: ['Clean safety profile', 'Growing IL-23 class evidence', "Dual IBD indication (UC + Crohn's)"],
     weaknesses: ['Later entrant vs Stelara/Entyvio', 'SC only', 'Competitive with guselkumab for share'],
     source: 'FDA label; COMMAND trial; AbbVie 2024',
     last_updated: '2025-01-15',
@@ -1074,7 +1143,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: true,
     has_biomarker_selection: true,
     strengths: ['First SMA therapy approved', 'Broadest age/type coverage', 'Long-term safety data'],
-    weaknesses: ['Intrathecal administration every 4 months', 'Declining revenue with Zolgensma/Evrysdi competition', 'Access challenges for older patients'],
+    weaknesses: [
+      'Intrathecal administration every 4 months',
+      'Declining revenue with Zolgensma/Evrysdi competition',
+      'Access challenges for older patients',
+    ],
     source: 'FDA label; ENDEAR/NURTURE trials; Biogen 2024',
     last_updated: '2025-01-15',
   },
@@ -1095,7 +1168,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: true,
     has_biomarker_selection: true,
     strengths: ['Oral (liquid) at-home dosing', 'No age restriction above 2 months', 'CNS + peripheral distribution'],
-    weaknesses: ['Requires continuous daily dosing', 'Lower efficacy ceiling than Zolgensma in Type 1', 'Retinal toxicity signal in animals'],
+    weaknesses: [
+      'Requires continuous daily dosing',
+      'Lower efficacy ceiling than Zolgensma in Type 1',
+      'Retinal toxicity signal in animals',
+    ],
     source: 'FDA label; FIREFISH/SUNFISH trials; Roche 2024',
     last_updated: '2025-01-15',
   },
@@ -1141,8 +1218,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Broad melanoma label (1L, adjuvant, neoadjuvant)', 'Better tolerated than nivo+ipi', 'Extensive real-world data'],
-    weaknesses: ['Lower long-term OS vs nivo+ipi combination', 'LOE approaching 2028', 'Monotherapy limitations in PD-L1 low'],
+    strengths: [
+      'Broad melanoma label (1L, adjuvant, neoadjuvant)',
+      'Better tolerated than nivo+ipi',
+      'Extensive real-world data',
+    ],
+    weaknesses: [
+      'Lower long-term OS vs nivo+ipi combination',
+      'LOE approaching 2028',
+      'Monotherapy limitations in PD-L1 low',
+    ],
     source: 'FDA label; KEYNOTE-006/054 trials; Merck 10-K 2024',
     last_updated: '2025-01-15',
   },
@@ -1163,7 +1248,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: true,
     strengths: ['Rapid response in BRAF+ patients', 'Oral combination', 'Adjuvant indication'],
-    weaknesses: ['Limited to BRAF-mutated (~50% of melanoma)', 'Resistance develops within 12 months', 'Pyrexia management burden'],
+    weaknesses: [
+      'Limited to BRAF-mutated (~50% of melanoma)',
+      'Resistance develops within 12 months',
+      'Pyrexia management burden',
+    ],
     source: 'FDA label; COMBI trials; Novartis 10-K 2024',
     last_updated: '2025-01-15',
   },
@@ -1183,8 +1272,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['First LAG-3 blocking antibody approved', 'Better tolerability than nivo+ipi', 'Novel checkpoint combination'],
-    weaknesses: ['No OS benefit demonstrated yet', 'Inferior PFS vs nivo+ipi', 'Limited differentiation from anti-PD-1 monotherapy'],
+    strengths: [
+      'First LAG-3 blocking antibody approved',
+      'Better tolerability than nivo+ipi',
+      'Novel checkpoint combination',
+    ],
+    weaknesses: [
+      'No OS benefit demonstrated yet',
+      'Inferior PFS vs nivo+ipi',
+      'Limited differentiation from anti-PD-1 monotherapy',
+    ],
     source: 'FDA label; RELATIVITY-047 trial; BMS 2024',
     last_updated: '2025-01-15',
   },
@@ -1205,7 +1302,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['First TIL therapy approved', 'Active after checkpoint failure', 'Durable responses in responders'],
-    weaknesses: ['Complex manufacturing (22-day vein-to-vein)', 'Lymphodepletion required', 'Limited manufacturing capacity'],
+    weaknesses: [
+      'Complex manufacturing (22-day vein-to-vein)',
+      'Lymphodepletion required',
+      'Limited manufacturing capacity',
+    ],
     source: 'FDA label; C-144-01 trial; Iovance 2024',
     last_updated: '2025-01-15',
   },
@@ -1252,7 +1353,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['Durable complete responses', 'IO-IO paradigm', 'Long-term OS benefit in int/poor risk'],
-    weaknesses: ['Less effective in favorable-risk', 'High immune-related AE rate', 'Limited time on ipilimumab (4 cycles)'],
+    weaknesses: [
+      'Less effective in favorable-risk',
+      'High immune-related AE rate',
+      'Limited time on ipilimumab (4 cycles)',
+    ],
     source: 'FDA label; CheckMate-214 trial; BMS 10-K 2024',
     last_updated: '2025-01-15',
   },
@@ -1272,7 +1377,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Strong PFS and OS benefit', 'Active across all risk groups', 'MET/AXL coverage provides differentiation'],
+    strengths: [
+      'Strong PFS and OS benefit',
+      'Active across all risk groups',
+      'MET/AXL coverage provides differentiation',
+    ],
     weaknesses: ['High AE rate with combination', 'Dose reductions common', 'Three-drug cost'],
     source: 'FDA label; CheckMate-9ER trial; Exelixis/BMS 2024',
     last_updated: '2025-01-15',
@@ -1294,7 +1403,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['Established combination partner', 'Well-known safety profile', 'Available generic pathway'],
-    weaknesses: ['Hypertension management', 'Less differentiated as monotherapy', 'Losing share to cabo+nivo and len+pembro'],
+    weaknesses: [
+      'Hypertension management',
+      'Less differentiated as monotherapy',
+      'Losing share to cabo+nivo and len+pembro',
+    ],
     source: 'FDA label; KEYNOTE-426 trial; Pfizer 2024',
     last_updated: '2025-01-15',
   },
@@ -1341,7 +1454,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['First IO regimen in 1L HCC', 'Practice-changing OS benefit', 'Well-established safety'],
-    weaknesses: ['Bleeding risk with bevacizumab (variceal screening required)', 'IV administration', 'Not for Child-Pugh B/C'],
+    weaknesses: [
+      'Bleeding risk with bevacizumab (variceal screening required)',
+      'IV administration',
+      'Not for Child-Pugh B/C',
+    ],
     source: 'FDA label; IMbrave150 trial; Roche 2024',
     last_updated: '2025-01-15',
   },
@@ -1361,8 +1478,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Single priming dose of treme reduces toxicity', 'No anti-VEGF needed (avoids bleeding risk)', 'STRIDE dosing innovation'],
-    weaknesses: ['Numerically inferior to atezo+bev in cross-trial comparison', 'Limited uptake vs IMbrave regimen', 'Hepatic toxicity risk'],
+    strengths: [
+      'Single priming dose of treme reduces toxicity',
+      'No anti-VEGF needed (avoids bleeding risk)',
+      'STRIDE dosing innovation',
+    ],
+    weaknesses: [
+      'Numerically inferior to atezo+bev in cross-trial comparison',
+      'Limited uptake vs IMbrave regimen',
+      'Hepatic toxicity risk',
+    ],
     source: 'FDA label; HIMALAYA trial; AstraZeneca 2024',
     last_updated: '2025-01-15',
   },
@@ -1451,7 +1576,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: true,
     strengths: ['Standard-of-care in 1L gastric', 'Greater benefit in CPS>=5', 'Broad global label'],
-    weaknesses: ['Modest OS gain in all-comers', 'Chemotherapy backbone toxicity', 'PD-L1 testing required for optimal selection'],
+    weaknesses: [
+      'Modest OS gain in all-comers',
+      'Chemotherapy backbone toxicity',
+      'PD-L1 testing required for optimal selection',
+    ],
     source: 'FDA label; CheckMate-649 trial; BMS 2024',
     last_updated: '2025-01-15',
   },
@@ -1472,7 +1601,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: true,
     strengths: ['Broad label with pembro franchise', 'Strong benefit in PD-L1 high', 'Familiar safety profile'],
-    weaknesses: ['Incremental OS gain in unselected population', 'Late entry vs CheckMate-649', 'Chemotherapy combination burden'],
+    weaknesses: [
+      'Incremental OS gain in unselected population',
+      'Late entry vs CheckMate-649',
+      'Chemotherapy combination burden',
+    ],
     source: 'FDA label; KEYNOTE-859 trial; Merck 2024',
     last_updated: '2025-01-15',
   },
@@ -1561,7 +1694,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: true,
     strengths: ['Established 2L UC standard', 'Durable responses', 'Expanding to perioperative settings'],
-    weaknesses: ['Modest ORR as monotherapy', 'PD-L1 selection needed in 1L cisplatin-ineligible', 'Competition from enfortumab combos'],
+    weaknesses: [
+      'Modest ORR as monotherapy',
+      'PD-L1 selection needed in 1L cisplatin-ineligible',
+      'Competition from enfortumab combos',
+    ],
     source: 'FDA label; KEYNOTE-045 trial; Merck 2024',
     last_updated: '2025-01-15',
   },
@@ -1623,8 +1760,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: true,
-    strengths: ['First targeted therapy in UC with OS benefit', 'Oral administration', 'Biomarker-selected high response'],
-    weaknesses: ['FGFR alterations in ~20% of UC', 'Hyperphosphatemia management', 'Ocular toxicity (central serous retinopathy)'],
+    strengths: [
+      'First targeted therapy in UC with OS benefit',
+      'Oral administration',
+      'Biomarker-selected high response',
+    ],
+    weaknesses: [
+      'FGFR alterations in ~20% of UC',
+      'Hyperphosphatemia management',
+      'Ocular toxicity (central serous retinopathy)',
+    ],
     source: 'FDA label; THOR trial; J&J 2024',
     last_updated: '2025-01-15',
   },
@@ -1649,8 +1794,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: true,
-    strengths: ['Standard-of-care in 1L R/M HNSCC', 'Strong benefit in PD-L1 CPS>=20', 'Monotherapy option for high expressors'],
-    weaknesses: ['Modest gain in CPS 1-19', 'Chemotherapy backbone needed for most patients', 'Resistance mechanisms common'],
+    strengths: [
+      'Standard-of-care in 1L R/M HNSCC',
+      'Strong benefit in PD-L1 CPS>=20',
+      'Monotherapy option for high expressors',
+    ],
+    weaknesses: [
+      'Modest gain in CPS 1-19',
+      'Chemotherapy backbone needed for most patients',
+      'Resistance mechanisms common',
+    ],
     source: 'FDA label; KEYNOTE-048 trial; Merck 2024',
     last_updated: '2025-01-15',
   },
@@ -1739,7 +1892,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['First IO approved in ES-SCLC', 'Meaningful OS improvement', 'Established 1L standard'],
-    weaknesses: ['Modest absolute OS benefit (~2 months)', 'Most patients relapse within 12 months', 'No biomarker for patient selection'],
+    weaknesses: [
+      'Modest absolute OS benefit (~2 months)',
+      'Most patients relapse within 12 months',
+      'No biomarker for patient selection',
+    ],
     source: 'FDA label; IMpower133 trial; Roche 2024',
     last_updated: '2025-01-15',
   },
@@ -1760,7 +1917,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['Comparable efficacy to atezolizumab', 'Strong CASPIAN data', 'Flexible platinum backbone'],
-    weaknesses: ['Limited differentiation from Tecentriq', 'Same modest absolute benefit', 'Combination with tremelimumab did not add benefit'],
+    weaknesses: [
+      'Limited differentiation from Tecentriq',
+      'Same modest absolute benefit',
+      'Combination with tremelimumab did not add benefit',
+    ],
     source: 'FDA label; CASPIAN trial; AstraZeneca 2024',
     last_updated: '2025-01-15',
   },
@@ -1780,7 +1941,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: true,
     has_biomarker_selection: false,
-    strengths: ['Only approved 2L SCLC monotherapy besides topotecan', 'Better tolerated than topotecan', 'Novel mechanism'],
+    strengths: [
+      'Only approved 2L SCLC monotherapy besides topotecan',
+      'Better tolerated than topotecan',
+      'Novel mechanism',
+    ],
     weaknesses: ['Accelerated approval (confirmatory ongoing)', 'Moderate ORR', 'Myelosuppression'],
     source: 'FDA label; Phase 2 basket trial; Jazz Pharma 2024',
     last_updated: '2025-01-15',
@@ -1801,7 +1966,12 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: true,
     has_biomarker_selection: false,
-    strengths: ['First DLL3-targeted therapy', 'High ORR for SCLC 2L+', 'Durable responses', 'Moving to 1L combinations'],
+    strengths: [
+      'First DLL3-targeted therapy',
+      'High ORR for SCLC 2L+',
+      'Durable responses',
+      'Moving to 1L combinations',
+    ],
     weaknesses: ['CRS risk (1% Grade 3+)', 'ICANS/neurologic events', 'Step-up dosing required'],
     source: 'FDA label; DeLLphi-301 trial; Amgen 2024',
     last_updated: '2025-01-15',
@@ -1827,7 +1997,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: true,
-    strengths: ['Standard-of-care in BRCA+ maintenance', 'Dramatic PFS benefit in BRCA+', 'Expanding to HRD+ populations'],
+    strengths: [
+      'Standard-of-care in BRCA+ maintenance',
+      'Dramatic PFS benefit in BRCA+',
+      'Expanding to HRD+ populations',
+    ],
     weaknesses: ['MDS/AML risk (1-2%)', 'Hematologic toxicity', 'Label restricted after PARP safety review'],
     source: 'FDA label; SOLO-1/PAOLA-1 trials; AstraZeneca 2024',
     last_updated: '2025-01-15',
@@ -1848,8 +2022,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: true,
-    strengths: ['Once-daily oral dosing', 'Companion diagnostic with HRD test (MyChoice CDx)', 'Strong PFS data in HRD+ population (21.9 vs 10.4 mo)'],
-    weaknesses: ['Label narrowed to HRD+ after FDA safety review', 'Thrombocytopenia management', 'Losing market share to Lynparza'],
+    strengths: [
+      'Once-daily oral dosing',
+      'Companion diagnostic with HRD test (MyChoice CDx)',
+      'Strong PFS data in HRD+ population (21.9 vs 10.4 mo)',
+    ],
+    weaknesses: [
+      'Label narrowed to HRD+ after FDA safety review',
+      'Thrombocytopenia management',
+      'Losing market share to Lynparza',
+    ],
     source: 'FDA label; PRIMA trial; GSK 2024',
     last_updated: '2025-01-15',
   },
@@ -1870,7 +2052,12 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['Established anti-VEGF in ovarian', 'Combination partner with PARPi', 'Broad label coverage'],
-    weaknesses: ['GI perforation risk', 'Hypertension', 'Biosimilar competition', 'No OS benefit as monotherapy add-on'],
+    weaknesses: [
+      'GI perforation risk',
+      'Hypertension',
+      'Biosimilar competition',
+      'No OS benefit as monotherapy add-on',
+    ],
     source: 'FDA label; GOG-0218/PAOLA-1 trials; Roche 2024',
     last_updated: '2025-01-15',
   },
@@ -1891,7 +2078,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: true,
     strengths: ['First FRa-targeted therapy', 'OS benefit in platinum-resistant', 'Novel ADC in ovarian'],
-    weaknesses: ['FRa testing infrastructure needed', 'Ocular toxicity (blurred vision)', 'Limited to FRa-high (~35-40%)'],
+    weaknesses: [
+      'FRa testing infrastructure needed',
+      'Ocular toxicity (blurred vision)',
+      'Limited to FRa-high (~35-40%)',
+    ],
     source: 'FDA label; SORAYA/MIRASOL trials; AbbVie 2024',
     last_updated: '2025-01-15',
   },
@@ -1916,7 +2107,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Backbone of 1L mCRC for 20 years', 'Broadly combined with chemo regimens', 'Biosimilar availability lowers cost'],
+    strengths: [
+      'Backbone of 1L mCRC for 20 years',
+      'Broadly combined with chemo regimens',
+      'Biosimilar availability lowers cost',
+    ],
     weaknesses: ['GI perforation risk', 'No biomarker for selection', 'Biosimilar erosion of branded revenue'],
     source: 'FDA label; AVF2107g trial; Roche 2024',
     last_updated: '2025-01-15',
@@ -2001,7 +2196,12 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['Established late-line option', 'Oral dosing', 'Active across biomarker subgroups'],
-    weaknesses: ['Modest OS benefit (~1.4 months)', 'Hand-foot syndrome', 'Fatigue and hepatotoxicity', 'Limited use in practice'],
+    weaknesses: [
+      'Modest OS benefit (~1.4 months)',
+      'Hand-foot syndrome',
+      'Fatigue and hepatotoxicity',
+      'Limited use in practice',
+    ],
     source: 'FDA label; CORRECT trial; Bayer 2024',
     last_updated: '2025-01-15',
   },
@@ -2021,13 +2221,24 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     molecular_target: 'Dopamine pathway',
     phase: 'Approved',
     primary_endpoint: 'UPDRS Part III',
-    key_data: 'Gold standard for >50 years; most effective motor symptom control; all PD patients eventually require L-dopa',
+    key_data:
+      'Gold standard for >50 years; most effective motor symptom control; all PD patients eventually require L-dopa',
     line_of_therapy: '1L',
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Most effective motor symptom treatment', 'Decades of experience', 'Generic availability', 'Multiple formulations (IR, CR, ER)'],
-    weaknesses: ['Motor fluctuations with chronic use', 'Dyskinesia development', 'Wearing-off phenomenon', 'Does not modify disease'],
+    strengths: [
+      'Most effective motor symptom treatment',
+      'Decades of experience',
+      'Generic availability',
+      'Multiple formulations (IR, CR, ER)',
+    ],
+    weaknesses: [
+      'Motor fluctuations with chronic use',
+      'Dyskinesia development',
+      'Wearing-off phenomenon',
+      'Does not modify disease',
+    ],
     source: 'FDA label; AAN Practice Guidelines',
     last_updated: '2025-01-15',
   },
@@ -2068,7 +2279,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Only FDA-approved therapy for PD psychosis', 'No motor worsening', 'Selective mechanism avoids dopamine blockade'],
+    strengths: [
+      'Only FDA-approved therapy for PD psychosis',
+      'No motor worsening',
+      'Selective mechanism avoids dopamine blockade',
+    ],
     weaknesses: ['QTc prolongation warning', 'Boxed warning for elderly dementia mortality', 'Modest effect size'],
     source: 'FDA label; Study 020; Acadia 2024',
     last_updated: '2025-01-15',
@@ -2089,7 +2304,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Continuous drug delivery reduces fluctuations', 'Subcutaneous (no intestinal tube like Duodopa)', '24-hour pump option'],
+    strengths: [
+      'Continuous drug delivery reduces fluctuations',
+      'Subcutaneous (no intestinal tube like Duodopa)',
+      '24-hour pump option',
+    ],
     weaknesses: ['Infusion site reactions (90%+)', 'Device burden', 'High cost vs oral levodopa'],
     source: 'FDA label; Phase 3 trial; AbbVie 2024',
     last_updated: '2025-01-15',
@@ -2158,7 +2377,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: true,
     strengths: ['Highly effective in active RRMS', 'Rapid onset of action', 'Long clinical track record'],
-    weaknesses: ['PML risk (JCV antibody monitoring required)', 'REMS program', 'Revenue declining with anti-CD20 competition'],
+    weaknesses: [
+      'PML risk (JCV antibody monitoring required)',
+      'REMS program',
+      'Revenue declining with anti-CD20 competition',
+    ],
     source: 'FDA label; AFFIRM trial; Biogen 2024',
     last_updated: '2025-01-15',
   },
@@ -2178,8 +2401,17 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Oral short-course dosing (10 days/year for 2 years)', 'No continuous therapy needed', 'Durable effect after completion'],
-    weaknesses: ['Lymphopenia management', 'Herpes zoster risk', 'Cancer risk theoretical concern', 'Restricted to highly active MS'],
+    strengths: [
+      'Oral short-course dosing (10 days/year for 2 years)',
+      'No continuous therapy needed',
+      'Durable effect after completion',
+    ],
+    weaknesses: [
+      'Lymphopenia management',
+      'Herpes zoster risk',
+      'Cancer risk theoretical concern',
+      'Restricted to highly active MS',
+    ],
     source: 'FDA label; CLARITY trial; Merck KGaA 2024',
     last_updated: '2025-01-15',
   },
@@ -2199,8 +2431,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['1-hour infusion (shorter than Ocrevus)', 'Strong efficacy vs teriflunomide', 'Cost-competitive positioning'],
-    weaknesses: ['Late entrant in anti-CD20 class', 'Limited differentiation from Ocrevus/Kesimpta', 'Infusion site needed'],
+    strengths: [
+      '1-hour infusion (shorter than Ocrevus)',
+      'Strong efficacy vs teriflunomide',
+      'Cost-competitive positioning',
+    ],
+    weaknesses: [
+      'Late entrant in anti-CD20 class',
+      'Limited differentiation from Ocrevus/Kesimpta',
+      'Infusion site needed',
+    ],
     source: 'FDA label; ULTIMATE trials; TG Therapeutics 2024',
     last_updated: '2025-01-15',
   },
@@ -2214,19 +2454,30 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     generic_name: 'cannabidiol',
     company: 'Jazz Pharmaceuticals (GW Pharma)',
     indication: 'Epilepsy',
-    indication_specifics: 'Seizures associated with Lennox-Gastaut, Dravet syndrome, or tuberous sclerosis complex (age >= 1 yr)',
+    indication_specifics:
+      'Seizures associated with Lennox-Gastaut, Dravet syndrome, or tuberous sclerosis complex (age >= 1 yr)',
     mechanism: 'Cannabinoid (exact mechanism in epilepsy unclear; modulates GPR55, TRPV1, adenosine)',
     mechanism_category: 'cannabinoid',
     molecular_target: 'GPR55/TRPV1',
     phase: 'Approved',
     primary_endpoint: 'Seizure frequency reduction',
-    key_data: 'GWPCARE1 (Dravet): 39% median seizure reduction vs 13% placebo; GWPCARE3 (LGS): 44% drop seizure reduction',
+    key_data:
+      'GWPCARE1 (Dravet): 39% median seizure reduction vs 13% placebo; GWPCARE3 (LGS): 44% drop seizure reduction',
     line_of_therapy: '2L+',
     first_in_class: true,
     orphan_drug: true,
     has_biomarker_selection: false,
-    strengths: ['First FDA-approved cannabinoid', 'Active in treatment-resistant epilepsy syndromes', 'Favorable safety vs clobazam'],
-    weaknesses: ['Drug-drug interactions (clobazam levels)', 'Hepatotoxicity with valproate', 'Somnolence', 'Schedule V controlled'],
+    strengths: [
+      'First FDA-approved cannabinoid',
+      'Active in treatment-resistant epilepsy syndromes',
+      'Favorable safety vs clobazam',
+    ],
+    weaknesses: [
+      'Drug-drug interactions (clobazam levels)',
+      'Hepatotoxicity with valproate',
+      'Somnolence',
+      'Schedule V controlled',
+    ],
     source: 'FDA label; GWPCARE trials; Jazz Pharma 2024',
     last_updated: '2025-01-15',
   },
@@ -2235,7 +2486,8 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     generic_name: 'perampanel',
     company: 'Eisai',
     indication: 'Epilepsy',
-    indication_specifics: 'Adjunctive therapy for partial-onset and primary generalized tonic-clonic seizures (age >= 4)',
+    indication_specifics:
+      'Adjunctive therapy for partial-onset and primary generalized tonic-clonic seizures (age >= 4)',
     mechanism: 'Non-competitive AMPA glutamate receptor antagonist',
     mechanism_category: 'glutamate_modulator',
     molecular_target: 'AMPA receptor',
@@ -2247,7 +2499,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['First-in-class AMPA antagonist', 'Once-daily dosing', 'Effective in focal and generalized epilepsy'],
-    weaknesses: ['Behavioral/psychiatric adverse events (aggression, hostility)', 'Dizziness', 'Boxed warning for serious psychiatric events'],
+    weaknesses: [
+      'Behavioral/psychiatric adverse events (aggression, hostility)',
+      'Dizziness',
+      'Boxed warning for serious psychiatric events',
+    ],
     source: 'FDA label; Phase 3 trials 304/305/306; Eisai 2024',
     last_updated: '2025-01-15',
   },
@@ -2267,8 +2523,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Higher affinity for SV2A than levetiracetam', 'Fewer behavioral side effects than levetiracetam', 'Rapid onset'],
-    weaknesses: ['Modest differentiation from generic levetiracetam', 'Somnolence/fatigue', 'Premium pricing vs generic LEV'],
+    strengths: [
+      'Higher affinity for SV2A than levetiracetam',
+      'Fewer behavioral side effects than levetiracetam',
+      'Rapid onset',
+    ],
+    weaknesses: [
+      'Modest differentiation from generic levetiracetam',
+      'Somnolence/fatigue',
+      'Premium pricing vs generic LEV',
+    ],
     source: 'FDA label; Phase 3 trials; UCB 2024',
     last_updated: '2025-01-15',
   },
@@ -2288,7 +2552,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Highest seizure-free rates of any adjunctive ASM', 'Dual mechanism of action', 'Strong efficacy signal'],
+    strengths: [
+      'Highest seizure-free rates of any adjunctive ASM',
+      'Dual mechanism of action',
+      'Strong efficacy signal',
+    ],
     weaknesses: ['DRESS syndrome risk (slow titration required)', 'Somnolence/dizziness', 'REMS program for titration'],
     source: 'FDA label; C017 trial; SK Life Science 2024',
     last_updated: '2025-01-15',
@@ -2309,13 +2577,18 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     molecular_target: 'CGRP receptor',
     phase: 'Approved',
     primary_endpoint: 'Monthly migraine days reduction',
-    key_data: 'STRIVE: -3.2 vs -1.8 MMD reduction (140mg); LIBERTY: 30.3% vs 14.0% 50% responder rate in treatment-resistant',
+    key_data:
+      'STRIVE: -3.2 vs -1.8 MMD reduction (140mg); LIBERTY: 30.3% vs 14.0% 50% responder rate in treatment-resistant',
     line_of_therapy: '1L',
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['First-in-class anti-CGRP', 'Monthly SC self-injection', 'Favorable tolerability vs oral preventives'],
-    weaknesses: ['Constipation (unique to receptor-targeted approach)', 'High cost vs generic oral preventives', 'Payer prior auth requirements'],
+    weaknesses: [
+      'Constipation (unique to receptor-targeted approach)',
+      'High cost vs generic oral preventives',
+      'Payer prior auth requirements',
+    ],
     source: 'FDA label; STRIVE trial; Amgen 2024',
     last_updated: '2025-01-15',
   },
@@ -2356,7 +2629,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Only anti-CGRP approved for cluster headache', 'Loading dose for rapid onset', 'Strong efficacy across EM and CM'],
+    strengths: [
+      'Only anti-CGRP approved for cluster headache',
+      'Loading dose for rapid onset',
+      'Strong efficacy across EM and CM',
+    ],
     weaknesses: ['Monthly injection required', 'Injection site reactions', 'Premium pricing'],
     source: 'FDA label; EVOLVE/REGAIN trials; Eli Lilly 2024',
     last_updated: '2025-01-15',
@@ -2372,13 +2649,22 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     molecular_target: 'CGRP receptor',
     phase: 'Approved',
     primary_endpoint: 'Pain freedom at 2 hours',
-    key_data: 'Acute: 21% pain-free at 2h vs 11% placebo; Prevention: -4.3 vs -3.5 MMD reduction (every other day dosing)',
+    key_data:
+      'Acute: 21% pain-free at 2h vs 11% placebo; Prevention: -4.3 vs -3.5 MMD reduction (every other day dosing)',
     line_of_therapy: '1L',
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Dual acute+preventive indication', 'Oral dissolving tablet convenience', 'No medication overuse headache risk'],
-    weaknesses: ['Every-other-day preventive dosing compliance', 'Nausea', 'Premium pricing vs generic triptans for acute'],
+    strengths: [
+      'Dual acute+preventive indication',
+      'Oral dissolving tablet convenience',
+      'No medication overuse headache risk',
+    ],
+    weaknesses: [
+      'Every-other-day preventive dosing compliance',
+      'Nausea',
+      'Premium pricing vs generic triptans for acute',
+    ],
     source: 'FDA label; Biohaven trials; Pfizer 2024',
     last_updated: '2025-01-15',
   },
@@ -2392,7 +2678,8 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     generic_name: 'risankizumab',
     company: 'AbbVie',
     indication: 'Plaque Psoriasis',
-    indication_specifics: 'Moderate-to-severe plaque psoriasis in adults who are candidates for systemic therapy or phototherapy',
+    indication_specifics:
+      'Moderate-to-severe plaque psoriasis in adults who are candidates for systemic therapy or phototherapy',
     mechanism: 'Anti-IL-23 (p19) monoclonal antibody',
     mechanism_category: 'anti_il23',
     molecular_target: 'IL-23 (p19)',
@@ -2445,7 +2732,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['First anti-IL-17 approved', 'Rapid onset of action', 'Multiple autoimmune indications (PsA, AS, nr-axSpA)'],
+    strengths: [
+      'First anti-IL-17 approved',
+      'Rapid onset of action',
+      'Multiple autoimmune indications (PsA, AS, nr-axSpA)',
+    ],
     weaknesses: ['Candida infection risk', 'IBD contraindication', 'Losing share to IL-23 class'],
     source: 'FDA label; ERASURE/FIXTURE trials; Novartis 2024',
     last_updated: '2025-01-15',
@@ -2466,7 +2757,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['High PASI 100 (complete clearance) rates', 'Rapid response (Week 1-4)', 'Head-to-head superiority vs ustekinumab'],
+    strengths: [
+      'High PASI 100 (complete clearance) rates',
+      'Rapid response (Week 1-4)',
+      'Head-to-head superiority vs ustekinumab',
+    ],
     weaknesses: ['Injection frequency (loading phase)', 'Candida risk', 'IBD concern with IL-17 class'],
     source: 'FDA label; UNCOVER trials; Eli Lilly 2024',
     last_updated: '2025-01-15',
@@ -2487,7 +2782,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Highest skin clearance rates (PASI 100)', 'Dual IL-17A+F inhibition', 'Every 8-week maintenance after loading'],
+    strengths: [
+      'Highest skin clearance rates (PASI 100)',
+      'Dual IL-17A+F inhibition',
+      'Every 8-week maintenance after loading',
+    ],
     weaknesses: ['Oral candidiasis rate (~15%)', 'IBD class concern', 'Late entrant in crowded biologics market'],
     source: 'FDA label; BE VIVID/BE SURE trials; UCB 2024',
     last_updated: '2025-01-15',
@@ -2502,19 +2801,25 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     generic_name: 'ustekinumab',
     company: 'Johnson & Johnson',
     indication: "Crohn's Disease",
-    indication_specifics: 'Moderately to severely active CD in adults who failed or were intolerant to TNFi or corticosteroids',
+    indication_specifics:
+      'Moderately to severely active CD in adults who failed or were intolerant to TNFi or corticosteroids',
     mechanism: 'Anti-IL-12/23 (p40) monoclonal antibody',
     mechanism_category: 'anti_il12_23',
     molecular_target: 'IL-12/IL-23 (p40)',
     phase: 'Approved',
     primary_endpoint: 'Clinical remission (CDAI < 150)',
-    key_data: 'UNITI-1/2: clinical remission 34.3% vs 21.5% placebo at 8 wk; IM-UNITI: 53.1% remission at 44 wk maintenance',
+    key_data:
+      'UNITI-1/2: clinical remission 34.3% vs 21.5% placebo at 8 wk; IM-UNITI: 53.1% remission at 44 wk maintenance',
     line_of_therapy: '2L+',
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['Established efficacy in anti-TNF failures', 'Clean safety profile', 'Every 8-week SC maintenance'],
-    weaknesses: ['Biosimilar competition emerging 2025', 'Lower efficacy vs newer agents in head-to-head', 'Revenue declining'],
+    weaknesses: [
+      'Biosimilar competition emerging 2025',
+      'Lower efficacy vs newer agents in head-to-head',
+      'Revenue declining',
+    ],
     source: 'FDA label; UNITI/IM-UNITI trials; J&J 2024',
     last_updated: '2025-01-15',
   },
@@ -2529,7 +2834,8 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     molecular_target: 'IL-23 (p19)',
     phase: 'Approved',
     primary_endpoint: 'Clinical remission (CDAI < 150)',
-    key_data: 'ADVANCE/MOTIVATE: clinical remission 43-45% vs 20-25% placebo at 12 wk; FORTIFY: 52% endoscopic remission at 52 wk',
+    key_data:
+      'ADVANCE/MOTIVATE: clinical remission 43-45% vs 20-25% placebo at 12 wk; FORTIFY: 52% endoscopic remission at 52 wk',
     line_of_therapy: '2L+',
     first_in_class: false,
     orphan_drug: false,
@@ -2555,7 +2861,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Gut-selective mechanism (systemic safety advantage)', 'SC formulation available', 'Strong evidence in maintenance'],
+    strengths: [
+      'Gut-selective mechanism (systemic safety advantage)',
+      'SC formulation available',
+      'Strong evidence in maintenance',
+    ],
     weaknesses: ['Slower onset than anti-TNF', 'Less effective in fistulizing CD', 'Biosimilar risk approaching'],
     source: 'FDA label; GEMINI 2 trial; Takeda 2024',
     last_updated: '2025-01-15',
@@ -2577,7 +2887,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['Decades of clinical experience', 'Pediatric and fistulizing indications', 'Biosimilar cost reduction'],
-    weaknesses: ['10+ biosimilars eroding revenue', 'Secondary loss of response common', 'Immunogenicity with anti-drug antibodies'],
+    weaknesses: [
+      '10+ biosimilars eroding revenue',
+      'Secondary loss of response common',
+      'Immunogenicity with anti-drug antibodies',
+    ],
     source: 'FDA label; CLASSIC/CHARM trials; AbbVie 2024',
     last_updated: '2025-01-15',
   },
@@ -2592,7 +2906,8 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     molecular_target: 'JAK1',
     phase: 'Approved',
     primary_endpoint: 'Clinical remission',
-    key_data: 'U-EXCEL/U-EXCEED: clinical remission 49-50% vs 29-34% placebo at 12 wk; U-ENDURE: 52% endoscopic response at 52 wk',
+    key_data:
+      'U-EXCEL/U-EXCEED: clinical remission 49-50% vs 29-34% placebo at 12 wk; U-ENDURE: 52% endoscopic response at 52 wk',
     line_of_therapy: '2L+',
     first_in_class: false,
     orphan_drug: false,
@@ -2623,8 +2938,18 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: true,
     has_biomarker_selection: true,
-    strengths: ['Transformative efficacy', 'Addresses ~90% of CF patients', '$9B+ blockbuster', 'Dramatic improvement in lung function and quality of life'],
-    weaknesses: ['~10% of CF patients with non-responsive mutations', 'Hepatotoxicity monitoring', 'Very high annual cost ($300K+)', 'Vertex monopoly concerns'],
+    strengths: [
+      'Transformative efficacy',
+      'Addresses ~90% of CF patients',
+      '$9B+ blockbuster',
+      'Dramatic improvement in lung function and quality of life',
+    ],
+    weaknesses: [
+      '~10% of CF patients with non-responsive mutations',
+      'Hepatotoxicity monitoring',
+      'Very high annual cost ($300K+)',
+      'Vertex monopoly concerns',
+    ],
     source: 'FDA label; VX-445 trials; Vertex 2024',
     last_updated: '2025-01-15',
   },
@@ -2644,7 +2969,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: true,
     has_biomarker_selection: true,
-    strengths: ['Once-daily dosing (vs twice-daily Trikafta)', 'Improved compliance potential', 'Patent life extension for Vertex'],
+    strengths: [
+      'Once-daily dosing (vs twice-daily Trikafta)',
+      'Improved compliance potential',
+      'Patent life extension for Vertex',
+    ],
     weaknesses: ['No superiority over Trikafta', 'Vertex self-competition', 'Same mutation coverage limitations'],
     source: 'FDA label; SKYLINE trial; Vertex 2024',
     last_updated: '2025-01-15',
@@ -2665,7 +2994,12 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: true,
     has_biomarker_selection: true,
     strengths: ['Mutation-agnostic approach', 'Could address all CF patients including non-F508del', 'Novel modality'],
-    weaknesses: ['Very early stage', 'Inhaled mRNA delivery challenges', 'Repeat dosing likely needed', 'Lung targeting efficiency unknown'],
+    weaknesses: [
+      'Very early stage',
+      'Inhaled mRNA delivery challenges',
+      'Repeat dosing likely needed',
+      'Lung targeting efficiency unknown',
+    ],
     source: 'AbbVie pipeline; preclinical/Phase 1 data 2024',
     last_updated: '2024-10-01',
   },
@@ -2686,7 +3020,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: true,
     has_biomarker_selection: false,
     strengths: ['Established standard adjunctive therapy', 'Well-tolerated', 'Complementary to CFTR modulators'],
-    weaknesses: ['Nebulizer administration burden', 'Modest lung function improvement', 'Symptomatic not disease-modifying'],
+    weaknesses: [
+      'Nebulizer administration burden',
+      'Modest lung function improvement',
+      'Symptomatic not disease-modifying',
+    ],
     source: 'FDA label; Roche 2024',
     last_updated: '2025-01-15',
   },
@@ -2706,13 +3044,23 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     molecular_target: 'FIXa/FX',
     phase: 'Approved',
     primary_endpoint: 'Annualized bleeding rate (ABR)',
-    key_data: 'HAVEN 1: ABR 2.9 with emicizumab vs 23.3 with no prophylaxis (87% reduction) in inhibitor patients; HAVEN 3: 68% reduction vs FVIII prophylaxis',
+    key_data:
+      'HAVEN 1: ABR 2.9 with emicizumab vs 23.3 with no prophylaxis (87% reduction) in inhibitor patients; HAVEN 3: 68% reduction vs FVIII prophylaxis',
     line_of_therapy: '1L',
     first_in_class: true,
     orphan_drug: true,
     has_biomarker_selection: false,
-    strengths: ['SC administration weekly/biweekly/monthly', 'Active in inhibitor patients', '$4B+ blockbuster', 'Transformed hemophilia prophylaxis'],
-    weaknesses: ['Thrombotic microangiopathy risk with aPCC', 'Does not replace factor for surgery/acute bleeds', 'Very high cost'],
+    strengths: [
+      'SC administration weekly/biweekly/monthly',
+      'Active in inhibitor patients',
+      '$4B+ blockbuster',
+      'Transformed hemophilia prophylaxis',
+    ],
+    weaknesses: [
+      'Thrombotic microangiopathy risk with aPCC',
+      'Does not replace factor for surgery/acute bleeds',
+      'Very high cost',
+    ],
     source: 'FDA label; HAVEN trials; Roche 2024',
     last_updated: '2025-01-15',
   },
@@ -2733,7 +3081,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: true,
     has_biomarker_selection: false,
     strengths: ['Novel mechanism (rebalancing)', 'Cross-hemophilia (A and B)', 'Once-monthly SC injection'],
-    weaknesses: ['Thrombotic events (fatal sinus thrombosis in trial)', 'Boxed warning for thrombosis', 'AT monitoring required'],
+    weaknesses: [
+      'Thrombotic events (fatal sinus thrombosis in trial)',
+      'Boxed warning for thrombosis',
+      'AT monitoring required',
+    ],
     source: 'FDA label; ATLAS trials; Sanofi 2024',
     last_updated: '2025-01-15',
   },
@@ -2742,7 +3094,8 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     generic_name: 'valoctocogene roxaparvovec',
     company: 'BioMarin',
     indication: 'Hemophilia A',
-    indication_specifics: 'Severe hemophilia A (FVIII < 1 IU/dL) in adults without FVIII inhibitors and AAV5 antibody negative',
+    indication_specifics:
+      'Severe hemophilia A (FVIII < 1 IU/dL) in adults without FVIII inhibitors and AAV5 antibody negative',
     mechanism: 'AAV5 gene therapy (FVIII gene delivery)',
     mechanism_category: 'gene_therapy',
     molecular_target: 'FVIII (F8 gene)',
@@ -2754,7 +3107,13 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: true,
     has_biomarker_selection: true,
     strengths: ['One-time curative potential', 'Dramatic bleed reduction', 'Freedom from prophylaxis'],
-    weaknesses: ['FVIII levels decline over time', 'Hepatotoxicity (ALT elevations)', '$2.9M price', 'AAV5 seropositive patients excluded', 'Long-term durability uncertain'],
+    weaknesses: [
+      'FVIII levels decline over time',
+      'Hepatotoxicity (ALT elevations)',
+      '$2.9M price',
+      'AAV5 seropositive patients excluded',
+      'Long-term durability uncertain',
+    ],
     source: 'FDA label; GENEr8-1 trial; BioMarin 2024',
     last_updated: '2025-01-15',
   },
@@ -2774,8 +3133,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: true,
     has_biomarker_selection: false,
-    strengths: ['Extended half-life reduces injection frequency', 'Established FVIII replacement approach', 'Effective for bleeds and surgery'],
-    weaknesses: ['Still requires IV injection', 'Inhibitor development risk', 'Losing share to non-factor therapies (Hemlibra)'],
+    strengths: [
+      'Extended half-life reduces injection frequency',
+      'Established FVIII replacement approach',
+      'Effective for bleeds and surgery',
+    ],
+    weaknesses: [
+      'Still requires IV injection',
+      'Inhibitor development risk',
+      'Losing share to non-factor therapies (Hemlibra)',
+    ],
     source: 'FDA label; pathfinder trials; Novo Nordisk 2024',
     last_updated: '2025-01-15',
   },
@@ -2801,7 +3168,12 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: true,
     has_biomarker_selection: true,
     strengths: ['First gene therapy for DMD', 'One-time administration', 'Meaningful micro-dystrophin expression'],
-    weaknesses: ['$3.2M price', 'Narrow approved age range', 'Durability of expression unknown long-term', 'Immune response to AAV'],
+    weaknesses: [
+      '$3.2M price',
+      'Narrow approved age range',
+      'Durability of expression unknown long-term',
+      'Immune response to AAV',
+    ],
     source: 'FDA label; EMBARK trial; Sarepta 2024',
     last_updated: '2025-01-15',
   },
@@ -2822,7 +3194,12 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: true,
     has_biomarker_selection: true,
     strengths: ['First exon-skipping therapy approved', 'Addresses unmet need', 'Continuous dosing maintains effect'],
-    weaknesses: ['Minimal dystrophin production', 'No confirmed functional benefit', 'Controversial FDA approval', 'Weekly IV infusion'],
+    weaknesses: [
+      'Minimal dystrophin production',
+      'No confirmed functional benefit',
+      'Controversial FDA approval',
+      'Weekly IV infusion',
+    ],
     source: 'FDA label; Sarepta 2024',
     last_updated: '2025-01-15',
   },
@@ -2837,13 +3214,22 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     molecular_target: 'Glucocorticoid receptor',
     phase: 'Approved',
     primary_endpoint: 'Muscle strength preservation',
-    key_data: 'Pivotal trial: maintained ambulation longer vs placebo; 52-week muscle strength benefit over prednisone in some measures',
+    key_data:
+      'Pivotal trial: maintained ambulation longer vs placebo; 52-week muscle strength benefit over prednisone in some measures',
     line_of_therapy: '1L',
     first_in_class: false,
     orphan_drug: true,
     has_biomarker_selection: false,
-    strengths: ['Established corticosteroid standard of care', 'FDA-approved specifically for DMD', 'Less weight gain than prednisone'],
-    weaknesses: ['All corticosteroid side effects (Cushingoid, bone loss)', 'Does not address underlying cause', 'Generic prednisone alternative available'],
+    strengths: [
+      'Established corticosteroid standard of care',
+      'FDA-approved specifically for DMD',
+      'Less weight gain than prednisone',
+    ],
+    weaknesses: [
+      'All corticosteroid side effects (Cushingoid, bone loss)',
+      'Does not address underlying cause',
+      'Generic prednisone alternative available',
+    ],
     source: 'FDA label; PTC Therapeutics 2024',
     last_updated: '2025-01-15',
   },
@@ -2863,8 +3249,18 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: true,
     has_biomarker_selection: false,
-    strengths: ['Mutation-agnostic mechanism', 'Oral administration', 'Addresses fibrosis/inflammation pathway', 'Add-on to corticosteroids'],
-    weaknesses: ['GI side effects (diarrhea)', 'Thrombocytopenia monitoring', 'Modest functional benefit', 'Long-term data limited'],
+    strengths: [
+      'Mutation-agnostic mechanism',
+      'Oral administration',
+      'Addresses fibrosis/inflammation pathway',
+      'Add-on to corticosteroids',
+    ],
+    weaknesses: [
+      'GI side effects (diarrhea)',
+      'Thrombocytopenia monitoring',
+      'Modest functional benefit',
+      'Long-term data limited',
+    ],
     source: 'FDA label; EPIDYS trial; Italfarmaco 2024',
     last_updated: '2025-01-15',
   },
@@ -2889,8 +3285,18 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: true,
     has_biomarker_selection: false,
-    strengths: ['First CRISPR therapy approved', 'Potentially curative', 'Dramatic VOC elimination', 'Fetal Hb induction'],
-    weaknesses: ['$2.2M price', 'Requires myeloablative conditioning', 'Apheresis and manufacturing complexity', 'Infertility risk from conditioning'],
+    strengths: [
+      'First CRISPR therapy approved',
+      'Potentially curative',
+      'Dramatic VOC elimination',
+      'Fetal Hb induction',
+    ],
+    weaknesses: [
+      '$2.2M price',
+      'Requires myeloablative conditioning',
+      'Apheresis and manufacturing complexity',
+      'Infertility risk from conditioning',
+    ],
     source: 'FDA label; CLIMB SCD-121 trial; Vertex/CRISPR 2024',
     last_updated: '2025-01-15',
   },
@@ -2911,7 +3317,12 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: true,
     has_biomarker_selection: false,
     strengths: ['Gene addition approach (not editing)', 'Sustained anti-sickling hemoglobin', 'One-time treatment'],
-    weaknesses: ['Hematologic malignancy risk (boxed warning)', 'Myeloablative conditioning required', '$3.1M price', 'bluebird bio financial concerns'],
+    weaknesses: [
+      'Hematologic malignancy risk (boxed warning)',
+      'Myeloablative conditioning required',
+      '$3.1M price',
+      'bluebird bio financial concerns',
+    ],
     source: 'FDA label; Phase 1/2 data; bluebird bio 2024',
     last_updated: '2025-01-15',
   },
@@ -2920,7 +3331,8 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     generic_name: 'voxelotor',
     company: 'Pfizer (ex-Global Blood Therapeutics)',
     indication: 'Sickle Cell Disease',
-    indication_specifics: 'SCD in adults and children >= 4 years (hemoglobin polymerization inhibitor; voluntarily withdrawn from market Sept 2024 due to lack of VOC benefit)',
+    indication_specifics:
+      'SCD in adults and children >= 4 years (hemoglobin polymerization inhibitor; voluntarily withdrawn from market Sept 2024 due to lack of VOC benefit)',
     mechanism: 'HbS polymerization inhibitor (allosteric modifier of hemoglobin oxygen affinity)',
     mechanism_category: 'small_molecule_tki',
     molecular_target: 'Hemoglobin S',
@@ -2931,8 +3343,15 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: true,
     has_biomarker_selection: false,
-    strengths: ['First disease-modifying oral therapy targeting polymerization', 'Hemoglobin improvement', 'Oral daily dosing'],
-    weaknesses: ['Voluntarily withdrawn from market (Sept 2024) due to lack of VOC benefit in HOPE-KIDS 2', 'Hb improvement did not translate to clinical outcomes'],
+    strengths: [
+      'First disease-modifying oral therapy targeting polymerization',
+      'Hemoglobin improvement',
+      'Oral daily dosing',
+    ],
+    weaknesses: [
+      'Voluntarily withdrawn from market (Sept 2024) due to lack of VOC benefit in HOPE-KIDS 2',
+      'Hb improvement did not translate to clinical outcomes',
+    ],
     source: 'FDA label; HOPE trial; Pfizer 2024',
     last_updated: '2025-01-15',
   },
@@ -2952,8 +3371,17 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: true,
     has_biomarker_selection: false,
-    strengths: ['First targeted VOC prevention therapy', 'Anti-adhesion mechanism addresses pathophysiology', 'IV monthly dosing'],
-    weaknesses: ['STAND confirmatory trial missed primary endpoint', 'EU withdrawal', 'Modest effect size', 'Future uncertain post-STAND'],
+    strengths: [
+      'First targeted VOC prevention therapy',
+      'Anti-adhesion mechanism addresses pathophysiology',
+      'IV monthly dosing',
+    ],
+    weaknesses: [
+      'STAND confirmatory trial missed primary endpoint',
+      'EU withdrawal',
+      'Modest effect size',
+      'Future uncertain post-STAND',
+    ],
     source: 'FDA label; SUSTAIN trial; Novartis 2024',
     last_updated: '2025-01-15',
   },
@@ -2979,7 +3407,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: true,
     strengths: ['Standard-of-care in early and metastatic TNBC', 'pCR rates in neoadjuvant', 'Broad TNBC franchise'],
-    weaknesses: ['Limited benefit in CPS < 10 metastatic', 'Chemotherapy backbone toxicity', 'Not all patients respond to IO'],
+    weaknesses: [
+      'Limited benefit in CPS < 10 metastatic',
+      'Chemotherapy backbone toxicity',
+      'Not all patients respond to IO',
+    ],
     source: 'FDA label; KEYNOTE-522/355 trials; Merck 2024',
     last_updated: '2025-01-15',
   },
@@ -2999,7 +3431,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Dramatic PFS and OS benefit in 2L+ TNBC', 'Biomarker-independent activity', 'First Trop-2 ADC in TNBC'],
+    strengths: [
+      'Dramatic PFS and OS benefit in 2L+ TNBC',
+      'Biomarker-independent activity',
+      'First Trop-2 ADC in TNBC',
+    ],
     weaknesses: ['Neutropenia and diarrhea', 'IV every-3-week infusion', 'No biomarker for patient selection'],
     source: 'FDA label; ASCENT trial; Gilead 2024',
     last_updated: '2025-01-15',
@@ -3062,8 +3498,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Next-gen Trop-2 ADC with potentially better tolerability', 'DXd payload differentiation', 'Expanding across BC subtypes'],
-    weaknesses: ['Head-to-head vs Trodelvy data pending', 'ILD risk (lower than T-DXd but present)', 'Crowded ADC space in TNBC'],
+    strengths: [
+      'Next-gen Trop-2 ADC with potentially better tolerability',
+      'DXd payload differentiation',
+      'Expanding across BC subtypes',
+    ],
+    weaknesses: [
+      'Head-to-head vs Trodelvy data pending',
+      'ILD risk (lower than T-DXd but present)',
+      'Crowded ADC space in TNBC',
+    ],
     source: 'TROPION-Breast01 (NCT05104866); ASCO 2024',
     last_updated: '2024-12-01',
   },
@@ -3089,7 +3533,11 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     orphan_drug: false,
     has_biomarker_selection: false,
     strengths: ['Broadest prostate cancer label', 'Strong brand across disease states', 'Oral daily dosing'],
-    weaknesses: ['Fatigue, cognitive effects', 'Seizure risk', 'Competition from abiraterone generics and darolutamide'],
+    weaknesses: [
+      'Fatigue, cognitive effects',
+      'Seizure risk',
+      'Competition from abiraterone generics and darolutamide',
+    ],
     source: 'FDA label; PREVAIL/ARCHES trials; Pfizer/Astellas 2024',
     last_updated: '2025-01-15',
   },
@@ -3109,8 +3557,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Established standard in mCRPC', 'OS benefit in multiple settings', 'Generic now available (cost reduction)'],
-    weaknesses: ['Requires prednisone co-administration', 'Mineralocorticoid excess (HTN, hypokalemia)', 'Hepatotoxicity monitoring'],
+    strengths: [
+      'Established standard in mCRPC',
+      'OS benefit in multiple settings',
+      'Generic now available (cost reduction)',
+    ],
+    weaknesses: [
+      'Requires prednisone co-administration',
+      'Mineralocorticoid excess (HTN, hypokalemia)',
+      'Hepatotoxicity monitoring',
+    ],
     source: 'FDA label; COU-AA-301/LATITUDE trials; J&J 2024',
     last_updated: '2025-01-15',
   },
@@ -3130,8 +3586,16 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: false,
     orphan_drug: false,
     has_biomarker_selection: false,
-    strengths: ['Best-in-class tolerability (less fatigue, fewer CNS effects)', 'No BBB penetration', 'Flexible dosing'],
-    weaknesses: ['Late entrant vs enzalutamide/abiraterone', 'Smaller market share', 'Requires docetaxel for mHSPC label'],
+    strengths: [
+      'Best-in-class tolerability (less fatigue, fewer CNS effects)',
+      'No BBB penetration',
+      'Flexible dosing',
+    ],
+    weaknesses: [
+      'Late entrant vs enzalutamide/abiraterone',
+      'Smaller market share',
+      'Requires docetaxel for mHSPC label',
+    ],
     source: 'FDA label; ARAMIS/ARASENS trials; Bayer 2024',
     last_updated: '2025-01-15',
   },
@@ -3151,8 +3615,17 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     first_in_class: true,
     orphan_drug: false,
     has_biomarker_selection: true,
-    strengths: ['First PSMA radioligand therapy', 'OS benefit in heavily pretreated mCRPC', 'Novel modality expanding to earlier lines'],
-    weaknesses: ['PSMA-PET imaging required for selection', 'Manufacturing/supply constraints', 'Bone marrow toxicity', 'Dry mouth/salivary gland toxicity'],
+    strengths: [
+      'First PSMA radioligand therapy',
+      'OS benefit in heavily pretreated mCRPC',
+      'Novel modality expanding to earlier lines',
+    ],
+    weaknesses: [
+      'PSMA-PET imaging required for selection',
+      'Manufacturing/supply constraints',
+      'Bone marrow toxicity',
+      'Dry mouth/salivary gland toxicity',
+    ],
     source: 'FDA label; VISION trial; Novartis 2024',
     last_updated: '2025-01-15',
   },
@@ -3193,6 +3666,10 @@ export const COMPETITOR_DATABASE: CompetitorRecord[] = [
   ...SPECIALTY_COMPETITORS_1,
   ...SPECIALTY_COMPETITORS_2,
   ...ADDITIONAL_COMPETITORS,
+  ...PSYCHIATRY_COMPETITORS,
+  ...PAIN_HEPATO_ENDO_COMPETITORS,
+  ...MSK_GASTRO_DERM_COMPETITORS,
+  ...GAP_FILL_COMPETITORS,
 ];
 
 // ────────────────────────────────────────────────────────────
@@ -3205,10 +3682,11 @@ export const COMPETITOR_DATABASE: CompetitorRecord[] = [
  */
 export function getCompetitorsForIndication(indicationName: string): CompetitorRecord[] {
   const normalized = indicationName.toLowerCase().trim();
-  return COMPETITOR_DATABASE.filter(c =>
-    c.indication.toLowerCase() === normalized ||
-    c.indication.toLowerCase().includes(normalized) ||
-    normalized.includes(c.indication.toLowerCase())
+  return COMPETITOR_DATABASE.filter(
+    (c) =>
+      c.indication.toLowerCase() === normalized ||
+      c.indication.toLowerCase().includes(normalized) ||
+      normalized.includes(c.indication.toLowerCase()),
   );
 }
 
@@ -3217,7 +3695,7 @@ export function getCompetitorsForIndication(indicationName: string): CompetitorR
  * among a set of competitor records.
  */
 export function getUniqueMechanisms(competitors: CompetitorRecord[]): string[] {
-  return Array.from(new Set(competitors.map(c => c.mechanism_category)));
+  return Array.from(new Set(competitors.map((c) => c.mechanism_category)));
 }
 
 /**
@@ -3225,9 +3703,8 @@ export function getUniqueMechanisms(competitors: CompetitorRecord[]): string[] {
  */
 export function getCompetitorsByMechanism(mechanism: string): CompetitorRecord[] {
   const normalized = mechanism.toLowerCase().trim();
-  return COMPETITOR_DATABASE.filter(c =>
-    c.mechanism_category.toLowerCase() === normalized ||
-    c.mechanism.toLowerCase().includes(normalized)
+  return COMPETITOR_DATABASE.filter(
+    (c) => c.mechanism_category.toLowerCase() === normalized || c.mechanism.toLowerCase().includes(normalized),
   );
 }
 
@@ -3235,7 +3712,7 @@ export function getCompetitorsByMechanism(mechanism: string): CompetitorRecord[]
  * Returns competitors at a specific clinical phase.
  */
 export function getCompetitorsByPhase(phase: ClinicalPhase): CompetitorRecord[] {
-  return COMPETITOR_DATABASE.filter(c => c.phase === phase);
+  return COMPETITOR_DATABASE.filter((c) => c.phase === phase);
 }
 
 /**
@@ -3243,5 +3720,5 @@ export function getCompetitorsByPhase(phase: ClinicalPhase): CompetitorRecord[] 
  * Useful for showing which indications have data in the UI.
  */
 export function getCoveredIndications(): Set<string> {
-  return new Set(COMPETITOR_DATABASE.map(c => c.indication));
+  return new Set(COMPETITOR_DATABASE.map((c) => c.indication));
 }
