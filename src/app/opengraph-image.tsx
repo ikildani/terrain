@@ -17,31 +17,15 @@ export default async function Image() {
         position: 'relative',
       }}
     >
-      {/* Grid overlay */}
+      {/* Accent line at top */}
       <div
         style={{
           position: 'absolute',
           top: 0,
           left: 0,
           right: 0,
-          bottom: 0,
-          opacity: 0.03,
-          backgroundImage:
-            'linear-gradient(rgba(0,201,167,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,201,167,0.5) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-          display: 'flex',
-        }}
-      />
-
-      {/* Glow */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-100px',
-          left: '200px',
-          width: '600px',
-          height: '400px',
-          background: 'radial-gradient(ellipse, rgba(0,201,167,0.10), transparent 70%)',
+          height: '3px',
+          background: '#00C9A7',
           display: 'flex',
         }}
       />
@@ -71,7 +55,7 @@ export default async function Image() {
               height: '36px',
               borderRadius: '8px',
               background: '#04080F',
-              border: '1.5px solid rgba(0,201,167,0.3)',
+              border: '1.5px solid #1a3d35',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
