@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Filter, X, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
@@ -31,6 +31,23 @@ export function OpportunityFilterBar({
 }: OpportunityFilterBarProps) {
   const [showTherapyDropdown, setShowTherapyDropdown] = useState(false);
   const [showPhaseDropdown, setShowPhaseDropdown] = useState(false);
+
+  const therapyRef = useRef<HTMLDivElement>(null);
+  const phaseRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      const target = e.target as Node;
+      const outsideTherapy = !therapyRef.current?.contains(target);
+      const outsidePhase = !phaseRef.current?.contains(target);
+      if (outsideTherapy && outsidePhase) {
+        setShowTherapyDropdown(false);
+        setShowPhaseDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const activeFilterCount = [
     filters.therapy_areas.length > 0,
@@ -93,7 +110,7 @@ export function OpportunityFilterBar({
       {/* Filter controls */}
       <div className="flex flex-wrap items-center gap-2">
         {/* Therapy Area multi-select dropdown */}
-        <div className="relative">
+        <div ref={therapyRef} className="relative">
           <button
             onClick={() => {
               setShowTherapyDropdown(!showTherapyDropdown);
@@ -134,7 +151,7 @@ export function OpportunityFilterBar({
         </div>
 
         {/* Phase multi-select dropdown */}
-        <div className="relative">
+        <div ref={phaseRef} className="relative">
           <button
             onClick={() => {
               setShowPhaseDropdown(!showPhaseDropdown);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, Fragment } from 'react';
 import { ChevronDown, ChevronUp, ChevronsUpDown, ArrowUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { formatNumber } from '@/lib/utils/format';
@@ -127,7 +127,12 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
   }
 
   return (
-    <div className="card noise overflow-hidden">
+    <div className="card noise overflow-hidden relative">
+      {isLoading && rows.length > 0 && (
+        <div className="absolute inset-0 bg-navy-900/60 flex items-center justify-center z-10">
+          <div className="w-5 h-5 border-2 border-teal-500/30 border-t-teal-500 rounded-full animate-spin" />
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
@@ -202,12 +207,20 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
             {rows.map((row) => {
               const isExpanded = expandedRow === row.indication;
               return (
-                <>
+                <Fragment key={row.indication}>
                   <tr
-                    key={row.indication}
                     onClick={() => toggleRow(row.indication)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleRow(row.indication);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-expanded={isExpanded}
                     className={cn(
-                      'border-b border-navy-700/20 cursor-pointer transition-colors',
+                      'border-b border-navy-700/20 cursor-pointer transition-colors focus:outline-none focus:ring-1 focus:ring-teal-500/40',
                       isExpanded ? 'bg-navy-800/40' : 'hover:bg-navy-800/20',
                     )}
                   >
@@ -286,12 +299,11 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
 
                   {/* Expanded detail panel */}
                   <OpportunityDetailPanel
-                    key={`detail-${row.indication}`}
                     indication={row.indication}
                     scoreBreakdown={row.score_breakdown}
                     isOpen={isExpanded}
                   />
-                </>
+                </Fragment>
               );
             })}
           </tbody>

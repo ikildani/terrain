@@ -430,10 +430,11 @@ interface ScoredIndication {
 
 /**
  * Computes the full opportunity profile for a single indication.
+ * Accepts an optional pre-fetched competitors array to avoid redundant lookups.
  */
-function scoreIndication(indication: IndicationData): ScoredIndication {
+function scoreIndication(indication: IndicationData, prefetchedCompetitors?: CompetitorRecord[]): ScoredIndication {
   // Competitors
-  const competitors = getCompetitorsForIndication(indication.name);
+  const competitors = prefetchedCompetitors ?? getCompetitorsForIndication(indication.name);
   const competitorCount = competitors.length;
 
   // Crowding
@@ -553,7 +554,8 @@ type SortableField =
   | 'diagnosis_rate'
   | 'active_partner_count'
   | 'indication'
-  | 'therapy_area';
+  | 'therapy_area'
+  | 'unmet_need';
 
 /**
  * Returns a numeric comparison value for sorting. String fields
@@ -603,6 +605,9 @@ function compareRows(a: OpportunityRow, b: OpportunityRow, sortBy: string, sortO
     case 'active_partner_count':
       comparison = a.active_partner_count - b.active_partner_count;
       break;
+    case 'unmet_need':
+      comparison = a.score_breakdown.unmet_need - b.score_breakdown.unmet_need;
+      break;
     default:
       comparison = a.opportunity_score - b.opportunity_score;
       break;
@@ -636,11 +641,12 @@ export function scoreAllIndications(
   const scoredRows: OpportunityRow[] = [];
 
   for (const indication of INDICATION_DATA) {
-    const { row } = scoreIndication(indication);
+    // Fetch competitors once and pass to both scoreIndication and passesFilters
+    const competitors = getCompetitorsForIndication(indication.name);
+    const { row } = scoreIndication(indication, competitors);
 
-    // Apply filters (need competitors for phase filter)
+    // Apply filters (reuses already-fetched competitors for phase filter)
     if (filters) {
-      const competitors = getCompetitorsForIndication(indication.name);
       if (!passesFilters(row, competitors, filters)) {
         continue;
       }

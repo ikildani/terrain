@@ -148,21 +148,24 @@ const DEFAULT_FILTERS: ScreenerFilters = {
 };
 
 const AVAILABLE_THERAPY_AREAS = [
-  'oncology',
-  'neurology',
-  'immunology',
-  'cardiology',
-  'metabolic',
-  'respiratory',
-  'infectious_disease',
-  'hematology',
-  'ophthalmology',
+  'cardiovascular',
   'dermatology',
-  'gastroenterology',
-  'nephrology',
   'endocrinology',
-  'rare_disease',
+  'gastroenterology',
+  'hematology',
+  'hepatology',
+  'immunology',
+  'infectious_disease',
+  'metabolic',
+  'musculoskeletal',
+  'nephrology',
+  'neurology',
+  'oncology',
+  'ophthalmology',
+  'pain_management',
   'psychiatry',
+  'pulmonology',
+  'rare_disease',
 ];
 
 const PAGE_SIZE = 50;
@@ -286,7 +289,7 @@ export default function OpportunityScreener() {
         </button>
         {hasSearched && !isLoading && (
           <span className="text-xs text-slate-500">
-            Sorted by <span className="text-slate-400 font-mono">{sortBy.replace('_', ' ')}</span>{' '}
+            Sorted by <span className="text-slate-400 font-mono">{sortBy.replaceAll('_', ' ')}</span>{' '}
             <span className="text-slate-600">({sortOrder})</span>
           </span>
         )}
