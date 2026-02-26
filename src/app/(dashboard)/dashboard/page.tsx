@@ -30,6 +30,7 @@ import ActivityTrendChart from '@/components/dashboard/ActivityTrendChart';
 import ModuleBreakdownChart from '@/components/dashboard/ModuleBreakdownChart';
 import TopIndicationsChart from '@/components/dashboard/TopIndicationsChart';
 import DatabaseCoverageChart from '@/components/dashboard/DatabaseCoverageChart';
+import DataPipelineWidget from '@/components/dashboard/DataPipelineWidget';
 
 const quickActions = [
   {
@@ -329,6 +330,38 @@ export default function DashboardPage() {
         </div>
         <div className="lg:col-span-2">
           <DatabaseCoverageChart />
+        </div>
+      </div>
+
+      {/* Live Data Pipelines */}
+      <h2 className="label mb-3">Live Data Pipelines</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+        <DataPipelineWidget />
+        <div className="card noise p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Clock className="w-3.5 h-3.5 text-slate-500" />
+            <h3 className="label">Refresh Schedule</h3>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">FDA Drug Approvals</span>
+              <span className="text-2xs font-mono text-slate-500">Daily at 6:00 AM UTC</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">ClinicalTrials.gov</span>
+              <span className="text-2xs font-mono text-slate-500">Weekly — Sundays 3:00 AM UTC</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">SEC EDGAR Filings</span>
+              <span className="text-2xs font-mono text-slate-500">Weekly — Mondays 4:00 AM UTC</span>
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-navy-700/40">
+            <p className="text-2xs text-slate-600 leading-relaxed">
+              All data sourced from free, public U.S. government APIs. No paid data licensing. Every record includes
+              source attribution and fetch timestamp.
+            </p>
+          </div>
         </div>
       </div>
 
