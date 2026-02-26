@@ -48,19 +48,29 @@ export const metadata: Metadata = {
   authors: [{ name: 'Ambrosia Ventures', url: 'https://ambrosiaventures.co' }],
   creator: 'Ambrosia Ventures',
   openGraph: {
-    title: 'Terrain — Market Opportunity Intelligence',
+    title: 'Terrain — Know the market before the deal',
     description:
-      'TAM analysis, competitive landscapes, and partner matching for life sciences professionals. 150+ indications. Results in under 30 seconds.',
-    siteName: 'Terrain',
+      'TAM analysis, competitive landscapes, and partner matching for biotech professionals — in seconds, not weeks. 150+ indications covered.',
+    siteName: 'Terrain by Ambrosia Ventures',
     type: 'website',
     locale: 'en_US',
     url: 'https://terrain.ambrosiaventures.co',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Terrain — Market Opportunity Intelligence for Life Sciences',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Terrain — Market Opportunity Intelligence',
-    description: 'TAM analysis, competitive landscapes, and partner matching for life sciences professionals.',
+    title: 'Terrain — Know the market before the deal',
+    description:
+      'TAM analysis, competitive landscapes, and partner matching for biotech professionals — in seconds, not weeks.',
     creator: '@ambrosiavc',
+    images: ['/twitter-image'],
   },
   alternates: {
     canonical: 'https://terrain.ambrosiaventures.co',
