@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Crosshair } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { Tabs } from '@/components/ui/Tabs';
 import CompetitiveForm from '@/components/competitive/CompetitiveForm';
 import type { CompetitiveFormSubmission } from '@/components/competitive/CompetitiveForm';
 import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
@@ -28,12 +29,30 @@ const NutraceuticalCompetitiveLandscapeReport = dynamic(
 const PdfPreviewOverlay = dynamic(() =>
   import('@/components/shared/PdfPreviewOverlay').then((mod) => ({ default: mod.PdfPreviewOverlay })),
 );
+const OpportunityScreener = dynamic(() => import('@/components/competitive/OpportunityScreener'), {
+  loading: () => (
+    <div className="space-y-4">
+      <SkeletonCard className="h-[80px]" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[1, 2, 3, 4].map((i) => (
+          <SkeletonMetric key={i} />
+        ))}
+      </div>
+      <SkeletonCard className="h-[500px]" />
+    </div>
+  ),
+});
 import type { CompetitiveLandscapeOutput } from '@/types';
 import type {
   DeviceCompetitiveLandscapeOutput,
   CDxCompetitiveLandscapeOutput,
   NutraceuticalCompetitiveLandscapeOutput,
 } from '@/types/devices-diagnostics';
+
+const PAGE_TABS = [
+  { id: 'analysis', label: 'Competitive Analysis' },
+  { id: 'screener', label: 'Opportunity Screener' },
+];
 
 function ResultsSkeleton() {
   return (
@@ -76,6 +95,7 @@ interface AnalysisResult {
 }
 
 export default function CompetitivePage() {
+  const [activeTab, setActiveTab] = useState('analysis');
   const [mechanism, setMechanism] = useState<string | undefined>(undefined);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -152,26 +172,35 @@ export default function CompetitivePage() {
         title="Competitive Landscape"
         subtitle="Map the competitive battlefield across pharmaceuticals, devices, diagnostics, and nutraceuticals."
       />
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left panel — Form */}
-        <div className="w-full lg:w-[380px] lg:flex-shrink-0">
-          <CompetitiveForm onSubmit={handleSubmit} isLoading={isLoading} />
-        </div>
 
-        {/* Right panel — Results */}
-        <div className="flex-1 min-w-0">
-          {isLoading && <ResultsSkeleton />}
-          {!isLoading && error && (
-            <div className="card noise p-8 text-center">
-              <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
-                {error}
-              </p>
-            </div>
-          )}
-          {!isLoading && !error && !analysisResult && <EmptyState />}
-          {!isLoading && !error && analysisResult && renderResults()}
+      <Tabs tabs={PAGE_TABS} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
+
+      {/* ── Competitive Analysis Tab ── */}
+      {activeTab === 'analysis' && (
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left panel — Form */}
+          <div className="w-full lg:w-[380px] lg:flex-shrink-0">
+            <CompetitiveForm onSubmit={handleSubmit} isLoading={isLoading} />
+          </div>
+
+          {/* Right panel — Results */}
+          <div className="flex-1 min-w-0">
+            {isLoading && <ResultsSkeleton />}
+            {!isLoading && error && (
+              <div className="card noise p-8 text-center">
+                <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
+                  {error}
+                </p>
+              </div>
+            )}
+            {!isLoading && !error && !analysisResult && <EmptyState />}
+            {!isLoading && !error && analysisResult && renderResults()}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* ── Opportunity Screener Tab ── */}
+      {activeTab === 'screener' && <OpportunityScreener />}
 
       {/* PDF Preview Overlay */}
       <PdfPreviewOverlay
