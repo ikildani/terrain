@@ -8,6 +8,7 @@ import { logger, logApiRequest, logApiResponse } from '@/lib/logger';
 import { getCompetitorsForIndication, type CompetitorRecord } from '@/lib/data/competitor-database';
 import { PHARMA_PARTNER_DATABASE } from '@/lib/data/partner-database';
 import { findIndicationByName } from '@/lib/data/indication-map';
+import { getCommunityDataForIndication, type CommunityPrevalenceEntry } from '@/lib/data/community-prevalence';
 import { sanitizePostgrestValue } from '@/lib/utils/sanitize';
 import type { ApiResponse } from '@/types';
 
@@ -64,6 +65,62 @@ interface TopPartner {
   therapeutic_areas: string[];
   bd_activity: string;
   recent_deal?: string;
+}
+
+interface EmergingAsset {
+  asset_name: string;
+  company: string;
+  phase: string;
+  mechanism: string;
+  mechanism_category: string;
+  is_first_in_class: boolean;
+  is_unpartnered: boolean;
+  strengths: string[];
+  source: string;
+}
+
+interface CommunityInsight {
+  community: string;
+  prevalence_multiplier: number;
+  affected_population_estimate: number;
+  key_evidence: string;
+  clinical_trial_representation: string;
+  modality_gaps: string[];
+}
+
+// Therapy area alias map for partner matching (mirrors screener.ts)
+const THERAPY_AREA_ALIASES: Record<string, string[]> = {
+  neurology: ['neuroscience', 'neuro', 'cns'],
+  gastroenterology: ['gi', 'gastrointestinal', 'digestive'],
+  pulmonology: ['respiratory', 'pulmonary', 'lung'],
+  nephrology: ['renal', 'kidney'],
+  hepatology: ['liver', 'hepatic', 'hepatitis'],
+  musculoskeletal: ['orthopedic', 'bone', 'joint', 'rheumatology'],
+  pain_management: ['pain', 'analgesic', 'analgesia'],
+  endocrinology: ['endocrine', 'diabetes', 'thyroid', 'hormonal'],
+  psychiatry: ['mental health', 'behavioral', 'psychiatric'],
+  immunology: ['autoimmune', 'inflammation', 'immune'],
+  cardiovascular: ['cardiology', 'cardiac', 'heart', 'vascular'],
+  metabolic: ['metabolism', 'obesity', 'lipid'],
+  infectious_disease: ['infectious', 'anti-infective', 'antiviral', 'antibacterial', 'vaccines'],
+  ophthalmology: ['ophthalmic', 'eye', 'retinal', 'vision'],
+  dermatology: ['skin', 'dermatologic'],
+  rare_disease: ['orphan', 'ultra-rare', 'genetic disease'],
+  oncology: ['cancer', 'tumor', 'immuno-oncology', 'io'],
+  hematology: ['blood', 'hemophilia', 'thrombosis'],
+};
+
+function matchesTherapyArea(partnerArea: string, indicationArea: string): boolean {
+  const pa = partnerArea.toLowerCase();
+  const ia = indicationArea.toLowerCase();
+  if (pa.includes(ia) || ia.includes(pa)) return true;
+  const aliases = THERAPY_AREA_ALIASES[ia];
+  if (aliases) {
+    for (const alias of aliases) {
+      if (pa.includes(alias) || alias.includes(pa)) return true;
+    }
+  }
+  return false;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -180,11 +237,9 @@ export async function POST(request: NextRequest) {
     // Derive top competitor company names for SEC filing search
     const competitorCompanies = Array.from(new Set(competitors.map((c) => c.company))).slice(0, 10);
 
-    // Filter partner database for matching therapy area — top 5 by alignment
+    // Filter partner database for matching therapy area — top 5 by alignment (alias-aware)
     const topPartners: TopPartner[] = PHARMA_PARTNER_DATABASE.filter((p) =>
-      p.therapeutic_areas.some(
-        (ta) => ta.toLowerCase().includes(therapyArea) || therapyArea.includes(ta.toLowerCase()),
-      ),
+      p.therapeutic_areas.some((ta) => matchesTherapyArea(ta, therapyArea)),
     )
       .sort((a, b) => {
         // Prefer more active BD teams and those with more relevant recent deals
@@ -230,8 +285,53 @@ export async function POST(request: NextRequest) {
       whiteSpace.push('No first-line competitors — 1L positioning available');
     }
 
+    // ── Emerging pipeline (early-stage / unpartnered assets) ──
+    const earlyPhases = new Set(['Preclinical', 'Phase 1', 'Phase 1/2', 'Phase 2']);
+    const emergingAssets: EmergingAsset[] = competitors
+      .filter((c) => earlyPhases.has(c.phase))
+      .sort((a, b) => {
+        // Prefer unpartnered, first-in-class, and more advanced phase
+        const phaseOrder: Record<string, number> = { 'Phase 2': 0, 'Phase 1/2': 1, 'Phase 1': 2, Preclinical: 3 };
+        const aScore = (a.partner ? 0 : 2) + (a.first_in_class ? 1 : 0) + (3 - (phaseOrder[a.phase] ?? 3));
+        const bScore = (b.partner ? 0 : 2) + (b.first_in_class ? 1 : 0) + (3 - (phaseOrder[b.phase] ?? 3));
+        return bScore - aScore;
+      })
+      .slice(0, 10)
+      .map((c) => ({
+        asset_name: c.asset_name,
+        company: c.company,
+        phase: c.phase,
+        mechanism: c.mechanism,
+        mechanism_category: c.mechanism_category,
+        is_first_in_class: c.first_in_class,
+        is_unpartnered: !c.partner,
+        strengths: c.strengths,
+        source: c.source,
+      }));
+
+    // ── Community health disparity data ────────────────────
+    const communityData = getCommunityDataForIndication(indication);
+    const communityInsights: CommunityInsight[] = communityData
+      .sort((a, b) => b.prevalence_multiplier - a.prevalence_multiplier)
+      .slice(0, 8)
+      .map((c) => ({
+        community: c.community,
+        prevalence_multiplier: c.prevalence_multiplier,
+        affected_population_estimate: c.affected_population_estimate,
+        key_evidence: c.key_evidence,
+        clinical_trial_representation: c.clinical_trial_representation,
+        modality_gaps: c.modality_gaps,
+      }));
+
     // ── Supabase cache queries (in parallel) ────────────────
     const searchTerm = sanitizePostgrestValue(indication.trim());
+
+    // Derive approved/late-stage drug names for FDA approval lookup
+    const approvedDrugNames = competitors
+      .filter((c) => c.phase === 'Approved' || c.phase === 'Phase 3')
+      .map((c) => c.asset_name)
+      .filter((name) => name.length >= 3)
+      .slice(0, 10);
 
     const [trialsResult, secResult, fdaResult] = await Promise.all([
       // Clinical trials: search by indication in conditions or title
@@ -252,13 +352,22 @@ export async function POST(request: NextRequest) {
             .limit(10)
         : Promise.resolve({ data: [] as SecFiling[], error: null }),
 
-      // FDA approvals: search by indication in brand_name or generic_name
-      supabase
-        .from('fda_approvals_cache')
-        .select(FDA_COLUMNS)
-        .or(`brand_name.ilike.%${searchTerm}%,generic_name.ilike.%${searchTerm}%`)
-        .order('approval_date', { ascending: false })
-        .limit(10),
+      // FDA approvals: search by competitor drug names (brand_name/generic_name)
+      approvedDrugNames.length > 0
+        ? supabase
+            .from('fda_approvals_cache')
+            .select(FDA_COLUMNS)
+            .or(
+              approvedDrugNames
+                .map(
+                  (d) =>
+                    `brand_name.ilike.%${sanitizePostgrestValue(d)}%,generic_name.ilike.%${sanitizePostgrestValue(d)}%`,
+                )
+                .join(','),
+            )
+            .order('approval_date', { ascending: false })
+            .limit(10)
+        : Promise.resolve({ data: [] as FdaApproval[], error: null }),
     ]);
 
     // Log any query errors but don't fail the request
@@ -300,6 +409,8 @@ export async function POST(request: NextRequest) {
           competitors: competitors as CompetitorRecord[],
           top_partners: topPartners,
           white_space: whiteSpace,
+          emerging_assets: emergingAssets,
+          community_insights: communityInsights,
         },
       },
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } },

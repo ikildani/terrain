@@ -23,6 +23,7 @@ import { PSYCHIATRY_COMPETITORS } from './competitor-data-psychiatry';
 import { PAIN_HEPATO_ENDO_COMPETITORS } from './competitor-data-pain-hepato-endo';
 import { MSK_GASTRO_DERM_COMPETITORS } from './competitor-data-msk-gastro-derm';
 import { GAP_FILL_COMPETITORS } from './competitor-data-gap-fill';
+import { BIO_COMPETITORS } from './competitor-data-bio';
 
 // ────────────────────────────────────────────────────────────
 // COMPETITOR RECORD TYPE
@@ -3670,6 +3671,7 @@ export const COMPETITOR_DATABASE: CompetitorRecord[] = [
   ...PAIN_HEPATO_ENDO_COMPETITORS,
   ...MSK_GASTRO_DERM_COMPETITORS,
   ...GAP_FILL_COMPETITORS,
+  ...BIO_COMPETITORS,
 ];
 
 // ────────────────────────────────────────────────────────────

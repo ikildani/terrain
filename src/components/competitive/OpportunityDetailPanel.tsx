@@ -1,7 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Beaker, FileText, Shield, Users, Lightbulb, ExternalLink, Loader2, AlertCircle } from 'lucide-react';
+import {
+  Beaker,
+  FileText,
+  Shield,
+  Users,
+  Lightbulb,
+  ExternalLink,
+  Loader2,
+  AlertCircle,
+  Rocket,
+  Globe,
+} from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { ScoreBreakdownBar } from './OpportunityScoreBar';
 import type { OpportunityScoreBreakdown } from '@/lib/analytics/screener';
@@ -48,12 +59,35 @@ interface TopPartner {
   recent_deal?: string;
 }
 
+interface EmergingAsset {
+  asset_name: string;
+  company: string;
+  phase: string;
+  mechanism: string;
+  mechanism_category: string;
+  is_first_in_class: boolean;
+  is_unpartnered: boolean;
+  strengths: string[];
+  source: string;
+}
+
+interface CommunityInsight {
+  community: string;
+  prevalence_multiplier: number;
+  affected_population_estimate: number;
+  key_evidence: string;
+  clinical_trial_representation: string;
+  modality_gaps: string[];
+}
+
 interface DetailData {
   trials: ClinicalTrial[];
   sec_filings: SecFiling[];
   fda_approvals: FdaApproval[];
   top_partners: TopPartner[];
   white_space: string[];
+  emerging_assets: EmergingAsset[];
+  community_insights: CommunityInsight[];
 }
 
 // ── Component Props ────────────────────────────────────────
@@ -64,10 +98,12 @@ interface OpportunityDetailPanelProps {
   isOpen: boolean;
 }
 
-type DetailTab = 'score' | 'trials' | 'sec' | 'fda' | 'context';
+type DetailTab = 'score' | 'emerging' | 'community' | 'trials' | 'sec' | 'fda' | 'context';
 
 const TABS: { id: DetailTab; label: string; icon: typeof Beaker }[] = [
   { id: 'score', label: 'Score Breakdown', icon: Lightbulb },
+  { id: 'emerging', label: 'Emerging Pipeline', icon: Rocket },
+  { id: 'community', label: 'Community Insights', icon: Globe },
   { id: 'trials', label: 'Clinical Trials', icon: Beaker },
   { id: 'sec', label: 'SEC Activity', icon: FileText },
   { id: 'fda', label: 'FDA History', icon: Shield },
@@ -112,6 +148,8 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
 
   const tabCounts: Partial<Record<DetailTab, number>> = detail
     ? {
+        emerging: detail.emerging_assets?.length ?? 0,
+        community: detail.community_insights?.length ?? 0,
         trials: detail.trials.length,
         sec: detail.sec_filings.length,
         fda: detail.fda_approvals.length,
@@ -183,6 +221,131 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
                 max={15}
               />
               <ScoreBreakdownBar label="Partner Landscape" score={scoreBreakdown.partner_landscape} max={10} />
+            </div>
+          )}
+
+          {/* Emerging Pipeline tab */}
+          {activeTab === 'emerging' && !loading && !error && (
+            <div>
+              {detail && (detail.emerging_assets?.length ?? 0) > 0 ? (
+                <div className="space-y-2">
+                  {detail.emerging_assets.map((asset) => (
+                    <div
+                      key={`${asset.company}-${asset.asset_name}`}
+                      className="flex items-start gap-3 p-3 rounded-md bg-navy-800/30 border border-navy-700/30"
+                    >
+                      <div className="flex-shrink-0 mt-0.5 flex flex-col gap-1">
+                        <span className="px-1.5 py-0.5 rounded bg-navy-700/60 text-slate-300 font-mono text-[10px]">
+                          {asset.phase}
+                        </span>
+                        {asset.is_first_in_class && (
+                          <span className="px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-400 text-[9px] font-medium">
+                            First-in-Class
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-slate-200">{asset.asset_name}</span>
+                          <span className="text-[10px] text-slate-500">{asset.company}</span>
+                          {asset.is_unpartnered && (
+                            <span className="px-1 py-0.5 rounded bg-amber-500/10 text-[9px] text-amber-400 font-medium">
+                              Unpartnered
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-0.5">{asset.mechanism}</p>
+                        {asset.strengths.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {asset.strengths.slice(0, 3).map((s, i) => (
+                              <span
+                                key={i}
+                                className="px-1.5 py-0.5 rounded bg-emerald-500/5 text-[9px] text-emerald-400/80"
+                              >
+                                {s}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-[9px] text-slate-600 flex-shrink-0">{asset.source}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : detail ? (
+                <div className="py-6 text-center text-sm text-slate-500">
+                  No emerging pipeline assets identified for this indication.
+                </div>
+              ) : null}
+            </div>
+          )}
+
+          {/* Community Insights tab */}
+          {activeTab === 'community' && !loading && !error && (
+            <div>
+              {detail && (detail.community_insights?.length ?? 0) > 0 ? (
+                <div className="space-y-3">
+                  {detail.community_insights.map((insight, i) => (
+                    <div
+                      key={`${insight.community}-${i}`}
+                      className="p-3 rounded-md bg-navy-800/30 border border-navy-700/30"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-slate-200">{insight.community}</span>
+                          <span
+                            className={cn(
+                              'px-1.5 py-0.5 rounded text-[10px] font-mono font-medium',
+                              insight.prevalence_multiplier >= 3
+                                ? 'bg-red-500/10 text-red-400'
+                                : insight.prevalence_multiplier >= 1.5
+                                  ? 'bg-amber-500/10 text-amber-400'
+                                  : 'bg-navy-700/60 text-slate-400',
+                            )}
+                          >
+                            {insight.prevalence_multiplier.toFixed(1)}x prevalence
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-[10px] text-slate-400 tabular-nums">
+                            ~{formatNumber(insight.affected_population_estimate)} affected
+                          </span>
+                          <span
+                            className={cn(
+                              'px-1 py-0.5 rounded text-[9px] font-medium',
+                              insight.clinical_trial_representation === 'underrepresented'
+                                ? 'bg-red-500/10 text-red-400'
+                                : 'bg-emerald-500/10 text-emerald-400',
+                            )}
+                          >
+                            {insight.clinical_trial_representation}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mb-2">{insight.key_evidence}</p>
+                      {insight.modality_gaps.length > 0 && (
+                        <div>
+                          <span className="text-[9px] text-slate-600 uppercase tracking-wider">Modality gaps:</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {insight.modality_gaps.map((gap) => (
+                              <span
+                                key={gap}
+                                className="px-1.5 py-0.5 rounded bg-violet-500/10 text-[9px] text-violet-400"
+                              >
+                                {gap.replace(/_/g, ' ')}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : detail ? (
+                <div className="py-6 text-center text-sm text-slate-500">
+                  No community-specific health disparity data available for this indication.
+                </div>
+              ) : null}
             </div>
           )}
 

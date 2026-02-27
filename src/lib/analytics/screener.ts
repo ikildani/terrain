@@ -23,6 +23,7 @@ import { LOA_BY_PHASE_AND_AREA } from '@/lib/data/loa-tables';
 import { PHARMA_PARTNER_DATABASE } from '@/lib/data/partner-database';
 import { TERRITORY_MULTIPLIERS } from '@/lib/data/territory-multipliers';
 import { getRegionalFactors } from '@/lib/data/regional-prevalence-factors';
+import { getCommunityDataForIndication } from '@/lib/data/community-prevalence';
 import type { DevelopmentStage } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -93,6 +94,13 @@ export interface TopAsset {
   mechanism: string;
 }
 
+export interface CommunityDisparity {
+  community: string;
+  prevalence_multiplier: number;
+  clinical_trial_representation: string;
+  modality_gap_count: number;
+}
+
 export interface OpportunityRow {
   indication: string;
   therapy_area: string;
@@ -113,6 +121,8 @@ export interface OpportunityRow {
   top_assets: TopAsset[];
   white_space_hints: string[];
   active_partner_count: number;
+  community_disparities: CommunityDisparity[];
+  emerging_asset_count: number;
 }
 
 export interface ScreenerResult {
@@ -549,6 +559,37 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
   // White space hints
   const whiteSpaceHints = computeWhiteSpaceHints(competitors, indication.diagnosis_rate, indication.treatment_rate);
 
+  // Community disparities
+  const communityData = getCommunityDataForIndication(indication.name);
+  const communityDisparities: CommunityDisparity[] = communityData
+    .sort((a, b) => b.prevalence_multiplier - a.prevalence_multiplier)
+    .slice(0, 5)
+    .map((c) => ({
+      community: c.community,
+      prevalence_multiplier: c.prevalence_multiplier,
+      clinical_trial_representation: c.clinical_trial_representation,
+      modality_gap_count: c.modality_gaps.length,
+    }));
+
+  // Add community-driven white-space hints
+  const underrepresented = communityData.filter((c) => c.clinical_trial_representation === 'underrepresented');
+  if (underrepresented.length > 0 && whiteSpaceHints.length < 6) {
+    const communities = underrepresented.slice(0, 2).map((c) => c.community);
+    whiteSpaceHints.push(
+      `Underrepresented in clinical trials: ${communities.join(', ')} — community-targeted enrollment opportunity`,
+    );
+  }
+  const highModalityGaps = communityData.filter((c) => c.modality_gaps.length >= 3);
+  if (highModalityGaps.length > 0 && whiteSpaceHints.length < 7) {
+    whiteSpaceHints.push(
+      `${highModalityGaps.length} communit${highModalityGaps.length > 1 ? 'ies' : 'y'} with ≥3 modality gaps — novel modality targeting opportunity`,
+    );
+  }
+
+  // Emerging asset count (early-stage, unpartnered)
+  const earlyPhases = new Set(['Preclinical', 'Phase 1', 'Phase 1/2']);
+  const emergingAssetCount = competitors.filter((c) => earlyPhases.has(c.phase) && !c.partner).length;
+
   const row: OpportunityRow = {
     indication: indication.name,
     therapy_area: indication.therapy_area,
@@ -575,6 +616,8 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
     top_assets: topAssets,
     white_space_hints: whiteSpaceHints,
     active_partner_count: activeCount,
+    community_disparities: communityDisparities,
+    emerging_asset_count: emergingAssetCount,
   };
 
   return { row };
