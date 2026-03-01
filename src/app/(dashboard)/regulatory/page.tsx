@@ -160,13 +160,15 @@ function RegulatoryForm({ onSubmit, isLoading }: { onSubmit: (data: RegulatoryFo
         />
 
         {/* Product Type */}
-        <div>
-          <label className="input-label">Product Type</label>
-          <div className="flex flex-wrap gap-2 mt-1">
+        <fieldset>
+          <legend className="input-label">Product Type</legend>
+          <div className="flex flex-wrap gap-2 mt-1" role="radiogroup" aria-label="Product Type">
             {PRODUCT_TYPES.map((pt) => (
               <button
                 key={pt.value}
                 type="button"
+                role="radio"
+                aria-checked={productType === pt.value}
                 onClick={() => setValue('product_type', pt.value)}
                 className={cn(
                   'px-3 py-1.5 rounded-md text-xs font-medium transition-all border',
@@ -179,16 +181,18 @@ function RegulatoryForm({ onSubmit, isLoading }: { onSubmit: (data: RegulatoryFo
               </button>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         {/* Development Stage */}
-        <div>
-          <label className="input-label">Development Stage</label>
-          <div className="flex flex-wrap gap-2 mt-1">
+        <fieldset>
+          <legend className="input-label">Development Stage</legend>
+          <div className="flex flex-wrap gap-2 mt-1" role="radiogroup" aria-label="Development Stage">
             {STAGES.map((s) => (
               <button
                 key={s.value}
                 type="button"
+                role="radio"
+                aria-checked={devStage === s.value}
                 onClick={() => setValue('development_stage', s.value)}
                 className={cn(
                   'px-3 py-1.5 rounded-md text-xs font-medium transition-all border',
@@ -201,7 +205,7 @@ function RegulatoryForm({ onSubmit, isLoading }: { onSubmit: (data: RegulatoryFo
               </button>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         {/* Mechanism */}
         <div>
@@ -243,9 +247,9 @@ function RegulatoryForm({ onSubmit, isLoading }: { onSubmit: (data: RegulatoryFo
         </div>
 
         {/* Unmet Need */}
-        <div>
-          <label className="input-label">Unmet Medical Need</label>
-          <div className="space-y-2 mt-1">
+        <fieldset>
+          <legend className="input-label">Unmet Medical Need</legend>
+          <div className="space-y-2 mt-1" role="radiogroup" aria-label="Unmet Medical Need">
             {UNMET_NEED_OPTIONS.map((opt) => (
               <label
                 key={opt.value}
@@ -271,7 +275,7 @@ function RegulatoryForm({ onSubmit, isLoading }: { onSubmit: (data: RegulatoryFo
               </label>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         {/* Orphan Potential Toggle */}
         <div>

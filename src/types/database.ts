@@ -171,6 +171,38 @@ export interface Database {
           permission?: string;
         };
       };
+
+      // ── Report Public Shares ──────────────────────────────
+      report_public_shares: {
+        Row: {
+          id: string;
+          report_id: string;
+          created_by: string;
+          share_token: string;
+          allow_download: boolean;
+          expires_at: string | null;
+          view_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          report_id: string;
+          created_by: string;
+          share_token?: string;
+          allow_download?: boolean;
+          expires_at?: string | null;
+          view_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          allow_download?: boolean;
+          expires_at?: string | null;
+          view_count?: number;
+          updated_at?: string;
+        };
+      };
     };
 
     Views: {
@@ -196,4 +228,5 @@ export type Subscription = Database['public']['Tables']['subscriptions']['Row'];
 export type UsageEvent = Database['public']['Tables']['usage_events']['Row'];
 export type Report = Database['public']['Tables']['reports']['Row'];
 export type ReportShare = Database['public']['Tables']['report_shares']['Row'];
+export type ReportPublicShare = Database['public']['Tables']['report_public_shares']['Row'];
 export type MonthlyUsage = Database['public']['Views']['monthly_usage']['Row'];

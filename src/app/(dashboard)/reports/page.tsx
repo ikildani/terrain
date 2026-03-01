@@ -1,13 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { useReports } from '@/hooks/useReports';
+import { useSubscription } from '@/hooks/useSubscription';
 import { formatRelativeDate } from '@/lib/utils/format';
-import { FileText, Star, Trash2, ExternalLink, BarChart3 } from 'lucide-react';
+import { FileText, Star, Trash2, ExternalLink, BarChart3, Share2 } from 'lucide-react';
+
+const ShareModal = dynamic(
+  () => import('@/components/shared/ShareModal').then((mod) => ({ default: mod.ShareModal })),
+  { ssr: false },
+);
 
 const TYPE_LABELS: Record<string, string> = {
   market_sizing: 'Market Sizing',
@@ -27,7 +34,10 @@ const TYPE_ROUTES: Record<string, string> = {
 
 export default function ReportsPage() {
   const { reports, isLoading, deleteReport, toggleStar } = useReports();
+  const { isTeam } = useSubscription();
   const [filter, setFilter] = useState<string>('all');
+  const [shareReportId, setShareReportId] = useState<string | null>(null);
+  const [shareReportTitle, setShareReportTitle] = useState('');
 
   const filtered =
     filter === 'all'
@@ -118,6 +128,17 @@ export default function ReportsPage() {
                     className={`w-4 h-4 ${report.is_starred ? 'text-amber-400 fill-amber-400' : 'text-slate-500'}`}
                   />
                 </button>
+                <button
+                  onClick={() => {
+                    setShareReportId(report.id);
+                    setShareReportTitle(report.title);
+                  }}
+                  className="p-2.5 rounded-md hover:bg-navy-700 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  title="Share report"
+                  aria-label="Share report"
+                >
+                  <Share2 className="w-4 h-4 text-slate-500" />
+                </button>
                 <Link
                   href={`${TYPE_ROUTES[report.report_type] ?? '/market-sizing'}/${report.id}`}
                   className="p-2.5 rounded-md hover:bg-navy-700 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
@@ -138,6 +159,20 @@ export default function ReportsPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Share Modal */}
+      {shareReportId && (
+        <ShareModal
+          isOpen={!!shareReportId}
+          onClose={() => {
+            setShareReportId(null);
+            setShareReportTitle('');
+          }}
+          reportId={shareReportId}
+          reportTitle={shareReportTitle}
+          isPro={isTeam}
+        />
       )}
     </>
   );
