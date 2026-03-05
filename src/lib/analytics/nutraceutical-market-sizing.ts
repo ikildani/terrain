@@ -443,7 +443,7 @@ function buildMethodology(
     '',
     `1. INGREDIENT LOOKUP: ${ingredient ? `Matched "${input.primary_ingredient}" to database entry "${ingredient.name}" (${ingredient.category}, US market $${ingredient.us_market_size_m_2025}M, ${ingredient.cagr_5yr_pct}% 5-yr CAGR).` : `No exact match found for "${input.primary_ingredient}". Used health-focus category averages.`}`,
     `2. CONSUMER FUNNEL: Started with ${US_SUPPLEMENT_MARKET.total_supplement_users_m.toFixed(0)}M US supplement users (${US_SUPPLEMENT_MARKET.us_adult_supplement_usage_pct}% of adults). Applied health-category filter, demographic targeting ("${input.target_demographic}"), and channel reach factor to derive addressable consumers.`,
-    `3. CAPTURABLE CONSUMERS: Applied stage-based share range (${input.development_stage}: ${(NUTRA_STAGE_SHARE[input.development_stage].low * 100).toFixed(2)}% - ${(NUTRA_STAGE_SHARE[input.development_stage].high * 100).toFixed(2)}%), clinical evidence multiplier (${ingredient?.clinical_evidence_level || 'moderate'}), and patent status (${input.patent_protected ? 'protected' : 'no patent'}) to yield ~${Math.round(capturableConsumers).toLocaleString()} capturable consumers.`,
+    `3. CAPTURABLE CONSUMERS: Applied stage-based share range (${input.development_stage}: ${((NUTRA_STAGE_SHARE[input.development_stage] ?? NUTRA_STAGE_SHARE.market_ready).low * 100).toFixed(2)}% - ${((NUTRA_STAGE_SHARE[input.development_stage] ?? NUTRA_STAGE_SHARE.market_ready).high * 100).toFixed(2)}%), clinical evidence multiplier (${ingredient?.clinical_evidence_level || 'moderate'}), and patent status (${input.patent_protected ? 'protected' : 'no patent'}) to yield ~${Math.round(capturableConsumers).toLocaleString()} capturable consumers.`,
     `4. CHANNEL MODEL: Revenue modeled across ${input.channels.length} channel(s): ${input.channels.join(', ')}. Each channel weighted by market share contribution and assigned brand margin, CAC, and LTV benchmarks from Terrain channel economics database.`,
     `5. PRICING: Unit price $${input.unit_price} x ${input.units_per_year_per_customer} units/year = $${(input.unit_price * input.units_per_year_per_customer).toFixed(0)}/customer/year. COGS at ${input.cogs_pct}% of retail.`,
     `6. TAM/SAM/SOM: US TAM derived from ${ingredient ? 'ingredient-level market data' : 'category-level estimates'}. SAM adjusted for channel reach and claim type (${input.claim_type}). SOM = modeled net revenue from channel analysis.`,
@@ -1019,7 +1019,7 @@ export async function calculateNutraceuticalMarketSizing(
     ingredient?.regulatory_status?.toLowerCase().includes('challenged')
   ) {
     regRisks.push({
-      risk: `Ingredient regulatory status disputed: ${ingredient?.regulatory_status.substring(0, 80)}`,
+      risk: `Ingredient regulatory status disputed: ${ingredient?.regulatory_status?.substring(0, 80) ?? 'Unknown'}`,
       severity: 'high',
       mitigation: 'Monitor FDA guidance. Consider reformulation with NDI-accepted alternative.',
     });
