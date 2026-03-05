@@ -53,6 +53,19 @@ const RequestSchema = z.object({
     is_standalone: z.boolean().optional(),
     drug_partner: z.string().trim().max(500).optional(),
 
+    // Nutraceutical fields
+    primary_ingredient: z.string().trim().max(500).optional(),
+    health_focus: z.string().trim().max(500).optional(),
+    nutraceutical_category: z.string().trim().max(200).optional(),
+    target_demographic: z.string().trim().max(500).optional(),
+    claim_type: z.string().trim().max(200).optional(),
+    channels: z.array(z.string().trim().max(200)).optional(),
+    unit_price: z.number().optional(),
+    units_per_year_per_customer: z.number().optional(),
+    cogs_pct: z.number().optional(),
+    has_clinical_data: z.boolean().optional(),
+    patent_protected: z.boolean().optional(),
+
     // Shared fields
     geography: z.array(z.string().trim().max(100)).min(1, 'At least one geography is required.'),
     launch_year: z

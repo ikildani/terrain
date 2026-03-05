@@ -9,6 +9,10 @@ import { getCompetitorsForIndication, type CompetitorRecord } from '@/lib/data/c
 import { PHARMA_PARTNER_DATABASE } from '@/lib/data/partner-database';
 import { findIndicationByName } from '@/lib/data/indication-map';
 import { getCommunityDataForIndication, type CommunityPrevalenceEntry } from '@/lib/data/community-prevalence';
+import { getSubtypesForIndication, type IndicationSubtype } from '@/lib/data/indication-subtypes';
+import { getBiomarkersForIndication, type BiomarkerEntry } from '@/lib/data/biomarker-prevalence';
+import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
+import { INDICATION_SPECIFIC_LOA, LOA_BY_PHASE_AND_AREA } from '@/lib/data/loa-tables';
 import { sanitizePostgrestValue, sanitizePostgrestSearch } from '@/lib/utils/sanitize';
 import type { ApiResponse } from '@/types';
 
@@ -86,6 +90,41 @@ interface CommunityInsight {
   key_evidence: string;
   clinical_trial_representation: string;
   modality_gaps: string[];
+}
+
+interface SubtypeInfo {
+  name: string;
+  prevalence_pct: number;
+  key_biomarkers: string[];
+  standard_of_care: string;
+}
+
+interface BiomarkerInfo {
+  biomarker: string;
+  prevalence_pct: number;
+  testing_rate_pct: number;
+  test_type: string;
+  cdx_drugs: string[];
+  clinical_significance: string;
+  trending: boolean;
+}
+
+interface PricingComparable {
+  drug_name: string;
+  company: string;
+  mechanism_class: string;
+  us_launch_wac_annual: number;
+  launch_year: number;
+  orphan_drug: boolean;
+  first_in_class: boolean;
+}
+
+interface LoaProfile {
+  source: 'indication' | 'therapy_area';
+  preclinical: number;
+  phase1: number;
+  phase2: number;
+  phase3: number;
 }
 
 // Therapy area alias map for partner matching (mirrors screener.ts)
@@ -323,6 +362,65 @@ export async function POST(request: NextRequest) {
         modality_gaps: c.modality_gaps,
       }));
 
+    // ── Subtypes data ─────────────────────────────────────────
+    const subtypeData = getSubtypesForIndication(indication);
+    const subtypes: SubtypeInfo[] =
+      subtypeData?.subtypes?.map((s) => ({
+        name: s.name,
+        prevalence_pct: s.prevalence_pct,
+        key_biomarkers: s.key_biomarkers,
+        standard_of_care: s.standard_of_care,
+      })) ?? [];
+
+    const patientSegments = subtypeData?.patient_segments ?? [];
+    const mechanismsOfAction = subtypeData?.mechanisms_of_action ?? [];
+    const linesOfTherapy = subtypeData?.lines_of_therapy ?? [];
+
+    // ── Biomarker data ─────────────────────────────────────────
+    const biomarkers: BiomarkerInfo[] = getBiomarkersForIndication(indication).map((b) => ({
+      biomarker: b.biomarker,
+      prevalence_pct: b.prevalence_pct,
+      testing_rate_pct: b.testing_rate_pct,
+      test_type: b.test_type,
+      cdx_drugs: b.cdx_drugs,
+      clinical_significance: b.clinical_significance,
+      trending: b.trending,
+    }));
+
+    // ── Pricing comparables ─────────────────────────────────────
+    const pricingComparables: PricingComparable[] = PRICING_BENCHMARKS.filter(
+      (b) => b.therapy_area === therapyArea || b.indication.toLowerCase() === indication.toLowerCase(),
+    )
+      .sort((a, b) => b.launch_year - a.launch_year)
+      .slice(0, 12)
+      .map((b) => ({
+        drug_name: b.drug_name,
+        company: b.company,
+        mechanism_class: b.mechanism_class,
+        us_launch_wac_annual: b.us_launch_wac_annual,
+        launch_year: b.launch_year,
+        orphan_drug: b.orphan_drug,
+        first_in_class: b.first_in_class,
+      }));
+
+    // ── LoA profile ──────────────────────────────────────────────
+    const indicationLoa = INDICATION_SPECIFIC_LOA[indication.toLowerCase()];
+    const taLoa = LOA_BY_PHASE_AND_AREA[therapyArea];
+    const loaSource = indicationLoa ? ('indication' as const) : ('therapy_area' as const);
+    const loaData = indicationLoa ?? taLoa;
+    const loaProfile: LoaProfile | null = loaData
+      ? {
+          source: loaSource,
+          preclinical: loaData.preclinical,
+          phase1: loaData.phase1,
+          phase2: loaData.phase2,
+          phase3: loaData.phase3,
+        }
+      : null;
+
+    // ── Severity profile ──────────────────────────────────────────
+    const severityProfile = indicationData?.severity_distribution ?? null;
+
     // ── Supabase cache queries (in parallel) ────────────────
     const searchTerm = sanitizePostgrestValue(indication.trim());
     const searchTermIlike = sanitizePostgrestSearch(indication.trim());
@@ -412,6 +510,14 @@ export async function POST(request: NextRequest) {
           white_space: whiteSpace,
           emerging_assets: emergingAssets,
           community_insights: communityInsights,
+          subtypes,
+          patient_segments: patientSegments,
+          mechanisms_of_action: mechanismsOfAction,
+          lines_of_therapy: linesOfTherapy,
+          biomarkers,
+          pricing_comparables: pricingComparables,
+          loa_profile: loaProfile,
+          severity_profile: severityProfile,
         },
       },
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } },

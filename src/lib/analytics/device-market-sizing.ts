@@ -87,7 +87,7 @@ export async function calculateDeviceMarketSizing(input: DeviceMarketSizingInput
   const procedure = matchedProcedure || buildFallbackProcedure(safeInput);
 
   // Step 2: Determine market share range
-  const shareRange = DEVICE_STAGE_SHARE[safeInput.development_stage];
+  const shareRange = DEVICE_STAGE_SHARE[safeInput.development_stage] ?? DEVICE_STAGE_SHARE.clinical_trial; // Fallback if stage doesn't match enum
 
   // Step 3: Calculate revenue streams based on pricing model
   const revenueStreams = buildRevenueStreams(safeInput, procedure, shareRange.base);
@@ -247,7 +247,21 @@ export async function calculateDeviceMarketSizing(input: DeviceMarketSizingInput
 // ────────────────────────────────────────────────────────────
 // COMPANION DIAGNOSTIC CALCULATION ENGINE
 // ────────────────────────────────────────────────────────────
-export async function calculateCDxMarketSizing(input: CDxMarketSizingInput): Promise<CDxOutput> {
+export async function calculateCDxMarketSizing(rawInput: CDxMarketSizingInput): Promise<CDxOutput> {
+  // Normalize input — apply safe defaults for potentially missing fields
+  const input: CDxMarketSizingInput = {
+    ...rawInput,
+    drug_indication: rawInput.drug_indication ?? 'Unknown Indication',
+    biomarker: rawInput.biomarker ?? 'Unknown Biomarker',
+    biomarker_prevalence_pct: rawInput.biomarker_prevalence_pct ?? 20,
+    test_type: rawInput.test_type ?? 'NGS_panel',
+    test_setting: rawInput.test_setting ?? ['central_lab'],
+    drug_development_stage: rawInput.drug_development_stage ?? 'phase2',
+    cdx_development_stage: rawInput.cdx_development_stage ?? 'clinical_validation',
+    geography: rawInput.geography ?? ['US'],
+    test_ase: rawInput.test_ase ?? 3500,
+  };
+
   // Step 1: Get base indication incidence from pharma indication map
   // Import from indication-map.ts
   const { findIndicationByName } = await import('@/lib/data/indication-map');

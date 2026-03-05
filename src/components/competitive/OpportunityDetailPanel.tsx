@@ -12,6 +12,10 @@ import {
   AlertCircle,
   Rocket,
   Globe,
+  Dna,
+  DollarSign,
+  Layers,
+  TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { ScoreBreakdownBar } from './OpportunityScoreBar';
@@ -80,6 +84,47 @@ interface CommunityInsight {
   modality_gaps: string[];
 }
 
+interface SubtypeInfo {
+  name: string;
+  prevalence_pct: number;
+  key_biomarkers: string[];
+  standard_of_care: string;
+}
+
+interface BiomarkerInfo {
+  biomarker: string;
+  prevalence_pct: number;
+  testing_rate_pct: number;
+  test_type: string;
+  cdx_drugs: string[];
+  clinical_significance: string;
+  trending: boolean;
+}
+
+interface PricingComparable {
+  drug_name: string;
+  company: string;
+  mechanism_class: string;
+  us_launch_wac_annual: number;
+  launch_year: number;
+  orphan_drug: boolean;
+  first_in_class: boolean;
+}
+
+interface LoaProfile {
+  source: 'indication' | 'therapy_area';
+  preclinical: number;
+  phase1: number;
+  phase2: number;
+  phase3: number;
+}
+
+interface PatientSegment {
+  segment: string;
+  description: string;
+  pct_of_patients: number;
+}
+
 interface DetailData {
   trials: ClinicalTrial[];
   sec_filings: SecFiling[];
@@ -88,6 +133,14 @@ interface DetailData {
   white_space: string[];
   emerging_assets: EmergingAsset[];
   community_insights: CommunityInsight[];
+  subtypes: SubtypeInfo[];
+  patient_segments: PatientSegment[];
+  mechanisms_of_action: string[];
+  lines_of_therapy: string[];
+  biomarkers: BiomarkerInfo[];
+  pricing_comparables: PricingComparable[];
+  loa_profile: LoaProfile | null;
+  severity_profile: Record<string, number> | null;
 }
 
 // ── Component Props ────────────────────────────────────────
@@ -95,13 +148,27 @@ interface DetailData {
 interface OpportunityDetailPanelProps {
   indication: string;
   scoreBreakdown: OpportunityScoreBreakdown;
+  scoreExplanations?: Record<string, string>;
   isOpen: boolean;
 }
 
-type DetailTab = 'score' | 'emerging' | 'community' | 'trials' | 'sec' | 'fda' | 'context';
+type DetailTab =
+  | 'score'
+  | 'subtypes'
+  | 'biomarkers'
+  | 'pricing'
+  | 'emerging'
+  | 'community'
+  | 'trials'
+  | 'sec'
+  | 'fda'
+  | 'context';
 
 const TABS: { id: DetailTab; label: string; icon: typeof Beaker }[] = [
   { id: 'score', label: 'Score Breakdown', icon: Lightbulb },
+  { id: 'subtypes', label: 'Subtypes & Segments', icon: Layers },
+  { id: 'biomarkers', label: 'Biomarkers', icon: Dna },
+  { id: 'pricing', label: 'Pricing & Revenue', icon: DollarSign },
   { id: 'emerging', label: 'Emerging Pipeline', icon: Rocket },
   { id: 'community', label: 'Community Insights', icon: Globe },
   { id: 'trials', label: 'Clinical Trials', icon: Beaker },
@@ -110,13 +177,23 @@ const TABS: { id: DetailTab; label: string; icon: typeof Beaker }[] = [
   { id: 'context', label: 'Context & Partners', icon: Users },
 ];
 
-export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: OpportunityDetailPanelProps) {
+function formatWac(n: number): string {
+  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
+  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`;
+  return `$${n}`;
+}
+
+export function OpportunityDetailPanel({
+  indication,
+  scoreBreakdown,
+  scoreExplanations,
+  isOpen,
+}: OpportunityDetailPanelProps) {
   const [activeTab, setActiveTab] = useState<DetailTab>('score');
   const [detail, setDetail] = useState<DetailData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset stale detail data when indication changes
   useEffect(() => {
     setDetail(null);
   }, [indication]);
@@ -148,6 +225,9 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
 
   const tabCounts: Partial<Record<DetailTab, number>> = detail
     ? {
+        subtypes: detail.subtypes?.length ?? 0,
+        biomarkers: detail.biomarkers?.length ?? 0,
+        pricing: detail.pricing_comparables?.length ?? 0,
         emerging: detail.emerging_assets?.length ?? 0,
         community: detail.community_insights?.length ?? 0,
         trials: detail.trials.length,
@@ -163,7 +243,7 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
       <td colSpan={99} className="p-0">
         <div className="bg-navy-900/60 border-t border-b border-navy-700/40 px-6 py-5">
           {/* Tab navigation */}
-          <div className="flex gap-1 mb-4 border-b border-navy-700/40 pb-px">
+          <div className="flex gap-1 mb-4 border-b border-navy-700/40 pb-px overflow-x-auto">
             {TABS.map((tab) => {
               const Icon = tab.icon;
               const count = tabCounts[tab.id];
@@ -173,7 +253,7 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-t-md transition-colors',
+                    'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-t-md transition-colors whitespace-nowrap',
                     activeTab === tab.id
                       ? 'text-teal-400 bg-navy-800 border-b-2 border-teal-500'
                       : isEmpty
@@ -209,22 +289,410 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
             </div>
           )}
 
-          {/* Score Breakdown (no API needed) */}
+          {/* ═══════════ Score Breakdown ═══════════ */}
           {activeTab === 'score' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 max-w-2xl">
-              <ScoreBreakdownBar label="Market Attractiveness" score={scoreBreakdown.market_attractiveness} max={30} />
-              <ScoreBreakdownBar label="Competitive Openness" score={scoreBreakdown.competitive_openness} max={25} />
-              <ScoreBreakdownBar label="Unmet Need" score={scoreBreakdown.unmet_need} max={20} />
-              <ScoreBreakdownBar
-                label="Development Feasibility"
-                score={scoreBreakdown.development_feasibility}
-                max={15}
-              />
-              <ScoreBreakdownBar label="Partner Landscape" score={scoreBreakdown.partner_landscape} max={10} />
+            <div className="space-y-4 max-w-3xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                <div>
+                  <ScoreBreakdownBar
+                    label="Market Attractiveness"
+                    score={scoreBreakdown.market_attractiveness}
+                    max={30}
+                  />
+                  {scoreExplanations?.market_attractiveness && (
+                    <p className="text-[10px] text-slate-500 mt-1 pl-0.5">{scoreExplanations.market_attractiveness}</p>
+                  )}
+                </div>
+                <div>
+                  <ScoreBreakdownBar
+                    label="Competitive Openness"
+                    score={scoreBreakdown.competitive_openness}
+                    max={25}
+                  />
+                  {scoreExplanations?.competitive_openness && (
+                    <p className="text-[10px] text-slate-500 mt-1 pl-0.5">{scoreExplanations.competitive_openness}</p>
+                  )}
+                </div>
+                <div>
+                  <ScoreBreakdownBar label="Unmet Need" score={scoreBreakdown.unmet_need} max={20} />
+                  {scoreExplanations?.unmet_need && (
+                    <p className="text-[10px] text-slate-500 mt-1 pl-0.5">{scoreExplanations.unmet_need}</p>
+                  )}
+                </div>
+                <div>
+                  <ScoreBreakdownBar
+                    label="Development Feasibility"
+                    score={scoreBreakdown.development_feasibility}
+                    max={15}
+                  />
+                  {scoreExplanations?.development_feasibility && (
+                    <p className="text-[10px] text-slate-500 mt-1 pl-0.5">
+                      {scoreExplanations.development_feasibility}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <ScoreBreakdownBar label="Partner Landscape" score={scoreBreakdown.partner_landscape} max={10} />
+                  {scoreExplanations?.partner_landscape && (
+                    <p className="text-[10px] text-slate-500 mt-1 pl-0.5">{scoreExplanations.partner_landscape}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* LoA profile */}
+              {detail?.loa_profile && (
+                <div className="pt-3 border-t border-navy-700/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="w-3.5 h-3.5 text-slate-500" />
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                      Likelihood of Approval
+                      <span className="ml-1.5 text-slate-600">
+                        ({detail.loa_profile.source === 'indication' ? 'indication-specific' : 'therapy-area avg'})
+                      </span>
+                    </span>
+                  </div>
+                  <div className="flex gap-4">
+                    {[
+                      { label: 'Preclinical', value: detail.loa_profile.preclinical },
+                      { label: 'Phase 1', value: detail.loa_profile.phase1 },
+                      { label: 'Phase 2', value: detail.loa_profile.phase2 },
+                      { label: 'Phase 3', value: detail.loa_profile.phase3 },
+                    ].map((item) => (
+                      <div key={item.label} className="text-center">
+                        <div
+                          className={cn(
+                            'font-mono text-sm font-medium tabular-nums',
+                            item.value >= 0.4
+                              ? 'text-emerald-400'
+                              : item.value >= 0.15
+                                ? 'text-teal-400'
+                                : 'text-amber-400',
+                          )}
+                        >
+                          {(item.value * 100).toFixed(0)}%
+                        </div>
+                        <div className="text-[9px] text-slate-600 mt-0.5">{item.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Severity profile */}
+              {detail?.severity_profile && Object.keys(detail.severity_profile).length > 0 && (
+                <div className="pt-3 border-t border-navy-700/30">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                    Severity Distribution
+                  </span>
+                  <div className="flex gap-2 mt-2">
+                    {Object.entries(detail.severity_profile)
+                      .sort(([, a], [, b]) => b - a)
+                      .map(([key, val]) => (
+                        <div key={key} className="flex items-center gap-1.5">
+                          <div
+                            className={cn(
+                              'w-2 h-2 rounded-full',
+                              key === 'severe' || key === 'very_severe' || key === 'critical'
+                                ? 'bg-red-400'
+                                : key === 'moderate'
+                                  ? 'bg-amber-400'
+                                  : 'bg-emerald-400',
+                            )}
+                          />
+                          <span className="text-[10px] text-slate-400 capitalize">{key.replace('_', ' ')}</span>
+                          <span className="font-mono text-[10px] text-slate-300">{(val * 100).toFixed(0)}%</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Emerging Pipeline tab */}
+          {/* ═══════════ Subtypes & Segments ═══════════ */}
+          {activeTab === 'subtypes' && !loading && !error && (
+            <div>
+              {detail && (detail.subtypes?.length ?? 0) > 0 ? (
+                <div className="space-y-4">
+                  {/* Subtypes */}
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                      Disease Subtypes
+                    </span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                      {detail.subtypes.map((sub) => (
+                        <div key={sub.name} className="p-3 rounded-md bg-navy-800/30 border border-navy-700/30">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs font-medium text-slate-200">{sub.name}</span>
+                            <span className="font-mono text-[10px] text-teal-400">{sub.prevalence_pct}%</span>
+                          </div>
+                          <p className="text-[10px] text-slate-500 mb-1.5">SoC: {sub.standard_of_care}</p>
+                          {sub.key_biomarkers.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {sub.key_biomarkers.map((b) => (
+                                <span
+                                  key={b}
+                                  className="px-1 py-0.5 rounded bg-violet-500/10 text-[9px] text-violet-400"
+                                >
+                                  {b}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Patient Segments */}
+                  {(detail.patient_segments?.length ?? 0) > 0 && (
+                    <div className="pt-3 border-t border-navy-700/30">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                        Patient Segments
+                      </span>
+                      <div className="space-y-1.5 mt-2">
+                        {detail.patient_segments.map((seg) => (
+                          <div key={seg.segment} className="flex items-start gap-3 text-xs">
+                            <span className="font-mono text-teal-400 tabular-nums w-10 text-right flex-shrink-0">
+                              {seg.pct_of_patients}%
+                            </span>
+                            <div>
+                              <span className="text-slate-300 font-medium">{seg.segment}</span>
+                              <span className="text-slate-500 ml-1.5">{seg.description}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* MoA & Lines of Therapy */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-navy-700/30">
+                    {(detail.mechanisms_of_action?.length ?? 0) > 0 && (
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                          Mechanisms of Action
+                        </span>
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {detail.mechanisms_of_action.map((m) => (
+                            <span key={m} className="px-1.5 py-0.5 rounded bg-navy-700/40 text-[10px] text-slate-300">
+                              {m}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {(detail.lines_of_therapy?.length ?? 0) > 0 && (
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                          Lines of Therapy
+                        </span>
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {detail.lines_of_therapy.map((l) => (
+                            <span key={l} className="px-1.5 py-0.5 rounded bg-blue-500/10 text-[10px] text-blue-400">
+                              {l}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : detail ? (
+                <div className="py-6 text-center text-sm text-slate-500">
+                  No subtype data available for this indication.
+                </div>
+              ) : null}
+            </div>
+          )}
+
+          {/* ═══════════ Biomarkers ═══════════ */}
+          {activeTab === 'biomarkers' && !loading && !error && (
+            <div>
+              {detail && (detail.biomarkers?.length ?? 0) > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-navy-700/40">
+                        <th className="text-left py-2 pr-4 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          Biomarker
+                        </th>
+                        <th className="text-right py-2 pr-4 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          Prevalence
+                        </th>
+                        <th className="text-right py-2 pr-4 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          Testing Rate
+                        </th>
+                        <th className="text-left py-2 pr-4 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          Test Type
+                        </th>
+                        <th className="text-left py-2 pr-4 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          CDx Drugs
+                        </th>
+                        <th className="text-left py-2 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          Significance
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detail.biomarkers.map((bm) => (
+                        <tr key={bm.biomarker} className="border-b border-navy-700/20 hover:bg-navy-800/30">
+                          <td className="py-2 pr-4">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-slate-200 font-medium">{bm.biomarker}</span>
+                              {bm.trending && (
+                                <span className="px-1 py-0.5 rounded bg-emerald-500/10 text-[9px] text-emerald-400 font-medium">
+                                  Trending
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-2 pr-4 text-right font-mono text-slate-300 tabular-nums">
+                            {bm.prevalence_pct}%
+                          </td>
+                          <td className="py-2 pr-4 text-right">
+                            <span
+                              className={cn(
+                                'font-mono tabular-nums',
+                                bm.testing_rate_pct >= 70
+                                  ? 'text-emerald-400'
+                                  : bm.testing_rate_pct >= 40
+                                    ? 'text-teal-400'
+                                    : 'text-amber-400',
+                              )}
+                            >
+                              {bm.testing_rate_pct}%
+                            </span>
+                          </td>
+                          <td className="py-2 pr-4">
+                            <span className="px-1.5 py-0.5 rounded bg-navy-700/60 text-slate-300 font-mono text-[10px]">
+                              {bm.test_type}
+                            </span>
+                          </td>
+                          <td className="py-2 pr-4 text-slate-400 max-w-[180px] truncate">
+                            {bm.cdx_drugs.length > 0 ? bm.cdx_drugs.join(', ') : '—'}
+                          </td>
+                          <td className="py-2 text-slate-400 text-[11px] max-w-[200px]">{bm.clinical_significance}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : detail ? (
+                <div className="py-6 text-center text-sm text-slate-500">
+                  No biomarker data available for this indication.
+                </div>
+              ) : null}
+            </div>
+          )}
+
+          {/* ═══════════ Pricing & Revenue ═══════════ */}
+          {activeTab === 'pricing' && !loading && !error && (
+            <div>
+              {detail && (detail.pricing_comparables?.length ?? 0) > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-navy-700/40">
+                        <th className="text-left py-2 pr-4 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          Drug
+                        </th>
+                        <th className="text-left py-2 pr-4 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          Company
+                        </th>
+                        <th className="text-left py-2 pr-4 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          Mechanism
+                        </th>
+                        <th className="text-right py-2 pr-4 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          WAC Annual
+                        </th>
+                        <th className="text-right py-2 pr-4 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          Launch Year
+                        </th>
+                        <th className="text-left py-2 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                          Flags
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detail.pricing_comparables.map((pc) => (
+                        <tr
+                          key={`${pc.drug_name}-${pc.company}`}
+                          className="border-b border-navy-700/20 hover:bg-navy-800/30"
+                        >
+                          <td className="py-2 pr-4 font-medium text-slate-200">{pc.drug_name}</td>
+                          <td className="py-2 pr-4 text-slate-400">{pc.company}</td>
+                          <td className="py-2 pr-4 text-slate-400 text-[11px]">{pc.mechanism_class}</td>
+                          <td className="py-2 pr-4 text-right font-mono text-slate-200 tabular-nums">
+                            {formatWac(pc.us_launch_wac_annual)}
+                          </td>
+                          <td className="py-2 pr-4 text-right font-mono text-slate-400 tabular-nums">
+                            {pc.launch_year}
+                          </td>
+                          <td className="py-2">
+                            <div className="flex gap-1">
+                              {pc.orphan_drug && (
+                                <span className="px-1 py-0.5 rounded bg-violet-500/10 text-[9px] text-violet-400">
+                                  Orphan
+                                </span>
+                              )}
+                              {pc.first_in_class && (
+                                <span className="px-1 py-0.5 rounded bg-teal-500/10 text-[9px] text-teal-400">FIC</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {/* Pricing summary */}
+                  <div className="flex gap-6 mt-3 pt-3 border-t border-navy-700/30">
+                    <div>
+                      <span className="text-[9px] text-slate-600 uppercase tracking-wider">Median WAC</span>
+                      <div className="font-mono text-sm text-slate-200 mt-0.5">
+                        {formatWac(
+                          detail.pricing_comparables.map((p) => p.us_launch_wac_annual).sort((a, b) => a - b)[
+                            Math.floor(detail.pricing_comparables.length / 2)
+                          ] ?? 0,
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-slate-600 uppercase tracking-wider">Range</span>
+                      <div className="font-mono text-sm text-slate-200 mt-0.5">
+                        {formatWac(Math.min(...detail.pricing_comparables.map((p) => p.us_launch_wac_annual)))} –{' '}
+                        {formatWac(Math.max(...detail.pricing_comparables.map((p) => p.us_launch_wac_annual)))}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-slate-600 uppercase tracking-wider">FIC Premium</span>
+                      <div className="font-mono text-sm text-slate-200 mt-0.5">
+                        {(() => {
+                          const fic = detail.pricing_comparables.filter((p) => p.first_in_class);
+                          const nonFic = detail.pricing_comparables.filter((p) => !p.first_in_class);
+                          if (fic.length === 0 || nonFic.length === 0) return '—';
+                          const ficMedian = fic.map((p) => p.us_launch_wac_annual).sort((a, b) => a - b)[
+                            Math.floor(fic.length / 2)
+                          ];
+                          const nonFicMedian = nonFic.map((p) => p.us_launch_wac_annual).sort((a, b) => a - b)[
+                            Math.floor(nonFic.length / 2)
+                          ];
+                          const premium = ((ficMedian - nonFicMedian) / nonFicMedian) * 100;
+                          return `${premium >= 0 ? '+' : ''}${premium.toFixed(0)}%`;
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : detail ? (
+                <div className="py-6 text-center text-sm text-slate-500">
+                  No pricing benchmark data available for this therapy area.
+                </div>
+              ) : null}
+            </div>
+          )}
+
+          {/* ═══════════ Emerging Pipeline ═══════════ */}
           {activeTab === 'emerging' && !loading && !error && (
             <div>
               {detail && (detail.emerging_assets?.length ?? 0) > 0 ? (
@@ -280,7 +748,7 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
             </div>
           )}
 
-          {/* Community Insights tab */}
+          {/* ═══════════ Community Insights ═══════════ */}
           {activeTab === 'community' && !loading && !error && (
             <div>
               {detail && (detail.community_insights?.length ?? 0) > 0 ? (
@@ -349,7 +817,7 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
             </div>
           )}
 
-          {/* Clinical Trials tab */}
+          {/* ═══════════ Clinical Trials ═══════════ */}
           {activeTab === 'trials' && !loading && !error && (
             <div>
               {detail && detail.trials.length > 0 ? (
@@ -428,7 +896,7 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
             </div>
           )}
 
-          {/* SEC Activity tab */}
+          {/* ═══════════ SEC Activity ═══════════ */}
           {activeTab === 'sec' && !loading && !error && (
             <div>
               {detail && detail.sec_filings.length > 0 ? (
@@ -491,7 +959,7 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
             </div>
           )}
 
-          {/* FDA History tab */}
+          {/* ═══════════ FDA History ═══════════ */}
           {activeTab === 'fda' && !loading && !error && (
             <div>
               {detail && detail.fda_approvals.length > 0 ? (
@@ -546,10 +1014,9 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
             </div>
           )}
 
-          {/* Context & Partners tab */}
+          {/* ═══════════ Context & Partners ═══════════ */}
           {activeTab === 'context' && !loading && !error && detail && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* White Space */}
               <div>
                 <h4 className="text-xs font-medium text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
@@ -569,7 +1036,6 @@ export function OpportunityDetailPanel({ indication, scoreBreakdown, isOpen }: O
                 )}
               </div>
 
-              {/* Top Partners */}
               <div>
                 <h4 className="text-xs font-medium text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5 text-teal-400" />

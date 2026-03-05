@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Radar, TrendingUp, Users, Target, BarChart3, Search, Download } from 'lucide-react';
+import { Radar, TrendingUp, Users, Target, BarChart3, Search, Download, Rocket, Dna } from 'lucide-react';
 import { OpportunityFilterBar, type ScreenerFilters } from './OpportunityFilterBar';
 import { OpportunityTable } from './OpportunityTable';
 import { OpportunityScoreBar } from './OpportunityScoreBar';
@@ -25,23 +25,34 @@ interface ScreenerApiResponse {
 
 // ── Summary stat cards ─────────────────────────────────────
 
-function SummaryStats({ rows, totalCount }: { rows: OpportunityRow[]; totalCount: number }) {
-  if (rows.length === 0) return null;
+function SummaryStats({
+  rows,
+  totalCount,
+  allRows,
+}: {
+  rows: OpportunityRow[];
+  totalCount: number;
+  allRows: OpportunityRow[];
+}) {
+  if (allRows.length === 0) return null;
 
-  const avgScore = rows.reduce((sum, r) => sum + r.opportunity_score, 0) / rows.length;
-  const highOpp = rows.filter((r) => r.opportunity_score >= 60).length;
-  const openMarkets = rows.filter((r) => r.crowding_score < 4 && r.crowding_label !== 'no_data').length;
-  const therapyAreas = new Set(rows.map((r) => r.therapy_area)).size;
+  // Compute stats on ALL rows (full dataset), not just filtered/visible subset
+  const avgScore = allRows.reduce((sum, r) => sum + r.opportunity_score, 0) / allRows.length;
+  const highOpp = allRows.filter((r) => r.opportunity_score >= 60).length;
+  const openMarkets = allRows.filter((r) => r.crowding_score < 4 && r.crowding_label !== 'no_data').length;
+  const therapyAreas = new Set(allRows.map((r) => r.therapy_area)).size;
+  const totalUnpartneredFic = allRows.reduce((sum, r) => sum + (r.unpartnered_fic_count ?? 0), 0);
+  const totalNovelMoa = allRows.reduce((sum, r) => sum + (r.novel_mechanism_count ?? 0), 0);
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
       <div className="stat-card">
         <div className="flex items-center gap-1.5 mb-2">
           <Radar className="w-3.5 h-3.5 text-slate-500" />
-          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Indications Screened</span>
+          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Screened</span>
         </div>
         <div className="font-mono text-xl text-white font-medium">{totalCount}</div>
-        <p className="text-[10px] text-slate-500 mt-1">across {therapyAreas} therapy areas</p>
+        <p className="text-[10px] text-slate-500 mt-1">across {therapyAreas} TAs</p>
       </div>
 
       <div className="stat-card">
@@ -52,7 +63,7 @@ function SummaryStats({ rows, totalCount }: { rows: OpportunityRow[]; totalCount
         <div className="flex items-center gap-2">
           <OpportunityScoreBar score={avgScore} size="lg" className="flex-1" />
         </div>
-        <p className="text-[10px] text-slate-500 mt-1">composite opportunity score</p>
+        <p className="text-[10px] text-slate-500 mt-1">composite</p>
       </div>
 
       <div className="stat-card">
@@ -61,7 +72,7 @@ function SummaryStats({ rows, totalCount }: { rows: OpportunityRow[]; totalCount
           <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">High Opportunity</span>
         </div>
         <div className="font-mono text-xl text-emerald-400 font-medium">{highOpp}</div>
-        <p className="text-[10px] text-slate-500 mt-1">indications scoring 60+</p>
+        <p className="text-[10px] text-slate-500 mt-1">scoring 60+</p>
       </div>
 
       <div className="stat-card">
@@ -70,7 +81,25 @@ function SummaryStats({ rows, totalCount }: { rows: OpportunityRow[]; totalCount
           <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Open Markets</span>
         </div>
         <div className="font-mono text-xl text-teal-400 font-medium">{openMarkets}</div>
-        <p className="text-[10px] text-slate-500 mt-1">crowding score &lt; 4</p>
+        <p className="text-[10px] text-slate-500 mt-1">crowding &lt; 4</p>
+      </div>
+
+      <div className="stat-card">
+        <div className="flex items-center gap-1.5 mb-2">
+          <Rocket className="w-3.5 h-3.5 text-slate-500" />
+          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Unpartnered FIC</span>
+        </div>
+        <div className="font-mono text-xl text-teal-400 font-medium">{totalUnpartneredFic}</div>
+        <p className="text-[10px] text-slate-500 mt-1">scouting targets</p>
+      </div>
+
+      <div className="stat-card">
+        <div className="flex items-center gap-1.5 mb-2">
+          <Dna className="w-3.5 h-3.5 text-slate-500" />
+          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Novel MoA</span>
+        </div>
+        <div className="font-mono text-xl text-violet-400 font-medium">{totalNovelMoa}</div>
+        <p className="text-[10px] text-slate-500 mt-1">differentiated assets</p>
       </div>
     </div>
   );
@@ -177,6 +206,11 @@ function exportCsv(data: OpportunityRow[]) {
     'Indication',
     'Therapy Area',
     'Opportunity Score',
+    'Market Attractiveness',
+    'Competitive Openness',
+    'Unmet Need',
+    'Development Feasibility',
+    'Partner Landscape',
     'Global Prevalence',
     'US Prevalence',
     'Crowding Score',
@@ -185,8 +219,15 @@ function exportCsv(data: OpportunityRow[]) {
     'Treatment Rate %',
     'Diagnosis Rate %',
     'CAGR 5yr %',
-    'Community Disparities',
+    'Median WAC',
+    'Revenue Potential',
+    'Biomarker Count',
+    'Key Biomarkers',
+    'Subtype Count',
+    'Unpartnered FIC',
+    'Novel MoA',
     'Emerging Assets',
+    'Community Disparities',
     'Data Confidence',
     'Top Competitors',
     'White Space',
@@ -198,6 +239,11 @@ function exportCsv(data: OpportunityRow[]) {
         `"${r.indication}"`,
         r.therapy_area,
         r.opportunity_score.toFixed(1),
+        r.score_breakdown.market_attractiveness.toFixed(1),
+        r.score_breakdown.competitive_openness.toFixed(1),
+        r.score_breakdown.unmet_need.toFixed(1),
+        r.score_breakdown.development_feasibility.toFixed(1),
+        r.score_breakdown.partner_landscape.toFixed(1),
         r.global_prevalence,
         r.us_prevalence,
         r.crowding_score.toFixed(1),
@@ -206,8 +252,15 @@ function exportCsv(data: OpportunityRow[]) {
         (r.treatment_rate * 100).toFixed(0),
         (r.diagnosis_rate * 100).toFixed(0),
         r.cagr_5yr.toFixed(1),
-        r.community_disparities.length,
+        r.median_wac ?? '',
+        r.revenue_potential_label ?? '',
+        r.biomarker_count ?? 0,
+        `"${(r.key_biomarkers ?? []).join('; ')}"`,
+        r.subtype_count ?? 0,
+        r.unpartnered_fic_count ?? 0,
+        r.novel_mechanism_count ?? 0,
         r.emerging_asset_count,
+        r.community_disparities.length,
         r.data_confidence,
         `"${r.top_competitors.join('; ')}"`,
         `"${r.white_space_hints.join('; ')}"`,
@@ -392,7 +445,7 @@ export default function OpportunityScreener() {
       )}
 
       {/* Summary stats */}
-      {hasSearched && !isLoading && <SummaryStats rows={filteredRows} totalCount={filteredRows.length} />}
+      {hasSearched && !isLoading && <SummaryStats rows={filteredRows} totalCount={totalCount} allRows={rows} />}
 
       {/* Generated at timestamp */}
       {hasSearched && !isLoading && generatedAt && (
@@ -412,7 +465,9 @@ export default function OpportunityScreener() {
             onSort={handleSort}
             isLoading={isLoading}
           />
-          <Pagination offset={offset} limit={PAGE_SIZE} total={filteredRows.length} onPageChange={runScreener} />
+          {!searchQuery.trim() && (
+            <Pagination offset={offset} limit={PAGE_SIZE} total={totalCount} onPageChange={runScreener} />
+          )}
         </>
       )}
 

@@ -25,7 +25,29 @@ const ScreenerRequestSchema = z.object({
     })
     .optional(),
   sort_by: z
-    .enum(['opportunity_score', 'global_prevalence', 'crowding_score', 'global_incidence', 'cagr_5yr', 'unmet_need'])
+    .enum([
+      'opportunity_score',
+      'global_prevalence',
+      'global_incidence',
+      'us_prevalence',
+      'us_incidence',
+      'crowding_score',
+      'cagr_5yr',
+      'competitor_count',
+      'treatment_rate',
+      'diagnosis_rate',
+      'active_partner_count',
+      'indication',
+      'therapy_area',
+      'unmet_need',
+      'community_count',
+      'emerging_asset_count',
+      'median_wac',
+      'biomarker_count',
+      'subtype_count',
+      'unpartnered_fic_count',
+      'novel_mechanism_count',
+    ])
     .default('opportunity_score'),
   sort_order: z.enum(['asc', 'desc']).default('desc'),
   limit: z.number().min(1).max(250).default(50),

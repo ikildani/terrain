@@ -918,7 +918,17 @@ const DEFAULT_WAC_FALLBACK = 80000;
 // ────────────────────────────────────────────────────────────
 // MAIN PHARMA CALCULATION FUNCTION
 // ────────────────────────────────────────────────────────────
-export async function calculateMarketSizing(input: MarketSizingInput): Promise<MarketSizingOutput> {
+export async function calculateMarketSizing(rawInput: MarketSizingInput): Promise<MarketSizingOutput> {
+  // Normalize input — apply safe defaults for potentially missing fields
+  const input: MarketSizingInput = {
+    ...rawInput,
+    indication: rawInput.indication ?? '',
+    geography: rawInput.geography ?? (['US'] as MarketSizingInput['geography']),
+    development_stage: rawInput.development_stage ?? ('phase2' as MarketSizingInput['development_stage']),
+    pricing_assumption: rawInput.pricing_assumption ?? ('base' as MarketSizingInput['pricing_assumption']),
+    launch_year: rawInput.launch_year ?? new Date().getFullYear() + 2,
+  };
+
   // Step 1: Indication lookup
   const indication = findIndicationByName(input.indication);
   if (!indication) {
@@ -930,7 +940,7 @@ export async function calculateMarketSizing(input: MarketSizingInput): Promise<M
   }
 
   // Step 2: Patient funnel
-  const rawShareRange = STAGE_SHARE[input.development_stage];
+  const rawShareRange = STAGE_SHARE[input.development_stage] ?? STAGE_SHARE.phase2;
   const addressabilityFactor = estimateAddressabilityFactor(input);
 
   // Adjust share for competition density

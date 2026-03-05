@@ -20,7 +20,12 @@ type SortField =
   | 'indication'
   | 'therapy_area'
   | 'community_count'
-  | 'emerging_asset_count';
+  | 'emerging_asset_count'
+  | 'median_wac'
+  | 'biomarker_count'
+  | 'subtype_count'
+  | 'unpartnered_fic_count'
+  | 'novel_mechanism_count';
 
 interface OpportunityTableProps {
   rows: OpportunityRow[];
@@ -219,6 +224,30 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
                 onSort={onSort}
                 align="right"
               />
+              <SortHeader
+                field="unpartnered_fic_count"
+                label="FIC Unpart."
+                currentSort={sortBy}
+                currentOrder={sortOrder}
+                onSort={onSort}
+                align="right"
+              />
+              <SortHeader
+                field="novel_mechanism_count"
+                label="Novel MoA"
+                currentSort={sortBy}
+                currentOrder={sortOrder}
+                onSort={onSort}
+                align="right"
+              />
+              <SortHeader
+                field="biomarker_count"
+                label="Biomarkers"
+                currentSort={sortBy}
+                currentOrder={sortOrder}
+                onSort={onSort}
+                align="right"
+              />
             </tr>
           </thead>
           <tbody>
@@ -353,12 +382,40 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
                         <span className="text-slate-600">0</span>
                       )}
                     </td>
+
+                    {/* Unpartnered FIC */}
+                    <td className="py-2.5 pr-3 text-right font-mono text-xs tabular-nums">
+                      {(row.unpartnered_fic_count ?? 0) > 0 ? (
+                        <span className="text-teal-400 font-medium">{row.unpartnered_fic_count}</span>
+                      ) : (
+                        <span className="text-slate-600">0</span>
+                      )}
+                    </td>
+
+                    {/* Novel MoA */}
+                    <td className="py-2.5 pr-3 text-right font-mono text-xs tabular-nums">
+                      {(row.novel_mechanism_count ?? 0) > 0 ? (
+                        <span className="text-violet-400">{row.novel_mechanism_count}</span>
+                      ) : (
+                        <span className="text-slate-600">0</span>
+                      )}
+                    </td>
+
+                    {/* Biomarkers */}
+                    <td className="py-2.5 pr-3 text-right font-mono text-xs tabular-nums">
+                      {(row.biomarker_count ?? 0) > 0 ? (
+                        <span className="text-slate-300">{row.biomarker_count}</span>
+                      ) : (
+                        <span className="text-slate-600">0</span>
+                      )}
+                    </td>
                   </tr>
 
                   {/* Expanded detail panel */}
                   <OpportunityDetailPanel
                     indication={row.indication}
                     scoreBreakdown={row.score_breakdown}
+                    scoreExplanations={row.score_explanations}
                     isOpen={isExpanded}
                   />
                 </Fragment>
