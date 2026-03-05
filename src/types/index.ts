@@ -5,16 +5,91 @@
 
 import type { DeviceMarketSizingOutput, CDxOutput, NutraceuticalMarketSizingOutput } from './devices-diagnostics';
 export type { DeviceMarketSizingOutput, CDxOutput } from './devices-diagnostics';
-export type { DeviceMarketSizingInput, CDxMarketSizingInput, CDxDeal, RevenueStreamBreakdown, ProductCategory } from './devices-diagnostics';
-export type { DeviceRegulatoryInput, DeviceRegulatoryOutput, DeviceCategory, FDADevicePathway, FDADeviceClass } from './devices-diagnostics';
-export type { PredicateDeviceRecord, DeviceClinicalEvidenceStrategy, DeviceIndicationScopeScenario, DeviceManufacturingRisk } from './devices-diagnostics';
-export type { DevicePartnerDiscoveryInput, DevicePartnerMatch, DeviceAcquisitionProbability, DeviceRegulatoryTrackRecord, DistributionStrengthAssessment, DeviceDealStructureModel } from './devices-diagnostics';
-export type { NutraceuticalCategory, NutraceuticalChannel, ClaimType, NutraceuticalMarketSizingInput } from './devices-diagnostics';
-export type { NutraceuticalMarketSizingOutput, NutraceuticalPartnerProfile, NutraceuticalPartnerMatch, NutraceuticalPartnerDiscoveryInput, NutraceuticalPartnerType, NutraceuticalConsumerFunnel, NutraceuticalChannelRevenue, NutraceuticalDTCEconomics, NutraceuticalRegulatoryAssessment, NutraceuticalCompetitivePositioning, NutraceuticalAmazonIntelligence, NutraceuticalAcquisitionAttractiveness } from './devices-diagnostics';
-export type { CompetitiveDataSource, CompetitiveComparisonAttribute, CompetitiveMarketShareDistribution } from './devices-diagnostics';
-export type { DeviceRegulatoryStatus, DeviceRegulatoryPathwayShort, ClinicalEvidenceLevel, TechnologyReadiness, DeviceCompetitor, DeviceSwitchingCostAnalysis, PredicateDeviceMapEntry, DeviceTechnologyLandscape, DeviceCompetitiveLandscapeInput, DeviceCompetitiveLandscapeOutput } from './devices-diagnostics';
-export type { CDxPlatform, CDxRegulatoryStatus, CDxCompetitor, BiomarkerCompetitionEntry, CDxPlatformComparison, CDxLinkedDrugDependency, CDxCompetitiveLandscapeInput, CDxCompetitiveLandscapeOutput } from './devices-diagnostics';
-export type { NutraPriceTier, NutraBrandCompetitor, NutraPricingLandscapeEntry, NutraCertificationMatrix, NutraClinicalEvidenceGap, NutraAmazonIntelligenceAgg, NutraceuticalCompetitiveLandscapeInput, NutraceuticalCompetitiveLandscapeOutput } from './devices-diagnostics';
+export type {
+  DeviceMarketSizingInput,
+  CDxMarketSizingInput,
+  CDxDeal,
+  RevenueStreamBreakdown,
+  ProductCategory,
+} from './devices-diagnostics';
+export type {
+  DeviceRegulatoryInput,
+  DeviceRegulatoryOutput,
+  DeviceCategory,
+  FDADevicePathway,
+  FDADeviceClass,
+} from './devices-diagnostics';
+export type {
+  PredicateDeviceRecord,
+  DeviceClinicalEvidenceStrategy,
+  DeviceIndicationScopeScenario,
+  DeviceManufacturingRisk,
+} from './devices-diagnostics';
+export type {
+  DevicePartnerDiscoveryInput,
+  DevicePartnerMatch,
+  DeviceAcquisitionProbability,
+  DeviceRegulatoryTrackRecord,
+  DistributionStrengthAssessment,
+  DeviceDealStructureModel,
+} from './devices-diagnostics';
+export type {
+  NutraceuticalCategory,
+  NutraceuticalChannel,
+  ClaimType,
+  NutraceuticalMarketSizingInput,
+} from './devices-diagnostics';
+export type {
+  NutraceuticalMarketSizingOutput,
+  NutraceuticalPartnerProfile,
+  NutraceuticalPartnerMatch,
+  NutraceuticalPartnerDiscoveryInput,
+  NutraceuticalPartnerType,
+  NutraceuticalConsumerFunnel,
+  NutraceuticalChannelRevenue,
+  NutraceuticalDTCEconomics,
+  NutraceuticalRegulatoryAssessment,
+  NutraceuticalCompetitivePositioning,
+  NutraceuticalAmazonIntelligence,
+  NutraceuticalAcquisitionAttractiveness,
+} from './devices-diagnostics';
+export type {
+  CompetitiveDataSource,
+  CompetitiveComparisonAttribute,
+  CompetitiveMarketShareDistribution,
+} from './devices-diagnostics';
+export type {
+  DeviceRegulatoryStatus,
+  DeviceRegulatoryPathwayShort,
+  ClinicalEvidenceLevel,
+  TechnologyReadiness,
+  DeviceCompetitor,
+  DeviceSwitchingCostAnalysis,
+  PredicateDeviceMapEntry,
+  DeviceTechnologyLandscape,
+  DeviceCompetitiveLandscapeInput,
+  DeviceCompetitiveLandscapeOutput,
+} from './devices-diagnostics';
+export type {
+  CDxPlatform,
+  CDxRegulatoryStatus,
+  CDxCompetitor,
+  BiomarkerCompetitionEntry,
+  CDxPlatformComparison,
+  CDxLinkedDrugDependency,
+  CDxCompetitiveLandscapeInput,
+  CDxCompetitiveLandscapeOutput,
+} from './devices-diagnostics';
+export type {
+  NutraPriceTier,
+  NutraBrandCompetitor,
+  NutraPricingLandscapeEntry,
+  NutraCertificationMatrix,
+  NutraClinicalEvidenceGap,
+  NutraAmazonIntelligenceAgg,
+  NutraceuticalCompetitiveLandscapeInput,
+  NutraceuticalCompetitiveLandscapeOutput,
+} from './devices-diagnostics';
 
 // ────────────────────────────────────────────────────────────
 // USERS & AUTH
@@ -68,12 +143,7 @@ export interface UsageContext {
 // MARKET SIZING
 // ────────────────────────────────────────────────────────────
 
-export type DevelopmentStage = 
-  | 'preclinical' 
-  | 'phase1' 
-  | 'phase2' 
-  | 'phase3' 
-  | 'approved';
+export type DevelopmentStage = 'preclinical' | 'phase1' | 'phase2' | 'phase3' | 'approved';
 
 export type GeographyCode =
   | 'US'
@@ -101,7 +171,7 @@ export interface MarketSizingInput {
   development_stage: DevelopmentStage;
   mechanism?: string;
   molecular_target?: string;
-  patient_segment?: string;                // e.g., "2L+ after platinum-based chemo"
+  patient_segment?: string; // e.g., "2L+ after platinum-based chemo"
   pricing_assumption: PricingAssumption;
   launch_year: number;
 }
@@ -110,7 +180,7 @@ export interface MarketMetric {
   value: number;
   unit: 'B' | 'M' | 'K';
   confidence: ConfidenceLevel;
-  range?: [number, number];               // Low-high range
+  range?: [number, number]; // Low-high range
   source?: string;
 }
 
@@ -118,12 +188,12 @@ export interface PatientFunnel {
   us_prevalence: number;
   us_incidence: number;
   diagnosed: number;
-  diagnosed_rate: number;                 // % of prevalent diagnosed
+  diagnosed_rate: number; // % of prevalent diagnosed
   treated: number;
-  treated_rate: number;                   // % of diagnosed treated
-  addressable: number;                    // Meets patient_segment criteria
+  treated_rate: number; // % of diagnosed treated
+  addressable: number; // Meets patient_segment criteria
   addressable_rate: number;
-  capturable: number;                     // Realistic market share at peak
+  capturable: number; // Realistic market share at peak
   capturable_rate: number;
 }
 
@@ -132,7 +202,7 @@ export interface GeographyBreakdownItem {
   tam: MarketMetric;
   population: number;
   prevalence_rate: number;
-  market_multiplier: number;              // vs US baseline (1.0)
+  market_multiplier: number; // vs US baseline (1.0)
   regulatory_status: string;
   notes?: string;
 }
@@ -141,8 +211,8 @@ export interface ComparableDrug {
   name: string;
   company: string;
   launch_year: number;
-  launch_wac: number;                     // Wholesale acquisition cost at launch
-  current_net_price: number;             // Net after rebates (if available)
+  launch_wac: number; // Wholesale acquisition cost at launch
+  current_net_price: number; // Net after rebates (if available)
   indication: string;
   mechanism: string;
   phase: string;
@@ -157,7 +227,7 @@ export interface PricingAnalysis {
   };
   payer_dynamics: string;
   pricing_rationale: string;
-  gross_to_net_estimate: number;         // % discount from WAC to net
+  gross_to_net_estimate: number; // % discount from WAC to net
 }
 
 export interface RevenueProjectionYear {
@@ -292,9 +362,9 @@ export interface PartnerTrackRecord {
 export interface BiomarkerNestingLevel {
   name: string;
   prevalence_pct: number;
-  loa_modifier: number;           // Multiplier vs base LoA (e.g., 1.4 for biomarker-selected)
+  loa_modifier: number; // Multiplier vs base LoA (e.g., 1.4 for biomarker-selected)
   addressable_patients: number;
-  pricing_premium_pct: number;    // Biomarker-selected often commands premium
+  pricing_premium_pct: number; // Biomarker-selected often commands premium
 }
 
 export interface BiomarkerNesting {
@@ -346,9 +416,9 @@ export interface CompetitiveTimeline {
   company: string;
   asset_name: string;
   current_phase: ClinicalPhase;
-  expected_data_readout?: string;      // "Q2 2027"
-  estimated_filing_date?: string;      // "H1 2028"
-  estimated_launch_date?: string;      // "2029"
+  expected_data_readout?: string; // "Q2 2027"
+  estimated_filing_date?: string; // "H1 2028"
+  estimated_launch_date?: string; // "2029"
   confidence: ConfidenceLevel;
   timeline_risk_factors: string[];
 }
@@ -360,9 +430,9 @@ export interface CompetitiveTimeline {
 
 export interface EfficacyDelta {
   competitor: string;
-  metric: string;                      // "ORR", "PFS", "OS HR"
+  metric: string; // "ORR", "PFS", "OS HR"
   competitor_value: number;
-  benchmark_value?: number;            // User's asset or SoC
+  benchmark_value?: number; // User's asset or SoC
   delta: number;
   delta_direction: 'favorable' | 'unfavorable' | 'neutral';
   clinical_significance: string;
@@ -374,14 +444,20 @@ export interface EfficacyDelta {
 // ────────────────────────────────────────────────────────────
 
 export interface BarrierToEntry {
-  barrier_type: 'ip_protection' | 'manufacturing_complexity' | 'first_mover' | 'regulatory_exclusivity' | 'payer_entrenchment' | 'kol_network';
+  barrier_type:
+    | 'ip_protection'
+    | 'manufacturing_complexity'
+    | 'first_mover'
+    | 'regulatory_exclusivity'
+    | 'payer_entrenchment'
+    | 'kol_network';
   severity: 'low' | 'medium' | 'high';
   description: string;
   affected_competitors: string[];
 }
 
 export interface BarrierAssessment {
-  overall_barrier_score: number;       // 1-10
+  overall_barrier_score: number; // 1-10
   barrier_label: 'Low' | 'Moderate' | 'High' | 'Very High';
   barriers: BarrierToEntry[];
   narrative: string;
@@ -409,9 +485,9 @@ export interface CRLDecayCurve {
 export interface SurrogateStrengthEntry {
   endpoint: string;
   indication: string;
-  strength_score: number;              // 1-10
+  strength_score: number; // 1-10
   fda_precedent_count: number;
-  recent_acceptance: boolean;          // Accepted in last 3 years?
+  recent_acceptance: boolean; // Accepted in last 3 years?
   notes: string;
 }
 
@@ -423,8 +499,8 @@ export interface SurrogateStrengthEntry {
 export interface PortfolioAppetite {
   mechanism_category: string;
   appetite_level: 'actively_building' | 'established' | 'exploring' | 'divesting';
-  evidence: string[];                  // Recent deals, hires, etc.
-  score: number;                       // 0-10
+  evidence: string[]; // Recent deals, hires, etc.
+  score: number; // 0-10
 }
 
 // ────────────────────────────────────────────────────────────
@@ -434,11 +510,11 @@ export interface PortfolioAppetite {
 
 export interface GeographicStrength {
   region: string;
-  commercial_strength: number;         // 1-10
-  regulatory_capability: number;       // 1-10
-  kol_network: number;                 // 1-10
-  reimbursement_track_record: number;  // 1-10
-  overall: number;                     // 1-10
+  commercial_strength: number; // 1-10
+  regulatory_capability: number; // 1-10
+  kol_network: number; // 1-10
+  reimbursement_track_record: number; // 1-10
+  overall: number; // 1-10
 }
 
 // ────────────────────────────────────────────────────────────
@@ -447,10 +523,10 @@ export interface GeographicStrength {
 // ────────────────────────────────────────────────────────────
 
 export interface CrossEngineSignals {
-  competitive_crowding_for_share: number;       // Feeds market sizing share adjustment
+  competitive_crowding_for_share: number; // Feeds market sizing share adjustment
   regulatory_timeline_for_revenue_start: number; // Months until revenue begins
-  loa_for_risk_adjustment: number;              // Feeds market sizing eNPV
-  partner_urgency_from_competition: number;     // Competitive density → partner urgency
+  loa_for_risk_adjustment: number; // Feeds market sizing eNPV
+  partner_urgency_from_competition: number; // Competitive density → partner urgency
 }
 
 // ────────────────────────────────────────────────────────────
@@ -723,7 +799,7 @@ export interface MarketSizingOutput {
   competitive_context: {
     approved_products: number;
     phase3_programs: number;
-    crowding_score: number;               // 1-10
+    crowding_score: number; // 1-10
     differentiation_note: string;
   };
   methodology: string;
@@ -753,8 +829,10 @@ export interface MarketSizingOutput {
 // COMPETITIVE LANDSCAPE
 // ────────────────────────────────────────────────────────────
 
-export type ClinicalPhase = 
+export type ClinicalPhase =
   | 'Approved'
+  | 'Withdrawn'
+  | 'Discontinued'
   | 'Phase 3'
   | 'Phase 2'
   | 'Phase 2/3'
@@ -776,8 +854,8 @@ export interface Competitor {
   partner?: string;
   partnership_deal_value?: string;
   estimated_peak_sales?: string;
-  differentiation_score: number;          // 1-10 vs assets at same phase
-  evidence_strength: number;              // 1-10 based on data package
+  differentiation_score: number; // 1-10 vs assets at same phase
+  evidence_strength: number; // 1-10 based on data package
   strengths: string[];
   weaknesses: string[];
   nct_ids?: string[];
@@ -790,7 +868,7 @@ export interface Competitor {
   safety_profile?: SafetyProfile;
   dosing_convenience?: DosingConvenience;
   exclusivity_type?: 'NCE' | 'orphan' | 'biologic' | 'pediatric' | 'none';
-  exclusivity_expiry?: string;          // ISO date
+  exclusivity_expiry?: string; // ISO date
   combination_partners?: string[];
   approved_geographies?: string[];
   line_of_therapy?: string;
@@ -799,7 +877,7 @@ export interface Competitor {
 export interface LandscapeSummary {
   indication: string;
   mechanism?: string;
-  crowding_score: number;                 // 1-10
+  crowding_score: number; // 1-10
   crowding_label: 'Low' | 'Moderate' | 'High' | 'Extremely High';
   differentiation_opportunity: string;
   white_space: string[];
@@ -809,9 +887,9 @@ export interface LandscapeSummary {
 export interface CompetitiveLandscapeOutput {
   summary: LandscapeSummary;
   approved_products: Competitor[];
-  late_stage_pipeline: Competitor[];      // Phase 3
-  mid_stage_pipeline: Competitor[];       // Phase 2
-  early_pipeline: Competitor[];           // Phase 1 + Preclinical — PRO ONLY
+  late_stage_pipeline: Competitor[]; // Phase 3
+  mid_stage_pipeline: Competitor[]; // Phase 2
+  early_pipeline: Competitor[]; // Phase 1 + Preclinical — PRO ONLY
   comparison_matrix: ComparisonAttribute[];
   data_sources: DataSource[];
   generated_at: string;
@@ -820,12 +898,23 @@ export interface CompetitiveLandscapeOutput {
   competitive_timelines?: CompetitiveTimeline[];
   market_share_distribution?: MarketShareDistribution;
   competitor_success_probabilities?: CompetitorSuccessProbability[];
-  patent_cliff_timeline?: { company: string; asset: string; exclusivity_type: string; expiry: string; revenue_at_risk?: string }[];
-  lot_crowding?: { line: string; competitor_count: number; approved_count: number; crowding_intensity: 'low' | 'moderate' | 'high' }[];
+  patent_cliff_timeline?: {
+    company: string;
+    asset: string;
+    exclusivity_type: string;
+    expiry: string;
+    revenue_at_risk?: string;
+  }[];
+  lot_crowding?: {
+    line: string;
+    competitor_count: number;
+    approved_count: number;
+    crowding_intensity: 'low' | 'moderate' | 'high';
+  }[];
 }
 
 export interface ComparisonAttribute {
-  attribute: string;                      // "Clinical Evidence", "MoA Differentiation", etc.
+  attribute: string; // "Clinical Evidence", "MoA Differentiation", etc.
   competitors: { [company_asset: string]: string | number };
 }
 
@@ -841,7 +930,7 @@ export interface PartnerDiscoveryInput {
   geography_rights: GeographyCode[];
   deal_types: ('licensing' | 'co-development' | 'acquisition' | 'co-promotion')[];
   exclude_companies?: string[];
-  minimum_match_score?: number;           // Default: 25
+  minimum_match_score?: number; // Default: 25
 }
 
 export interface PartnerDeal {
@@ -858,12 +947,12 @@ export interface PartnerDeal {
 }
 
 export interface PartnerScoreBreakdown {
-  therapeutic_alignment: number;          // 0-25: existing presence in indication
-  pipeline_gap: number;                   // 0-25: asset fills a gap in their portfolio
-  deal_history: number;                   // 0-20: track record at this stage
-  financial_capacity: number;             // 0-15: can they afford expected terms
-  geography_fit: number;                  // 0-15: rights geographies match footprint
-  competing_penalty?: number;             // 0 to -10: penalty for competing partnerships
+  therapeutic_alignment: number; // 0-25: existing presence in indication
+  pipeline_gap: number; // 0-25: asset fills a gap in their portfolio
+  deal_history: number; // 0-20: track record at this stage
+  financial_capacity: number; // 0-15: can they afford expected terms
+  geography_fit: number; // 0-15: rights geographies match footprint
+  competing_penalty?: number; // 0 to -10: penalty for competing partnerships
 }
 
 export interface PartnerMatch {
@@ -873,7 +962,7 @@ export interface PartnerMatch {
   hq_location: string;
   market_cap?: string;
   bd_focus: string[];
-  match_score: number;                    // 0-100
+  match_score: number; // 0-100
   score_breakdown: PartnerScoreBreakdown;
   recent_deals: PartnerDeal[];
   deal_terms_benchmark: {
@@ -881,9 +970,9 @@ export interface PartnerMatch {
     typical_milestones: string;
     typical_royalty_range: string;
   };
-  key_contacts?: string[];               // Public BD lead names
+  key_contacts?: string[]; // Public BD lead names
   rationale: string;
-  watch_signals: string[];               // Why they might be motivated right now
+  watch_signals: string[]; // Why they might be motivated right now
   mechanism_expertise_score?: number;
   patent_cliff_urgency?: string;
   track_record?: PartnerTrackRecord;
@@ -1068,7 +1157,13 @@ export interface Report {
   report_type: ReportType;
   indication: string;
   inputs: MarketSizingInput | Partial<MarketSizingInput> | null;
-  outputs: MarketSizingOutput | DeviceMarketSizingOutput | CDxOutput | NutraceuticalMarketSizingOutput | CompetitiveLandscapeOutput | null;
+  outputs:
+    | MarketSizingOutput
+    | DeviceMarketSizingOutput
+    | CDxOutput
+    | NutraceuticalMarketSizingOutput
+    | CompetitiveLandscapeOutput
+    | null;
   status: 'draft' | 'final';
   is_starred: boolean;
   tags: string[];
@@ -1090,9 +1185,9 @@ export interface ApiResponse<T> {
 export interface UsageResponse {
   feature: string;
   monthly_count: number;
-  limit: number;                          // -1 = unlimited
-  remaining: number;                      // -1 = unlimited
-  resets_at: string;                      // ISO date of monthly reset
+  limit: number; // -1 = unlimited
+  remaining: number; // -1 = unlimited
+  resets_at: string; // ISO date of monthly reset
 }
 
 export interface MarketAnalysisResponse {
@@ -1113,9 +1208,9 @@ export interface IndicationData {
   us_prevalence: number;
   us_incidence: number;
   prevalence_source: string;
-  diagnosis_rate: number;                 // % of prevalent who are diagnosed
-  treatment_rate: number;                 // % of diagnosed who receive treatment
-  cagr_5yr: number;                       // Market CAGR estimate
+  diagnosis_rate: number; // % of prevalent who are diagnosed
+  treatment_rate: number; // % of diagnosed who receive treatment
+  cagr_5yr: number; // Market CAGR estimate
   major_competitors: string[];
   last_updated?: string;
 }
@@ -1123,7 +1218,7 @@ export interface IndicationData {
 export interface TerritoryMultiplier {
   territory: string;
   code: GeographyCode;
-  multiplier: number;                     // vs US = 1.0
+  multiplier: number; // vs US = 1.0
   population_m: number;
   gdp_per_capita_usd: number;
   healthcare_spend_pct: number;
