@@ -21,6 +21,8 @@ interface LandscapeMapProps {
 
 const PHASE_COLORS: Record<ClinicalPhase, string> = {
   Approved: '#34D399',
+  Withdrawn: '#64748B',
+  Discontinued: '#64748B',
   'Phase 3': '#00C9A7',
   'Phase 2/3': '#00C9A7',
   'Phase 2': '#FBBF24',
@@ -39,13 +41,7 @@ interface ScatterDataPoint {
   id: string;
 }
 
-function CustomTooltip({
-  active,
-  payload,
-}: {
-  active?: boolean;
-  payload?: Array<{ payload: ScatterDataPoint }>;
-}) {
+function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: ScatterDataPoint }> }) {
   if (!active || !payload || payload.length === 0) return null;
 
   const data = payload[0].payload;
@@ -56,10 +52,7 @@ function CustomTooltip({
       <p className="text-teal-400 font-medium text-[13px] mb-1">{data.asset_name}</p>
       <p className="text-slate-100 mb-0.5">{data.company}</p>
       <div className="flex items-center gap-1.5 mb-1.5">
-        <span
-          className="phase-badge"
-          style={{ backgroundColor: `${phaseColor}20`, color: phaseColor }}
-        >
+        <span className="phase-badge" style={{ backgroundColor: `${phaseColor}20`, color: phaseColor }}>
           {data.phase}
         </span>
       </div>
@@ -92,10 +85,7 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
   }, [competitors]);
 
   const getFillColor = (point: ScatterDataPoint): string => {
-    if (
-      highlightMechanism &&
-      !point.mechanism.toLowerCase().includes(highlightMechanism.toLowerCase())
-    ) {
+    if (highlightMechanism && !point.mechanism.toLowerCase().includes(highlightMechanism.toLowerCase())) {
       return 'rgba(100, 116, 139, 0.35)';
     }
     return PHASE_COLORS[point.phase] || '#94A3B8';
@@ -117,24 +107,19 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
       <div className="flex flex-wrap gap-4 mb-4">
         {Object.entries(PHASE_COLORS).map(([phase, color]) => (
           <div key={phase} className="flex items-center gap-1.5">
-            <span
-              className="inline-block w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: color }}
-            />
+            <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
             <span className="text-[11px] text-slate-400">{phase}</span>
           </div>
         ))}
       </div>
       <p className="text-[9px] text-slate-600 mb-3">
-        Differentiation: mechanism novelty, first-in-class status, orphan designation. Evidence: clinical phase, endpoint maturity, data quality. Bubble size scales with combined score.
+        Differentiation: mechanism novelty, first-in-class status, orphan designation. Evidence: clinical phase,
+        endpoint maturity, data quality. Bubble size scales with combined score.
       </p>
 
       <ResponsiveContainer width="100%" height={400}>
         <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 10 }}>
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="rgba(100, 116, 139, 0.08)"
-          />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.08)" />
           <XAxis
             type="number"
             dataKey="x"
@@ -184,10 +169,7 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
             strokeWidth={1}
             label={{ value: '5', position: 'right', fill: '#64748B', fontSize: 9, fontFamily: 'DM Mono, monospace' }}
           />
-          <Tooltip
-            content={<CustomTooltip />}
-            cursor={{ strokeDasharray: '3 3', stroke: '#102236' }}
-          />
+          <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#102236' }} />
           <Scatter data={scatterData} isAnimationActive={true}>
             {scatterData.map((entry) => (
               <Cell
@@ -207,29 +189,39 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
       <div className="grid grid-cols-2 gap-px mt-2">
         <div className="text-left pl-12">
           <span className="text-2xs text-slate-500 uppercase tracking-wider">Validated Commodity</span>
-          <span className="block text-[9px] text-slate-600 normal-case tracking-normal">Strong evidence, low differentiation</span>
+          <span className="block text-[9px] text-slate-600 normal-case tracking-normal">
+            Strong evidence, low differentiation
+          </span>
         </div>
         <div className="text-right pr-4">
           <span className="text-2xs text-teal-500/70 uppercase tracking-wider">Best-in-Class</span>
-          <span className="block text-[9px] text-slate-600 normal-case tracking-normal">Strong evidence, high differentiation</span>
+          <span className="block text-[9px] text-slate-600 normal-case tracking-normal">
+            Strong evidence, high differentiation
+          </span>
         </div>
         <div className="text-left pl-12 mt-1">
           <span className="text-2xs text-slate-600 uppercase tracking-wider">Early / Undifferentiated</span>
-          <span className="block text-[9px] text-slate-600 normal-case tracking-normal">Limited evidence, low differentiation</span>
+          <span className="block text-[9px] text-slate-600 normal-case tracking-normal">
+            Limited evidence, low differentiation
+          </span>
         </div>
         <div className="text-right pr-4 mt-1">
           <span className="text-2xs text-signal-amber/70 uppercase tracking-wider">High-Risk / High-Reward</span>
-          <span className="block text-[9px] text-slate-600 normal-case tracking-normal">Limited evidence, high differentiation</span>
+          <span className="block text-[9px] text-slate-600 normal-case tracking-normal">
+            Limited evidence, high differentiation
+          </span>
         </div>
       </div>
 
       {/* Axis legend */}
       <div className="flex items-center justify-center gap-6 mt-3 pt-3 border-t border-navy-700/30">
         <div className="text-2xs text-slate-500">
-          <span className="font-mono text-slate-400">X</span> Differentiation: <span className="text-slate-400">1</span> = me-too &rarr; <span className="text-slate-400">10</span> = first-in-class
+          <span className="font-mono text-slate-400">X</span> Differentiation: <span className="text-slate-400">1</span>{' '}
+          = me-too &rarr; <span className="text-slate-400">10</span> = first-in-class
         </div>
         <div className="text-2xs text-slate-500">
-          <span className="font-mono text-slate-400">Y</span> Evidence: <span className="text-slate-400">1</span> = preclinical &rarr; <span className="text-slate-400">10</span> = Phase 3 OS data
+          <span className="font-mono text-slate-400">Y</span> Evidence: <span className="text-slate-400">1</span> =
+          preclinical &rarr; <span className="text-slate-400">10</span> = Phase 3 OS data
         </div>
       </div>
     </div>

@@ -27,6 +27,8 @@ type SortDirection = 'asc' | 'desc';
 
 const PHASE_ORDER: Record<ClinicalPhase, number> = {
   Approved: 7,
+  Withdrawn: 0,
+  Discontinued: 0,
   'Phase 3': 6,
   'Phase 2/3': 5,
   'Phase 2': 4,
@@ -37,6 +39,8 @@ const PHASE_ORDER: Record<ClinicalPhase, number> = {
 
 const PHASE_CLASSES: Record<ClinicalPhase, string> = {
   Approved: 'phase-approved',
+  Withdrawn: 'phase-preclinical',
+  Discontinued: 'phase-preclinical',
   'Phase 3': 'phase-3',
   'Phase 2/3': 'phase-2',
   'Phase 2': 'phase-2',

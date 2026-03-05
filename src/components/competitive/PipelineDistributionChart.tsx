@@ -10,6 +10,8 @@ interface PipelineDistributionChartProps {
 
 const PHASE_COLORS: Record<ClinicalPhase, string> = {
   Approved: '#34D399',
+  Withdrawn: '#64748B',
+  Discontinued: '#64748B',
   'Phase 3': '#00C9A7',
   'Phase 2/3': '#00C9A7',
   'Phase 2': '#FBBF24',

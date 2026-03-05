@@ -10,6 +10,8 @@ interface CompetitorCardProps {
 
 const PHASE_CLASSES: Record<ClinicalPhase, string> = {
   Approved: 'phase-approved',
+  Withdrawn: 'phase-preclinical',
+  Discontinued: 'phase-preclinical',
   'Phase 3': 'phase-3',
   'Phase 2/3': 'phase-2',
   'Phase 2': 'phase-2',
