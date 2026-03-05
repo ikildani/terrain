@@ -325,7 +325,9 @@ function RegulatoryForm({ onSubmit, isLoading }: { onSubmit: (data: RegulatoryFo
 // MAIN PAGE
 // ────────────────────────────────────────────────────────────
 
-export default function RegulatoryPage() {
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+
+function RegulatoryContent() {
   const { isPro } = useSubscription();
   const mutation = useMutation({
     mutationFn: async (formData: RegulatoryFormData) => {
@@ -393,5 +395,13 @@ export default function RegulatoryPage() {
       />
       {isPro ? content : <UpgradeGate feature="Regulatory Intelligence">{content}</UpgradeGate>}
     </>
+  );
+}
+
+export default function RegulatoryPage() {
+  return (
+    <ErrorBoundary>
+      <RegulatoryContent />
+    </ErrorBoundary>
   );
 }

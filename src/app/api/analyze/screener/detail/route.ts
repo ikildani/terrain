@@ -9,7 +9,7 @@ import { getCompetitorsForIndication, type CompetitorRecord } from '@/lib/data/c
 import { PHARMA_PARTNER_DATABASE } from '@/lib/data/partner-database';
 import { findIndicationByName } from '@/lib/data/indication-map';
 import { getCommunityDataForIndication, type CommunityPrevalenceEntry } from '@/lib/data/community-prevalence';
-import { sanitizePostgrestValue } from '@/lib/utils/sanitize';
+import { sanitizePostgrestValue, sanitizePostgrestSearch } from '@/lib/utils/sanitize';
 import type { ApiResponse } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -325,6 +325,7 @@ export async function POST(request: NextRequest) {
 
     // ── Supabase cache queries (in parallel) ────────────────
     const searchTerm = sanitizePostgrestValue(indication.trim());
+    const searchTermIlike = sanitizePostgrestSearch(indication.trim());
 
     // Derive approved/late-stage drug names for FDA approval lookup
     const approvedDrugNames = competitors
@@ -338,7 +339,7 @@ export async function POST(request: NextRequest) {
       supabase
         .from('clinical_trials_cache')
         .select(TRIALS_COLUMNS)
-        .or(`conditions.cs.{${searchTerm}},title.ilike.%${searchTerm}%`)
+        .or(`conditions.cs.{${searchTerm}},title.ilike.%${searchTermIlike}%`)
         .order('last_update_posted', { ascending: false })
         .limit(15),
 
@@ -347,7 +348,7 @@ export async function POST(request: NextRequest) {
         ? supabase
             .from('sec_filings_cache')
             .select(SEC_COLUMNS)
-            .or(competitorCompanies.map((c) => `company_name.ilike.%${sanitizePostgrestValue(c)}%`).join(','))
+            .or(competitorCompanies.map((c) => `company_name.ilike.%${sanitizePostgrestSearch(c)}%`).join(','))
             .order('filed_date', { ascending: false })
             .limit(10)
         : Promise.resolve({ data: [] as SecFiling[], error: null }),
@@ -361,7 +362,7 @@ export async function POST(request: NextRequest) {
               approvedDrugNames
                 .map(
                   (d) =>
-                    `brand_name.ilike.%${sanitizePostgrestValue(d)}%,generic_name.ilike.%${sanitizePostgrestValue(d)}%`,
+                    `brand_name.ilike.%${sanitizePostgrestSearch(d)}%,generic_name.ilike.%${sanitizePostgrestSearch(d)}%`,
                 )
                 .join(','),
             )

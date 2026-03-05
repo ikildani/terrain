@@ -101,6 +101,8 @@ export interface CommunityDisparity {
   modality_gap_count: number;
 }
 
+export type DataConfidence = 'high' | 'medium' | 'low';
+
 export interface OpportunityRow {
   indication: string;
   therapy_area: string;
@@ -123,6 +125,7 @@ export interface OpportunityRow {
   active_partner_count: number;
   community_disparities: CommunityDisparity[];
   emerging_asset_count: number;
+  data_confidence: DataConfidence;
 }
 
 export interface ScreenerResult {
@@ -147,7 +150,7 @@ interface CrowdingResult {
  */
 function computeCrowdingScore(competitors: CompetitorRecord[]): CrowdingResult {
   if (competitors.length === 0) {
-    return { score: 0, label: 'empty' };
+    return { score: 0, label: 'no_data' };
   }
 
   // Phase-weighted count
@@ -412,9 +415,14 @@ function scoreMarketAttractiveness(globalPrevalence: number, cagrPct: number): n
 /**
  * Competitive Openness (0-25):
  * Inverse of crowding — a crowding score of 0 yields 25, and 10 yields 0.
+ * When competitorCount is 0, caps at 15/25 to avoid inflating empty markets
+ * where the high openness may simply reflect missing data rather than a
+ * genuinely uncontested opportunity.
  */
-function scoreCompetitiveOpenness(crowdingScore: number): number {
-  return Math.round(25 * (1 - crowdingScore / 10) * 10) / 10;
+function scoreCompetitiveOpenness(crowdingScore: number, competitorCount: number): number {
+  const raw = Math.round(25 * (1 - crowdingScore / 10) * 10) / 10;
+  if (competitorCount === 0) return Math.min(raw, 15);
+  return raw;
 }
 
 /**
@@ -542,7 +550,7 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
 
   // 5-dimension scoring
   const marketAttractiveness = scoreMarketAttractiveness(globalPrevalence, indication.cagr_5yr);
-  const competitiveOpenness = scoreCompetitiveOpenness(crowdingScore);
+  const competitiveOpenness = scoreCompetitiveOpenness(crowdingScore, competitorCount);
   const unmetNeed = scoreUnmetNeed(indication.treatment_rate, indication.diagnosis_rate);
   const developmentFeasibility = scoreDevelopmentFeasibility(indication.therapy_area);
   const { score: partnerLandscapeScore, activeCount } = scorePartnerLandscape(indication.therapy_area);
@@ -590,6 +598,9 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
   const earlyPhases = new Set(['Preclinical', 'Phase 1', 'Phase 1/2']);
   const emergingAssetCount = competitors.filter((c) => earlyPhases.has(c.phase) && !c.partner).length;
 
+  // Data confidence based on competitor coverage
+  const dataConfidence: DataConfidence = competitorCount >= 5 ? 'high' : competitorCount >= 1 ? 'medium' : 'low';
+
   const row: OpportunityRow = {
     indication: indication.name,
     therapy_area: indication.therapy_area,
@@ -618,6 +629,7 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
     active_partner_count: activeCount,
     community_disparities: communityDisparities,
     emerging_asset_count: emergingAssetCount,
+    data_confidence: dataConfidence,
   };
 
   return { row };
@@ -682,7 +694,9 @@ type SortableField =
   | 'active_partner_count'
   | 'indication'
   | 'therapy_area'
-  | 'unmet_need';
+  | 'unmet_need'
+  | 'community_count'
+  | 'emerging_asset_count';
 
 /**
  * Returns a numeric comparison value for sorting. String fields
@@ -734,6 +748,12 @@ function compareRows(a: OpportunityRow, b: OpportunityRow, sortBy: string, sortO
       break;
     case 'unmet_need':
       comparison = a.score_breakdown.unmet_need - b.score_breakdown.unmet_need;
+      break;
+    case 'community_count':
+      comparison = a.community_disparities.length - b.community_disparities.length;
+      break;
+    case 'emerging_asset_count':
+      comparison = a.emerging_asset_count - b.emerging_asset_count;
       break;
     default:
       comparison = a.opportunity_score - b.opportunity_score;

@@ -11,3 +11,14 @@ export function sanitizePostgrestValue(value: string): string {
     .replace(/[\x00-\x1f]/g, '')
     .trim();
 }
+
+/**
+ * Sanitize a string for safe use in PostgREST `.ilike()` patterns.
+ * In addition to PostgREST metacharacter removal, this escapes SQL
+ * wildcard characters (% and _) that would otherwise allow an attacker
+ * to broaden pattern matches beyond the intended search term.
+ */
+export function sanitizePostgrestSearch(value: string): string {
+  const base = sanitizePostgrestValue(value);
+  return base.replace(/%/g, '\\%').replace(/_/g, '\\_');
+}

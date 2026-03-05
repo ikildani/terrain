@@ -105,7 +105,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   offers: {
                     '@type': 'AggregateOffer',
                     lowPrice: '0',
-                    highPrice: '799',
+                    highPrice: '499',
                     priceCurrency: 'USD',
                   },
                   creator: {

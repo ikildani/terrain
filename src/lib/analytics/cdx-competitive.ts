@@ -49,16 +49,16 @@ const CURRENT_YEAR = new Date().getFullYear();
  * same biological target.
  */
 const BIOMARKER_ALIASES: Record<string, string[]> = {
-  'PD-L1':  ['PDL1', 'PD-L1', 'CD274'],
-  'EGFR':   ['EGFR', 'HER1', 'ERBB1'],
-  'HER2':   ['HER2', 'ERBB2', 'neu'],
-  'ALK':    ['ALK', 'ALK rearrangement', 'EML4-ALK'],
-  'BRCA':   ['BRCA1', 'BRCA2', 'BRCA1/2'],
-  'MSI':    ['MSI', 'MSI-H', 'microsatellite instability'],
-  'TMB':    ['TMB', 'tumor mutational burden'],
-  'KRAS':   ['KRAS', 'KRAS G12C'],
-  'MRD':    ['MRD', 'ctDNA', 'minimal residual disease'],
-  'HRD':    ['HRD', 'homologous recombination deficiency'],
+  'PD-L1': ['PDL1', 'PD-L1', 'CD274'],
+  EGFR: ['EGFR', 'HER1', 'ERBB1'],
+  HER2: ['HER2', 'ERBB2', 'neu'],
+  ALK: ['ALK', 'ALK rearrangement', 'EML4-ALK'],
+  BRCA: ['BRCA1', 'BRCA2', 'BRCA1/2'],
+  MSI: ['MSI', 'MSI-H', 'microsatellite instability'],
+  TMB: ['TMB', 'tumor mutational burden'],
+  KRAS: ['KRAS', 'KRAS G12C'],
+  MRD: ['MRD', 'ctDNA', 'minimal residual disease'],
+  HRD: ['HRD', 'homologous recombination deficiency'],
 };
 
 /**
@@ -133,10 +133,11 @@ function retrieveCompetitors(input: CDxCompetitiveLandscapeInput): CDxCompetitor
   // Fallback: if no matches, try broader indication-based fuzzy match
   if (results.length === 0 && input.indication) {
     const needle = input.indication.toLowerCase();
-    results = CDX_COMPETITOR_DATABASE.filter((c) =>
-      c.biomarkers_covered.some((b) => b.toLowerCase().includes(needle)) ||
-      c.test_name.toLowerCase().includes(needle) ||
-      c.linked_drugs.some((d) => d.toLowerCase().includes(needle))
+    results = CDX_COMPETITOR_DATABASE.filter(
+      (c) =>
+        c.biomarkers_covered.some((b) => b.toLowerCase().includes(needle)) ||
+        c.test_name.toLowerCase().includes(needle) ||
+        c.linked_drugs.some((d) => d.toLowerCase().includes(needle)),
     );
   }
 
@@ -162,15 +163,12 @@ const PIPELINE_STATUSES: CDxRegulatoryStatus[] = ['LDT', 'development', 'submitt
  * Splits an array of CDx competitors into approved (on-market) tests and
  * pipeline / in-development tests.
  */
-function splitApprovedVsPipeline(
-  competitors: CDxCompetitor[]
-): { approved: CDxCompetitor[]; pipeline: CDxCompetitor[] } {
-  const approved = competitors.filter((c) =>
-    APPROVED_STATUSES.includes(c.regulatory_status)
-  );
-  const pipeline = competitors.filter((c) =>
-    PIPELINE_STATUSES.includes(c.regulatory_status)
-  );
+function splitApprovedVsPipeline(competitors: CDxCompetitor[]): {
+  approved: CDxCompetitor[];
+  pipeline: CDxCompetitor[];
+} {
+  const approved = competitors.filter((c) => APPROVED_STATUSES.includes(c.regulatory_status));
+  const pipeline = competitors.filter((c) => PIPELINE_STATUSES.includes(c.regulatory_status));
   return { approved, pipeline };
 }
 
@@ -180,13 +178,13 @@ function splitApprovedVsPipeline(
 
 /** Growth trend by platform type. */
 const PLATFORM_TREND: Record<CDxPlatform, CDxPlatformComparison['trend']> = {
-  NGS:           'growing',
-  PCR:           'stable',
-  IHC:           'stable',
-  FISH:          'declining',
+  NGS: 'growing',
+  PCR: 'stable',
+  IHC: 'stable',
+  FISH: 'declining',
   liquid_biopsy: 'growing',
-  ddPCR:         'growing',
-  microarray:    'stable',
+  ddPCR: 'growing',
+  microarray: 'stable',
 };
 
 /**
@@ -218,28 +216,22 @@ function buildPlatformComparison(competitors: CDxCompetitor[]): CDxPlatformCompa
     const testCount = tests.length;
 
     // Average turnaround (filter undefined)
-    const turnaroundValues = tests
-      .filter((t) => t.turnaround_days != null)
-      .map((t) => t.turnaround_days as number);
-    const avgTurnaround = turnaroundValues.length > 0
-      ? Math.round(turnaroundValues.reduce((a, b) => a + b, 0) / turnaroundValues.length)
-      : 0;
+    const turnaroundValues = tests.filter((t) => t.turnaround_days != null).map((t) => t.turnaround_days as number);
+    const avgTurnaround =
+      turnaroundValues.length > 0
+        ? Math.round(turnaroundValues.reduce((a, b) => a + b, 0) / turnaroundValues.length)
+        : 0;
 
     // Average price (filter undefined)
-    const priceValues = tests
-      .filter((t) => t.test_price_estimate != null)
-      .map((t) => t.test_price_estimate as number);
-    const avgPrice = priceValues.length > 0
-      ? Math.round(priceValues.reduce((a, b) => a + b, 0) / priceValues.length)
-      : 0;
+    const priceValues = tests.filter((t) => t.test_price_estimate != null).map((t) => t.test_price_estimate as number);
+    const avgPrice =
+      priceValues.length > 0 ? Math.round(priceValues.reduce((a, b) => a + b, 0) / priceValues.length) : 0;
 
     // Biomarker breadth based on average genes_in_panel
     const geneValues = tests
       .filter((t) => t.genes_in_panel != null && t.genes_in_panel > 0)
       .map((t) => t.genes_in_panel as number);
-    const avgGenes = geneValues.length > 0
-      ? geneValues.reduce((a, b) => a + b, 0) / geneValues.length
-      : 0;
+    const avgGenes = geneValues.length > 0 ? geneValues.reduce((a, b) => a + b, 0) / geneValues.length : 0;
     const breadth = assessBiomarkerBreadth(avgGenes);
 
     const trend = PLATFORM_TREND[platform] || 'stable';
@@ -271,11 +263,10 @@ function buildPlatformNarrative(
   avgTurnaround: number,
   avgPrice: number,
   breadth: CDxPlatformComparison['biomarker_breadth'],
-  trend: CDxPlatformComparison['trend']
+  trend: CDxPlatformComparison['trend'],
 ): string {
-  const platformLabel = platform === 'liquid_biopsy' ? 'Liquid Biopsy' :
-                        platform === 'ddPCR' ? 'ddPCR' :
-                        platform.toUpperCase();
+  const platformLabel =
+    platform === 'liquid_biopsy' ? 'Liquid Biopsy' : platform === 'ddPCR' ? 'ddPCR' : platform.toUpperCase();
 
   const parts: string[] = [];
 
@@ -311,53 +302,53 @@ function buildPlatformNarrative(
  * success of its linked drug.
  */
 const DRUG_REVENUE_ESTIMATES: Record<string, { company: string; revenue_m: number; phase: string }> = {
-  'keytruda':       { company: 'Merck', revenue_m: 25000, phase: 'approved' },
-  'pembrolizumab':  { company: 'Merck', revenue_m: 25000, phase: 'approved' },
-  'tagrisso':       { company: 'AstraZeneca', revenue_m: 5500, phase: 'approved' },
-  'osimertinib':    { company: 'AstraZeneca', revenue_m: 5500, phase: 'approved' },
-  'lynparza':       { company: 'AstraZeneca/Merck', revenue_m: 2500, phase: 'approved' },
-  'olaparib':       { company: 'AstraZeneca/Merck', revenue_m: 2500, phase: 'approved' },
-  'tecentriq':      { company: 'Roche', revenue_m: 3800, phase: 'approved' },
-  'atezolizumab':   { company: 'Roche', revenue_m: 3800, phase: 'approved' },
-  'imfinzi':        { company: 'AstraZeneca', revenue_m: 4200, phase: 'approved' },
-  'durvalumab':     { company: 'AstraZeneca', revenue_m: 4200, phase: 'approved' },
-  'herceptin':      { company: 'Roche', revenue_m: 3000, phase: 'approved' },
-  'trastuzumab':    { company: 'Roche', revenue_m: 3000, phase: 'approved' },
-  'enhertu':        { company: 'Daiichi Sankyo/AstraZeneca', revenue_m: 4000, phase: 'approved' },
-  'rozlytrek':      { company: 'Roche', revenue_m: 200, phase: 'approved' },
-  'entrectinib':    { company: 'Roche', revenue_m: 200, phase: 'approved' },
-  'vitrakvi':       { company: 'Bayer', revenue_m: 250, phase: 'approved' },
-  'larotrectinib':  { company: 'Bayer', revenue_m: 250, phase: 'approved' },
-  'lumakras':       { company: 'Amgen', revenue_m: 700, phase: 'approved' },
-  'sotorasib':      { company: 'Amgen', revenue_m: 700, phase: 'approved' },
-  'tabrecta':       { company: 'Novartis', revenue_m: 150, phase: 'approved' },
-  'capmatinib':     { company: 'Novartis', revenue_m: 150, phase: 'approved' },
-  'rybrevant':      { company: 'Janssen', revenue_m: 500, phase: 'approved' },
-  'amivantamab':    { company: 'Janssen', revenue_m: 500, phase: 'approved' },
-  'rubraca':        { company: 'GSK', revenue_m: 150, phase: 'approved' },
-  'rucaparib':      { company: 'GSK', revenue_m: 150, phase: 'approved' },
-  'piqray':         { company: 'Novartis', revenue_m: 350, phase: 'approved' },
-  'alpelisib':      { company: 'Novartis', revenue_m: 350, phase: 'approved' },
-  'xalkori':        { company: 'Pfizer', revenue_m: 300, phase: 'approved' },
-  'crizotinib':     { company: 'Pfizer', revenue_m: 300, phase: 'approved' },
-  'alecensa':       { company: 'Roche', revenue_m: 1500, phase: 'approved' },
-  'alectinib':      { company: 'Roche', revenue_m: 1500, phase: 'approved' },
-  'lorbrena':       { company: 'Pfizer', revenue_m: 800, phase: 'approved' },
-  'lorlatinib':     { company: 'Pfizer', revenue_m: 800, phase: 'approved' },
-  'zelboraf':       { company: 'Roche', revenue_m: 100, phase: 'approved' },
-  'vemurafenib':    { company: 'Roche', revenue_m: 100, phase: 'approved' },
-  'tafinlar':       { company: 'Novartis', revenue_m: 2200, phase: 'approved' },
-  'dabrafenib':     { company: 'Novartis', revenue_m: 2200, phase: 'approved' },
-  'mekinist':       { company: 'Novartis', revenue_m: 2200, phase: 'approved' },
-  'trametinib':     { company: 'Novartis', revenue_m: 2200, phase: 'approved' },
-  'iressa':         { company: 'AstraZeneca', revenue_m: 200, phase: 'approved' },
-  'gefitinib':      { company: 'AstraZeneca', revenue_m: 200, phase: 'approved' },
-  'tarceva':        { company: 'Roche', revenue_m: 300, phase: 'approved' },
-  'erlotinib':      { company: 'Roche', revenue_m: 300, phase: 'approved' },
-  'kadcyla':        { company: 'Roche', revenue_m: 1800, phase: 'approved' },
-  'zejula':         { company: 'GSK', revenue_m: 400, phase: 'approved' },
-  'niraparib':      { company: 'GSK', revenue_m: 400, phase: 'approved' },
-  'talazoparib':    { company: 'Pfizer', revenue_m: 300, phase: 'approved' },
+  keytruda: { company: 'Merck', revenue_m: 25000, phase: 'approved' },
+  pembrolizumab: { company: 'Merck', revenue_m: 25000, phase: 'approved' },
+  tagrisso: { company: 'AstraZeneca', revenue_m: 5500, phase: 'approved' },
+  osimertinib: { company: 'AstraZeneca', revenue_m: 5500, phase: 'approved' },
+  lynparza: { company: 'AstraZeneca/Merck', revenue_m: 2500, phase: 'approved' },
+  olaparib: { company: 'AstraZeneca/Merck', revenue_m: 2500, phase: 'approved' },
+  tecentriq: { company: 'Roche', revenue_m: 3800, phase: 'approved' },
+  atezolizumab: { company: 'Roche', revenue_m: 3800, phase: 'approved' },
+  imfinzi: { company: 'AstraZeneca', revenue_m: 4200, phase: 'approved' },
+  durvalumab: { company: 'AstraZeneca', revenue_m: 4200, phase: 'approved' },
+  herceptin: { company: 'Roche', revenue_m: 3000, phase: 'approved' },
+  trastuzumab: { company: 'Roche', revenue_m: 3000, phase: 'approved' },
+  enhertu: { company: 'Daiichi Sankyo/AstraZeneca', revenue_m: 4000, phase: 'approved' },
+  rozlytrek: { company: 'Roche', revenue_m: 200, phase: 'approved' },
+  entrectinib: { company: 'Roche', revenue_m: 200, phase: 'approved' },
+  vitrakvi: { company: 'Bayer', revenue_m: 250, phase: 'approved' },
+  larotrectinib: { company: 'Bayer', revenue_m: 250, phase: 'approved' },
+  lumakras: { company: 'Amgen', revenue_m: 700, phase: 'approved' },
+  sotorasib: { company: 'Amgen', revenue_m: 700, phase: 'approved' },
+  tabrecta: { company: 'Novartis', revenue_m: 150, phase: 'approved' },
+  capmatinib: { company: 'Novartis', revenue_m: 150, phase: 'approved' },
+  rybrevant: { company: 'Janssen', revenue_m: 500, phase: 'approved' },
+  amivantamab: { company: 'Janssen', revenue_m: 500, phase: 'approved' },
+  rubraca: { company: 'GSK', revenue_m: 150, phase: 'approved' },
+  rucaparib: { company: 'GSK', revenue_m: 150, phase: 'approved' },
+  piqray: { company: 'Novartis', revenue_m: 350, phase: 'approved' },
+  alpelisib: { company: 'Novartis', revenue_m: 350, phase: 'approved' },
+  xalkori: { company: 'Pfizer', revenue_m: 300, phase: 'approved' },
+  crizotinib: { company: 'Pfizer', revenue_m: 300, phase: 'approved' },
+  alecensa: { company: 'Roche', revenue_m: 1500, phase: 'approved' },
+  alectinib: { company: 'Roche', revenue_m: 1500, phase: 'approved' },
+  lorbrena: { company: 'Pfizer', revenue_m: 800, phase: 'approved' },
+  lorlatinib: { company: 'Pfizer', revenue_m: 800, phase: 'approved' },
+  zelboraf: { company: 'Roche', revenue_m: 100, phase: 'approved' },
+  vemurafenib: { company: 'Roche', revenue_m: 100, phase: 'approved' },
+  tafinlar: { company: 'Novartis', revenue_m: 2200, phase: 'approved' },
+  dabrafenib: { company: 'Novartis', revenue_m: 2200, phase: 'approved' },
+  mekinist: { company: 'Novartis', revenue_m: 2200, phase: 'approved' },
+  trametinib: { company: 'Novartis', revenue_m: 2200, phase: 'approved' },
+  iressa: { company: 'AstraZeneca', revenue_m: 200, phase: 'approved' },
+  gefitinib: { company: 'AstraZeneca', revenue_m: 200, phase: 'approved' },
+  tarceva: { company: 'Roche', revenue_m: 300, phase: 'approved' },
+  erlotinib: { company: 'Roche', revenue_m: 300, phase: 'approved' },
+  kadcyla: { company: 'Roche', revenue_m: 1800, phase: 'approved' },
+  zejula: { company: 'GSK', revenue_m: 400, phase: 'approved' },
+  niraparib: { company: 'GSK', revenue_m: 400, phase: 'approved' },
+  talazoparib: { company: 'Pfizer', revenue_m: 300, phase: 'approved' },
 };
 
 /**
@@ -371,7 +362,10 @@ function extractDrugKey(drugString: string): string {
     return match[1].toLowerCase().trim();
   }
   // Fall back to the brand name
-  return drugString.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+  return drugString
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
 }
 
 /**
@@ -384,7 +378,11 @@ function lookupDrugRevenue(drugString: string): { company: string; revenue_m: nu
     return DRUG_REVENUE_ESTIMATES[generic];
   }
   // Try the brand name portion
-  const brand = drugString.split('(')[0].toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+  const brand = drugString
+    .split('(')[0]
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
   if (DRUG_REVENUE_ESTIMATES[brand]) {
     return DRUG_REVENUE_ESTIMATES[brand];
   }
@@ -455,25 +453,25 @@ function buildLinkedDrugDependency(competitors: CDxCompetitor[]): CDxLinkedDrugD
  * patients who actually receive testing for this biomarker.
  */
 const BIOMARKER_TESTING_RATES: Record<string, number> = {
-  'EGFR':   80,
-  'PD-L1':  70,
-  'ALK':    75,
-  'BRAF':   60,
-  'HER2':   95,
-  'BRCA':   40,
-  'BRCA1':  40,
-  'BRCA2':  40,
-  'TMB':    30,
-  'MSI':    50,
-  'KRAS':   50,
-  'ROS1':   65,
-  'NTRK':   40,
-  'MET':    45,
-  'RET':    45,
-  'PIK3CA': 35,
-  'HRD':    30,
-  'MRD':    15,
-  'ctDNA':  15,
+  EGFR: 80,
+  'PD-L1': 70,
+  ALK: 75,
+  BRAF: 60,
+  HER2: 95,
+  BRCA: 40,
+  BRCA1: 40,
+  BRCA2: 40,
+  TMB: 30,
+  MSI: 50,
+  KRAS: 50,
+  ROS1: 65,
+  NTRK: 40,
+  MET: 45,
+  RET: 45,
+  PIK3CA: 35,
+  HRD: 30,
+  MRD: 15,
+  ctDNA: 15,
 };
 
 /**
@@ -481,25 +479,40 @@ const BIOMARKER_TESTING_RATES: Record<string, number> = {
  * Used to enrich the competition matrix with drug context.
  */
 const BIOMARKER_DRUG_MAP: Record<string, { approved: string[]; pipeline: string[] }> = {
-  'EGFR':   { approved: ['Tagrisso', 'Iressa', 'Tarceva', 'Gilotrif', 'Vizimpro', 'Rybrevant'], pipeline: ['EGFR degraders', 'C797S inhibitors'] },
-  'PD-L1':  { approved: ['Keytruda', 'Tecentriq', 'Imfinzi', 'Bavencio', 'Opdivo'], pipeline: ['next-gen IO combinations', 'PD-L1 bispecifics'] },
-  'ALK':    { approved: ['Xalkori', 'Alecensa', 'Lorbrena', 'Zykadia', 'Alunbrig'], pipeline: ['NVL-655', 'TPX-0131'] },
-  'BRAF':   { approved: ['Zelboraf', 'Tafinlar + Mekinist', 'Braftovi + Mektovi'], pipeline: ['BRAF-dimer inhibitors'] },
-  'HER2':   { approved: ['Herceptin', 'Enhertu', 'Kadcyla', 'Perjeta', 'Tucatinib'], pipeline: ['HER2 bispecifics', 'next-gen ADCs'] },
-  'BRCA':   { approved: ['Lynparza', 'Rubraca', 'Zejula', 'Talazoparib'], pipeline: ['next-gen PARPi', 'PARPi combinations'] },
-  'BRCA1':  { approved: ['Lynparza', 'Rubraca', 'Zejula'], pipeline: ['next-gen PARPi'] },
-  'BRCA2':  { approved: ['Lynparza', 'Rubraca', 'Zejula'], pipeline: ['next-gen PARPi'] },
-  'TMB':    { approved: ['Keytruda (TMB-H)'], pipeline: ['IO biomarker-selected trials'] },
-  'MSI':    { approved: ['Keytruda (MSI-H)', 'Opdivo + Yervoy'], pipeline: ['tissue-agnostic IO'] },
-  'KRAS':   { approved: ['Lumakras', 'Krazati'], pipeline: ['KRAS G12D inhibitors', 'KRAS-ON inhibitors', 'RAS(ON) multi-selective'] },
-  'ROS1':   { approved: ['Xalkori', 'Rozlytrek', 'Lorbrena'], pipeline: ['NVL-520', 'taletrectinib'] },
-  'NTRK':   { approved: ['Vitrakvi', 'Rozlytrek'], pipeline: ['next-gen TRK inhibitors', 'selitrectinib'] },
-  'MET':    { approved: ['Tabrecta', 'Tepmetko'], pipeline: ['MET ADCs', 'bispecific MET x EGFR'] },
-  'RET':    { approved: ['Retevmo', 'Gavreto'], pipeline: ['next-gen RET inhibitors'] },
-  'PIK3CA': { approved: ['Piqray'], pipeline: ['PI3K-alpha selective inhibitors', 'PI3K degraders'] },
-  'HRD':    { approved: ['Lynparza (HRD+)', 'Zejula (HRD+)'], pipeline: ['combination PARPi + IO for HRD'] },
-  'MRD':    { approved: [], pipeline: ['MRD-guided adjuvant therapy trials', 'ctDNA-guided de-escalation'] },
-  'ctDNA':  { approved: [], pipeline: ['ctDNA-guided treatment decisions', 'MRD-based surveillance'] },
+  EGFR: {
+    approved: ['Tagrisso', 'Iressa', 'Tarceva', 'Gilotrif', 'Vizimpro', 'Rybrevant'],
+    pipeline: ['EGFR degraders', 'C797S inhibitors'],
+  },
+  'PD-L1': {
+    approved: ['Keytruda', 'Tecentriq', 'Imfinzi', 'Bavencio', 'Opdivo'],
+    pipeline: ['next-gen IO combinations', 'PD-L1 bispecifics'],
+  },
+  ALK: { approved: ['Xalkori', 'Alecensa', 'Lorbrena', 'Zykadia', 'Alunbrig'], pipeline: ['NVL-655', 'TPX-0131'] },
+  BRAF: { approved: ['Zelboraf', 'Tafinlar + Mekinist', 'Braftovi + Mektovi'], pipeline: ['BRAF-dimer inhibitors'] },
+  HER2: {
+    approved: ['Herceptin', 'Enhertu', 'Kadcyla', 'Perjeta', 'Tucatinib'],
+    pipeline: ['HER2 bispecifics', 'next-gen ADCs'],
+  },
+  BRCA: {
+    approved: ['Lynparza', 'Rubraca', 'Zejula', 'Talazoparib'],
+    pipeline: ['next-gen PARPi', 'PARPi combinations'],
+  },
+  BRCA1: { approved: ['Lynparza', 'Rubraca', 'Zejula'], pipeline: ['next-gen PARPi'] },
+  BRCA2: { approved: ['Lynparza', 'Rubraca', 'Zejula'], pipeline: ['next-gen PARPi'] },
+  TMB: { approved: ['Keytruda (TMB-H)'], pipeline: ['IO biomarker-selected trials'] },
+  MSI: { approved: ['Keytruda (MSI-H)', 'Opdivo + Yervoy'], pipeline: ['tissue-agnostic IO'] },
+  KRAS: {
+    approved: ['Lumakras', 'Krazati'],
+    pipeline: ['KRAS G12D inhibitors', 'KRAS-ON inhibitors', 'RAS(ON) multi-selective'],
+  },
+  ROS1: { approved: ['Xalkori', 'Rozlytrek', 'Lorbrena'], pipeline: ['NVL-520', 'taletrectinib'] },
+  NTRK: { approved: ['Vitrakvi', 'Rozlytrek'], pipeline: ['next-gen TRK inhibitors', 'selitrectinib'] },
+  MET: { approved: ['Tabrecta', 'Tepmetko'], pipeline: ['MET ADCs', 'bispecific MET x EGFR'] },
+  RET: { approved: ['Retevmo', 'Gavreto'], pipeline: ['next-gen RET inhibitors'] },
+  PIK3CA: { approved: ['Piqray'], pipeline: ['PI3K-alpha selective inhibitors', 'PI3K degraders'] },
+  HRD: { approved: ['Lynparza (HRD+)', 'Zejula (HRD+)'], pipeline: ['combination PARPi + IO for HRD'] },
+  MRD: { approved: [], pipeline: ['MRD-guided adjuvant therapy trials', 'ctDNA-guided de-escalation'] },
+  ctDNA: { approved: [], pipeline: ['ctDNA-guided treatment decisions', 'MRD-based surveillance'] },
 };
 
 /**
@@ -564,9 +577,12 @@ function getDrugsForBiomarker(biomarker: string): { approved: string[]; pipeline
  * testing rates, and competitive intensity.
  */
 function buildBiomarkerCompetitionMatrix(competitors: CDxCompetitor[]): BiomarkerCompetitionEntry[] {
-  const biomarkerMap = new Map<string, {
-    tests: { test_name: string; company: string; platform: CDxPlatform }[];
-  }>();
+  const biomarkerMap = new Map<
+    string,
+    {
+      tests: { test_name: string; company: string; platform: CDxPlatform }[];
+    }
+  >();
 
   for (const c of competitors) {
     for (const bm of c.biomarkers_covered) {
@@ -576,9 +592,7 @@ function buildBiomarkerCompetitionMatrix(competitors: CDxCompetitor[]): Biomarke
       }
       const entry = biomarkerMap.get(key)!;
       // Avoid duplicate test entries
-      const alreadyListed = entry.tests.some(
-        (t) => t.test_name.toLowerCase() === c.test_name.toLowerCase()
-      );
+      const alreadyListed = entry.tests.some((t) => t.test_name.toLowerCase() === c.test_name.toLowerCase());
       if (!alreadyListed) {
         entry.tests.push({
           test_name: c.test_name,
@@ -618,19 +632,17 @@ function buildBiomarkerCompetitionMatrix(competitors: CDxCompetitor[]): Biomarke
  * Estimates the market-level growth rate based on the platform mix of
  * matched competitors. NGS-heavy mixes grow faster than PCR-heavy mixes.
  */
-function estimateGrowthRate(
-  byPlatform: { platform: CDxPlatform; share_pct: number }[]
-): number {
+function estimateGrowthRate(byPlatform: { platform: CDxPlatform; share_pct: number }[]): number {
   let weightedGrowth = 0;
 
   const platformGrowthRates: Record<CDxPlatform, number> = {
-    NGS:           18,
+    NGS: 18,
     liquid_biopsy: 28,
-    PCR:           4,
-    IHC:           3,
-    FISH:          -2,
-    ddPCR:         15,
-    microarray:    2,
+    PCR: 4,
+    IHC: 3,
+    FISH: -2,
+    ddPCR: 15,
+    microarray: 2,
   };
 
   for (const entry of byPlatform) {
@@ -646,13 +658,8 @@ function estimateGrowthRate(
  * Computes total estimated annual tests, platform share breakdown,
  * and estimated growth rate.
  */
-function buildTestingLandscape(
-  competitors: CDxCompetitor[]
-): CDxCompetitiveLandscapeOutput['testing_landscape'] {
-  const totalTests = competitors.reduce(
-    (sum, c) => sum + (c.estimated_annual_test_volume || 0),
-    0
-  );
+function buildTestingLandscape(competitors: CDxCompetitor[]): CDxCompetitiveLandscapeOutput['testing_landscape'] {
+  const totalTests = competitors.reduce((sum, c) => sum + (c.estimated_annual_test_volume || 0), 0);
 
   // Platform breakdown by test volume
   const platformVolumes = new Map<CDxPlatform, number>();
@@ -664,9 +671,7 @@ function buildTestingLandscape(
   const byPlatform = Array.from(platformVolumes.entries())
     .map(([platform, volume]) => ({
       platform,
-      share_pct: totalTests > 0
-        ? Math.round((volume / totalTests) * 1000) / 10
-        : 0,
+      share_pct: totalTests > 0 ? Math.round((volume / totalTests) * 1000) / 10 : 0,
     }))
     .sort((a, b) => b.share_pct - a.share_pct);
 
@@ -695,7 +700,7 @@ function computeCrowdingScore(
   approved: CDxCompetitor[],
   pipeline: CDxCompetitor[],
   allCompetitors: CDxCompetitor[],
-  biomarkerMatrix: BiomarkerCompetitionEntry[]
+  biomarkerMatrix: BiomarkerCompetitionEntry[],
 ): { score: number; label: CDxCompetitiveLandscapeOutput['summary']['crowding_label'] } {
   if (allCompetitors.length === 0) {
     return { score: 1, label: 'Low' };
@@ -730,9 +735,10 @@ function computeCrowdingScore(
 
   // Factor 4: Biomarker coverage overlap (0-10, weight 0.20)
   // High overlap = high crowding
-  const avgTestsPerBiomarker = biomarkerMatrix.length > 0
-    ? biomarkerMatrix.reduce((sum, bm) => sum + bm.tests_detecting.length, 0) / biomarkerMatrix.length
-    : 0;
+  const avgTestsPerBiomarker =
+    biomarkerMatrix.length > 0
+      ? biomarkerMatrix.reduce((sum, bm) => sum + bm.tests_detecting.length, 0) / biomarkerMatrix.length
+      : 0;
   let overlapScore: number;
   if (avgTestsPerBiomarker >= 8) overlapScore = 10;
   else if (avgTestsPerBiomarker >= 5) overlapScore = 8;
@@ -741,10 +747,7 @@ function computeCrowdingScore(
   else overlapScore = 2;
 
   // Factor 5: Total test volume (0-10, weight 0.20)
-  const totalVolume = allCompetitors.reduce(
-    (sum, c) => sum + (c.estimated_annual_test_volume || 0),
-    0
-  );
+  const totalVolume = allCompetitors.reduce((sum, c) => sum + (c.estimated_annual_test_volume || 0), 0);
   let volumeScore: number;
   if (totalVolume >= 5000000) volumeScore = 10;
   else if (totalVolume >= 1000000) volumeScore = 8;
@@ -754,11 +757,7 @@ function computeCrowdingScore(
 
   // Weighted composite
   const rawScore =
-    approvedScore * 0.25 +
-    pipelineScore * 0.20 +
-    platformScore * 0.15 +
-    overlapScore * 0.20 +
-    volumeScore * 0.20;
+    approvedScore * 0.25 + pipelineScore * 0.2 + platformScore * 0.15 + overlapScore * 0.2 + volumeScore * 0.2;
 
   const finalScore = Math.min(Math.max(Math.round(rawScore * 10) / 10, 1), 10);
 
@@ -784,7 +783,7 @@ function identifyWhiteSpace(
   competitors: CDxCompetitor[],
   biomarkerMatrix: BiomarkerCompetitionEntry[],
   platformComparison: CDxPlatformComparison[],
-  inputBiomarker: string
+  inputBiomarker: string,
 ): string[] {
   const whiteSpaces: string[] = [];
 
@@ -792,7 +791,7 @@ function identifyWhiteSpace(
   for (const bm of biomarkerMatrix) {
     if (bm.linked_drugs_pipeline.length >= 2 && bm.tests_detecting.length <= 2) {
       whiteSpaces.push(
-        `${bm.biomarker} has ${bm.linked_drugs_pipeline.length} pipeline drugs but only ${bm.tests_detecting.length} CDx test${bm.tests_detecting.length !== 1 ? 's' : ''} — strong CDx development opportunity.`
+        `${bm.biomarker} has ${bm.linked_drugs_pipeline.length} pipeline drugs but only ${bm.tests_detecting.length} CDx test${bm.tests_detecting.length !== 1 ? 's' : ''} — strong CDx development opportunity.`,
       );
     }
   }
@@ -803,12 +802,12 @@ function identifyWhiteSpace(
 
   if (!representedPlatforms.has('liquid_biopsy')) {
     whiteSpaces.push(
-      `No liquid biopsy option detected for ${inputBiomarker} — blood-based testing could address tissue-insufficient patients and enable serial monitoring.`
+      `No liquid biopsy option detected for ${inputBiomarker} — blood-based testing could address tissue-insufficient patients and enable serial monitoring.`,
     );
   }
   if (!representedPlatforms.has('NGS') && competitors.length > 0) {
     whiteSpaces.push(
-      `No NGS panel includes ${inputBiomarker} as a primary focus — comprehensive genomic profiling opportunity.`
+      `No NGS panel includes ${inputBiomarker} as a primary focus — comprehensive genomic profiling opportunity.`,
     );
   }
 
@@ -816,20 +815,18 @@ function identifyWhiteSpace(
   for (const bm of biomarkerMatrix) {
     if (bm.testing_rate_pct < 40 && bm.linked_drugs_approved.length > 0) {
       whiteSpaces.push(
-        `${bm.biomarker} testing rate is only ${bm.testing_rate_pct}% despite ${bm.linked_drugs_approved.length} approved linked drug${bm.linked_drugs_approved.length !== 1 ? 's' : ''} — market expansion opportunity through better test access.`
+        `${bm.biomarker} testing rate is only ${bm.testing_rate_pct}% despite ${bm.linked_drugs_approved.length} approved linked drug${bm.linked_drugs_approved.length !== 1 ? 's' : ''} — market expansion opportunity through better test access.`,
       );
     }
   }
 
   // Gap 4: MRD monitoring opportunity
   const hasMRD = competitors.some((c) =>
-    c.biomarkers_covered.some((b) =>
-      b.toLowerCase().includes('mrd') || b.toLowerCase().includes('ctdna')
-    )
+    c.biomarkers_covered.some((b) => b.toLowerCase().includes('mrd') || b.toLowerCase().includes('ctdna')),
   );
   if (!hasMRD) {
     whiteSpaces.push(
-      'No MRD/ctDNA monitoring test in this competitive set — longitudinal monitoring represents a rapidly growing market segment ($3B+ TAM by 2028).'
+      'No MRD/ctDNA monitoring test in this competitive set — longitudinal monitoring represents a rapidly growing market segment ($3B+ TAM by 2028).',
     );
   }
 
@@ -841,7 +838,7 @@ function identifyWhiteSpace(
     const minPrice = Math.min(...priceValues);
     if (minPrice > 2000) {
       whiteSpaces.push(
-        `The lowest-cost test in this landscape is ~$${minPrice.toLocaleString()} — a sub-$1,000 rapid turnaround option could capture community oncology volume.`
+        `The lowest-cost test in this landscape is ~$${minPrice.toLocaleString()} — a sub-$1,000 rapid turnaround option could capture community oncology volume.`,
       );
     }
   }
@@ -850,7 +847,7 @@ function identifyWhiteSpace(
   for (const platform of allPlatforms) {
     if (!representedPlatforms.has(platform) && PLATFORM_TREND[platform] === 'growing' && platform !== 'liquid_biopsy') {
       whiteSpaces.push(
-        `${platform === 'ddPCR' ? 'ddPCR' : platform.toUpperCase()} platform is absent from this landscape despite being on a growth trajectory.`
+        `${platform === 'ddPCR' ? 'ddPCR' : platform.toUpperCase()} platform is absent from this landscape despite being on a growth trajectory.`,
       );
     }
   }
@@ -878,9 +875,8 @@ function buildComparisonMatrix(competitors: CDxCompetitor[]): CompetitiveCompari
   // Attribute 1: Platform
   const platformRow: CompetitiveComparisonAttribute = { attribute: 'Platform', competitors: {} };
   for (const c of top) {
-    const label = c.platform === 'liquid_biopsy' ? 'Liquid Biopsy' :
-                  c.platform === 'ddPCR' ? 'ddPCR' :
-                  c.platform.toUpperCase();
+    const label =
+      c.platform === 'liquid_biopsy' ? 'Liquid Biopsy' : c.platform === 'ddPCR' ? 'ddPCR' : c.platform.toUpperCase();
     platformRow.competitors[`${c.company} — ${c.test_name}`] = label;
   }
   attributes.push(platformRow);
@@ -890,6 +886,7 @@ function buildComparisonMatrix(competitors: CDxCompetitor[]): CompetitiveCompari
   for (const c of top) {
     const statusLabels: Record<CDxRegulatoryStatus, string> = {
       PMA_approved: 'PMA Approved',
+      NMPA_approved: 'NMPA Approved',
       cleared: '510(k) Cleared',
       LDT: 'LDT',
       development: 'Development',
@@ -916,9 +913,8 @@ function buildComparisonMatrix(competitors: CDxCompetitor[]): CompetitiveCompari
   // Attribute 5: Price
   const priceRow: CompetitiveComparisonAttribute = { attribute: 'Estimated Price ($)', competitors: {} };
   for (const c of top) {
-    priceRow.competitors[`${c.company} — ${c.test_name}`] = c.test_price_estimate != null
-      ? `$${c.test_price_estimate.toLocaleString()}`
-      : 'N/A';
+    priceRow.competitors[`${c.company} — ${c.test_name}`] =
+      c.test_price_estimate != null ? `$${c.test_price_estimate.toLocaleString()}` : 'N/A';
   }
   attributes.push(priceRow);
 
@@ -1044,7 +1040,7 @@ const CDX_REFERENCE_DEALS: {
 function buildComparableCdxDeals(
   inputBiomarker: string,
   inputPlatform: CDxPlatform | undefined,
-  competitors: CDxCompetitor[]
+  competitors: CDxCompetitor[],
 ): CDxCompetitiveLandscapeOutput['comparable_cdx_deals'] {
   const biomarkerLower = inputBiomarker.toLowerCase();
   const aliases = resolveBiomarkerAliases(inputBiomarker).map((a) => a.toLowerCase());
@@ -1117,11 +1113,12 @@ function buildComparableCdxDeals(
 
   // Compute median deal value
   const values = filtered.map((d) => d.value_m).sort((a, b) => a - b);
-  const medianValue = values.length > 0
-    ? values.length % 2 === 0
-      ? Math.round((values[values.length / 2 - 1] + values[values.length / 2]) / 2)
-      : values[Math.floor(values.length / 2)]
-    : 0;
+  const medianValue =
+    values.length > 0
+      ? values.length % 2 === 0
+        ? Math.round((values[values.length / 2 - 1] + values[values.length / 2]) / 2)
+        : values[Math.floor(values.length / 2)]
+      : 0;
 
   return {
     deals: filtered,
@@ -1146,10 +1143,7 @@ function getDominantPlatform(platformComparison: CDxPlatformComparison[]): CDxPl
  * biomarker. Uses the biomarker competition matrix if available, otherwise
  * falls back to the BIOMARKER_TESTING_RATES lookup.
  */
-function getTestingPenetration(
-  inputBiomarker: string,
-  biomarkerMatrix: BiomarkerCompetitionEntry[]
-): number {
+function getTestingPenetration(inputBiomarker: string, biomarkerMatrix: BiomarkerCompetitionEntry[]): number {
   // Try to find the input biomarker in the matrix
   const upper = inputBiomarker.toUpperCase().trim();
   for (const bm of biomarkerMatrix) {
@@ -1169,12 +1163,15 @@ function buildKeyInsight(
   approved: CDxCompetitor[],
   pipeline: CDxCompetitor[],
   dominantPlatform: CDxPlatform,
-  testingPenetration: number
+  testingPenetration: number,
 ): string {
   const total = approved.length + pipeline.length;
-  const platformLabel = dominantPlatform === 'liquid_biopsy' ? 'liquid biopsy' :
-                        dominantPlatform === 'ddPCR' ? 'ddPCR' :
-                        dominantPlatform.toUpperCase();
+  const platformLabel =
+    dominantPlatform === 'liquid_biopsy'
+      ? 'liquid biopsy'
+      : dominantPlatform === 'ddPCR'
+        ? 'ddPCR'
+        : dominantPlatform.toUpperCase();
 
   if (crowding.score >= 8) {
     return `The ${inputBiomarker} CDx landscape is extremely crowded with ${total} tests across ${approved.length} approved and ${pipeline.length} pipeline/LDT. ${platformLabel} dominates. Testing penetration at ${testingPenetration}% suggests the market is maturing rapidly. Differentiation requires platform innovation, faster turnaround, lower cost, or novel biomarker combinations.`;
@@ -1263,9 +1260,7 @@ function buildDataSources(): CompetitiveDataSource[] {
  * console.log(output.summary.crowding_score); // e.g. 7.2
  * ```
  */
-export function analyzeCDxCompetitiveLandscape(
-  input: CDxCompetitiveLandscapeInput
-): CDxCompetitiveLandscapeOutput {
+export function analyzeCDxCompetitiveLandscape(input: CDxCompetitiveLandscapeInput): CDxCompetitiveLandscapeOutput {
   // ── Step 1: Biomarker alias resolution ──────────────────────────────────
   // (handled inside retrieveCompetitors via resolveBiomarkerAliases)
 
@@ -1291,22 +1286,13 @@ export function analyzeCDxCompetitiveLandscape(
   const crowding = computeCrowdingScore(approved, pipeline, allCompetitors, biomarkerMatrix);
 
   // ── Step 9: White space identification ──────────────────────────────────
-  const whiteSpaces = identifyWhiteSpace(
-    allCompetitors,
-    biomarkerMatrix,
-    platformComparison,
-    input.biomarker
-  );
+  const whiteSpaces = identifyWhiteSpace(allCompetitors, biomarkerMatrix, platformComparison, input.biomarker);
 
   // ── Step 10: Comparison matrix ──────────────────────────────────────────
   const comparisonMatrix = buildComparisonMatrix(allCompetitors);
 
   // ── Step 11: Comparable CDx deals ───────────────────────────────────────
-  const comparableDeals = buildComparableCdxDeals(
-    input.biomarker,
-    input.test_type,
-    allCompetitors
-  );
+  const comparableDeals = buildComparableCdxDeals(input.biomarker, input.test_type, allCompetitors);
 
   // ── Final: Output assembly ──────────────────────────────────────────────
   const dominantPlatform = getDominantPlatform(platformComparison);
@@ -1317,7 +1303,7 @@ export function analyzeCDxCompetitiveLandscape(
     approved,
     pipeline,
     dominantPlatform,
-    testingPenetration
+    testingPenetration,
   );
 
   return {

@@ -8,7 +8,7 @@ import { calculateDeviceMarketSizing, calculateCDxMarketSizing } from '@/lib/ana
 import { calculateNutraceuticalMarketSizing } from '@/lib/analytics/nutraceutical-market-sizing';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, withTiming, logApiRequest, logApiResponse, logBusinessEvent } from '@/lib/logger';
-import { sanitizePostgrestValue } from '@/lib/utils/sanitize';
+import { sanitizePostgrestValue, sanitizePostgrestSearch } from '@/lib/utils/sanitize';
 import type { ApiResponse } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -308,6 +308,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const searchTerm = sanitizePostgrestValue(indication.trim());
+      const searchTermIlike = sanitizePostgrestSearch(indication.trim());
 
       if (searchTerm) {
         const liveSupabase = createClient();
@@ -316,7 +317,7 @@ export async function POST(request: NextRequest) {
         const { count: trialsCount, error: trialsError } = await liveSupabase
           .from('clinical_trials_cache')
           .select('nct_id', { count: 'exact', head: true })
-          .or(`conditions.cs.{${searchTerm}},title.ilike.%${searchTerm}%`);
+          .or(`conditions.cs.{${searchTerm}},title.ilike.%${searchTermIlike}%`);
 
         if (trialsError) {
           logger.warn('market_live_trials_count_failed', {
@@ -331,7 +332,7 @@ export async function POST(request: NextRequest) {
         const { data: fdaData, error: fdaError } = await liveSupabase
           .from('fda_approvals_cache')
           .select('*')
-          .or(`brand_name.ilike.%${searchTerm}%,generic_name.ilike.%${searchTerm}%`)
+          .or(`brand_name.ilike.%${searchTermIlike}%,generic_name.ilike.%${searchTermIlike}%`)
           .limit(10);
 
         if (fdaError) {
@@ -418,9 +419,10 @@ export async function POST(request: NextRequest) {
       status: 500,
       durationMs: Math.round(performance.now() - routeStart),
     });
-    return NextResponse.json(
-      { success: false, error: 'Market analysis failed. Please try again.' } satisfies ApiResponse<never>,
-      { status: 500 },
-    );
+    // Surface the actual error to help users correct their input
+    const userMessage = message.includes('not found')
+      ? message // Pass through "Procedure/condition not found" etc.
+      : 'Market analysis failed. Please try again.';
+    return NextResponse.json({ success: false, error: userMessage } satisfies ApiResponse<never>, { status: 500 });
   }
 }

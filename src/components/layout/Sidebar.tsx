@@ -27,25 +27,26 @@ interface NavItem {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   pro?: boolean;
+  tourId?: string;
 }
 
 const NAV_SECTIONS: { section: string; items: NavItem[] }[] = [
   {
     section: 'Modules',
     items: [
-      { label: 'Market Sizing', href: '/market-sizing', icon: BarChart3 },
-      { label: 'Competitive Landscape', href: '/competitive', icon: Network },
+      { label: 'Market Sizing', href: '/market-sizing', icon: BarChart3, tourId: 'market-sizing' },
+      { label: 'Competitive Landscape', href: '/competitive', icon: Network, tourId: 'competitive' },
       { label: 'Partner Discovery', href: '/partners', icon: Users, pro: true },
       { label: 'Regulatory Intel', href: '/regulatory', icon: Shield, pro: true },
     ],
   },
   {
     section: 'Intelligence',
-    items: [{ label: 'Market Intelligence', href: '/intelligence', icon: Radio }],
+    items: [{ label: 'Market Intelligence', href: '/intelligence', icon: Radio, tourId: 'intelligence' }],
   },
   {
     section: 'Workspace',
-    items: [{ label: 'Saved Reports', href: '/reports', icon: FileText }],
+    items: [{ label: 'Saved Reports', href: '/reports', icon: FileText, tourId: 'reports' }],
   },
 ];
 
@@ -125,6 +126,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                       onClick={onClose}
                       className={cn('sidebar-nav-item', active && 'active')}
                       aria-current={active ? 'page' : undefined}
+                      {...(item.tourId ? { 'data-tour': item.tourId } : {})}
                     >
                       <Icon />
                       <span className="flex-1">{item.label}</span>

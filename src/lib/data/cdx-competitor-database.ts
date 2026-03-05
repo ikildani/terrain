@@ -536,7 +536,7 @@ const MRD_MONITORING: CDxCompetitor[] = [
     last_updated: '2025-01',
   },
   {
-    company: 'Invivoscribe',
+    company: 'Adaptive Biotechnologies',
     test_name: 'ClonoSEQ',
     platform: 'NGS',
     biomarkers_covered: ['IgH VDJ', 'IgH DJ', 'IgK', 'TCRβ', 'TCRδ', 'TCRγ (MRD hematologic)'],
@@ -1220,7 +1220,7 @@ const EMERGING: CDxCompetitor[] = [
     platform: 'NGS',
     biomarkers_covered: ['EGFR', 'ALK', 'ROS1', 'BRAF', 'KRAS', 'MET', 'RET', 'HER2', 'TMB', 'MSI'],
     linked_drugs: [],
-    regulatory_status: 'PMA_approved',
+    regulatory_status: 'NMPA_approved',
     genes_in_panel: 520,
     turnaround_days: 10,
     test_price_estimate: 3000,

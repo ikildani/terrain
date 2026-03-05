@@ -30,7 +30,7 @@ function SummaryStats({ rows, totalCount }: { rows: OpportunityRow[]; totalCount
 
   const avgScore = rows.reduce((sum, r) => sum + r.opportunity_score, 0) / rows.length;
   const highOpp = rows.filter((r) => r.opportunity_score >= 60).length;
-  const openMarkets = rows.filter((r) => r.crowding_score < 4).length;
+  const openMarkets = rows.filter((r) => r.crowding_score < 4 && r.crowding_label !== 'no_data').length;
   const therapyAreas = new Set(rows.map((r) => r.therapy_area)).size;
 
   return (
@@ -185,6 +185,9 @@ function exportCsv(data: OpportunityRow[]) {
     'Treatment Rate %',
     'Diagnosis Rate %',
     'CAGR 5yr %',
+    'Community Disparities',
+    'Emerging Assets',
+    'Data Confidence',
     'Top Competitors',
     'White Space',
   ];
@@ -203,6 +206,9 @@ function exportCsv(data: OpportunityRow[]) {
         (r.treatment_rate * 100).toFixed(0),
         (r.diagnosis_rate * 100).toFixed(0),
         r.cagr_5yr.toFixed(1),
+        r.community_disparities.length,
+        r.emerging_asset_count,
+        r.data_confidence,
         `"${r.top_competitors.join('; ')}"`,
         `"${r.white_space_hints.join('; ')}"`,
       ].join(','),

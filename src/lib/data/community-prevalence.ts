@@ -200,7 +200,7 @@ export const COMMUNITY_PREVALENCE_DATA: CommunityPrevalenceEntry[] = [
   // HISPANIC / LATINO COMMUNITY
   // ══════════════════════════════════════════════════════════
   {
-    indication: 'Non-Alcoholic Steatohepatitis',
+    indication: 'Metabolic Dysfunction-Associated Steatohepatitis',
     community: 'Hispanic / Latino',
     prevalence_multiplier: 1.5,
     affected_population_estimate: 9000000,
@@ -604,16 +604,64 @@ export const COMMUNITY_PREVALENCE_DATA: CommunityPrevalenceEntry[] = [
 // ────────────────────────────────────────────────────────────
 
 /**
+ * Alias map for community-prevalence indication names that don't directly
+ * match indication-map names. Keys are normalized community-prevalence names;
+ * values are alternative tokens that should also match.
+ */
+const COMMUNITY_INDICATION_ALIASES: Record<string, string[]> = {
+  'metabolic dysfunction-associated steatohepatitis': [
+    'nash',
+    'non-alcoholic steatohepatitis',
+    'mash',
+    'nonalcoholic steatohepatitis',
+  ],
+  stroke: ['ischemic stroke', 'cerebrovascular', 'hemorrhagic stroke'],
+  'heart failure': [
+    'heart failure with reduced ejection fraction',
+    'heart failure with preserved ejection fraction',
+    'hfref',
+    'hfpef',
+  ],
+  'breast cancer': ['triple negative breast cancer', 'her2-positive breast cancer', 'hr+/her2- breast cancer'],
+  'prostate cancer': ['metastatic castration-resistant prostate cancer', 'mcrpc', 'prostate'],
+  'bladder cancer': ['urothelial carcinoma', 'urothelial cancer', 'bladder'],
+  'nasopharyngeal cancer': ['nasopharyngeal carcinoma', 'npc'],
+};
+
+/**
  * Returns all community prevalence entries for a given indication.
+ * Uses substring matching plus an alias map for known naming mismatches
+ * between community-prevalence data and indication-map names.
  */
 export function getCommunityDataForIndication(indicationName: string): CommunityPrevalenceEntry[] {
   const normalized = indicationName.toLowerCase().trim();
-  return COMMUNITY_PREVALENCE_DATA.filter(
-    (entry) =>
-      entry.indication.toLowerCase() === normalized ||
-      entry.indication.toLowerCase().includes(normalized) ||
-      normalized.includes(entry.indication.toLowerCase()),
-  );
+  return COMMUNITY_PREVALENCE_DATA.filter((entry) => {
+    const entryName = entry.indication.toLowerCase();
+
+    // Direct exact or substring match
+    if (entryName === normalized || entryName.includes(normalized) || normalized.includes(entryName)) {
+      return true;
+    }
+
+    // Check if the entry's indication has aliases that match the query
+    const aliases = COMMUNITY_INDICATION_ALIASES[entryName];
+    if (aliases) {
+      for (const alias of aliases) {
+        if (alias.includes(normalized) || normalized.includes(alias)) return true;
+      }
+    }
+
+    // Check if the query matches an alias that maps back to the entry
+    for (const [canonical, aliasList] of Object.entries(COMMUNITY_INDICATION_ALIASES)) {
+      if (aliasList.some((a) => a.includes(normalized) || normalized.includes(a))) {
+        if (entryName === canonical || entryName.includes(canonical) || canonical.includes(entryName)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  });
 }
 
 /**

@@ -9,7 +9,7 @@ import { analyzeCDxCompetitiveLandscape } from '@/lib/analytics/cdx-competitive'
 import { analyzeNutraceuticalCompetitiveLandscape } from '@/lib/analytics/nutraceutical-competitive';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, withTiming, logApiRequest, logApiResponse, logBusinessEvent } from '@/lib/logger';
-import { sanitizePostgrestValue } from '@/lib/utils/sanitize';
+import { sanitizePostgrestValue, sanitizePostgrestSearch } from '@/lib/utils/sanitize';
 import type { ApiResponse } from '@/types';
 import type { DeviceCategory, CDxPlatform, NutraceuticalCategory } from '@/types/devices-diagnostics';
 
@@ -249,13 +249,14 @@ export async function POST(request: NextRequest) {
 
     try {
       const searchTerm = sanitizePostgrestValue(indication.trim());
+      const searchTermIlike = sanitizePostgrestSearch(indication.trim());
 
       if (searchTerm) {
         // Query clinical_trials_cache for trials matching the indication
         const { data: trialsData, error: trialsError } = await supabase
           .from('clinical_trials_cache')
           .select('nct_id, title, status, phase, sponsor, enrollment, conditions, interventions, last_update_posted')
-          .or(`conditions.cs.{${searchTerm}},title.ilike.%${searchTerm}%`)
+          .or(`conditions.cs.{${searchTerm}},title.ilike.%${searchTermIlike}%`)
           .limit(20)
           .order('last_update_posted', { ascending: false });
 
@@ -272,7 +273,7 @@ export async function POST(request: NextRequest) {
         const { data: fdaData, error: fdaError } = await supabase
           .from('fda_approvals_cache')
           .select('*')
-          .or(`brand_name.ilike.%${searchTerm}%,generic_name.ilike.%${searchTerm}%`)
+          .or(`brand_name.ilike.%${searchTermIlike}%,generic_name.ilike.%${searchTermIlike}%`)
           .limit(10);
 
         if (fdaError) {

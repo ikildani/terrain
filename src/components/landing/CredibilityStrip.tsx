@@ -5,19 +5,23 @@ export function CredibilityStrip() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
             <div className="font-mono text-2xl text-teal-400 font-medium mb-1">10,000+</div>
-            <div className="text-xs text-slate-500 uppercase tracking-wider">Transactions analyzed</div>
+            <div className="text-xs text-slate-500 uppercase tracking-wider">Transactions in database</div>
+            <div className="text-2xs text-slate-600 mt-1">Ambrosia Ventures deal library</div>
           </div>
           <div>
             <div className="font-mono text-2xl text-teal-400 font-medium mb-1">15+</div>
             <div className="text-xs text-slate-500 uppercase tracking-wider">Therapeutic areas</div>
+            <div className="text-2xs text-slate-600 mt-1">Oncology to rare disease</div>
           </div>
           <div>
-            <div className="font-mono text-2xl text-teal-400 font-medium mb-1">160+</div>
-            <div className="text-xs text-slate-500 uppercase tracking-wider">Biomarkers tracked</div>
+            <div className="font-mono text-2xl text-teal-400 font-medium mb-1">210+</div>
+            <div className="text-xs text-slate-500 uppercase tracking-wider">Indications covered</div>
+            <div className="text-2xs text-slate-600 mt-1">With epidemiology &amp; pricing data</div>
           </div>
           <div>
             <div className="font-mono text-2xl text-teal-400 font-medium mb-1">4</div>
             <div className="text-xs text-slate-500 uppercase tracking-wider">Product categories</div>
+            <div className="text-2xs text-slate-600 mt-1">Pharma, device, CDx, nutraceutical</div>
           </div>
         </div>
         <div className="mt-8 pt-6 border-t border-navy-700/40 text-center">

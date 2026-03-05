@@ -100,7 +100,9 @@ function getGreeting() {
   return 'Good evening';
 }
 
-export default function DashboardPage() {
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+
+function DashboardContent() {
   const { plan, isPro } = useSubscription();
   const { fullName } = useProfile();
   const limits = PLAN_LIMITS[plan];
@@ -481,5 +483,13 @@ export default function DashboardPage() {
         )}
       </div>
     </>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <ErrorBoundary>
+      <DashboardContent />
+    </ErrorBoundary>
   );
 }

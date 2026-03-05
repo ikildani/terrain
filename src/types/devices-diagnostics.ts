@@ -15,19 +15,19 @@
 
 export type ProductCategory =
   | 'pharmaceutical'
-  | 'nutraceutical'             // Dietary supplements, consumer health, longevity
-  | 'diagnostics_ivd'           // In vitro diagnostic (blood, tissue, urine)
-  | 'diagnostics_companion'     // CDx tied to a specific drug
-  | 'diagnostics_imaging'       // Imaging agents, PET tracers, contrast media
+  | 'nutraceutical' // Dietary supplements, consumer health, longevity
+  | 'diagnostics_ivd' // In vitro diagnostic (blood, tissue, urine)
+  | 'diagnostics_companion' // CDx tied to a specific drug
+  | 'diagnostics_imaging' // Imaging agents, PET tracers, contrast media
   | 'diagnostics_liquid_biopsy' // ctDNA, cfRNA, exosome-based assays
-  | 'diagnostics_pathology'     // Digital pathology, AI-assisted histology
-  | 'device_implantable'        // Permanent/semi-permanent implants
-  | 'device_surgical'           // OR instruments, robots, ablation
-  | 'device_monitoring'         // Wearables, CGM, remote monitoring
-  | 'device_drug_delivery'      // Combination product, drug-eluting
-  | 'device_digital_health'     // SaMD — software as a medical device
-  | 'device_capital_equipment'  // MRI, CT, radiation systems, NGS platforms
-  | 'device_point_of_care';     // POC testing, rapid diagnostics
+  | 'diagnostics_pathology' // Digital pathology, AI-assisted histology
+  | 'device_implantable' // Permanent/semi-permanent implants
+  | 'device_surgical' // OR instruments, robots, ablation
+  | 'device_monitoring' // Wearables, CGM, remote monitoring
+  | 'device_drug_delivery' // Combination product, drug-eluting
+  | 'device_digital_health' // SaMD — software as a medical device
+  | 'device_capital_equipment' // MRI, CT, radiation systems, NGS platforms
+  | 'device_point_of_care'; // POC testing, rapid diagnostics
 
 export type DeviceCategory =
   | 'cardiovascular'
@@ -89,14 +89,14 @@ export type DiagnosticRegPathway =
 // ────────────────────────────────────────────────────────────
 
 export type DevicePricingModel =
-  | 'per_procedure'        // Surgeon pays per use (surgical stapler)
-  | 'per_unit_capital'     // Capital equipment sale (robot, scanner)
-  | 'per_unit_disposable'  // Consumable at volume (catheter, test strip)
-  | 'reagent_rental'       // Capital placed free, revenue on reagents/cartridges
-  | 'subscription_samd'    // SaMD monthly/annual software subscription
-  | 'bundle'               // Capital + service + consumables bundled
-  | 'per_test'             // Diagnostic: lab charges per test run
-  | 'per_patient_year';    // Long-term monitoring subscription
+  | 'per_procedure' // Surgeon pays per use (surgical stapler)
+  | 'per_unit_capital' // Capital equipment sale (robot, scanner)
+  | 'per_unit_disposable' // Consumable at volume (catheter, test strip)
+  | 'reagent_rental' // Capital placed free, revenue on reagents/cartridges
+  | 'subscription_samd' // SaMD monthly/annual software subscription
+  | 'bundle' // Capital + service + consumables bundled
+  | 'per_test' // Diagnostic: lab charges per test run
+  | 'per_patient_year'; // Long-term monitoring subscription
 
 // ────────────────────────────────────────────────────────────
 // DEVICE MARKET SIZING — INPUT
@@ -106,15 +106,15 @@ export interface DeviceMarketSizingInput {
   product_name?: string;
   device_category: DeviceCategory;
   product_category: ProductCategory;
-  procedure_or_condition: string;        // e.g., "Total knee replacement" or "CGM for T1D"
+  procedure_or_condition: string; // e.g., "Total knee replacement" or "CGM for T1D"
   target_setting: ('hospital_inpatient' | 'hospital_outpatient' | 'asc' | 'office' | 'home' | 'lab')[];
   pricing_model: DevicePricingModel;
 
   // Pricing inputs
-  unit_ase: number;                      // Average Selling Price per unit/procedure USD
+  unit_ase: number; // Average Selling Price per unit/procedure USD
   disposables_per_procedure?: number;
   disposable_ase?: number;
-  service_contract_annual?: number;      // Annual service revenue per capital unit
+  service_contract_annual?: number; // Annual service revenue per capital unit
 
   // Market context
   development_stage: 'concept' | 'preclinical' | 'clinical_trial' | 'fda_submitted' | 'cleared_approved' | 'commercial';
@@ -130,7 +130,7 @@ export interface DeviceMarketSizingInput {
 // ────────────────────────────────────────────────────────────
 
 export interface RevenueStreamBreakdown {
-  stream: string;                        // "Capital Equipment" | "Disposables" | "Service"
+  stream: string; // "Capital Equipment" | "Disposables" | "Service"
   annual_revenue_per_unit: number;
   total_units_or_procedures: number;
   gross_revenue_m: number;
@@ -158,7 +158,7 @@ export interface DeviceMarketSizingOutput {
     total_us_sites: number;
     addressable_sites: number;
     peak_market_share: { low: number; base: number; high: number };
-    peak_installed_base?: number;        // For capital equipment
+    peak_installed_base?: number; // For capital equipment
     years_to_peak: number;
   };
 
@@ -217,15 +217,15 @@ export interface DeviceMarketSizingOutput {
 
 export interface CDxMarketSizingInput {
   drug_name?: string;
-  drug_indication: string;              // e.g., "NSCLC EGFR+"
-  biomarker: string;                    // e.g., "EGFR exon 19/21 deletion"
-  biomarker_prevalence_pct: number;     // % of indication that is biomarker positive
+  drug_indication: string; // e.g., "NSCLC EGFR+"
+  biomarker: string; // e.g., "EGFR exon 19/21 deletion"
+  biomarker_prevalence_pct: number; // % of indication that is biomarker positive
   test_type: 'IHC' | 'FISH' | 'PCR' | 'NGS_panel' | 'liquid_biopsy' | 'WGS' | 'RNA_seq';
   test_setting: ('pathology_lab' | 'central_lab' | 'point_of_care')[];
   drug_development_stage: string;
   cdx_development_stage: 'concept' | 'analytical_validation' | 'clinical_validation' | 'pma_submitted' | 'approved';
   geography: string[];
-  test_ase: number;                     // $ per test (lab to payer)
+  test_ase: number; // $ per test (lab to payer)
   is_standalone?: boolean;
   drug_partner?: string;
 }
@@ -259,7 +259,7 @@ export interface CDxOutput {
     biomarker_positive_pct: number;
     biomarker_positive_patients: number;
     treated_on_linked_drug: number;
-    monitoring_retests_annual: number;  // Repeat testing for monitoring/resistance
+    monitoring_retests_annual: number; // Repeat testing for monitoring/resistance
     total_annual_tests: number;
   };
 
@@ -317,7 +317,7 @@ export interface DeviceRegulatoryInput {
   clinical_data_available: boolean;
   is_combination_product: boolean;
   unmet_need: 'high' | 'moderate' | 'low';
-  patient_population_us?: number;       // For HDE eligibility (<8,000/yr)
+  patient_population_us?: number; // For HDE eligibility (<8,000/yr)
   geography: ('FDA' | 'CE_MDR' | 'CE_IVDR' | 'PMDA' | 'NMPA')[];
 }
 
@@ -394,13 +394,24 @@ export interface DevicePartnerDiscoveryInput {
   geography_rights: string[];
   deal_types: ('distribution' | 'licensing' | 'acquisition' | 'oem' | 'co_development' | 'strategic_investment')[];
   exclude_companies?: string[];
-  target_partner_type?: ('large_medtech' | 'mid_medtech' | 'diagnostics_company' | 'pharma_device_division' | 'strategic_investor')[];
+  target_partner_type?: (
+    | 'large_medtech'
+    | 'mid_medtech'
+    | 'diagnostics_company'
+    | 'pharma_device_division'
+    | 'strategic_investor'
+  )[];
 }
 
 export interface DevicePartnerMatch {
   rank: number;
   company: string;
-  company_type: 'Large Medtech' | 'Mid-Size Medtech' | 'Diagnostics Company' | 'Pharma with Device Division' | 'PE-Backed Medtech';
+  company_type:
+    | 'Large Medtech'
+    | 'Mid-Size Medtech'
+    | 'Diagnostics Company'
+    | 'Pharma with Device Division'
+    | 'PE-Backed Medtech';
   hq_location: string;
   market_cap?: string;
   device_divisions: string[];
@@ -747,45 +758,45 @@ export interface SurgeonSwitchingCostModel {
 // ────────────────────────────────────────────────────────────
 
 export type NutraceuticalCategory =
-  | 'dietary_supplement'        // DSHEA-regulated supplement
-  | 'functional_food'           // Food with health claims
-  | 'medical_food'              // FSMA-regulated medical food (IEM)
-  | 'otc_drug'                  // OTC monograph or NDA/ANDA
-  | 'rx_to_otc_switch'          // Rx-to-OTC conversion
-  | 'cosmeceutical'             // Cosmetic with active ingredients
-  | 'longevity_compound'        // NAD+, rapamycin analogs, senolytics
-  | 'probiotic_microbiome'      // Live biotherapeutics, probiotics
-  | 'sports_nutrition';         // Performance, recovery, body composition
+  | 'dietary_supplement' // DSHEA-regulated supplement
+  | 'functional_food' // Food with health claims
+  | 'medical_food' // FSMA-regulated medical food (IEM)
+  | 'otc_drug' // OTC monograph or NDA/ANDA
+  | 'rx_to_otc_switch' // Rx-to-OTC conversion
+  | 'cosmeceutical' // Cosmetic with active ingredients
+  | 'longevity_compound' // NAD+, rapamycin analogs, senolytics
+  | 'probiotic_microbiome' // Live biotherapeutics, probiotics
+  | 'sports_nutrition'; // Performance, recovery, body composition
 
 export type NutraceuticalChannel =
-  | 'dtc_ecommerce'             // Direct-to-consumer online
-  | 'amazon'                    // Amazon marketplace
-  | 'retail_mass'               // Walmart, Target, CVS, Walgreens
-  | 'retail_specialty'          // Whole Foods, Sprouts, GNC, Vitamin Shoppe
-  | 'practitioner'              // Healthcare practitioner dispensary
-  | 'subscription'              // Recurring subscription model
-  | 'wholesale_b2b';            // White-label / ingredient supplier
+  | 'dtc_ecommerce' // Direct-to-consumer online
+  | 'amazon' // Amazon marketplace
+  | 'retail_mass' // Walmart, Target, CVS, Walgreens
+  | 'retail_specialty' // Whole Foods, Sprouts, GNC, Vitamin Shoppe
+  | 'practitioner' // Healthcare practitioner dispensary
+  | 'subscription' // Recurring subscription model
+  | 'wholesale_b2b'; // White-label / ingredient supplier
 
 export type ClaimType =
-  | 'structure_function'        // "Supports immune health" (DSHEA, no FDA approval)
-  | 'qualified_health'          // "May reduce risk of..." (FDA-approved qualified claim)
-  | 'authorized_health'         // "Adequate calcium may reduce osteoporosis risk" (FDA-authorized)
-  | 'nutrient_content'          // "High in Vitamin C" (nutrient level claim)
-  | 'drug_claim'                // "Treats/cures/prevents X" — triggers FDA drug regulation
-  | 'cosmetic_claim';           // "Reduces appearance of wrinkles"
+  | 'structure_function' // "Supports immune health" (DSHEA, no FDA approval)
+  | 'qualified_health' // "May reduce risk of..." (FDA-approved qualified claim)
+  | 'authorized_health' // "Adequate calcium may reduce osteoporosis risk" (FDA-authorized)
+  | 'nutrient_content' // "High in Vitamin C" (nutrient level claim)
+  | 'drug_claim' // "Treats/cures/prevents X" — triggers FDA drug regulation
+  | 'cosmetic_claim'; // "Reduces appearance of wrinkles"
 
 export interface NutraceuticalMarketSizingInput {
   product_name?: string;
   product_category: 'nutraceutical';
   nutraceutical_category: NutraceuticalCategory;
-  primary_ingredient: string;           // e.g., "NMN (Nicotinamide Mononucleotide)"
-  health_focus: string;                 // e.g., "Longevity / NAD+ restoration"
-  target_demographic: string;           // e.g., "Adults 40-65, health-optimizers"
+  primary_ingredient: string; // e.g., "NMN (Nicotinamide Mononucleotide)"
+  health_focus: string; // e.g., "Longevity / NAD+ restoration"
+  target_demographic: string; // e.g., "Adults 40-65, health-optimizers"
   claim_type: ClaimType;
   channels: NutraceuticalChannel[];
-  unit_price: number;                   // Retail price per unit (bottle/box)
-  units_per_year_per_customer: number;  // Annual purchase frequency
-  cogs_pct: number;                     // Cost of goods as % of retail
+  unit_price: number; // Retail price per unit (bottle/box)
+  units_per_year_per_customer: number; // Annual purchase frequency
+  cogs_pct: number; // Cost of goods as % of retail
   geography: string[];
   development_stage: 'formulation' | 'clinical_study' | 'market_ready' | 'commercial';
   has_clinical_data: boolean;
@@ -1004,14 +1015,14 @@ export interface NutraceuticalPartnerProfile {
     upfront_range?: string;
     royalty_range?: string;
     revenue_share_range?: string;
-    typical_deal_type: string;    // 'acquisition' | 'licensing' | 'distribution' | 'co-development' | 'contract'
+    typical_deal_type: string; // 'acquisition' | 'licensing' | 'distribution' | 'co-development' | 'contract'
   };
   partnership_track_record?: {
     deals_last_5yr: number;
     notable_partnerships: string[];
     avg_deal_value_m?: number;
   };
-  strategic_priorities?: string[];  // e.g., "NAD+ longevity category", "GLP-1 adjacent supplements"
+  strategic_priorities?: string[]; // e.g., "NAD+ longevity category", "GLP-1 adjacent supplements"
 }
 
 export interface NutraceuticalPartnerMatch {
@@ -1057,7 +1068,7 @@ export interface ProcedureData {
   device_category: DeviceCategory;
 
   us_annual_procedures: number;
-  us_procedure_growth_rate: number;    // Annual % growth
+  us_procedure_growth_rate: number; // Annual % growth
   procedure_setting: string[];
 
   eligible_sites: {
@@ -1117,28 +1128,23 @@ export interface CompetitiveMarketShareDistribution {
 // ────────────────────────────────────────────────────────────
 
 export type DeviceRegulatoryStatus =
-  | 'cleared'         // 510(k) cleared
-  | 'approved'        // PMA approved
-  | 'de_novo'         // De Novo authorized
-  | 'ide_ongoing'     // IDE clinical study active
-  | 'submitted'       // Under FDA review
-  | 'development';    // Pre-submission
+  | 'cleared' // 510(k) cleared
+  | 'approved' // PMA approved
+  | 'de_novo' // De Novo authorized
+  | 'ide_ongoing' // IDE clinical study active
+  | 'submitted' // Under FDA review
+  | 'development'; // Pre-submission
 
 export type DeviceRegulatoryPathwayShort = '510k' | 'PMA' | 'De_Novo' | 'HDE' | 'EUA';
 
-export type ClinicalEvidenceLevel =
-  | 'RCT'
-  | 'registry'
-  | 'single_arm'
-  | 'case_series'
-  | 'bench_only';
+export type ClinicalEvidenceLevel = 'RCT' | 'registry' | 'single_arm' | 'case_series' | 'bench_only';
 
 export type TechnologyReadiness =
-  | 'concept'         // TRL 1-3
-  | 'prototype'       // TRL 4-5
-  | 'clinical'        // TRL 6-7
-  | 'commercial'      // TRL 8-9
-  | 'mature';         // Established, widely adopted
+  | 'concept' // TRL 1-3
+  | 'prototype' // TRL 4-5
+  | 'clinical' // TRL 6-7
+  | 'commercial' // TRL 8-9
+  | 'mature'; // Established, widely adopted
 
 export interface DeviceCompetitor {
   company: string;
@@ -1156,8 +1162,8 @@ export interface DeviceCompetitor {
   reimbursement_status: 'covered' | 'partial' | 'emerging' | 'none';
   clinical_evidence_level: ClinicalEvidenceLevel;
   technology_readiness: TechnologyReadiness;
-  differentiation_score: number;   // 1-10
-  evidence_strength: number;       // 1-10
+  differentiation_score: number; // 1-10
+  evidence_strength: number; // 1-10
   strengths: string[];
   weaknesses: string[];
   source: string;
@@ -1165,7 +1171,7 @@ export interface DeviceCompetitor {
 }
 
 export interface DeviceSwitchingCostAnalysis {
-  factor: string;                  // 'surgeon_training', 'or_workflow', 'capital_investment', 'implant_inventory'
+  factor: string; // 'surgeon_training', 'or_workflow', 'capital_investment', 'implant_inventory'
   severity: 'low' | 'moderate' | 'high';
   estimated_cost?: number;
   time_to_switch_months?: number;
@@ -1226,12 +1232,7 @@ export interface DeviceCompetitiveLandscapeOutput {
 
 export type CDxPlatform = 'NGS' | 'PCR' | 'IHC' | 'FISH' | 'liquid_biopsy' | 'ddPCR' | 'microarray';
 
-export type CDxRegulatoryStatus =
-  | 'PMA_approved'
-  | 'cleared'
-  | 'LDT'
-  | 'development'
-  | 'submitted';
+export type CDxRegulatoryStatus = 'PMA_approved' | 'NMPA_approved' | 'cleared' | 'LDT' | 'development' | 'submitted';
 
 export interface CDxCompetitor {
   company: string;
@@ -1243,11 +1244,11 @@ export interface CDxCompetitor {
   genes_in_panel?: number;
   turnaround_days?: number;
   test_price_estimate?: number;
-  sample_type: string[];         // 'tissue', 'blood', 'urine'
+  sample_type: string[]; // 'tissue', 'blood', 'urine'
   estimated_annual_test_volume?: number;
   estimated_revenue_m?: number;
   differentiation_score: number; // 1-10
-  evidence_strength: number;     // 1-10
+  evidence_strength: number; // 1-10
   strengths: string[];
   weaknesses: string[];
   source: string;
@@ -1337,8 +1338,8 @@ export interface NutraBrandCompetitor {
   amazon_bsr?: number;
   amazon_reviews?: number;
   amazon_rating?: number;
-  differentiation_score: number;  // 1-10
-  evidence_strength: number;      // 1-10
+  differentiation_score: number; // 1-10
+  evidence_strength: number; // 1-10
   strengths: string[];
   weaknesses: string[];
 }

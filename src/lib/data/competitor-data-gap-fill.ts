@@ -697,35 +697,7 @@ export const GAP_FILL_COMPETITORS: CompetitorRecord[] = [
   },
 
   // ── Waldenstrom Macroglobulinemia ─────────────────────────
-  {
-    asset_name: 'Brukinsa',
-    generic_name: 'zanubrutinib',
-    company: 'BeiGene',
-    indication: 'Waldenstrom Macroglobulinemia',
-    indication_specifics: 'FDA-approved for adult patients with WM, both treatment-naive and relapsed/refractory',
-    mechanism: 'Highly selective next-generation covalent BTK inhibitor with reduced off-target kinase inhibition',
-    mechanism_category: 'btk_inhibitor',
-    molecular_target: 'BTK',
-    phase: 'Approved',
-    primary_endpoint: 'Very good partial response rate (VGPR)',
-    key_data: 'ASPEN trial: VGPR 28.4% vs 19.5% ibrutinib; significantly lower atrial fibrillation rate (2% vs 15%)',
-    line_of_therapy: '1L and 2L+',
-    first_in_class: false,
-    orphan_drug: true,
-    has_biomarker_selection: false,
-    strengths: [
-      'Superior VGPR rate and cardiac safety profile compared to ibrutinib in head-to-head ASPEN trial',
-      'Higher BTK selectivity translates to fewer off-target cardiovascular and hemorrhagic events',
-      'Growing physician preference for zanubrutinib over ibrutinib as frontline WM therapy',
-    ],
-    weaknesses: [
-      'Requires twice-daily dosing versus ibrutinib once-daily',
-      'BeiGene smaller commercial presence in hematology compared to AbbVie/J&J',
-      'Neutropenia rates slightly higher than ibrutinib requiring monitoring',
-    ],
-    source: 'FDA label; ASPEN trial; BeiGene 10-K 2024',
-    last_updated: '2025-01-15',
-  },
+  // Brukinsa (zanubrutinib) entry for WM is in competitor-data-additional.ts — not duplicated here
   {
     asset_name: 'Imbruvica',
     generic_name: 'ibrutinib',

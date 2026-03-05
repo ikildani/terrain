@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { CommandPalette } from './CommandPalette';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+import { ProductTour } from '@/components/shared/ProductTour';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -34,18 +35,13 @@ export function DashboardShell({ children }: DashboardShellProps) {
       </a>
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="dashboard-layout">
-        <Topbar
-          onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
-          onSearchClick={openPalette}
-        />
+        <Topbar onMenuToggle={() => setSidebarOpen(!sidebarOpen)} onSearchClick={openPalette} />
         <main id="main-content" className="page-content">
           <ErrorBoundary>{children}</ErrorBoundary>
         </main>
       </div>
-      <CommandPalette
-        isOpen={commandPaletteOpen}
-        onClose={() => setCommandPaletteOpen(false)}
-      />
+      <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
+      <ProductTour />
     </>
   );
 }

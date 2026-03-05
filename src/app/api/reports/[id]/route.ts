@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { z } from 'zod';
 import { rateLimit } from '@/lib/rate-limit';
 
@@ -45,10 +46,12 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     .single();
 
   if (share) {
-    const { data: sharedReport } = await supabase.from('reports').select('*').eq('id', id).single();
+    // Use admin client to bypass RLS — we've already verified the share permission above
+    const adminSupabase = createAdminClient();
+    const { data: sharedReport } = await adminSupabase.from('reports').select('*').eq('id', id).single();
 
     if (sharedReport) {
-      return NextResponse.json({ success: true, data: sharedReport });
+      return NextResponse.json({ success: true, data: { ...sharedReport, _share_permission: share.permission } });
     }
   }
 

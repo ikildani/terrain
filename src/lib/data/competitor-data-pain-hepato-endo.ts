@@ -1677,4 +1677,311 @@ export const PAIN_HEPATO_ENDO_COMPETITORS: CompetitorRecord[] = [
     source: 'Rezolute pipeline 2024; NCT05071287; Phase 2 results presented at ENDO 2023',
     last_updated: '2025-01-15',
   },
+
+  // ══════════════════════════════════════════════════════════
+  // ENDOCRINOLOGY — Hyperthyroidism / Graves' Disease
+  // ══════════════════════════════════════════════════════════
+
+  {
+    asset_name: 'Methimazole',
+    generic_name: 'methimazole',
+    company: 'Various (Generic)',
+    indication: "Hyperthyroidism/Graves' Disease",
+    indication_specifics:
+      "First-line antithyroid drug for Graves' disease; inhibits thyroid peroxidase-mediated iodine organification to reduce thyroid hormone synthesis",
+    mechanism:
+      'Thionamide antithyroid agent that inhibits thyroid peroxidase (TPO), blocking iodine oxidation and coupling of iodotyrosines to reduce T3/T4 synthesis',
+    mechanism_category: 'antithyroid_thionamide',
+    molecular_target: 'Thyroid peroxidase (TPO)',
+    phase: 'Approved',
+    primary_endpoint: 'Serum free T4 and TSH normalization',
+    key_data:
+      "Standard of care for Graves' disease worldwide; 40-60% remission rate after 12-18 months of treatment; ATA 2016 guidelines recommend as first-line therapy in most patients",
+    line_of_therapy: '1L',
+    first_in_class: false,
+    orphan_drug: false,
+    has_biomarker_selection: false,
+    strengths: [
+      "Gold standard first-line medical therapy for Graves' disease with decades of clinical experience",
+      'Once-daily oral dosing with well-characterized pharmacology; inexpensive generic availability',
+      '40-60% sustained remission rate after 12-18 month course — only medical therapy that can induce remission',
+    ],
+    weaknesses: [
+      'Risk of agranulocytosis (0.1-0.5%) — a rare but potentially fatal adverse event requiring monitoring',
+      'Hepatotoxicity risk; teratogenic in first trimester (choanal atresia, aplasia cutis) limiting use in pregnancy',
+      'Relapse rate of 40-60% after drug discontinuation; no reliable biomarker to predict remission durability',
+    ],
+    source: 'ATA Hyperthyroidism Guidelines 2016; Ross et al. Thyroid 2016; FDA prescribing information',
+    last_updated: '2025-01-15',
+  },
+  {
+    asset_name: 'Propylthiouracil (PTU)',
+    generic_name: 'propylthiouracil',
+    company: 'Various (Generic)',
+    indication: "Hyperthyroidism/Graves' Disease",
+    indication_specifics:
+      'Second-line antithyroid drug; preferred only in first trimester of pregnancy and thyroid storm due to higher hepatotoxicity risk than methimazole',
+    mechanism:
+      'Thionamide that inhibits TPO-mediated iodine organification and additionally blocks peripheral T4-to-T3 conversion by inhibiting type 1 deiodinase',
+    mechanism_category: 'antithyroid_thionamide',
+    molecular_target: 'Thyroid peroxidase (TPO) + Type 1 deiodinase (DIO1)',
+    phase: 'Approved',
+    primary_endpoint: 'Serum free T4 and TSH normalization',
+    key_data:
+      'Reserved for first-trimester pregnancy (safer teratogenicity profile than methimazole) and thyroid storm (additional peripheral T4→T3 blockade); FDA black box warning for hepatotoxicity',
+    line_of_therapy: '2L',
+    first_in_class: false,
+    orphan_drug: false,
+    has_biomarker_selection: false,
+    strengths: [
+      'Preferred antithyroid drug in first trimester of pregnancy and thyroid storm',
+      'Dual mechanism: blocks both thyroid hormone synthesis and peripheral T4→T3 conversion',
+      'Decades of clinical experience; inexpensive generic availability',
+    ],
+    weaknesses: [
+      'FDA black box warning for severe hepatotoxicity including fulminant liver failure requiring transplant',
+      'Three-times-daily dosing reduces compliance vs methimazole once-daily',
+      'Higher rate of ANCA-associated vasculitis with prolonged use than methimazole',
+    ],
+    source: 'ATA Hyperthyroidism Guidelines 2016; FDA black box warning 2010; Ross et al. Thyroid 2016',
+    last_updated: '2025-01-15',
+  },
+  {
+    asset_name: 'Tepezza',
+    generic_name: 'teprotumumab-trbw',
+    company: 'Horizon Therapeutics (Amgen)',
+    indication: "Hyperthyroidism/Graves' Disease",
+    indication_specifics:
+      "Thyroid eye disease (TED) associated with Graves' disease; first and only FDA-approved treatment for TED; targets the IGF-1R/TSHR signaling complex on orbital fibroblasts",
+    mechanism:
+      'Fully human monoclonal antibody targeting insulin-like growth factor 1 receptor (IGF-1R), blocking the IGF-1R/TSHR signaling crosstalk that drives orbital inflammation and tissue expansion in TED',
+    mechanism_category: 'igf1r_antibody',
+    molecular_target: 'IGF-1R (insulin-like growth factor 1 receptor)',
+    phase: 'Approved',
+    primary_endpoint: 'Proptosis reduction (mm) at Week 24',
+    key_data:
+      "OPTIC trial: 83% proptosis response (≥2mm reduction) vs 10% placebo (p<0.001); OPTIC-X open-label extension confirmed durability; >$2B peak sales; Graves' disease/TED overlap creates new treatment paradigm",
+    line_of_therapy: '1L',
+    partner: 'Amgen (acquired Horizon 2023)',
+    first_in_class: true,
+    orphan_drug: true,
+    has_biomarker_selection: false,
+    strengths: [
+      'First-in-class and only FDA-approved therapy for TED — $2B+ peak sales demonstrated commercial viability',
+      'Dramatic proptosis reduction (83% vs 10%) — transformative for patients facing orbital decompression surgery',
+      'Novel IGF-1R mechanism addresses root cause of orbital tissue expansion rather than symptomatic management',
+    ],
+    weaknesses: [
+      'High cost (~$300K per course) creating payer pushback and step-therapy requirements',
+      'Risk of hyperglycemia (10%) and hearing impairment (10%) — requires monitoring in diabetic patients',
+      "Only addresses TED component of Graves'; does not treat underlying hyperthyroidism",
+    ],
+    source: 'Horizon/Amgen prescribing information; Douglas et al. NEJM 2020 (OPTIC); FDA approval January 2020',
+    last_updated: '2025-01-15',
+  },
+
+  // ══════════════════════════════════════════════════════════
+  // MUSCULOSKELETAL — Paget's Disease of Bone
+  // ══════════════════════════════════════════════════════════
+
+  {
+    asset_name: 'Reclast',
+    generic_name: 'zoledronic acid',
+    company: 'Novartis',
+    indication: "Paget's Disease of Bone",
+    indication_specifics:
+      "Single-dose IV bisphosphonate for Paget's disease; potent osteoclast inhibitor achieving >90% biochemical remission rates",
+    mechanism:
+      'Nitrogen-containing bisphosphonate that binds hydroxyapatite in bone, is internalized by osteoclasts during resorption, and inhibits farnesyl pyrophosphate synthase (FPPS) in the mevalonate pathway causing osteoclast apoptosis',
+    mechanism_category: 'bisphosphonate',
+    molecular_target: 'Farnesyl pyrophosphate synthase (FPPS)',
+    phase: 'Approved',
+    primary_endpoint: 'Serum alkaline phosphatase (ALP) normalization at 6 months',
+    key_data:
+      "Single 5mg IV infusion achieves >96% therapeutic response and >89% ALP normalization — superior to risedronate (74% response) in head-to-head HORIZON-PDB trial; most potent bisphosphonate available for Paget's; remission may last 5+ years",
+    line_of_therapy: '1L',
+    first_in_class: false,
+    orphan_drug: false,
+    has_biomarker_selection: false,
+    strengths: [
+      "Most potent bisphosphonate for Paget's — single infusion achieves >96% response rate",
+      'Head-to-head superiority over risedronate (HORIZON-PDB); prolonged remission (5+ years) from single dose',
+      "Well-established safety profile in millions of patients treated across osteoporosis and Paget's indications",
+    ],
+    weaknesses: [
+      'Acute phase reaction (flu-like symptoms) in ~30% of patients within 3 days of first infusion',
+      'Rare risk of osteonecrosis of the jaw (ONJ) and atypical femoral fractures with repeat dosing',
+      'IV administration requires clinic visit; renal impairment contraindication (CrCl <35 mL/min)',
+    ],
+    source:
+      "Reid et al. NEJM 2005 (HORIZON-PDB); Novartis prescribing information; Endocrine Society Paget's Guidelines 2014",
+    last_updated: '2025-01-15',
+  },
+  {
+    asset_name: 'Actonel',
+    generic_name: 'risedronate',
+    company: 'Various (Generic)',
+    indication: "Paget's Disease of Bone",
+    indication_specifics:
+      "Oral bisphosphonate for Paget's disease; 30mg daily for 2 months; widely used before zoledronic acid IV became preferred",
+    mechanism:
+      'Oral nitrogen-containing bisphosphonate inhibiting osteoclast-mediated bone resorption via FPPS inhibition in the mevalonate pathway',
+    mechanism_category: 'bisphosphonate',
+    molecular_target: 'Farnesyl pyrophosphate synthase (FPPS)',
+    phase: 'Approved',
+    primary_endpoint: 'Serum ALP normalization',
+    key_data:
+      '74% therapeutic response rate in HORIZON-PDB comparator arm; 2-month oral course (30mg/day); inferior to zoledronic acid but remains an option for patients unwilling/unable to receive IV therapy',
+    line_of_therapy: '2L',
+    first_in_class: false,
+    orphan_drug: false,
+    has_biomarker_selection: false,
+    strengths: [
+      'Oral administration — convenient for patients who prefer avoiding IV infusion',
+      'Well-established safety and efficacy data across multiple bone diseases',
+      'Generic availability ensures low cost and broad access',
+    ],
+    weaknesses: [
+      "Inferior to zoledronic acid in head-to-head trial (74% vs 96% response in Paget's)",
+      'Requires 2-month daily dosing regimen with strict fasting requirements (30 min before food)',
+      'GI adverse effects (esophagitis, dyspepsia) limit tolerability in some patients',
+    ],
+    source: 'Reid et al. NEJM 2005; Sanofi/generic prescribing information; Endocrine Society Guidelines 2014',
+    last_updated: '2025-01-15',
+  },
+  {
+    asset_name: 'Miacalcin',
+    generic_name: 'calcitonin-salmon',
+    company: 'Various (Generic)',
+    indication: "Paget's Disease of Bone",
+    indication_specifics:
+      "Injectable/nasal calcitonin for Paget's disease; historical treatment now largely supplanted by bisphosphonates but still used in bisphosphonate-intolerant patients",
+    mechanism:
+      'Synthetic salmon calcitonin that directly inhibits osteoclast activity by binding to calcitonin receptors on osteoclasts, causing cell retraction and reduced bone resorption',
+    mechanism_category: 'calcitonin',
+    molecular_target: 'Calcitonin receptor (CTR) on osteoclasts',
+    phase: 'Approved',
+    primary_endpoint: 'Serum ALP reduction and pain improvement',
+    key_data:
+      "Achieves 50-60% reduction in serum ALP but rarely normalizes it; primarily used for rapid pain relief in active Paget's and as alternative in bisphosphonate-intolerant patients; EMA withdrew nasal formulation over cancer concerns (2012)",
+    line_of_therapy: '2L+',
+    first_in_class: false,
+    orphan_drug: false,
+    has_biomarker_selection: false,
+    strengths: [
+      "Rapid analgesic effect in painful Paget's disease — can provide symptomatic relief within days",
+      'Alternative for patients intolerant to bisphosphonates (renal impairment, GI intolerance)',
+      'Long clinical experience (approved since 1970s) with well-characterized safety profile',
+    ],
+    weaknesses: [
+      'Inferior efficacy to bisphosphonates — rarely achieves ALP normalization',
+      'Tachyphylaxis (antibody formation reduces efficacy over time in up to 50% of patients)',
+      'EMA withdrew nasal formulation in 2012 over increased cancer risk signal; injectable form requires SC/IM administration',
+    ],
+    source:
+      'Novartis/generic prescribing information; Singer et al. J Bone Miner Res 2009; Endocrine Society Guidelines 2014',
+    last_updated: '2025-01-15',
+  },
+
+  // ══════════════════════════════════════════════════════════
+  // ENDOCRINOLOGY — Addison's Disease
+  // ══════════════════════════════════════════════════════════
+
+  {
+    asset_name: 'Cortef',
+    generic_name: 'hydrocortisone',
+    company: 'Various (Generic)',
+    indication: "Addison's Disease",
+    indication_specifics:
+      "Standard glucocorticoid replacement for primary adrenal insufficiency (Addison's disease); mimics physiologic cortisol but requires thrice-daily dosing",
+    mechanism:
+      'Exogenous cortisol (hydrocortisone) replacement binding to glucocorticoid receptor (GR/NR3C1) to restore cortisol-dependent metabolic, immune, and cardiovascular functions lost in adrenal insufficiency',
+    mechanism_category: 'glucocorticoid_replacement',
+    molecular_target: 'Glucocorticoid receptor (GR/NR3C1)',
+    phase: 'Approved',
+    primary_endpoint: 'Clinical well-being, cortisol adequacy, and adrenal crisis prevention',
+    key_data:
+      'Standard of care for 60+ years; 15-25mg/day in 2-3 divided doses; unable to replicate physiologic circadian cortisol rhythm — morning cortisol nadir is well-documented; Endocrine Society 2016 guidelines recommend as first-line',
+    line_of_therapy: '1L',
+    first_in_class: false,
+    orphan_drug: false,
+    has_biomarker_selection: false,
+    strengths: [
+      'Decades of clinical experience as standard of care — well-understood pharmacology',
+      'Identical to endogenous cortisol; most physiologic replacement available in conventional formulation',
+      'Inexpensive generic availability; multiple dose adjustments possible for sick-day management',
+    ],
+    weaknesses: [
+      'Cannot replicate physiologic circadian cortisol rhythm — early morning cortisol nadir causes fatigue and metabolic dysregulation',
+      'Thrice-daily dosing reduces adherence; supraphysiologic peaks after each dose contribute to metabolic complications',
+      'Over-replacement associated with obesity, glucose intolerance, reduced bone density, and cardiovascular risk',
+    ],
+    source: 'Bornstein et al. JCEM 2016 (Endocrine Society Guidelines); Johannsson et al. Eur J Endocrinol 2012',
+    last_updated: '2025-01-15',
+  },
+  {
+    asset_name: 'Plenadren',
+    generic_name: 'hydrocortisone modified-release',
+    company: 'Takeda (Shire)',
+    indication: "Addison's Disease",
+    indication_specifics:
+      'Modified-release hydrocortisone providing once-daily dosing with dual-release pharmacokinetics mimicking physiologic cortisol circadian rhythm; EMA-approved, not yet FDA-approved',
+    mechanism:
+      'Modified-release hydrocortisone tablet with immediate-release outer coat and extended-release core, designed to replicate the cortisol circadian rhythm with a single morning dose',
+    mechanism_category: 'glucocorticoid_replacement',
+    molecular_target: 'Glucocorticoid receptor (GR/NR3C1)',
+    phase: 'Approved',
+    primary_endpoint: 'Cortisol exposure profile (AUC0-24h) and circadian rhythm restoration',
+    key_data:
+      'EMA-approved 2011; once-daily dosing replicates physiologic cortisol morning peak and afternoon decline; improved metabolic profile vs conventional hydrocortisone (reduced BMI, HbA1c, blood pressure in 12-month data); not FDA-approved (US market gap)',
+    line_of_therapy: '1L',
+    partner: 'Takeda (acquired via Shire)',
+    first_in_class: true,
+    orphan_drug: true,
+    has_biomarker_selection: false,
+    strengths: [
+      'First modified-release hydrocortisone — once-daily dosing improves adherence and circadian cortisol restoration',
+      'Demonstrated metabolic benefits vs conventional hydrocortisone (reduced BMI, HbA1c, blood pressure)',
+      'EMA-approved with orphan drug designation; addresses fundamental unmet need in cortisol replacement',
+    ],
+    weaknesses: [
+      'Not FDA-approved — unavailable in the US market (largest single market for adrenal insufficiency)',
+      'Premium pricing vs generic hydrocortisone creates payer resistance in cost-sensitive European markets',
+      'Does not fully eliminate the cortisol nadir during late sleep hours — some patients still require supplemental evening dose',
+    ],
+    source: 'EMA EPAR Plenadren; Johannsson et al. JCEM 2012; Takeda prescribing information',
+    last_updated: '2025-01-15',
+  },
+  {
+    asset_name: 'Chronocort/Efmody',
+    generic_name: 'hydrocortisone modified-release (Diurnal)',
+    company: 'Diurnal Group',
+    indication: "Addison's Disease",
+    indication_specifics:
+      'Chronopharmacology-designed modified-release hydrocortisone taken at bedtime to replicate the pre-waking cortisol rise; targets the early morning ACTH surge and cortisol nadir that conventional therapy misses',
+    mechanism:
+      'Delayed-and-sustained-release hydrocortisone capsule taken at bedtime; the delayed-release component releases cortisol during early morning hours (2-4 AM) to replicate the physiologic pre-waking cortisol rise driven by circadian ACTH pulsatility',
+    mechanism_category: 'glucocorticoid_replacement',
+    molecular_target: 'Glucocorticoid receptor (GR/NR3C1)',
+    phase: 'Approved',
+    primary_endpoint: 'Restoration of physiologic cortisol circadian profile and 17-OHP control (in CAH)',
+    key_data:
+      "EMA-approved as Efmody for congenital adrenal hyperplasia (CAH) 2021; Phase 3 studies in adrenal insufficiency ongoing; bedtime dosing uniquely targets the pre-waking cortisol rise that all other formulations miss; Diurnal pursuing both CAH and Addison's indications",
+    line_of_therapy: '1L',
+    first_in_class: true,
+    orphan_drug: true,
+    has_biomarker_selection: false,
+    strengths: [
+      'Uniquely targets the pre-waking cortisol rise (2-4 AM) — the most physiologically important cortisol window that all other therapies miss',
+      'EMA-approved for CAH; adrenal insufficiency indication would expand market significantly',
+      'Bedtime dosing is counter-intuitive but pharmacologically sound — differentiates from all competitors',
+    ],
+    weaknesses: [
+      "Not yet approved specifically for Addison's disease — CAH approval only so far",
+      'Bedtime dosing may confuse patients accustomed to morning glucocorticoid dosing convention',
+      'Small commercial entity (Diurnal Group) — limited commercial infrastructure for global launch',
+    ],
+    source: 'Diurnal Group pipeline; EMA EPAR Efmody 2021; Whitaker et al. JCEM 2014; NCT03052192',
+    last_updated: '2025-01-15',
+  },
 ];

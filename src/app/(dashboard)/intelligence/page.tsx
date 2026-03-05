@@ -368,7 +368,9 @@ function SECRow({
 
 // ── Main Page ────────────────────────────────────────────────────
 
-export default function IntelligenceFeedPage() {
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+
+function IntelligenceFeedContent() {
   const [activeTab, setActiveTab] = useState<SourceTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -577,5 +579,13 @@ export default function IntelligenceFeedPage() {
         </div>
       )}
     </>
+  );
+}
+
+export default function IntelligenceFeedPage() {
+  return (
+    <ErrorBoundary>
+      <IntelligenceFeedContent />
+    </ErrorBoundary>
   );
 }

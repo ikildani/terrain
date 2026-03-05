@@ -1,4 +1,5 @@
 # TERRAIN — Market Opportunity Intelligence Platform
+
 ## Claude Code Master Context File
 
 > **Build standard**: Investment-bank quality. Every screen should feel like it belongs inside a Bloomberg Terminal or a Goldman Sachs research portal. No startup aesthetics. No generic SaaS patterns. This is institutional-grade intelligence infrastructure for biotech professionals making $50M+ decisions.
@@ -11,7 +12,7 @@
 **URL**: terrain.ambrosiaventures.co  
 **Parent Brand**: Ambrosia Ventures (boutique life sciences M&A and strategy advisory)  
 **Ecosystem**: Tool #2 in the 6-tool AlaricAI pre-launch suite  
-**Tech Stack**: Next.js 14 (App Router), TypeScript, Tailwind CSS, Supabase, Stripe  
+**Tech Stack**: Next.js 14 (App Router), TypeScript, Tailwind CSS, Supabase, Stripe
 
 **What Terrain does**: Gives biotech founders and BD executives instant, data-driven answers to the market questions that precede every major licensing deal, M&A transaction, or partnership discussion. It turns 3 weeks of analyst research into a 90-second intelligence report.
 
@@ -20,23 +21,25 @@
 ## Brand & Design System
 
 ### Colors (use CSS variables, never hardcoded hex)
+
 ```css
---navy-950: #04080F;       /* Page background */
---navy-900: #07101E;       /* Card backgrounds */
---navy-800: #0D1B2E;       /* Elevated surfaces */
---navy-700: #102236;       /* Borders, dividers */
---teal-500: #00C9A7;       /* Primary accent, CTAs, active states */
---teal-400: #00E4BF;       /* Hover states */
---teal-900: #002E27;       /* Teal surface backgrounds */
---white: #F0F4F8;          /* Primary text */
---slate-300: #94A3B8;      /* Secondary text */
---slate-500: #64748B;      /* Muted text */
---amber-400: #FBBF24;      /* Warnings, opportunity signals */
---red-400: #F87171;        /* Alerts, risk signals */
---emerald-400: #34D399;    /* Positive signals, growth */
+--navy-950: #04080f; /* Page background */
+--navy-900: #07101e; /* Card backgrounds */
+--navy-800: #0d1b2e; /* Elevated surfaces */
+--navy-700: #102236; /* Borders, dividers */
+--teal-500: #00c9a7; /* Primary accent, CTAs, active states */
+--teal-400: #00e4bf; /* Hover states */
+--teal-900: #002e27; /* Teal surface backgrounds */
+--white: #f0f4f8; /* Primary text */
+--slate-300: #94a3b8; /* Secondary text */
+--slate-500: #64748b; /* Muted text */
+--amber-400: #fbbf24; /* Warnings, opportunity signals */
+--red-400: #f87171; /* Alerts, risk signals */
+--emerald-400: #34d399; /* Positive signals, growth */
 ```
 
 ### Typography
+
 ```
 Display font:    "DM Serif Display" (headings, hero text, report titles)
 Body font:       "Sora" (all body copy, UI labels, navigation)
@@ -44,11 +47,13 @@ Mono font:       "DM Mono" (data values, metrics, code, table numbers)
 ```
 
 Load from Google Fonts:
+
 ```
 https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap
 ```
 
 ### Design Principles
+
 - **Data density**: Show more information than typical SaaS tools. Think Bloomberg, not Notion.
 - **Texture over flatness**: Use `noise.png` SVG texture overlays at 3-5% opacity on dark surfaces.
 - **No gradients for decoration**: Gradients only for data visualization and focus glow effects.
@@ -57,6 +62,7 @@ https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:w
 - **Teal as signal**: Teal (#00C9A7) means "active", "positive", "selected", "primary action". Never use it decoratively.
 
 ### Noise texture (use inline SVG for the filter):
+
 ```css
 .noise::after {
   content: '';
@@ -124,7 +130,6 @@ terrain/
 │   │   ├── pipeline/page.tsx          ← Pipeline Intelligence
 │   │   ├── partners/page.tsx          ← Partner Discovery
 │   │   ├── regulatory/page.tsx        ← Regulatory Intelligence
-│   │   ├── alerts/page.tsx            ← Deal Alerts
 │   │   ├── reports/page.tsx           ← Saved Reports library
 │   │   └── settings/
 │   │       ├── page.tsx
@@ -141,8 +146,6 @@ terrain/
 │       ├── reports/
 │       │   ├── route.ts               ← CRUD reports
 │       │   └── [id]/route.ts
-│       ├── alerts/
-│       │   └── route.ts
 │       ├── stripe/
 │       │   ├── checkout/route.ts
 │       │   ├── portal/route.ts
@@ -199,11 +202,6 @@ terrain/
 │   │   ├── PathwaySelector.tsx
 │   │   ├── TimelineChart.tsx
 │   │   └── RegulatoryRiskCard.tsx
-│   │
-│   ├── alerts/
-│   │   ├── AlertFeed.tsx
-│   │   ├── AlertCard.tsx
-│   │   └── AlertConfigForm.tsx
 │   │
 │   └── shared/
 │       ├── UpgradeGate.tsx            ← Paywall component for Pro features
@@ -331,7 +329,7 @@ CREATE POLICY "Users can view own subscription"
 CREATE TABLE public.usage_events (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  feature TEXT NOT NULL,              -- 'market_sizing' | 'competitive' | 'pipeline' | 'partners' | 'regulatory' | 'alerts'
+  feature TEXT NOT NULL,              -- 'market_sizing' | 'competitive' | 'pipeline' | 'partners' | 'regulatory'
   indication TEXT,
   metadata JSONB DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -392,46 +390,6 @@ CREATE TABLE public.report_shares (
 );
 ```
 
-### Migration 005 — Alerts
-
-```sql
-CREATE TABLE public.alerts (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  alert_type TEXT NOT NULL,           -- 'competitor_filing' | 'partner_deal' | 'market_shift' | 'trial_update' | 'fda_action'
-  indication TEXT,
-  company TEXT,
-  filters JSONB DEFAULT '{}',         -- Specific alert configuration
-  is_active BOOLEAN DEFAULT TRUE,
-  frequency TEXT DEFAULT 'weekly',    -- 'realtime' | 'daily' | 'weekly'
-  last_triggered TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE public.alert_events (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  alert_id UUID REFERENCES public.alerts(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  summary TEXT,
-  source TEXT,
-  source_url TEXT,
-  signal_type TEXT,                   -- 'opportunity' | 'threat' | 'neutral'
-  metadata JSONB DEFAULT '{}',
-  is_read BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE public.alerts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.alert_events ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can manage own alerts"
-  ON public.alerts FOR ALL USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can view own alert events"
-  ON public.alert_events FOR ALL USING (auth.uid() = user_id);
-```
-
 ---
 
 ## Subscription Tiers & Access Control
@@ -444,46 +402,43 @@ export const PLANS = {
     name: 'Free',
     price: 0,
     features: {
-      market_sizing: { limit: 3 },          // 3 reports/month
-      competitive: { limit: 1 },             // 1 landscape/month
+      market_sizing: { limit: 3 }, // 3 reports/month
+      competitive: { limit: 1 }, // 1 landscape/month
       pipeline: { access: true, limit: 5 }, // 5 searches/month
       partners: { access: false },
       regulatory: { access: false },
-      alerts: { access: false },
       reports_saved: { limit: 3 },
       export_pdf: { access: false },
       export_csv: { access: false },
-    }
+    },
   },
   pro: {
     name: 'Pro',
-    price: 299,                              // $/month
+    price: 149, // $/month
     stripe_price_id: process.env.STRIPE_PRO_PRICE_ID,
     features: {
-      market_sizing: { limit: -1 },          // Unlimited
+      market_sizing: { limit: -1 }, // Unlimited
       competitive: { limit: -1 },
       pipeline: { access: true, limit: -1 },
       partners: { access: true },
       regulatory: { access: true },
-      alerts: { access: true, limit: 10 },   // 10 active alerts
       reports_saved: { limit: -1 },
       export_pdf: { access: true },
       export_csv: { access: true },
-    }
+    },
   },
   team: {
     name: 'Team',
-    price: 799,                              // $/month
+    price: 499, // $/month
     stripe_price_id: process.env.STRIPE_TEAM_PRICE_ID,
     seats: 5,
     features: {
       // Everything in Pro, plus:
       team_sharing: { access: true },
       api_access: { access: true },
-      custom_alerts: { access: true, limit: -1 },
-      white_label: { access: false },        // Enterprise only
-    }
-  }
+      white_label: { access: false }, // Enterprise only
+    },
+  },
 } as const;
 ```
 
@@ -497,7 +452,7 @@ export const PLANS = {
 interface UpgradeGateProps {
   feature: keyof typeof PLANS.pro.features;
   children: React.ReactNode;
-  preview?: React.ReactNode;  // Optional blurred preview content
+  preview?: React.ReactNode; // Optional blurred preview content
 }
 ```
 
@@ -514,20 +469,22 @@ interface UpgradeGateProps {
 **What it does**: Takes an indication + development stage as input, outputs structured TAM/SAM/SOM with methodology and sourcing.
 
 **Input Form Fields**:
+
 ```typescript
 interface MarketSizingInput {
-  indication: string;                  // "Non-Small Cell Lung Cancer" — autocomplete from indication list
-  subtype: string;                     // "EGFR+ Stage III/IV"
-  geography: string[];                 // ['US', 'EU5', 'Japan', 'China', 'RoW']
+  indication: string; // "Non-Small Cell Lung Cancer" — autocomplete from indication list
+  subtype: string; // "EGFR+ Stage III/IV"
+  geography: string[]; // ['US', 'EU5', 'Japan', 'China', 'RoW']
   development_stage: DevelopmentStage; // 'preclinical' | 'phase1' | 'phase2' | 'phase3' | 'approved'
-  mechanism: string;                   // "KRAS G12C inhibitor"
-  patient_segment: string;             // "2L+ after platinum-based chemo"
+  mechanism: string; // "KRAS G12C inhibitor"
+  patient_segment: string; // "2L+ after platinum-based chemo"
   pricing_assumption: 'conservative' | 'base' | 'premium';
-  launch_year: number;                 // Expected launch year (affects projections)
+  launch_year: number; // Expected launch year (affects projections)
 }
 ```
 
 **Output Structure**:
+
 ```typescript
 interface MarketSizingOutput {
   summary: {
@@ -535,7 +492,7 @@ interface MarketSizingOutput {
     sam_us: { value: number; unit: 'B' | 'M'; confidence: 'high' | 'medium' | 'low' };
     som_us: { value: number; unit: 'B' | 'M'; range: [number, number] };
     global_tam: { value: number; unit: 'B' | 'M' };
-    cagr_5yr: number;                  // Percentage
+    cagr_5yr: number; // Percentage
     peak_sales_estimate: { low: number; base: number; high: number };
   };
   patient_funnel: {
@@ -543,14 +500,14 @@ interface MarketSizingOutput {
     us_incidence: number;
     diagnosed: number;
     treated: number;
-    addressable: number;               // Meets your patient_segment criteria
-    capturable: number;                // Realistic market share
+    addressable: number; // Meets your patient_segment criteria
+    capturable: number; // Realistic market share
   };
   geography_breakdown: {
     territory: string;
     tam: number;
     population_prevalence: number;
-    market_multiplier: number;         // vs US baseline
+    market_multiplier: number; // vs US baseline
     regulatory_status: string;
   }[];
   pricing_analysis: {
@@ -559,7 +516,7 @@ interface MarketSizingOutput {
     payer_dynamics: string;
     pricing_rationale: string;
   };
-  methodology: string;                 // Plain-language explanation of calculation approach
+  methodology: string; // Plain-language explanation of calculation approach
   data_sources: DataSource[];
   generated_at: string;
 }
@@ -596,6 +553,7 @@ interface MarketSizingOutput {
 ```
 
 **Visualization Components**:
+
 - `TAMChart`: Horizontal bar chart showing TAM → SAM → SOM as nested rectangles (not pie chart)
 - `PatientFunnelChart`: Vertical waterfall funnel (prevalence → diagnosed → treated → addressable → capturable)
 - `GeographyBreakdown`: Horizontal bar chart ranked by market size + data table below
@@ -610,16 +568,17 @@ interface MarketSizingOutput {
 **Input**: Indication + Mechanism of Action
 
 **Output**:
+
 ```typescript
 interface CompetitiveLandscapeOutput {
-  market_leaders: Competitor[];          // Approved products
-  late_stage_pipeline: Competitor[];     // Phase 3
-  mid_stage_pipeline: Competitor[];      // Phase 2
-  early_pipeline: Competitor[];          // Phase 1 + Preclinical (Pro only)
+  market_leaders: Competitor[]; // Approved products
+  late_stage_pipeline: Competitor[]; // Phase 3
+  mid_stage_pipeline: Competitor[]; // Phase 2
+  early_pipeline: Competitor[]; // Phase 1 + Preclinical (Pro only)
   landscape_summary: {
-    crowding_score: number;              // 1-10, 10 = extremely crowded
+    crowding_score: number; // 1-10, 10 = extremely crowded
     differentiation_opportunity: string; // AI-generated insight
-    white_space: string[];               // Uncontested patient segments
+    white_space: string[]; // Uncontested patient segments
   };
   head_to_head_comparison: CompetitorAttribute[][];
 }
@@ -629,9 +588,9 @@ interface Competitor {
   asset_name: string;
   mechanism: string;
   phase: string;
-  indication_specifics: string;          // Exact label/trial population
+  indication_specifics: string; // Exact label/trial population
   primary_endpoint: string;
-  key_data: string;                      // Most recent readout summary
+  key_data: string; // Most recent readout summary
   partner: string | null;
   deal_value: string | null;
   strengths: string[];
@@ -642,6 +601,7 @@ interface Competitor {
 ```
 
 **Visualization**:
+
 - `LandscapeMap`: 2x2 scatter plot — X axis: Differentiation, Y axis: Clinical Evidence Strength. Each bubble = one competitor, sized by estimated deal value / market cap. Color = phase.
 - `PipelineTable`: Sortable, filterable table with all competitors. Columns: Company, Asset, Phase, MoA, Endpoint, Key Data, Partner, Deal Value.
 
@@ -653,22 +613,24 @@ interface Competitor {
 
 **Data Source**: ClinicalTrials.gov API (live), augmented with proprietary deal data
 
-**Input**: 
+**Input**:
+
 ```typescript
 interface PipelineSearchInput {
   indication?: string;
   mechanism?: string;
   phase?: ('Phase 1' | 'Phase 2' | 'Phase 3' | 'Phase 4')[];
   company?: string;
-  target?: string;                     // Molecular target
-  geography?: string[];               // Trial country
+  target?: string; // Molecular target
+  geography?: string[]; // Trial country
   status?: ('Recruiting' | 'Active' | 'Completed')[];
   start_date_from?: string;
-  has_deal?: boolean;                  // Filter to assets with known partnerships
+  has_deal?: boolean; // Filter to assets with known partnerships
 }
 ```
 
 **ClinicalTrials.gov Integration**:
+
 ```typescript
 // lib/analytics/pipeline.ts
 // Use ClinicalTrials.gov v2 API:
@@ -678,7 +640,7 @@ const CTGOV_BASE = 'https://clinicaltrials.gov/api/v2/studies';
 
 // Query params mapping:
 // indication → query.cond
-// mechanism/target → query.intr  
+// mechanism/target → query.intr
 // phase → filter.phase
 // company → query.spons
 // geography → filter.locn
@@ -699,45 +661,48 @@ const CTGOV_BASE = 'https://clinicaltrials.gov/api/v2/studies';
 **What it does**: Matches your asset profile to likely licensing/partnership candidates based on their deal history, pipeline gaps, and strategic priorities.
 
 **Input**:
+
 ```typescript
 interface PartnerDiscoveryInput {
-  asset_description: string;           // Free text: "KRAS G12C inhibitor, Phase 2 NSCLC"
+  asset_description: string; // Free text: "KRAS G12C inhibitor, Phase 2 NSCLC"
   indication: string;
   mechanism: string;
   development_stage: string;
-  geography_rights: string[];          // Rights you're offering: 'US' | 'EU' | 'Japan' | 'China' | 'Global'
+  geography_rights: string[]; // Rights you're offering: 'US' | 'EU' | 'Japan' | 'China' | 'Global'
   deal_type: ('licensing' | 'co-development' | 'acquisition' | 'co-promotion')[];
   exclude_companies?: string[];
 }
 ```
 
 **Partner Matching Algorithm** (`lib/analytics/partners.ts`):
+
 ```typescript
 // Score each potential partner (database of 300+ active biopharma BD groups) on:
 
 interface PartnerScore {
   company: string;
-  match_score: number;                 // 0-100
+  match_score: number; // 0-100
   score_breakdown: {
-    therapeutic_alignment: number;     // Do they have existing presence in your indication?
-    pipeline_gap: number;              // Do they have a gap this asset could fill?
-    deal_history: number;              // Have they done deals at your stage?
-    financial_capacity: number;        // Can they afford a deal at expected terms?
-    geography_fit: number;             // Do the rights geographies match their footprint?
-    strategic_priority: number;        // Is this indication a stated priority?
+    therapeutic_alignment: number; // Do they have existing presence in your indication?
+    pipeline_gap: number; // Do they have a gap this asset could fill?
+    deal_history: number; // Have they done deals at your stage?
+    financial_capacity: number; // Can they afford a deal at expected terms?
+    geography_fit: number; // Do the rights geographies match their footprint?
+    strategic_priority: number; // Is this indication a stated priority?
   };
   recent_deals: PartnerDeal[];
-  key_contacts: string[];              // BD lead names (from public sources)
+  key_contacts: string[]; // BD lead names (from public sources)
   deal_terms_benchmark: {
     typical_upfront: string;
     typical_milestones: string;
     typical_royalty: string;
   };
-  rationale: string;                   // Plain-language match explanation
+  rationale: string; // Plain-language match explanation
 }
 ```
 
-**Display**: 
+**Display**:
+
 - Ranked card grid (top 10 partners shown, sorted by match score)
 - Each card: company name, logo, match score progress bar, score breakdown mini-chart, 3 recent comparable deals, deal terms benchmark
 - Expand to full partner profile with complete deal history table
@@ -749,6 +714,7 @@ interface PartnerScore {
 **Route**: `/dashboard/regulatory` — **Pro only**
 
 **Input**:
+
 ```typescript
 interface RegulatoryInput {
   indication: string;
@@ -762,6 +728,7 @@ interface RegulatoryInput {
 ```
 
 **Output**:
+
 ```typescript
 interface RegulatoryOutput {
   recommended_pathway: {
@@ -782,13 +749,17 @@ interface RegulatoryOutput {
   }[];
   key_risks: RegulatoryRisk[];
   comparable_approvals: {
-    drug: string; company: string; indication: string; pathway: string; timeline: number;
+    drug: string;
+    company: string;
+    indication: string;
+    pathway: string;
+    timeline: number;
   }[];
   data_package_requirements: string[];
 }
 
 interface RegulatoryPathway {
-  name: string;                        // "Standard NDA", "505(b)(2)", "BLA", "NDA with Accelerated Approval"
+  name: string; // "Standard NDA", "505(b)(2)", "BLA", "NDA with Accelerated Approval"
   review_division: string;
   typical_review_time: string;
   requirements: string[];
@@ -796,29 +767,6 @@ interface RegulatoryPathway {
 ```
 
 ---
-
-### Module 6: Deal Alerts
-
-**Route**: `/dashboard/alerts` — **Pro only**
-
-**Alert Types**:
-```typescript
-type AlertType = 
-  | 'competitor_filing'      // New competitor trial registered
-  | 'competitor_data'        // Competitor published results
-  | 'partner_deal'           // Target partner announced a deal
-  | 'fda_action'             // FDA approval, CRL, or advisory in your indication
-  | 'market_shift'           // Pricing, reimbursement, or policy change
-  | 'trial_update';          // Update to tracked trials
-
-// Delivery: in-app feed + email digest
-// Frequency: Pro = daily digest; Team = near-real-time
-```
-
-**Alert Feed UI** (`/dashboard/alerts`):
-- Left column: Alert configuration panel (manage active alerts)
-- Right column: Alert event feed, sorted by recency
-- Each alert event card: signal type badge (Opportunity/Threat/Neutral), title, 2-sentence summary, source link, timestamp, read/unread state
 
 ---
 
@@ -888,6 +836,7 @@ type AlertType =
 **Purpose**: Convert visitors to signups. Audience is sophisticated biotech professionals — no fluff, lead with data.
 
 **Sections**:
+
 1. **Hero**: Full-width dark navy hero. Headline: "Market intelligence for life sciences deals." Subhead: "TAM analysis, competitive landscapes, and partner matching — in 90 seconds, not 3 weeks." CTA: "Start for free" + "See a sample report" (opens modal with pre-built report). Background: subtle animated particle field or grid pattern.
 
 2. **Data Source Strip** (NOT a "trust strip" or "social proof" section): Show the data sources powering the platform: ClinicalTrials.gov, FDA/EMA, SEC EDGAR, WHO GBD, 10,000+ Transactions. **DO NOT** add fake company logos, placeholder names like "Series A Biotech" or "Top-20 Pharma BD", or any "Trusted by teams at" section. The platform has no external customers yet — never fabricate social proof.
@@ -896,7 +845,7 @@ type AlertType =
 
 4. **Live Demo**: Embedded interactive demo of the market sizing form. Pre-populated with "KRAS G12C inhibitor, NSCLC, Phase 2." Shows the output as user tabs through it. This is the most important section for conversion.
 
-5. **Pricing**: Three-column pricing table. Free | Pro ($299/mo) | Team ($799/mo). Clean comparison with feature checkmarks.
+5. **Pricing**: Four-column pricing table. Free | Pro ($149/mo) | Team ($499/mo) | Enterprise (custom). Clean comparison with feature checkmarks.
 
 6. **Ambrosia Ventures Attribution**: Footer section: "Terrain is built by Ambrosia Ventures, a life sciences M&A and strategy advisory firm. Our deal experience is embedded in every calculation." Link to ambrosiaventures.co.
 
@@ -907,6 +856,7 @@ type AlertType =
 **Layout**: Fixed left sidebar (240px) + main content area
 
 **Sidebar Navigation**:
+
 ```
 [Ambrosia / Terrain logo]
 
@@ -918,7 +868,6 @@ INTELLIGENCE
 DEAL TOOLS (Pro)
   ● Partner Discovery      [Pro badge if locked]
   ● Regulatory Intel       [Pro badge if locked]
-  ● Deal Alerts            [Pro badge if locked]
 
 WORKSPACE
   ● Saved Reports
@@ -928,10 +877,10 @@ WORKSPACE
 ```
 
 **Main Content — Dashboard Home**:
+
 - Welcome header: "Good morning, [Name]. Your market is moving."
 - Quick start panel: 4 action cards — "New Market Analysis", "Map a Landscape", "Search Pipeline", "Find Partners"
 - Recent reports: last 3 saved reports as cards
-- Alert feed preview: last 5 alert events (blurred/gated if free)
 - Usage meter: visual usage meter per feature (free tier)
 
 ---
@@ -941,6 +890,7 @@ WORKSPACE
 **Layout**: Two-column (form left 380px, results right)
 
 **Form Panel** (left):
+
 - Indication autocomplete field (typeahead from 150+ indications list)
 - Subtype/specifics text input
 - Geography multi-select checklist
@@ -952,6 +902,7 @@ WORKSPACE
 - "Generate Analysis" button (teal, full width)
 
 **Results Panel** (right):
+
 - Top: Summary metrics row — 4 stat cards: US TAM, US SAM, US SOM, Global TAM
 - TAM/SAM/SOM waterfall bar chart
 - Patient funnel chart
@@ -1011,6 +962,7 @@ NEXT_PUBLIC_POSTHOG_KEY=
 Build in this order to have a working product at each phase:
 
 ### Phase 1 — Foundation (Days 1-3)
+
 1. `next.config.ts` + `tailwind.config.ts` + `globals.css` (design system variables)
 2. Supabase project setup + run all 5 migrations
 3. Auth pages: signup, login, callback route
@@ -1018,6 +970,7 @@ Build in this order to have a working product at each phase:
 5. Dashboard shell: sidebar + topbar + layout
 
 ### Phase 2 — Core Module (Days 4-7)
+
 6. Indication data: `lib/data/indication-map.ts` (minimum 50 indications)
 7. Territory multipliers + pricing benchmarks data files
 8. Market sizing calculation engine: `lib/analytics/market-sizing.ts`
@@ -1025,22 +978,26 @@ Build in this order to have a working product at each phase:
 10. Market sizing UI: form + all 4 chart components + results panel
 
 ### Phase 3 — Second Module (Days 8-10)
+
 11. Competitive landscape static data structure
 12. Competitive analysis UI: landscape map + pipeline table
 13. Save/load reports: `POST /api/reports` + saved reports page
 
 ### Phase 4 — Payments (Days 11-12)
+
 14. Stripe integration: checkout + webhook + portal
 15. UpgradeGate component
 16. Usage tracking: middleware that logs events + checks limits
 
 ### Phase 5 — Pro Modules (Days 13-18)
+
 17. Pipeline intelligence + ClinicalTrials.gov integration
 18. Partner discovery: partner database + matching algorithm + UI
 19. Regulatory intelligence: pathways data + UI
-20. Deal alerts: alert CRUD + event feed UI
+20. (Removed — alerts not in scope)
 
 ### Phase 6 — Polish (Days 19-21)
+
 21. Landing page
 22. Export functionality (PDF via `@react-pdf/renderer` or Puppeteer, CSV via custom hook)
 23. Email notifications (Resend)
@@ -1052,6 +1009,7 @@ Build in this order to have a working product at each phase:
 ## Component Patterns (Consistent Across All Modules)
 
 ### Stat Card
+
 ```tsx
 // Reusable metric display card — use for all key metrics
 <StatCard
@@ -1066,20 +1024,16 @@ Build in this order to have a working product at each phase:
 ```
 
 ### Data Table
+
 ```tsx
 // All tables use this component for visual consistency
 // Features: sorting, filtering, column visibility, pagination
 // Style: dark background (#0D1B2E), teal header accents, mono font for numbers
-<DataTable
-  columns={columns}
-  data={data}
-  sortable
-  filterable
-  exportable={user.plan === 'pro'}
-/>
+<DataTable columns={columns} data={data} sortable filterable exportable={user.plan === 'pro'} />
 ```
 
 ### Module Header
+
 ```tsx
 // Consistent page header for all dashboard pages
 <PageHeader
@@ -1092,6 +1046,7 @@ Build in this order to have a working product at each phase:
 ```
 
 ### Loading States
+
 ```tsx
 // Always use skeleton loading, never spinners
 // Match skeleton shape to actual content layout
@@ -1110,7 +1065,7 @@ Build in this order to have a working product at each phase:
 - **Empty states**: Every list/table has a designed empty state with CTA.
 - **Form validation**: All forms use Zod schemas. Show inline field-level errors.
 - **Accessibility**: All interactive elements have proper ARIA labels. Keyboard navigable.
-- **Performance**: 
+- **Performance**:
   - All chart data fetches use React Query with 5-minute stale time
   - Supabase queries use `.select()` with specific columns only
   - Images use `next/image`
@@ -1123,6 +1078,7 @@ Build in this order to have a working product at each phase:
 Every number displayed must have a source attribution. Use `<DataSourceBadge>` component throughout.
 
 **Primary Data Sources**:
+
 - ClinicalTrials.gov API v2 — pipeline and trial data (live)
 - FDA Drug Approvals Database — approval history
 - SEC EDGAR — biotech company filings (deal announcements, partnership disclosures)
@@ -1148,7 +1104,6 @@ vercel deploy --prod
 #   Install command: npm install
 
 # Supabase edge function for alert processing (optional for MVP):
-# supabase functions deploy process-alerts
 ```
 
 **Production URL**: terrain.ambrosiaventures.co  
@@ -1160,6 +1115,7 @@ vercel deploy --prod
 ## What Success Looks Like
 
 A completed Terrain platform:
+
 - Loads market sizing results in < 3 seconds
 - Covers 150+ indications with accurate epidemiology data
 - Returns competitive landscape with 20+ competitors per indication
@@ -1172,7 +1128,7 @@ A completed Terrain platform:
 
 ---
 
-*Terrain is built by Ambrosia Ventures. Confidential. Version 1.0.0*
+_Terrain is built by Ambrosia Ventures. Confidential. Version 1.0.0_
 
 ---
 
@@ -1214,6 +1170,7 @@ The Market Sizing form gains a **Product Type** selector at the top that routes 
 ```
 
 Selecting a category:
+
 - Changes the **Pricing inputs** (ASP vs. WAC vs. per-test reimbursement)
 - Changes the **Regulatory module** (510(k)/PMA/CDx instead of NDA/BLA)
 - Changes the **Sizing method selector** (procedure volume / installed base / test volume / subscription)
@@ -1227,6 +1184,7 @@ Selecting a category:
 **Route**: `/dashboard/regulatory?mode=device`
 
 Covers:
+
 - 510(k) vs. De Novo vs. PMA pathway selection based on predicate analysis and risk class
 - Breakthrough Device Designation eligibility assessment
 - IDE study requirements and design (for Class III / novel Class II)
@@ -1243,8 +1201,8 @@ export const DEVICE_REGULATORY_PATHWAYS = [
     pathway: '510(k) Clearance',
     fda_class: 'Class II',
     requires_clinical_data: 'sometimes', // Only if predicate doesn't adequately address safety
-    average_review_days_fda: 174,        // FDA 2024 CDRH performance data
-    total_days_to_clearance: 280,        // Including pre-sub, preparation, FDA review
+    average_review_days_fda: 174, // FDA 2024 CDRH performance data
+    total_days_to_clearance: 280, // Including pre-sub, preparation, FDA review
     success_rate: 0.82,
     description: 'Substantial equivalence to a predicate device. Most common pathway for Class II devices.',
   },
@@ -1262,15 +1220,16 @@ export const DEVICE_REGULATORY_PATHWAYS = [
     fda_class: 'Class III',
     requires_clinical_data: 'always',
     average_review_days_fda: 365,
-    total_days_to_clearance: 900,         // Including IDE study
+    total_days_to_clearance: 900, // Including IDE study
     success_rate: 0.68,
-    description: 'Highest scrutiny. Required for Class III high-risk devices and most diagnostics for serious conditions.',
+    description:
+      'Highest scrutiny. Required for Class III high-risk devices and most diagnostics for serious conditions.',
   },
   {
     pathway: 'Breakthrough Device',
     fda_class: 'Class II or III',
     requires_clinical_data: 'always',
-    average_review_days_fda: 230,         // Faster review with designation
+    average_review_days_fda: 230, // Faster review with designation
     total_days_to_clearance: 700,
     success_rate: 0.78,
     description: 'For devices providing more effective treatment for serious conditions. Interactive review with FDA.',
@@ -1286,6 +1245,7 @@ export const DEVICE_REGULATORY_PATHWAYS = [
 The existing Regulatory Intelligence module at `/dashboard/regulatory` gains a **Reimbursement tab** for devices (pharma has formulary strategy; devices have different mechanics):
 
 **Device Reimbursement Workflow**:
+
 1. **Site-of-care determination** → Inpatient (DRG), Outpatient (APC), Physician Office (CPT), Home (DMEPOS)
 2. **DRG/APC mapping** → Show existing DRG payment rates and whether device cost is carved out or bundled
 3. **NTAP eligibility** → If device cost >25% of DRG payment, NTAP application may be available (50% of excess cost covered by CMS)
@@ -1293,6 +1253,7 @@ The existing Regulatory Intelligence module at `/dashboard/regulatory` gains a *
 5. **Commercial payer dynamics** → Prior auth requirements, step therapy, medical necessity criteria typical for this category
 
 **Diagnostics Reimbursement Workflow**:
+
 1. **CPT code strategy** → Existing codes vs. new Category III vs. unlisted code (81479)
 2. **MolDx determination** → For molecular/genomic tests in MAC jurisdictions (Palmetto, Noridian, CGS)
 3. **Gap-fill pricing** → When no national fee schedule rate, contractors set local rates — show historical gap-fill outcomes
@@ -1306,32 +1267,33 @@ The existing Regulatory Intelligence module at `/dashboard/regulatory` gains a *
 Expand `lib/data/indication-map.ts` to include **device-context indications** with procedure volume data:
 
 Each indication in the map gets new optional device-specific fields:
+
 ```typescript
 interface IndicationData {
   // ... existing pharma fields ...
-  
+
   // NEW: Device context
   device_context?: {
-    primary_procedure: string;           // "TAVR", "TKA", "DBS implant"
+    primary_procedure: string; // "TAVR", "TKA", "DBS implant"
     annual_us_procedures: number;
     procedure_cpt_codes: string[];
     procedure_growth_rate: number;
     primary_site_of_care: string;
     key_physician_specialties: string[];
-    current_soc_devices: string[];       // Current standard-of-care devices
-    device_market_size_usd_b: number;   // Total US device market for this indication
+    current_soc_devices: string[]; // Current standard-of-care devices
+    device_market_size_usd_b: number; // Total US device market for this indication
     device_market_cagr: number;
   };
-  
+
   // NEW: Diagnostics context
   diagnostics_context?: {
-    standard_biomarkers: string[];       // What's routinely tested today
-    emerging_biomarkers: string[];       // Pipeline biomarkers being validated
-    current_testing_rate: number;        // % of eligible patients receiving any biomarker test
-    test_type: string;                   // IHC, NGS, liquid biopsy, etc.
+    standard_biomarkers: string[]; // What's routinely tested today
+    emerging_biomarkers: string[]; // Pipeline biomarkers being validated
+    current_testing_rate: number; // % of eligible patients receiving any biomarker test
+    test_type: string; // IHC, NGS, liquid biopsy, etc.
     annual_test_volume_us: number;
     reimbursement_status: string;
-    cdx_opportunity: boolean;            // Is there a CDx opportunity linked to emerging drugs?
+    cdx_opportunity: boolean; // Is there a CDx opportunity linked to emerging drugs?
   };
 }
 ```
@@ -1409,19 +1371,46 @@ Roche Group, AstraZeneca, Merck, Pfizer, Eli Lilly, BMS, Novartis, Pfizer (acqui
 6. **CDx linkage card** — for companion diagnostics, shows the linked drug, drug approval status, and how CDx revenue ties to drug uptake
 
 **New badge variants** (add to globals.css):
+
 ```css
-.badge-510k { background: rgba(96, 165, 250, 0.12); color: #60A5FA; border: 1px solid rgba(96,165,250,0.2); }
-.badge-pma { background: rgba(251, 191, 36, 0.12); color: #FBBF24; border: 1px solid rgba(251,191,36,0.2); }
-.badge-de-novo { background: rgba(167, 139, 250, 0.12); color: #A78BFA; border: 1px solid rgba(167,139,250,0.2); }
-.badge-cdx { background: rgba(0, 201, 167, 0.12); color: #00C9A7; border: 1px solid rgba(0,201,167,0.2); }
-.badge-breakthrough-device { background: rgba(52, 211, 153, 0.12); color: #34D399; border: 1px solid rgba(52,211,153,0.2); }
+.badge-510k {
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+.badge-pma {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+.badge-de-novo {
+  background: rgba(167, 139, 250, 0.12);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+.badge-cdx {
+  background: rgba(0, 201, 167, 0.12);
+  color: #00c9a7;
+  border: 1px solid rgba(0, 201, 167, 0.2);
+}
+.badge-breakthrough-device {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
 
 /* Reimbursement coverage indicators */
-.coverage-green { color: #34D399; }
-.coverage-amber { color: #FBBF24; }
-.coverage-red { color: #F87171; }
+.coverage-green {
+  color: #34d399;
+}
+.coverage-amber {
+  color: #fbbf24;
+}
+.coverage-red {
+  color: #f87171;
+}
 ```
 
 ---
 
-*Terrain covers pharmaceutical, diagnostic, and medical device market intelligence. Built by Ambrosia Ventures — the only boutique life sciences advisory firm that built its own intelligence infrastructure.*
+_Terrain covers pharmaceutical, diagnostic, and medical device market intelligence. Built by Ambrosia Ventures — the only boutique life sciences advisory firm that built its own intelligence infrastructure._

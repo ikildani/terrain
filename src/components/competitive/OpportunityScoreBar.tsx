@@ -96,15 +96,27 @@ interface CrowdingIndicatorProps {
 }
 
 export function CrowdingIndicator({ score, label, className }: CrowdingIndicatorProps) {
-  const color =
-    score >= 8 ? 'text-red-400' : score >= 6 ? 'text-amber-400' : score >= 3 ? 'text-teal-400' : 'text-emerald-400';
+  const isNoData = label === 'no_data';
+  const color = isNoData
+    ? 'text-slate-500'
+    : score >= 8
+      ? 'text-red-400'
+      : score >= 6
+        ? 'text-amber-400'
+        : score >= 3
+          ? 'text-teal-400'
+          : 'text-emerald-400';
 
-  const displayLabel = label.replace('_', ' ');
+  const displayLabel = isNoData ? 'no data' : label.replace('_', ' ');
 
   return (
     <div className={cn('flex items-center gap-1.5', className)}>
-      <span className={cn('font-mono text-xs font-medium tabular-nums', color)}>{score.toFixed(1)}</span>
-      <span className="text-[10px] text-slate-500 capitalize">{displayLabel}</span>
+      <span className={cn('font-mono text-xs font-medium tabular-nums', color)}>
+        {isNoData ? '—' : score.toFixed(1)}
+      </span>
+      <span className={cn('text-[10px] capitalize', isNoData ? 'text-slate-600' : 'text-slate-500')}>
+        {displayLabel}
+      </span>
     </div>
   );
 }

@@ -42,61 +42,70 @@ import { MEDTECH_DEAL_DATABASE, getDealsByCategory, getMedianDealValue } from '@
 // evidence + reimbursement, not regulatory approval alone
 // ────────────────────────────────────────────────────────────
 const DEVICE_STAGE_SHARE = {
-  concept:           { low: 0.00, base: 0.00, high: 0.01 },
-  preclinical:       { low: 0.01, base: 0.02, high: 0.04 },
-  clinical_trial:    { low: 0.02, base: 0.05, high: 0.10 },
-  fda_submitted:     { low: 0.05, base: 0.10, high: 0.18 },
-  cleared_approved:  { low: 0.08, base: 0.15, high: 0.28 },
-  commercial:        { low: 0.12, base: 0.22, high: 0.38 },
+  concept: { low: 0.0, base: 0.0, high: 0.01 },
+  preclinical: { low: 0.01, base: 0.02, high: 0.04 },
+  clinical_trial: { low: 0.02, base: 0.05, high: 0.1 },
+  fda_submitted: { low: 0.05, base: 0.1, high: 0.18 },
+  cleared_approved: { low: 0.08, base: 0.15, high: 0.28 },
+  commercial: { low: 0.12, base: 0.22, high: 0.38 },
 };
 
 // ────────────────────────────────────────────────────────────
 // DEVICE REVENUE RAMP (slower than pharma due to capital cycle,
 // clinical learning curve, and ASC/hospital procurement cycles)
 // ────────────────────────────────────────────────────────────
-const DEVICE_REVENUE_RAMP = [0.08, 0.20, 0.40, 0.62, 0.80, 0.92, 1.0, 1.0, 0.98, 0.95];
+const DEVICE_REVENUE_RAMP = [0.08, 0.2, 0.4, 0.62, 0.8, 0.92, 1.0, 1.0, 0.98, 0.95];
 
 // ────────────────────────────────────────────────────────────
 // CAPITAL EQUIPMENT INSTALLED BASE RAMP
 // Capital deploys slower — hospitals have procurement cycles
 // ────────────────────────────────────────────────────────────
-const CAPITAL_INSTALLED_RAMP = [0.05, 0.15, 0.30, 0.50, 0.68, 0.82, 0.92, 1.0, 1.0, 0.98];
+const CAPITAL_INSTALLED_RAMP = [0.05, 0.15, 0.3, 0.5, 0.68, 0.82, 0.92, 1.0, 1.0, 0.98];
 
 // ────────────────────────────────────────────────────────────
 // MAIN DEVICE CALCULATION FUNCTION
 // ────────────────────────────────────────────────────────────
-export async function calculateDeviceMarketSizing(
-  input: DeviceMarketSizingInput
-): Promise<DeviceMarketSizingOutput> {
+export async function calculateDeviceMarketSizing(input: DeviceMarketSizingInput): Promise<DeviceMarketSizingOutput> {
+  // Step 0: Normalize input — API schema marks many fields optional,
+  // but the engine expects them. Apply safe defaults for any missing fields.
+  const safeInput: DeviceMarketSizingInput = {
+    ...input,
+    unit_ase: input.unit_ase ?? 0,
+    physician_specialty: input.physician_specialty ?? [],
+    target_setting: input.target_setting ?? ['hospital_inpatient'],
+    pricing_model: input.pricing_model ?? 'per_procedure',
+    device_category: input.device_category ?? ('general_surgery' as DeviceMarketSizingInput['device_category']),
+    product_category: input.product_category ?? ('device_implantable' as DeviceMarketSizingInput['product_category']),
+    reimbursement_status: input.reimbursement_status ?? 'covered',
+    development_stage: input.development_stage ?? 'clinical_trial',
+    geography: input.geography ?? ['US'],
+    launch_year: input.launch_year ?? new Date().getFullYear() + 2,
+  };
 
-  // Step 1: Look up procedure data
-  const procedure = findProcedure(input.procedure_or_condition);
-  if (!procedure) {
-    throw new Error(`Procedure/condition not found: "${input.procedure_or_condition}". Please try a related term or contact support.`);
-  }
+  // Step 1: Look up procedure data (with graceful fallback for unmatched inputs)
+  const matchedProcedure = findProcedure(safeInput.procedure_or_condition);
+  const procedure = matchedProcedure || buildFallbackProcedure(safeInput);
 
   // Step 2: Determine market share range
-  const shareRange = DEVICE_STAGE_SHARE[input.development_stage];
+  const shareRange = DEVICE_STAGE_SHARE[safeInput.development_stage];
 
   // Step 3: Calculate revenue streams based on pricing model
-  const revenueStreams = buildRevenueStreams(input, procedure, shareRange.base);
+  const revenueStreams = buildRevenueStreams(safeInput, procedure, shareRange.base);
 
   // Step 4: US TAM (total market if dominant player)
-  const us_tam_value = (procedure.us_annual_procedures * input.unit_ase) / 1e9;
+  const us_tam_value = (procedure.us_annual_procedures * safeInput.unit_ase) / 1e9;
 
   // Step 5: US SAM (addressable with your device profile)
-  const addressability_factor = getAddressabilityFactor(input);
+  const addressability_factor = getAddressabilityFactor(safeInput);
   const us_sam_value = us_tam_value * addressability_factor;
 
   // Step 6: US SOM (realistic capture at peak)
   const us_som_base = us_sam_value * shareRange.base;
-  const us_som_low  = us_sam_value * shareRange.low;
+  const us_som_low = us_sam_value * shareRange.low;
   const us_som_high = us_sam_value * shareRange.high;
 
   // Step 7: Geography breakdown
-  const geographyBreakdown = buildDeviceGeographyBreakdown(
-    input.geography, us_tam_value, procedure
-  );
+  const geographyBreakdown = buildDeviceGeographyBreakdown(safeInput.geography, us_tam_value, procedure);
 
   // Step 8: Global TAM
   const globalTAM = geographyBreakdown.reduce((sum, t) => {
@@ -105,72 +114,79 @@ export async function calculateDeviceMarketSizing(
   }, 0);
 
   // Step 9: Category-specific adoption curve (replaces generic 2-curve model)
-  const adoptionCurveData = getAdoptionCurve(input.product_category, input.device_category);
-  const ramp = adoptionCurveData.factors.map((f, i) =>
-    i < 3 ? f * adoptionCurveData.learning_curve : f
-  );
+  const adoptionCurveData = getAdoptionCurve(safeInput.product_category, safeInput.device_category);
+  const ramp = adoptionCurveData.factors.map((f, i) => (i < 3 ? f * adoptionCurveData.learning_curve : f));
 
   // Revenue projection in $M (matching pharma engine convention)
   const revenueProjection = ramp.map((factor, i) => ({
-    year: input.launch_year + i,
-    bear:  parseFloat((us_som_low  * 1000 * factor).toFixed(1)),
-    base:  parseFloat((us_som_base * 1000 * factor).toFixed(1)),
-    bull:  parseFloat((us_som_high * 1000 * factor).toFixed(1)),
+    year: safeInput.launch_year + i,
+    bear: parseFloat((us_som_low * 1000 * factor).toFixed(1)),
+    base: parseFloat((us_som_base * 1000 * factor).toFixed(1)),
+    bull: parseFloat((us_som_high * 1000 * factor).toFixed(1)),
   }));
 
   // Step 10: Adoption model
-  const adoptionModel = buildAdoptionModel(input, procedure, shareRange);
+  const adoptionModel = buildAdoptionModel(safeInput, procedure, shareRange);
 
   // Step 11: Reimbursement analysis
-  const reimbursementAnalysis = buildReimbursementAnalysis(input, procedure);
+  const reimbursementAnalysis = buildReimbursementAnalysis(safeInput, procedure);
 
   // Step 12: Competitive positioning from benchmarks
-  const competitivePositioning = buildCompetitivePositioning(input, procedure);
+  const competitivePositioning = buildCompetitivePositioning(safeInput, procedure);
 
   // Step 13: Reimbursement analytics
   const drgPayment = procedure.reimbursement.medicare_facility_rate || 0;
-  const ntap = drgPayment > 0 ? calculateNTAPBenefit(input.unit_ase, drgPayment) : undefined;
+  const ntap = drgPayment > 0 ? calculateNTAPBenefit(safeInput.unit_ase, drgPayment) : undefined;
   const payerMix = buildPayerMixModel(
-    input.target_setting,
-    input.device_category,
-    procedure.reimbursement.medicare_facility_rate
+    safeInput.target_setting,
+    safeInput.device_category,
+    procedure.reimbursement.medicare_facility_rate,
   );
   const coverageTimeline = buildCoverageTimeline(
-    input.reimbursement_status,
-    input.development_stage,
-    input.product_category
+    safeInput.reimbursement_status,
+    safeInput.development_stage,
+    safeInput.product_category,
   );
-  const reimbursementScenarios = buildReimbursementScenarios(payerMix, ntap, input.unit_ase);
-  const reimbursementRiskScore = ntap?.eligible ? 4 : payerMix.blended_reimbursement_rate > input.unit_ase * 0.7 ? 3 : 7;
+  const reimbursementScenarios = buildReimbursementScenarios(payerMix, ntap, safeInput.unit_ase);
+  const reimbursementRiskScore = ntap?.eligible
+    ? 4
+    : payerMix.blended_reimbursement_rate > safeInput.unit_ase * 0.7
+      ? 3
+      : 7;
 
   // Step 14: Enhanced competitive analytics
-  const competitiveShareDist = buildDeviceCompetitiveShareDistribution(procedure, input, DEVICE_PRICING_BENCHMARKS);
-  const evidenceGaps = buildEvidenceGapAnalysis(input.development_stage, input.product_category);
-  const pricingPressure = buildPricingPressureModel(input, DEVICE_PRICING_BENCHMARKS, procedure);
+  const competitiveShareDist = buildDeviceCompetitiveShareDistribution(procedure, safeInput, DEVICE_PRICING_BENCHMARKS);
+  const evidenceGaps = buildEvidenceGapAnalysis(safeInput.development_stage, safeInput.product_category);
+  const pricingPressure = buildPricingPressureModel(safeInput, DEVICE_PRICING_BENCHMARKS, procedure);
 
   // Step 15: Deal benchmark
-  const dealBenchmark = buildDealBenchmark(input);
+  const dealBenchmark = buildDealBenchmark(safeInput);
 
   // Step 16: Technology Readiness Scoring
   const technologyReadiness = buildTechnologyReadinessScoring(
     procedure.major_device_competitors,
-    input.development_stage
+    safeInput.development_stage,
   );
 
   // Step 17: Clinical Superiority Matrix
-  const clinicalSuperiority = buildClinicalSuperiorityMatrix(procedure, input);
+  const clinicalSuperiority = buildClinicalSuperiorityMatrix(procedure, safeInput);
 
   // Step 18: Surgeon Switching Cost Model
-  const surgeonSwitchingCost = buildSurgeonSwitchingCostModel(
-    input.device_category,
-    input.product_category
-  );
+  const surgeonSwitchingCost = buildSurgeonSwitchingCostModel(safeInput.device_category, safeInput.product_category);
 
   const currentYear = new Date().getFullYear();
   const dataSources = [
-    { name: `CMS Medicare Fee Schedule ${currentYear}`, type: 'public' as const, url: 'https://www.cms.gov/medicare/payment' },
+    {
+      name: `CMS Medicare Fee Schedule ${currentYear}`,
+      type: 'public' as const,
+      url: 'https://www.cms.gov/medicare/payment',
+    },
     { name: `AHA Annual Survey of Hospitals ${currentYear}`, type: 'licensed' as const },
-    { name: 'FDA 510(k) / PMA Database', type: 'public' as const, url: 'https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm' },
+    {
+      name: 'FDA 510(k) / PMA Database',
+      type: 'public' as const,
+      url: 'https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm',
+    },
     { name: 'Definitive Healthcare Procedure Volume Data', type: 'licensed' as const },
     { name: `Ambrosia Ventures Medtech Deal Database (2020-${currentYear})`, type: 'proprietary' as const },
     { name: `ASC Association Annual Survey ${currentYear}`, type: 'public' as const },
@@ -178,15 +194,19 @@ export async function calculateDeviceMarketSizing(
 
   return {
     summary: {
-      us_tam: toDeviceMetric(us_tam_value, procedure ? 'high' : 'medium'),
-      us_sam: toDeviceMetric(us_sam_value, addressability_factor > 0.4 ? 'high' : 'medium'),
+      us_tam: toDeviceMetric(us_tam_value, matchedProcedure ? 'high' : 'low'),
+      us_sam: toDeviceMetric(
+        us_sam_value,
+        matchedProcedure && addressability_factor > 0.4 ? 'high' : matchedProcedure ? 'medium' : 'low',
+      ),
       us_som: {
         ...toDeviceMetric(us_som_base, 'medium'),
-        range: us_som_low >= 1
-          ? [parseFloat(us_som_low.toFixed(2)), parseFloat(us_som_high.toFixed(2))]
-          : [parseFloat((us_som_low * 1000).toFixed(1)), parseFloat((us_som_high * 1000).toFixed(1))],
+        range:
+          us_som_low >= 1
+            ? [parseFloat(us_som_low.toFixed(2)), parseFloat(us_som_high.toFixed(2))]
+            : [parseFloat((us_som_low * 1000).toFixed(1)), parseFloat((us_som_high * 1000).toFixed(1))],
       },
-      global_tam: toDeviceMetric(globalTAM, geographyBreakdown.length > 1 ? 'medium' : 'low'),
+      global_tam: toDeviceMetric(globalTAM, matchedProcedure && geographyBreakdown.length > 1 ? 'medium' : 'low'),
       cagr_5yr: procedure.cagr_5yr,
       market_growth_driver: procedure.growth_driver,
     },
@@ -218,7 +238,7 @@ export async function calculateDeviceMarketSizing(
     technology_readiness: technologyReadiness,
     clinical_superiority: clinicalSuperiority,
     surgeon_switching_cost: surgeonSwitchingCost,
-    methodology: buildDeviceMethodology(input, procedure, shareRange),
+    methodology: buildDeviceMethodology(safeInput, procedure, shareRange),
     data_sources: dataSources,
     generated_at: new Date().toISOString(),
   };
@@ -227,10 +247,7 @@ export async function calculateDeviceMarketSizing(
 // ────────────────────────────────────────────────────────────
 // COMPANION DIAGNOSTIC CALCULATION ENGINE
 // ────────────────────────────────────────────────────────────
-export async function calculateCDxMarketSizing(
-  input: CDxMarketSizingInput
-): Promise<CDxOutput> {
-
+export async function calculateCDxMarketSizing(input: CDxMarketSizingInput): Promise<CDxOutput> {
   // Step 1: Get base indication incidence from pharma indication map
   // Import from indication-map.ts
   const { findIndicationByName } = await import('@/lib/data/indication-map');
@@ -261,16 +278,17 @@ export async function calculateCDxMarketSizing(
   const net_revenue_per_test = gross_revenue_per_test * (1 - gtm_discount);
 
   const total_revenue = {
-    low:  total_annual_tests * 0.7  * net_revenue_per_test / 1e6,
-    base: total_annual_tests        * net_revenue_per_test / 1e6,
-    high: total_annual_tests * 1.3  * net_revenue_per_test / 1e6,
+    low: (total_annual_tests * 0.7 * net_revenue_per_test) / 1e6,
+    base: (total_annual_tests * net_revenue_per_test) / 1e6,
+    high: (total_annual_tests * 1.3 * net_revenue_per_test) / 1e6,
   };
 
   // Step 4: Find comparable CDx deals
-  const comparableDeals = CDX_DEAL_DATABASE.filter(d =>
-    d.indication.toLowerCase().includes(input.drug_indication.toLowerCase().split(' ')[0]) ||
-    d.cdx_company.toLowerCase().includes('roche') || // Most deals involve major Dx companies
-    d.test_type === input.test_type
+  const comparableDeals = CDX_DEAL_DATABASE.filter(
+    (d) =>
+      d.indication.toLowerCase().includes(input.drug_indication.toLowerCase().split(' ')[0]) ||
+      d.cdx_company.toLowerCase().includes('roche') || // Most deals involve major Dx companies
+      d.test_type === input.test_type,
   ).slice(0, 5);
 
   // Step 5: CPT code lookup for test type
@@ -336,39 +354,237 @@ function toDeviceMetric(valueBillions: number, confidence: 'high' | 'medium' | '
 // HELPERS
 // ────────────────────────────────────────────────────────────
 
-function findProcedure(name: string) {
-  const q = name.toLowerCase().trim();
-  return PROCEDURE_DATA.find(p =>
-    p.name.toLowerCase() === q ||
-    p.synonyms.some(s => s.toLowerCase() === q || s.toLowerCase().includes(q)) ||
-    q.includes(p.name.toLowerCase())
-  ) || null;
+// Common procedure aliases that don't match via substring
+const PROCEDURE_ALIASES: Record<string, string[]> = {
+  'transcatheter aortic valve replacement': ['heart valve', 'aortic valve', 'aortic stenosis', 'valve replacement'],
+  'cardiac ablation for atrial fibrillation': ['afib', 'atrial fibrillation', 'heart rhythm', 'af ablation'],
+  'coronary stent implantation': ['coronary stent', 'heart stent', 'pci', 'angioplasty', 'coronary artery disease'],
+  'total knee replacement': [
+    'knee replacement',
+    'knee arthroplasty',
+    'tka',
+    'knee implant',
+    'knee prosthesis',
+    'osteoarthritis knee',
+  ],
+  'total hip replacement': [
+    'hip replacement',
+    'hip arthroplasty',
+    'tha',
+    'hip implant',
+    'hip prosthesis',
+    'osteoarthritis hip',
+  ],
+  'spinal fusion': [
+    'spine fusion',
+    'back surgery',
+    'spinal implant',
+    'lumbar fusion',
+    'cervical fusion',
+    'degenerative disc',
+  ],
+  'continuous glucose monitor (cgm)': [
+    'glucose monitor',
+    'cgm',
+    'blood sugar monitor',
+    'diabetes monitor',
+    'continuous glucose',
+  ],
+  'insulin pump therapy': ['insulin pump', 'insulin delivery', 'diabetes pump'],
+  'robotic-assisted radical prostatectomy': [
+    'robotic surgery',
+    'prostatectomy',
+    'prostate surgery',
+    'robotic prostate',
+    'da vinci prostate',
+  ],
+  'deep brain stimulation': ['dbs', 'brain stimulation', 'parkinson stimulation', 'parkinson device', 'tremor device'],
+  'cataract surgery with iol implantation': ['cataract', 'iol', 'intraocular lens', 'lens implant', 'cataract surgery'],
+  'negative pressure wound therapy': ['wound vac', 'npwt', 'wound therapy', 'vacuum wound'],
+  'leadless pacemaker implantation': ['pacemaker', 'leadless pacemaker', 'cardiac pacing'],
+  'subcutaneous icd implantation': ['icd', 'defibrillator', 'implantable defibrillator', 's-icd'],
+  'transcatheter mitral valve repair (teer)': [
+    'mitral valve',
+    'mitraclip',
+    'teer',
+    'mitral repair',
+    'mitral regurgitation',
+  ],
+  'left atrial appendage closure': ['laa closure', 'watchman', 'atrial appendage', 'stroke prevention device'],
+  'bariatric surgery (sleeve gastrectomy/gastric bypass)': [
+    'bariatric',
+    'weight loss surgery',
+    'gastric sleeve',
+    'gastric bypass',
+    'obesity surgery',
+  ],
+  'cochlear implant': ['cochlear', 'hearing implant', 'hearing device', 'deaf implant'],
+  'benign prostatic hyperplasia treatment (minimally invasive)': [
+    'bph',
+    'prostate enlargement',
+    'urolift',
+    'rezum',
+    'enlarged prostate',
+  ],
+  'spinal cord stimulation': ['scs', 'spinal stimulator', 'pain stimulator', 'chronic pain device', 'back pain device'],
+  'dialysis access (av fistula/graft creation)': ['dialysis', 'av fistula', 'dialysis access', 'hemodialysis'],
+  'hernia repair (mesh)': ['hernia', 'hernia mesh', 'inguinal hernia', 'ventral hernia'],
+  'mohs surgery for skin cancer': ['mohs', 'skin cancer surgery', 'skin cancer'],
+  'balloon sinuplasty': ['sinus surgery', 'sinuplasty', 'sinus', 'chronic sinusitis'],
+  'renal denervation': ['renal denervation', 'hypertension device', 'rdn'],
+  'focused ultrasound thalamotomy': ['focused ultrasound', 'essential tremor', 'hifu brain'],
+  'vagus nerve stimulation': ['vns', 'vagus nerve', 'epilepsy device'],
+  'endovascular aneurysm repair': ['evar', 'aortic aneurysm', 'aneurysm repair', 'aaa repair'],
+};
+
+function normalize(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[''`\-\/]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function tokenScore(query: string, target: string): number {
+  const qTokens = normalize(query)
+    .split(' ')
+    .filter((t) => t.length > 2);
+  const tTokens = normalize(target)
+    .split(' ')
+    .filter((t) => t.length > 2);
+  if (qTokens.length === 0) return 0;
+  let matches = 0;
+  for (const qt of qTokens) {
+    if (tTokens.some((tt) => tt.includes(qt) || qt.includes(tt))) matches++;
+  }
+  return matches / qTokens.length;
+}
+
+function findProcedure(name: string): (typeof PROCEDURE_DATA)[number] | null {
+  const q = normalize(name);
+
+  // 1. Exact match on name or synonym
+  const exact = PROCEDURE_DATA.find((p) => normalize(p.name) === q || p.synonyms.some((s) => normalize(s) === q));
+  if (exact) return exact;
+
+  // 2. Substring match (original logic)
+  const substring = PROCEDURE_DATA.find(
+    (p) =>
+      normalize(p.name).includes(q) ||
+      q.includes(normalize(p.name)) ||
+      p.synonyms.some((s) => normalize(s).includes(q) || q.includes(normalize(s))),
+  );
+  if (substring) return substring;
+
+  // 3. Alias map match
+  for (const [procName, aliases] of Object.entries(PROCEDURE_ALIASES)) {
+    if (aliases.some((a) => q.includes(a) || a.includes(q))) {
+      const matched = PROCEDURE_DATA.find((p) => normalize(p.name) === procName);
+      if (matched) return matched;
+    }
+  }
+
+  // 4. Token-based fuzzy match — pick best scoring procedure
+  let bestScore = 0;
+  let bestMatch: (typeof PROCEDURE_DATA)[number] | null = null;
+
+  for (const p of PROCEDURE_DATA) {
+    const nameScore = tokenScore(q, p.name);
+    const synonymScores = p.synonyms.map((s) => tokenScore(q, s));
+    const aliasScores = (PROCEDURE_ALIASES[normalize(p.name)] || []).map((a) => tokenScore(q, a));
+    const maxScore = Math.max(nameScore, ...synonymScores, ...aliasScores);
+    if (maxScore > bestScore) {
+      bestScore = maxScore;
+      bestMatch = p;
+    }
+  }
+
+  // Require at least 50% token overlap to prevent false matches
+  if (bestScore >= 0.5 && bestMatch) return bestMatch;
+
+  // 5. Category-based fallback — match by device_category
+  const categoryMatch = PROCEDURE_DATA.find(
+    (p) => normalize(p.device_category).includes(q) || q.includes(normalize(p.device_category)),
+  );
+  if (categoryMatch) return categoryMatch;
+
+  return null;
+}
+
+// Category-to-default estimates for when no exact procedure match exists.
+// Conservative fallback values based on broad medtech category averages.
+const CATEGORY_DEFAULTS: Record<string, { procedures: number; growth: number; sites: number; facilityRate: number }> = {
+  cardiovascular: { procedures: 120000, growth: 6.0, sites: 900, facilityRate: 22000 },
+  orthopedic: { procedures: 200000, growth: 4.0, sites: 2500, facilityRate: 18000 },
+  neurology: { procedures: 35000, growth: 8.0, sites: 600, facilityRate: 25000 },
+  ophthalmology: { procedures: 400000, growth: 3.0, sites: 4000, facilityRate: 3500 },
+  endoscopy_gi: { procedures: 150000, growth: 5.0, sites: 3000, facilityRate: 6000 },
+  wound_care: { procedures: 250000, growth: 5.5, sites: 5000, facilityRate: 800 },
+  diabetes_metabolic: { procedures: 500000, growth: 12.0, sites: 8000, facilityRate: 500 },
+  oncology_surgical: { procedures: 80000, growth: 6.0, sites: 1200, facilityRate: 15000 },
+  respiratory: { procedures: 60000, growth: 7.0, sites: 1000, facilityRate: 10000 },
+  general_surgery: { procedures: 300000, growth: 3.5, sites: 4000, facilityRate: 8000 },
+  vascular: { procedures: 100000, growth: 5.0, sites: 1500, facilityRate: 12000 },
+  renal_dialysis: { procedures: 50000, growth: 4.0, sites: 800, facilityRate: 15000 },
+  ent: { procedures: 180000, growth: 4.5, sites: 3000, facilityRate: 4000 },
+};
+
+function buildFallbackProcedure(input: DeviceMarketSizingInput): (typeof PROCEDURE_DATA)[number] {
+  const cat = input.device_category || 'general_surgery';
+  const defaults = CATEGORY_DEFAULTS[cat] || CATEGORY_DEFAULTS.general_surgery;
+
+  return {
+    name: input.procedure_or_condition,
+    synonyms: [],
+    cpt_codes: [],
+    device_category: cat as import('@/types/devices-diagnostics').DeviceCategory,
+    us_annual_procedures: defaults.procedures,
+    us_procedure_growth_rate: defaults.growth,
+    procedure_setting: input.target_setting || ['hospital_inpatient'],
+    eligible_sites: { hospitals: defaults.sites, ascs: Math.round(defaults.sites * 0.15) },
+    performing_specialty: input.physician_specialty || ['General Surgery'],
+    adoption_barrier: 'moderate' as const,
+    procedure_source: 'Terrain estimate — no exact procedure match in database. Values are category-level averages.',
+    reimbursement: {
+      cms_coverage: 'partial' as const,
+      medicare_facility_rate: defaults.facilityRate,
+      medicare_physician_rate: Math.round(defaults.facilityRate * 0.08),
+      private_payer_coverage: 'Coverage varies. No specific data for this procedure — verify with target payers.',
+    },
+    major_device_competitors: [],
+    market_leader: 'Unknown — not in Terrain database',
+    market_leader_share_pct: undefined,
+    current_standard_of_care:
+      'Not available — procedure not in Terrain database. Results use category-level estimates.',
+    cagr_5yr: defaults.growth,
+    growth_driver: 'Category-level growth estimate. Verify with procedure-specific data.',
+  };
 }
 
 function getAddressabilityFactor(input: DeviceMarketSizingInput): number {
   // SAM is narrower than TAM based on target setting fit
   const settingFactors: Record<string, number> = {
     hospital_inpatient: 0.45,
-    hospital_outpatient: 0.30,
-    asc: 0.20,
+    hospital_outpatient: 0.3,
+    asc: 0.2,
     office: 0.15,
     home: 0.25,
-    lab: 0.60,
+    lab: 0.6,
   };
   const settingFactor = input.target_setting.reduce((sum, s) => sum + (settingFactors[s] || 0.2), 0);
-  return Math.min(settingFactor, 0.80);
+  return Math.min(settingFactor, 0.8);
 }
 
 function buildRevenueStreams(
   input: DeviceMarketSizingInput,
   procedure: NonNullable<ReturnType<typeof findProcedure>>,
-  baseShare: number
+  baseShare: number,
 ): RevenueStreamBreakdown[] {
   const streams: RevenueStreamBreakdown[] = [];
   const capturedProcedures = Math.round(procedure.us_annual_procedures * baseShare);
 
   // Primary revenue stream
-  const primaryRevenue = capturedProcedures * input.unit_ase / 1e6;
+  const primaryRevenue = (capturedProcedures * input.unit_ase) / 1e6;
   streams.push({
     stream: input.pricing_model === 'per_unit_capital' ? 'Capital Equipment' : 'Device / Procedure Revenue',
     annual_revenue_per_unit: input.unit_ase,
@@ -379,7 +595,7 @@ function buildRevenueStreams(
 
   // Disposables stream (if applicable)
   if (input.disposables_per_procedure && input.disposable_ase) {
-    const disposableRevenue = capturedProcedures * input.disposables_per_procedure * input.disposable_ase / 1e6;
+    const disposableRevenue = (capturedProcedures * input.disposables_per_procedure * input.disposable_ase) / 1e6;
     streams.push({
       stream: 'Disposables & Consumables',
       annual_revenue_per_unit: input.disposables_per_procedure * input.disposable_ase,
@@ -392,8 +608,11 @@ function buildRevenueStreams(
   // Service contracts (capital equipment)
   if (input.service_contract_annual && input.pricing_model === 'per_unit_capital') {
     // Assume installed base grows to match capturedProcedures worth of systems
-    const installedSystems = Math.round(capturedProcedures / (procedure.us_annual_procedures / (procedure.eligible_sites.hospitals + (procedure.eligible_sites.ascs || 0))));
-    const serviceRevenue = installedSystems * input.service_contract_annual / 1e6;
+    const installedSystems = Math.round(
+      capturedProcedures /
+        (procedure.us_annual_procedures / (procedure.eligible_sites.hospitals + (procedure.eligible_sites.ascs || 0))),
+    );
+    const serviceRevenue = (installedSystems * input.service_contract_annual) / 1e6;
     streams.push({
       stream: 'Service & Maintenance Contracts',
       annual_revenue_per_unit: input.service_contract_annual,
@@ -405,7 +624,7 @@ function buildRevenueStreams(
 
   // Calculate contribution percentages
   const totalRevenue = streams.reduce((sum, s) => sum + s.gross_revenue_m, 0);
-  return streams.map(s => ({
+  return streams.map((s) => ({
     ...s,
     contribution_pct: parseFloat(((s.gross_revenue_m / totalRevenue) * 100).toFixed(1)),
   }));
@@ -414,9 +633,10 @@ function buildRevenueStreams(
 function buildAdoptionModel(
   input: DeviceMarketSizingInput,
   procedure: NonNullable<ReturnType<typeof findProcedure>>,
-  shareRange: { low: number; base: number; high: number }
+  shareRange: { low: number; base: number; high: number },
 ) {
-  const totalSites = (procedure.eligible_sites.hospitals || 0) +
+  const totalSites =
+    (procedure.eligible_sites.hospitals || 0) +
     (procedure.eligible_sites.ascs || 0) +
     (procedure.eligible_sites.clinics || 0);
 
@@ -430,9 +650,8 @@ function buildAdoptionModel(
       base: parseFloat((shareRange.base * 100).toFixed(1)),
       high: parseFloat((shareRange.high * 100).toFixed(1)),
     },
-    peak_installed_base: input.pricing_model === 'per_unit_capital'
-      ? Math.round(addressableSites * shareRange.base)
-      : undefined,
+    peak_installed_base:
+      input.pricing_model === 'per_unit_capital' ? Math.round(addressableSites * shareRange.base) : undefined,
     years_to_peak: input.pricing_model === 'per_unit_capital' ? 7 : 5,
   };
 }
@@ -440,43 +659,46 @@ function buildAdoptionModel(
 function buildDeviceGeographyBreakdown(
   geographies: string[],
   us_tam_billions: number,
-  procedure: NonNullable<ReturnType<typeof findProcedure>>
+  procedure: NonNullable<ReturnType<typeof findProcedure>>,
 ) {
-  return geographies.map(geo => {
-    const territory = TERRITORY_MULTIPLIERS.find(t => t.code === geo || t.territory === geo);
-    const multiplier = territory?.multiplier || 0.5;
+  return geographies
+    .map((geo) => {
+      const territory = TERRITORY_MULTIPLIERS.find((t) => t.code === geo || t.territory === geo);
+      const multiplier = territory?.multiplier || 0.5;
 
-    const reimbursementNotes: Record<string, string> = {
-      'US': 'CMS/Medicare coverage; private payer negotiated rates',
-      'EU5': 'National health system reimbursement; DRG-based hospital payment',
-      'Germany': 'G-DRG system; NUB application for novel devices',
-      'France': 'GHS/GHM system; CNEDIMTS HTA for high-value devices',
-      'UK': 'NHS procurement; NICE medical technologies evaluation',
-      'Japan': 'NHI reimbursement; PMDA device approval; biennial price revision',
-      'China': 'NMPA approved; provincial reimbursement catalog listing required',
-      'RoW': 'Variable; tender-based procurement in many markets',
-    };
+      const reimbursementNotes: Record<string, string> = {
+        US: 'CMS/Medicare coverage; private payer negotiated rates',
+        EU5: 'National health system reimbursement; DRG-based hospital payment',
+        Germany: 'G-DRG system; NUB application for novel devices',
+        France: 'GHS/GHM system; CNEDIMTS HTA for high-value devices',
+        UK: 'NHS procurement; NICE medical technologies evaluation',
+        Japan: 'NHI reimbursement; PMDA device approval; biennial price revision',
+        China: 'NMPA approved; provincial reimbursement catalog listing required',
+        RoW: 'Variable; tender-based procurement in many markets',
+      };
 
-    const tamVal = us_tam_billions * multiplier;
-    return {
-      territory: territory?.territory || geo,
-      tam: tamVal >= 1
-        ? { value: parseFloat(tamVal.toFixed(2)), unit: 'B' as const }
-        : { value: parseFloat((tamVal * 1000).toFixed(tamVal * 1000 >= 100 ? 0 : 1)), unit: 'M' as const },
-      procedure_volume: Math.round(procedure.us_annual_procedures * multiplier * 0.7),
-      reimbursement_environment: reimbursementNotes[geo] || 'Country-specific reimbursement framework',
-      market_note: territory?.notes || '',
-    };
-  }).sort((a, b) => {
-    const aV = a.tam.unit === 'B' ? a.tam.value : a.tam.value / 1000;
-    const bV = b.tam.unit === 'B' ? b.tam.value : b.tam.value / 1000;
-    return bV - aV;
-  });
+      const tamVal = us_tam_billions * multiplier;
+      return {
+        territory: territory?.territory || geo,
+        tam:
+          tamVal >= 1
+            ? { value: parseFloat(tamVal.toFixed(2)), unit: 'B' as const }
+            : { value: parseFloat((tamVal * 1000).toFixed(tamVal * 1000 >= 100 ? 0 : 1)), unit: 'M' as const },
+        procedure_volume: Math.round(procedure.us_annual_procedures * multiplier * 0.7),
+        reimbursement_environment: reimbursementNotes[geo] || 'Country-specific reimbursement framework',
+        market_note: territory?.notes || '',
+      };
+    })
+    .sort((a, b) => {
+      const aV = a.tam.unit === 'B' ? a.tam.value : a.tam.value / 1000;
+      const bV = b.tam.unit === 'B' ? b.tam.value : b.tam.value / 1000;
+      return bV - aV;
+    });
 }
 
 function buildReimbursementAnalysis(
   input: DeviceMarketSizingInput,
-  procedure: NonNullable<ReturnType<typeof findProcedure>>
+  procedure: NonNullable<ReturnType<typeof findProcedure>>,
 ) {
   const riskMap = {
     covered: 'low' as const,
@@ -486,9 +708,10 @@ function buildReimbursementAnalysis(
   };
 
   return {
-    us_coverage_status: procedure.reimbursement.cms_coverage === 'covered'
-      ? 'Medicare covered under existing CPT codes'
-      : 'Coverage pathway under development',
+    us_coverage_status:
+      procedure.reimbursement.cms_coverage === 'covered'
+        ? 'Medicare covered under existing CPT codes'
+        : 'Coverage pathway under development',
     primary_cpt_codes: procedure.cpt_codes,
     drg_codes: procedure.drg_codes,
     medicare_payment_rate: procedure.reimbursement.medicare_facility_rate
@@ -502,12 +725,10 @@ function buildReimbursementAnalysis(
 
 function buildCompetitivePositioning(
   input: DeviceMarketSizingInput,
-  procedure: NonNullable<ReturnType<typeof findProcedure>>
+  procedure: NonNullable<ReturnType<typeof findProcedure>>,
 ) {
-  const benchmarks = DEVICE_PRICING_BENCHMARKS.filter(b =>
-    b.product_category === input.product_category
-  );
-  const prices = benchmarks.map(b => b.hospital_asp_usd).sort((a, b) => a - b);
+  const benchmarks = DEVICE_PRICING_BENCHMARKS.filter((b) => b.product_category === input.product_category);
+  const prices = benchmarks.map((b) => b.hospital_asp_usd).sort((a, b) => a - b);
 
   return {
     total_competitors: procedure.major_device_competitors.length,
@@ -524,7 +745,7 @@ function buildCompetitivePositioning(
 
 function getReimbursementStrategy(
   input: DeviceMarketSizingInput,
-  procedure: NonNullable<ReturnType<typeof findProcedure>>
+  procedure: NonNullable<ReturnType<typeof findProcedure>>,
 ): string {
   if (input.reimbursement_status === 'covered') {
     return 'Existing CPT codes support coverage. Focus on health economics data to justify premium ASP vs. incumbent.';
@@ -537,12 +758,48 @@ function getReimbursementStrategy(
 
 function getDifferentiationVectors(category: DeviceMarketSizingInput['device_category']): string[] {
   const vectors: Record<string, string[]> = {
-    cardiovascular: ['Clinical outcomes data', 'Procedure time reduction', 'Learning curve', 'Long-term durability', 'Patient-reported outcomes'],
-    orthopedic: ['Revision rates', 'Material innovation', 'Patient-specific implant capability', 'OR efficiency', 'Surgeon preference'],
-    neurology: ['Anatomical access', 'Stimulation parameter flexibility', 'Battery longevity', 'MRI compatibility', 'Remote programming'],
-    diabetes_metabolic: ['Accuracy (MARD)', 'Wear time', 'Integration with insulin delivery', 'Alarm algorithms', 'Cost per day'],
-    oncology_surgical: ['Visualization', 'Margin assessment', 'Blood loss reduction', 'Learning curve', 'Hospital LOS impact'],
-    ivd_oncology: ['Sensitivity/specificity', 'Turnaround time', 'Tissue vs. liquid biopsy', 'Multi-analyte panel', 'AI interpretation'],
+    cardiovascular: [
+      'Clinical outcomes data',
+      'Procedure time reduction',
+      'Learning curve',
+      'Long-term durability',
+      'Patient-reported outcomes',
+    ],
+    orthopedic: [
+      'Revision rates',
+      'Material innovation',
+      'Patient-specific implant capability',
+      'OR efficiency',
+      'Surgeon preference',
+    ],
+    neurology: [
+      'Anatomical access',
+      'Stimulation parameter flexibility',
+      'Battery longevity',
+      'MRI compatibility',
+      'Remote programming',
+    ],
+    diabetes_metabolic: [
+      'Accuracy (MARD)',
+      'Wear time',
+      'Integration with insulin delivery',
+      'Alarm algorithms',
+      'Cost per day',
+    ],
+    oncology_surgical: [
+      'Visualization',
+      'Margin assessment',
+      'Blood loss reduction',
+      'Learning curve',
+      'Hospital LOS impact',
+    ],
+    ivd_oncology: [
+      'Sensitivity/specificity',
+      'Turnaround time',
+      'Tissue vs. liquid biopsy',
+      'Multi-analyte panel',
+      'AI interpretation',
+    ],
     default: ['Clinical evidence', 'Ease of use', 'Cost-effectiveness', 'Patient outcomes', 'Workflow integration'],
   };
   return vectors[category] || vectors.default;
@@ -555,10 +812,14 @@ function getDifferentiationVectors(category: DeviceMarketSizingInput['device_cat
 function estimateIncidenceFromIndication(indication: string): number {
   // Fallback estimates for common indications not in database
   const estimates: Record<string, number> = {
-    'nsclc': 236740, 'lung cancer': 236740,
-    'breast cancer': 310720, 'colorectal': 154270,
-    'melanoma': 100640, 'prostate': 299010,
-    'leukemia': 60650, 'lymphoma': 89380,
+    nsclc: 236740,
+    'lung cancer': 236740,
+    'breast cancer': 310720,
+    colorectal: 154270,
+    melanoma: 100640,
+    prostate: 299010,
+    leukemia: 60650,
+    lymphoma: 89380,
   };
   const q = indication.toLowerCase();
   for (const [key, val] of Object.entries(estimates)) {
@@ -569,55 +830,71 @@ function estimateIncidenceFromIndication(indication: string): number {
 
 function getDrugStageFactor(stage: string): number {
   const factors: Record<string, number> = {
-    'preclinical': 0.02, 'phase1': 0.05, 'phase2': 0.15,
-    'phase3': 0.40, 'approved': 0.65,
+    preclinical: 0.02,
+    phase1: 0.05,
+    phase2: 0.15,
+    phase3: 0.4,
+    approved: 0.65,
   };
-  return factors[stage.toLowerCase().replace(' ', '')] || 0.30;
+  return factors[stage.toLowerCase().replace(' ', '')] || 0.3;
 }
 
 function getTestingRate(input: CDxMarketSizingInput): number {
   // Testing adoption depends on how firmly biomarker testing is embedded in guidelines
   const typeRates: Record<string, number> = {
-    'IHC': 0.80,           // Widely available, low cost, high adoption
-    'FISH': 0.65,
-    'PCR': 0.75,
-    'NGS_panel': 0.55,     // Growing but not yet universal
-    'liquid_biopsy': 0.30, // Emerging; not yet standard of care
-    'WGS': 0.20,
-    'RNA_seq': 0.25,
+    IHC: 0.8, // Widely available, low cost, high adoption
+    FISH: 0.65,
+    PCR: 0.75,
+    NGS_panel: 0.55, // Growing but not yet universal
+    liquid_biopsy: 0.3, // Emerging; not yet standard of care
+    WGS: 0.2,
+    RNA_seq: 0.25,
   };
   // Adjust for CDx development stage
-  const stageAdj = input.cdx_development_stage === 'approved' ? 1.0 :
-                   input.cdx_development_stage === 'pma_submitted' ? 0.75 :
-                   input.cdx_development_stage === 'clinical_validation' ? 0.50 : 0.30;
+  const stageAdj =
+    input.cdx_development_stage === 'approved'
+      ? 1.0
+      : input.cdx_development_stage === 'pma_submitted'
+        ? 0.75
+        : input.cdx_development_stage === 'clinical_validation'
+          ? 0.5
+          : 0.3;
 
-  return (typeRates[input.test_type] || 0.50) * stageAdj;
+  return (typeRates[input.test_type] || 0.5) * stageAdj;
 }
 
 function getCDxGrossToNet(testType: string): number {
   // Diagnostics have lower gross-to-net than pharma drugs
   const gtm: Record<string, number> = {
-    'IHC': 0.10, 'FISH': 0.10, 'PCR': 0.12,
-    'NGS_panel': 0.15, 'liquid_biopsy': 0.18,
-    'WGS': 0.20, 'RNA_seq': 0.18,
+    IHC: 0.1,
+    FISH: 0.1,
+    PCR: 0.12,
+    NGS_panel: 0.15,
+    liquid_biopsy: 0.18,
+    WGS: 0.2,
+    RNA_seq: 0.18,
   };
   return gtm[testType] || 0.12;
 }
 
 function getCDxReimbursement(testType: string, biomarker: string) {
   const cptByType: Record<string, string[]> = {
-    'IHC': ['88360', '88361'],
-    'FISH': ['88368', '88369'],
-    'PCR': ['81401', '81403'],
-    'NGS_panel': ['81445', '81455', '81479'],
-    'liquid_biopsy': ['81479', '0242U'],
-    'WGS': ['81425', '81426'],
-    'RNA_seq': ['81479'],
+    IHC: ['88360', '88361'],
+    FISH: ['88368', '88369'],
+    PCR: ['81401', '81403'],
+    NGS_panel: ['81445', '81455', '81479'],
+    liquid_biopsy: ['81479', '0242U'],
+    WGS: ['81425', '81426'],
+    RNA_seq: ['81479'],
   };
 
   const cmsRates: Record<string, number> = {
-    'IHC': 85, 'FISH': 190, 'PCR': 200,
-    'NGS_panel': 650, 'liquid_biopsy': 500, 'WGS': 1000,
+    IHC: 85,
+    FISH: 190,
+    PCR: 200,
+    NGS_panel: 650,
+    liquid_biopsy: 500,
+    WGS: 1000,
   };
 
   return {
@@ -637,8 +914,10 @@ function buildCDxDealBenchmark(input: CDxMarketSizingInput, deals: CDxDeal[]) {
       'Supply agreement: CDx company manufactures and sells test; pharma partner receives label exclusivity',
       'Royalty on drug net sales (rare) OR supply margin on test kits (more common)',
     ].join('. '),
-    milestones: 'Phase 2 milestone ($1-5M) → Phase 3 initiation ($2-8M) → Drug NDA filing ($5-15M) → Drug/CDx approval ($10-30M)',
-    royalty_or_supply_structure: '15-35% gross margin on test supply; or 1-3% royalty on linked drug net sales if negotiated',
+    milestones:
+      'Phase 2 milestone ($1-5M) → Phase 3 initiation ($2-8M) → Drug NDA filing ($5-15M) → Drug/CDx approval ($10-30M)',
+    royalty_or_supply_structure:
+      '15-35% gross margin on test supply; or 1-3% royalty on linked drug net sales if negotiated',
     comparable_deals: deals,
   };
 }
@@ -665,24 +944,76 @@ function buildCDxRegulatoryPathway(input: CDxMarketSizingInput) {
 function buildCDxCompetitiveLandscape(input: CDxMarketSizingInput) {
   // Static map of major CDx players and approved tests by indication area
   const indicationArea = input.drug_indication.toLowerCase();
-  const isOncology = indicationArea.includes('cancer') || indicationArea.includes('tumor') ||
-    indicationArea.includes('carcinoma') || indicationArea.includes('lymphoma') || indicationArea.includes('leukemia');
+  const isOncology =
+    indicationArea.includes('cancer') ||
+    indicationArea.includes('tumor') ||
+    indicationArea.includes('carcinoma') ||
+    indicationArea.includes('lymphoma') ||
+    indicationArea.includes('leukemia');
 
   return {
-    approved_tests: isOncology ? [
-      { test: 'cobas EGFR Mutation Test v2', company: 'Roche', drug: 'Tarceva/Tagrisso/Iressa', platform: 'PCR (tissue)', approval_year: 2016 },
-      { test: 'FoundationOne CDx', company: 'Foundation Medicine (Roche)', drug: 'Multiple', platform: 'NGS panel', approval_year: 2017 },
-      { test: 'therascreen EGFR RGQ PCR Kit', company: 'Qiagen', drug: 'Iressa', platform: 'PCR (tissue)', approval_year: 2013 },
-      { test: 'PD-L1 IHC 22C3 pharmDx', company: 'Agilent/Dako', drug: 'Keytruda', platform: 'IHC', approval_year: 2015 },
-      { test: 'Guardant360 CDx', company: 'Guardant Health', drug: 'Lumakras', platform: 'liquid biopsy', approval_year: 2021 },
-    ] : [
-      { test: 'Check other indication CDx — contact Ambrosia Ventures', company: '—', drug: '—', platform: '—', approval_year: 0 },
-    ],
+    approved_tests: isOncology
+      ? [
+          {
+            test: 'cobas EGFR Mutation Test v2',
+            company: 'Roche',
+            drug: 'Tarceva/Tagrisso/Iressa',
+            platform: 'PCR (tissue)',
+            approval_year: 2016,
+          },
+          {
+            test: 'FoundationOne CDx',
+            company: 'Foundation Medicine (Roche)',
+            drug: 'Multiple',
+            platform: 'NGS panel',
+            approval_year: 2017,
+          },
+          {
+            test: 'therascreen EGFR RGQ PCR Kit',
+            company: 'Qiagen',
+            drug: 'Iressa',
+            platform: 'PCR (tissue)',
+            approval_year: 2013,
+          },
+          {
+            test: 'PD-L1 IHC 22C3 pharmDx',
+            company: 'Agilent/Dako',
+            drug: 'Keytruda',
+            platform: 'IHC',
+            approval_year: 2015,
+          },
+          {
+            test: 'Guardant360 CDx',
+            company: 'Guardant Health',
+            drug: 'Lumakras',
+            platform: 'liquid biopsy',
+            approval_year: 2021,
+          },
+        ]
+      : [
+          {
+            test: 'Check other indication CDx — contact Ambrosia Ventures',
+            company: '—',
+            drug: '—',
+            platform: '—',
+            approval_year: 0,
+          },
+        ],
     pipeline_tests: [
-      { test: 'NGS-based multi-analyte CDx', company: 'Multiple', stage: 'Clinical validation', drug_partner: 'Various' },
-      { test: 'Liquid biopsy CDx platforms', company: 'Guardant / Foundation / Grail', stage: 'Clinical validation / PMA filed' },
+      {
+        test: 'NGS-based multi-analyte CDx',
+        company: 'Multiple',
+        stage: 'Clinical validation',
+        drug_partner: 'Various',
+      },
+      {
+        test: 'Liquid biopsy CDx platforms',
+        company: 'Guardant / Foundation / Grail',
+        stage: 'Clinical validation / PMA filed',
+      },
     ],
-    platform_technology_leader: 'Roche (Foundation Medicine + cobas platform) dominates approved CDx market. Guardant Health leading liquid biopsy CDx.',
+    platform_technology_leader:
+      'Roche (Foundation Medicine + cobas platform) dominates approved CDx market. Guardant Health leading liquid biopsy CDx.',
     market_insight: `${input.test_type === 'liquid_biopsy' ? 'Liquid biopsy CDx is the fastest-growing segment — offers tissue-free testing for patients without adequate biopsy material. Guardant and Foundation compete intensely.' : 'Tissue-based CDx remains standard for most indications. NGS panels increasingly preferred over single-gene PCR assays as they enable multi-biomarker selection at no added tissue cost.'}`,
   };
 }
@@ -690,7 +1021,7 @@ function buildCDxCompetitiveLandscape(input: CDxMarketSizingInput) {
 function buildDeviceMethodology(
   input: DeviceMarketSizingInput,
   procedure: NonNullable<ReturnType<typeof findProcedure>>,
-  shareRange: { low: number; base: number; high: number }
+  shareRange: { low: number; base: number; high: number },
 ): string {
   return `
 Market sizing for "${input.procedure_or_condition}" was calculated using a procedure volume-based approach.
@@ -734,60 +1065,71 @@ CDx market sizing for ${input.biomarker} testing in ${input.drug_indication} was
 // Replaces the 2 generic ramps with 8 category-specific curves
 // ────────────────────────────────────────────────────────────
 
-const CATEGORY_ADOPTION_CURVES: Record<string, { factors: number[]; learning_curve: number; peak_year: number; narrative: string }> = {
+const CATEGORY_ADOPTION_CURVES: Record<
+  string,
+  { factors: number[]; learning_curve: number; peak_year: number; narrative: string }
+> = {
   structural_heart: {
-    factors: [0.05, 0.15, 0.30, 0.50, 0.70, 0.85, 0.95, 1.0, 1.0, 0.98],
+    factors: [0.05, 0.15, 0.3, 0.5, 0.7, 0.85, 0.95, 1.0, 1.0, 0.98],
     learning_curve: 0.85,
     peak_year: 8,
-    narrative: 'Structural heart devices require proctor-supervised cases (typically 25-50) before independent use. Slow year 1-2, steep growth as centers gain experience.',
+    narrative:
+      'Structural heart devices require proctor-supervised cases (typically 25-50) before independent use. Slow year 1-2, steep growth as centers gain experience.',
   },
   orthopedic_implant: {
-    factors: [0.08, 0.18, 0.32, 0.50, 0.68, 0.82, 0.92, 0.98, 1.0, 0.97],
-    learning_curve: 0.90,
+    factors: [0.08, 0.18, 0.32, 0.5, 0.68, 0.82, 0.92, 0.98, 1.0, 0.97],
+    learning_curve: 0.9,
     peak_year: 9,
-    narrative: 'Surgeon preference-driven market. Moderate switching costs. Robotic-assisted adoption accelerating timeline for differentiated implants.',
+    narrative:
+      'Surgeon preference-driven market. Moderate switching costs. Robotic-assisted adoption accelerating timeline for differentiated implants.',
   },
   neuromodulation: {
     factors: [0.04, 0.12, 0.25, 0.42, 0.58, 0.72, 0.85, 0.94, 1.0, 0.98],
-    learning_curve: 0.80,
+    learning_curve: 0.8,
     peak_year: 9,
-    narrative: 'Slow initial ramp — implanting center accreditation, patient awareness campaigns, and payer coverage building all sequential gates.',
+    narrative:
+      'Slow initial ramp — implanting center accreditation, patient awareness campaigns, and payer coverage building all sequential gates.',
   },
   diagnostics_ivd: {
-    factors: [0.10, 0.28, 0.48, 0.68, 0.82, 0.92, 0.98, 1.0, 0.98, 0.95],
+    factors: [0.1, 0.28, 0.48, 0.68, 0.82, 0.92, 0.98, 1.0, 0.98, 0.95],
     learning_curve: 0.95,
     peak_year: 8,
-    narrative: 'Lab procurement cycles shorter than hospital capital. Less physician training needed. Reagent-rental model reduces adoption friction.',
+    narrative:
+      'Lab procurement cycles shorter than hospital capital. Less physician training needed. Reagent-rental model reduces adoption friction.',
   },
   samd_digital: {
-    factors: [0.12, 0.30, 0.52, 0.72, 0.88, 0.96, 1.0, 0.98, 0.95, 0.90],
+    factors: [0.12, 0.3, 0.52, 0.72, 0.88, 0.96, 1.0, 0.98, 0.95, 0.9],
     learning_curve: 0.98,
     peak_year: 7,
-    narrative: 'Fastest ramp — no physical supply chain, instant deployment via cloud. But also fastest commoditization and competitive erosion post-peak.',
+    narrative:
+      'Fastest ramp — no physical supply chain, instant deployment via cloud. But also fastest commoditization and competitive erosion post-peak.',
   },
   capital_equipment: {
-    factors: [0.03, 0.10, 0.22, 0.38, 0.55, 0.70, 0.82, 0.92, 1.0, 0.98],
+    factors: [0.03, 0.1, 0.22, 0.38, 0.55, 0.7, 0.82, 0.92, 1.0, 0.98],
     learning_curve: 0.75,
     peak_year: 9,
-    narrative: 'Slowest adoption — hospital capital budget cycles (1-3 year planning), value analysis committee approvals, installation and training periods.',
+    narrative:
+      'Slowest adoption — hospital capital budget cycles (1-3 year planning), value analysis committee approvals, installation and training periods.',
   },
   monitoring_wearable: {
-    factors: [0.08, 0.22, 0.42, 0.62, 0.78, 0.90, 0.97, 1.0, 0.96, 0.92],
+    factors: [0.08, 0.22, 0.42, 0.62, 0.78, 0.9, 0.97, 1.0, 0.96, 0.92],
     learning_curve: 0.95,
     peak_year: 8,
-    narrative: 'Consumer-like adoption if insurance-covered. Slower for clinical-grade remote patient monitoring requiring prescriber workflows.',
+    narrative:
+      'Consumer-like adoption if insurance-covered. Slower for clinical-grade remote patient monitoring requiring prescriber workflows.',
   },
   surgical_instruments: {
     factors: [0.06, 0.18, 0.35, 0.55, 0.72, 0.86, 0.95, 1.0, 0.98, 0.95],
     learning_curve: 0.85,
     peak_year: 8,
-    narrative: 'Medium ramp — surgeon training and proctoring needed, but disposable/single-use model reduces capital barrier to adoption.',
+    narrative:
+      'Medium ramp — surgeon training and proctoring needed, but disposable/single-use model reduces capital barrier to adoption.',
   },
 };
 
 function getAdoptionCurve(
   productCategory: string,
-  deviceCategory: string
+  deviceCategory: string,
 ): { factors: number[]; learning_curve: number; peak_year: number; narrative: string } {
   // Map product_category + device_category to the right curve
   if (productCategory === 'device_capital_equipment') return CATEGORY_ADOPTION_CURVES.capital_equipment;
@@ -807,7 +1149,7 @@ function getAdoptionCurve(
   // Default fallback
   return {
     factors: DEVICE_REVENUE_RAMP as unknown as number[],
-    learning_curve: 0.90,
+    learning_curve: 0.9,
     peak_year: 7,
     narrative: 'Standard device adoption curve applied.',
   };
@@ -817,14 +1159,13 @@ function getAdoptionCurve(
 // REIMBURSEMENT ANALYTICS FUNCTIONS
 // ────────────────────────────────────────────────────────────
 
-function calculateNTAPBenefit(
-  deviceCost: number,
-  drgPayment: number,
-): NTAPCalculation {
+function calculateNTAPBenefit(deviceCost: number, drgPayment: number): NTAPCalculation {
   const excessCost = Math.max(0, deviceCost - drgPayment);
   const eligible = excessCost > 0;
   const ntapPayment = eligible ? excessCost * 0.65 : 0; // 65% of excess (FY2024 CMS rule)
-  const effectiveCoverage = eligible ? ((drgPayment + ntapPayment) / deviceCost) * 100 : (drgPayment / deviceCost) * 100;
+  const effectiveCoverage = eligible
+    ? ((drgPayment + ntapPayment) / deviceCost) * 100
+    : (drgPayment / deviceCost) * 100;
 
   const currentYear = new Date().getFullYear();
   const nextFiscalYear = new Date().getMonth() >= 9 ? currentYear + 2 : currentYear + 1;
@@ -843,26 +1184,25 @@ function calculateNTAPBenefit(
   };
 }
 
-function buildPayerMixModel(
-  siteOfCare: string[],
-  deviceCategory: string,
-  medicareRate?: number
-): PayerMixModel {
+function buildPayerMixModel(siteOfCare: string[], deviceCategory: string, medicareRate?: number): PayerMixModel {
   // Payer mix by primary site of care
-  const PAYER_MIX_BY_SITE: Record<string, { medicare: number; commercial: number; medicaid: number; self_pay: number }> = {
-    hospital_inpatient: { medicare: 0.55, commercial: 0.30, medicaid: 0.12, self_pay: 0.03 },
-    hospital_outpatient: { medicare: 0.40, commercial: 0.45, medicaid: 0.10, self_pay: 0.05 },
+  const PAYER_MIX_BY_SITE: Record<
+    string,
+    { medicare: number; commercial: number; medicaid: number; self_pay: number }
+  > = {
+    hospital_inpatient: { medicare: 0.55, commercial: 0.3, medicaid: 0.12, self_pay: 0.03 },
+    hospital_outpatient: { medicare: 0.4, commercial: 0.45, medicaid: 0.1, self_pay: 0.05 },
     asc: { medicare: 0.35, commercial: 0.55, medicaid: 0.05, self_pay: 0.05 },
-    office: { medicare: 0.30, commercial: 0.55, medicaid: 0.10, self_pay: 0.05 },
+    office: { medicare: 0.3, commercial: 0.55, medicaid: 0.1, self_pay: 0.05 },
     home: { medicare: 0.45, commercial: 0.35, medicaid: 0.15, self_pay: 0.05 },
-    lab: { medicare: 0.42, commercial: 0.40, medicaid: 0.13, self_pay: 0.05 },
+    lab: { medicare: 0.42, commercial: 0.4, medicaid: 0.13, self_pay: 0.05 },
   };
 
   // Category adjustments
   const CATEGORY_ADJUSTMENTS: Record<string, { medicare_adj: number; medicaid_adj: number }> = {
-    orthopedic: { medicare_adj: 0.08, medicaid_adj: -0.03 },  // Older population
-    cardiovascular: { medicare_adj: 0.10, medicaid_adj: -0.05 }, // Heavily Medicare
-    neurology: { medicare_adj: 0.05, medicaid_adj: 0.00 },
+    orthopedic: { medicare_adj: 0.08, medicaid_adj: -0.03 }, // Older population
+    cardiovascular: { medicare_adj: 0.1, medicaid_adj: -0.05 }, // Heavily Medicare
+    neurology: { medicare_adj: 0.05, medicaid_adj: 0.0 },
     diabetes_metabolic: { medicare_adj: 0.05, medicaid_adj: 0.03 },
     ophthalmology: { medicare_adj: 0.12, medicaid_adj: -0.05 }, // Cataract = elderly
   };
@@ -874,7 +1214,7 @@ function buildPayerMixModel(
   const medicarePct = Math.min(0.75, baseMix.medicare + adj.medicare_adj);
   const medicaidPct = Math.max(0.02, baseMix.medicaid + adj.medicaid_adj);
   const selfPayPct = baseMix.self_pay;
-  const commercialPct = Math.max(0.10, 1 - medicarePct - medicaidPct - selfPayPct);
+  const commercialPct = Math.max(0.1, 1 - medicarePct - medicaidPct - selfPayPct);
 
   const baseRate = medicareRate || 5000; // fallback
   const commercialRate = baseRate * 1.6;
@@ -882,10 +1222,34 @@ function buildPayerMixModel(
   const blendedRate = medicarePct * baseRate + commercialPct * commercialRate + medicaidPct * medicaidRate;
 
   const payers: PayerMixEntry[] = [
-    { payer: 'Medicare', patient_share_pct: parseFloat((medicarePct * 100).toFixed(1)), reimbursement_rate: baseRate, coverage_status: 'covered', prior_auth_required: false },
-    { payer: 'Commercial', patient_share_pct: parseFloat((commercialPct * 100).toFixed(1)), reimbursement_rate: parseFloat(commercialRate.toFixed(0)), coverage_status: 'covered', prior_auth_required: true },
-    { payer: 'Medicaid', patient_share_pct: parseFloat((medicaidPct * 100).toFixed(1)), reimbursement_rate: parseFloat(medicaidRate.toFixed(0)), coverage_status: 'covered', prior_auth_required: false },
-    { payer: 'Self-Pay / Uninsured', patient_share_pct: parseFloat((selfPayPct * 100).toFixed(1)), reimbursement_rate: 0, coverage_status: 'not_covered', prior_auth_required: false },
+    {
+      payer: 'Medicare',
+      patient_share_pct: parseFloat((medicarePct * 100).toFixed(1)),
+      reimbursement_rate: baseRate,
+      coverage_status: 'covered',
+      prior_auth_required: false,
+    },
+    {
+      payer: 'Commercial',
+      patient_share_pct: parseFloat((commercialPct * 100).toFixed(1)),
+      reimbursement_rate: parseFloat(commercialRate.toFixed(0)),
+      coverage_status: 'covered',
+      prior_auth_required: true,
+    },
+    {
+      payer: 'Medicaid',
+      patient_share_pct: parseFloat((medicaidPct * 100).toFixed(1)),
+      reimbursement_rate: parseFloat(medicaidRate.toFixed(0)),
+      coverage_status: 'covered',
+      prior_auth_required: false,
+    },
+    {
+      payer: 'Self-Pay / Uninsured',
+      patient_share_pct: parseFloat((selfPayPct * 100).toFixed(1)),
+      reimbursement_rate: 0,
+      coverage_status: 'not_covered',
+      prior_auth_required: false,
+    },
   ];
 
   return {
@@ -899,67 +1263,85 @@ function buildPayerMixModel(
 function buildCoverageTimeline(
   reimbursementStatus: string,
   developmentStage: string,
-  productCategory: string
+  productCategory: string,
 ): CoverageTimeline {
   const milestones: CoverageMilestone[] = [];
 
   if (developmentStage === 'concept' || developmentStage === 'preclinical') {
     milestones.push(
-      { milestone: 'Complete clinical evidence generation', estimated_months: 24, probability: 0.70 },
+      { milestone: 'Complete clinical evidence generation', estimated_months: 24, probability: 0.7 },
       { milestone: 'FDA submission', estimated_months: 30, probability: 0.65 },
       { milestone: 'FDA clearance/approval', estimated_months: 42, probability: 0.55 },
-      { milestone: 'CPT code application (if needed)', estimated_months: 44, probability: 0.80 },
-      { milestone: 'CMS coverage determination', estimated_months: 54, probability: 0.60 },
+      { milestone: 'CPT code application (if needed)', estimated_months: 44, probability: 0.8 },
+      { milestone: 'CMS coverage determination', estimated_months: 54, probability: 0.6 },
       { milestone: 'Commercial payer adoption (top 5)', estimated_months: 60, probability: 0.55 },
     );
   } else if (developmentStage === 'clinical_trial') {
     milestones.push(
       { milestone: 'Complete pivotal trial enrollment', estimated_months: 12, probability: 0.75 },
-      { milestone: 'FDA submission', estimated_months: 18, probability: 0.70 },
-      { milestone: 'FDA clearance/approval', estimated_months: 28, probability: 0.60 },
-      { milestone: 'CPT code application', estimated_months: 30, probability: 0.80 },
+      { milestone: 'FDA submission', estimated_months: 18, probability: 0.7 },
+      { milestone: 'FDA clearance/approval', estimated_months: 28, probability: 0.6 },
+      { milestone: 'CPT code application', estimated_months: 30, probability: 0.8 },
       { milestone: 'CMS coverage determination', estimated_months: 40, probability: 0.65 },
-      { milestone: 'Commercial payer adoption (top 5)', estimated_months: 46, probability: 0.60 },
+      { milestone: 'Commercial payer adoption (top 5)', estimated_months: 46, probability: 0.6 },
     );
   } else if (developmentStage === 'fda_submitted') {
     milestones.push(
       { milestone: 'FDA clearance/approval', estimated_months: 8, probability: 0.75 },
-      { milestone: 'CPT code effective (if existing code)', estimated_months: 2, probability: 0.90 },
-      { milestone: 'NTAP application (if applicable)', estimated_months: 10, probability: 0.70 },
+      { milestone: 'CPT code effective (if existing code)', estimated_months: 2, probability: 0.9 },
+      { milestone: 'NTAP application (if applicable)', estimated_months: 10, probability: 0.7 },
       { milestone: 'MAC LCD coverage decision', estimated_months: 14, probability: 0.65 },
-      { milestone: 'Commercial payer medical policy published', estimated_months: 18, probability: 0.60 },
+      { milestone: 'Commercial payer medical policy published', estimated_months: 18, probability: 0.6 },
     );
   } else if (reimbursementStatus === 'covered') {
     milestones.push(
       { milestone: 'Existing CPT codes — immediate coverage', estimated_months: 0, probability: 0.95 },
-      { milestone: 'GPO contract inclusion', estimated_months: 6, probability: 0.80 },
+      { milestone: 'GPO contract inclusion', estimated_months: 6, probability: 0.8 },
       { milestone: 'Broad commercial payer adoption', estimated_months: 12, probability: 0.85 },
     );
   } else {
     milestones.push(
-      { milestone: 'Category III CPT code application', estimated_months: 4, probability: 0.75, dependency: 'FDA clearance' },
+      {
+        milestone: 'Category III CPT code application',
+        estimated_months: 4,
+        probability: 0.75,
+        dependency: 'FDA clearance',
+      },
       { milestone: 'AMA CPT Editorial Panel review', estimated_months: 14, probability: 0.65 },
-      { milestone: 'CPT code effective date', estimated_months: 18, probability: 0.60 },
+      { milestone: 'CPT code effective date', estimated_months: 18, probability: 0.6 },
       { milestone: 'CMS gap-fill pricing determination', estimated_months: 22, probability: 0.55 },
-      { milestone: 'Commercial payer adoption (top 5)', estimated_months: 28, probability: 0.50 },
+      { milestone: 'Commercial payer adoption (top 5)', estimated_months: 28, probability: 0.5 },
     );
   }
 
   const lastMilestone = milestones[milestones.length - 1];
-  const criticalPath = milestones.filter(m => m.probability < 0.70).map(m => m.milestone).join(' → ') || 'Standard coverage pathway';
+  const criticalPath =
+    milestones
+      .filter((m) => m.probability < 0.7)
+      .map((m) => m.milestone)
+      .join(' → ') || 'Standard coverage pathway';
 
   return {
     milestones,
     full_coverage_estimate_months: lastMilestone?.estimated_months || 24,
     critical_path: criticalPath,
-    narrative: `Estimated ${lastMilestone?.estimated_months || 24} months to broad coverage. ${milestones.filter(m => m.probability < 0.60).length > 0 ? 'Key risks: ' + milestones.filter(m => m.probability < 0.60).map(m => m.milestone).join(', ') + '.' : 'No critical coverage risks identified.'}`,
+    narrative: `Estimated ${lastMilestone?.estimated_months || 24} months to broad coverage. ${
+      milestones.filter((m) => m.probability < 0.6).length > 0
+        ? 'Key risks: ' +
+          milestones
+            .filter((m) => m.probability < 0.6)
+            .map((m) => m.milestone)
+            .join(', ') +
+          '.'
+        : 'No critical coverage risks identified.'
+    }`,
   };
 }
 
 function buildReimbursementScenarios(
   payerMix: PayerMixModel,
   ntap: NTAPCalculation | undefined,
-  deviceASP: number
+  deviceASP: number,
 ): ReimbursementScenario[] {
   const baseReimb = payerMix.blended_reimbursement_rate;
   const ntapBoost = ntap?.eligible ? ntap.ntap_payment : 0;
@@ -977,7 +1359,8 @@ function buildReimbursementScenarios(
         'Strong health economics data showing cost offsets',
         'Society guideline endorsement within 12 months',
       ],
-      narrative: 'Favorable scenario assumes successful NTAP application, rapid commercial payer adoption driven by strong clinical evidence and health economics data, and broad Medicare coverage. Revenue impact: 1.3x base case.',
+      narrative:
+        'Favorable scenario assumes successful NTAP application, rapid commercial payer adoption driven by strong clinical evidence and health economics data, and broad Medicare coverage. Revenue impact: 1.3x base case.',
     },
     {
       scenario: 'base',
@@ -991,7 +1374,8 @@ function buildReimbursementScenarios(
         'Coverage builds over 18-24 months post-clearance',
         'GPO contract achieved within 12 months',
       ],
-      narrative: 'Base scenario reflects standard reimbursement pathway without NTAP advantage. Coverage builds gradually as clinical evidence accumulates. Majority of patients gain access within 24 months.',
+      narrative:
+        'Base scenario reflects standard reimbursement pathway without NTAP advantage. Coverage builds gradually as clinical evidence accumulates. Majority of patients gain access within 24 months.',
     },
     {
       scenario: 'adverse',
@@ -1005,7 +1389,8 @@ function buildReimbursementScenarios(
         'Limited clinical evidence at time of launch',
         'GPO contracts delayed or unfavorable pricing',
       ],
-      narrative: 'Adverse scenario: device cost absorbed into existing DRG with no separate payment pathway. Limited patient access due to payer restrictions and prior auth requirements. Revenue impact: 0.55x base case.',
+      narrative:
+        'Adverse scenario: device cost absorbed into existing DRG with no separate payment pathway. Limited patient access due to payer restrictions and prior auth requirements. Revenue impact: 0.55x base case.',
     },
   ];
 }
@@ -1017,7 +1402,7 @@ function buildReimbursementScenarios(
 function buildDeviceCompetitiveShareDistribution(
   procedure: NonNullable<ReturnType<typeof findProcedure>>,
   input: DeviceMarketSizingInput,
-  benchmarks: typeof DEVICE_PRICING_BENCHMARKS
+  benchmarks: typeof DEVICE_PRICING_BENCHMARKS,
 ): DeviceCompetitiveShareDistribution {
   const competitors = procedure.major_device_competitors;
   const leader = procedure.market_leader;
@@ -1036,7 +1421,7 @@ function buildDeviceCompetitiveShareDistribution(
   remainingShare -= leaderShare;
 
   // Distribute remaining among other competitors
-  const others = competitors.filter(c => c !== leader);
+  const others = competitors.filter((c) => c !== leader);
   if (others.length > 0) {
     // Second place gets ~60% of average remaining, diminishing after
     const avgRemaining = remainingShare / others.length;
@@ -1064,10 +1449,14 @@ function buildDeviceCompetitiveShareDistribution(
   // HHI calculation
   const hhi = entries.reduce((sum, e) => sum + Math.pow(e.estimated_share_pct, 2), 0);
   const hhiIndex = parseFloat(hhi.toFixed(0));
-  const concentrationLabel = hhiIndex > 5000 ? 'Monopolistic' as const
-    : hhiIndex > 2500 ? 'Concentrated' as const
-    : hhiIndex > 1500 ? 'Moderate' as const
-    : 'Fragmented' as const;
+  const concentrationLabel =
+    hhiIndex > 5000
+      ? ('Monopolistic' as const)
+      : hhiIndex > 2500
+        ? ('Concentrated' as const)
+        : hhiIndex > 1500
+          ? ('Moderate' as const)
+          : ('Fragmented' as const);
 
   const top3 = entries.slice(0, 3).reduce((sum, e) => sum + e.estimated_share_pct, 0);
 
@@ -1080,10 +1469,7 @@ function buildDeviceCompetitiveShareDistribution(
   };
 }
 
-function buildEvidenceGapAnalysis(
-  developmentStage: string,
-  productCategory: string
-): DeviceEvidenceGapAnalysis {
+function buildEvidenceGapAnalysis(developmentStage: string, productCategory: string): DeviceEvidenceGapAnalysis {
   const gaps: DeviceEvidenceGap[] = [];
 
   // Evidence requirements by likely regulatory pathway
@@ -1098,7 +1484,9 @@ function buildEvidenceGapAnalysis(
       current_state: 'No clinical data available',
       gap_severity: 'critical',
       competitive_impact: 'Cannot pursue regulatory clearance or payer coverage without clinical data',
-      recommendation: isPMA ? 'Design pivotal RCT with FDA alignment via pre-submission meeting' : 'Plan 510(k) clinical study or De Novo clinical support',
+      recommendation: isPMA
+        ? 'Design pivotal RCT with FDA alignment via pre-submission meeting'
+        : 'Plan 510(k) clinical study or De Novo clinical support',
     });
   }
 
@@ -1109,17 +1497,22 @@ function buildEvidenceGapAnalysis(
       current_state: developmentStage === 'clinical_trial' ? 'RCT in progress' : 'No RCT planned',
       gap_severity: isPMA ? 'critical' : 'significant',
       competitive_impact: 'PMA pathway requires RCT. Without it, regulatory timeline extends significantly.',
-      recommendation: 'Initiate multicenter RCT with primary endpoint aligned to FDA guidance document for this device category.',
+      recommendation:
+        'Initiate multicenter RCT with primary endpoint aligned to FDA guidance document for this device category.',
     });
   }
 
   // Health economics
   gaps.push({
     evidence_type: 'Health economics & outcomes research (HEOR)',
-    current_state: ['cleared_approved', 'commercial'].includes(developmentStage) ? 'HEOR data may be available' : 'No HEOR data generated',
+    current_state: ['cleared_approved', 'commercial'].includes(developmentStage)
+      ? 'HEOR data may be available'
+      : 'No HEOR data generated',
     gap_severity: 'significant',
-    competitive_impact: 'Payers increasingly require cost-effectiveness data for coverage decisions. Without HEOR, coverage timeline extends 12-18 months.',
-    recommendation: 'Develop budget impact model and cost-effectiveness analysis. Include hospital LOS reduction, readmission reduction, and procedural efficiency gains.',
+    competitive_impact:
+      'Payers increasingly require cost-effectiveness data for coverage decisions. Without HEOR, coverage timeline extends 12-18 months.',
+    recommendation:
+      'Develop budget impact model and cost-effectiveness analysis. Include hospital LOS reduction, readmission reduction, and procedural efficiency gains.',
   });
 
   // Real-world evidence
@@ -1128,7 +1521,8 @@ function buildEvidenceGapAnalysis(
       evidence_type: 'Real-world evidence / Registry data',
       current_state: 'No registry enrollment',
       gap_severity: 'moderate',
-      competitive_impact: 'Post-market registry data increasingly required for ongoing coverage. Competitors with registry data gain payer preference.',
+      competitive_impact:
+        'Post-market registry data increasingly required for ongoing coverage. Competitors with registry data gain payer preference.',
       recommendation: 'Plan post-market registry or participate in existing society registry (e.g., STS, NCDR, AJRR).',
     });
   }
@@ -1136,9 +1530,12 @@ function buildEvidenceGapAnalysis(
   // Comparative effectiveness
   gaps.push({
     evidence_type: 'Comparative effectiveness vs. standard of care',
-    current_state: ['cleared_approved', 'commercial'].includes(developmentStage) ? 'Head-to-head data may exist' : 'No head-to-head comparison',
+    current_state: ['cleared_approved', 'commercial'].includes(developmentStage)
+      ? 'Head-to-head data may exist'
+      : 'No head-to-head comparison',
     gap_severity: ['concept', 'preclinical'].includes(developmentStage) ? 'moderate' : 'significant',
-    competitive_impact: 'Without comparative data, physicians default to established devices. Differentiation claims lack evidence support.',
+    competitive_impact:
+      'Without comparative data, physicians default to established devices. Differentiation claims lack evidence support.',
     recommendation: 'Include active comparator arm in pivotal trial or plan post-market comparative study.',
   });
 
@@ -1148,41 +1545,49 @@ function buildEvidenceGapAnalysis(
       evidence_type: 'Patient-reported outcomes (PROs)',
       current_state: 'PRO instruments not yet selected',
       gap_severity: 'moderate',
-      competitive_impact: 'FDA guidance increasingly emphasizes PROs for device approvals. Payers value patient-centric outcomes.',
-      recommendation: 'Incorporate validated PRO instruments (e.g., EQ-5D, KCCQ for cardiac, PROMIS for orthopedic) in clinical program.',
+      competitive_impact:
+        'FDA guidance increasingly emphasizes PROs for device approvals. Payers value patient-centric outcomes.',
+      recommendation:
+        'Incorporate validated PRO instruments (e.g., EQ-5D, KCCQ for cardiac, PROMIS for orthopedic) in clinical program.',
     });
   }
 
-  const overallScore = Math.max(1, 10 - gaps.filter(g => g.gap_severity === 'critical').length * 3 - gaps.filter(g => g.gap_severity === 'significant').length * 1.5 - gaps.filter(g => g.gap_severity === 'moderate').length * 0.5);
+  const overallScore = Math.max(
+    1,
+    10 -
+      gaps.filter((g) => g.gap_severity === 'critical').length * 3 -
+      gaps.filter((g) => g.gap_severity === 'significant').length * 1.5 -
+      gaps.filter((g) => g.gap_severity === 'moderate').length * 0.5,
+  );
 
   return {
     gaps,
     overall_evidence_score: parseFloat(overallScore.toFixed(1)),
-    narrative: `Evidence readiness score: ${overallScore.toFixed(1)}/10. ${gaps.filter(g => g.gap_severity === 'critical').length} critical gaps, ${gaps.filter(g => g.gap_severity === 'significant').length} significant gaps identified. ${gaps.filter(g => g.gap_severity === 'critical').length > 0 ? 'Critical gaps must be addressed before regulatory submission.' : 'No critical evidence blockers — proceed with regulatory strategy.'}`,
+    narrative: `Evidence readiness score: ${overallScore.toFixed(1)}/10. ${gaps.filter((g) => g.gap_severity === 'critical').length} critical gaps, ${gaps.filter((g) => g.gap_severity === 'significant').length} significant gaps identified. ${gaps.filter((g) => g.gap_severity === 'critical').length > 0 ? 'Critical gaps must be addressed before regulatory submission.' : 'No critical evidence blockers — proceed with regulatory strategy.'}`,
   };
 }
 
 function buildPricingPressureModel(
   input: DeviceMarketSizingInput,
   benchmarks: typeof DEVICE_PRICING_BENCHMARKS,
-  procedure: NonNullable<ReturnType<typeof findProcedure>>
+  procedure: NonNullable<ReturnType<typeof findProcedure>>,
 ): DevicePricingPressureModel {
-  const categoryBenchmarks = benchmarks.filter(b => b.product_category === input.product_category);
-  const prices = categoryBenchmarks.map(b => b.hospital_asp_usd).sort((a, b) => a - b);
+  const categoryBenchmarks = benchmarks.filter((b) => b.product_category === input.product_category);
+  const prices = categoryBenchmarks.map((b) => b.hospital_asp_usd).sort((a, b) => a - b);
   const medianASP = prices.length > 0 ? prices[Math.floor(prices.length / 2)] : input.unit_ase;
 
   // GPO pressure by category
   const GPO_PRESSURE: Record<string, number> = {
-    cardiovascular: 4,       // Moderate — high-value, differentiated
-    orthopedic: 6,          // Higher — commoditized segments
-    neurology: 3,            // Lower — specialty niche
-    diabetes_metabolic: 7,   // High — CGM becoming commodity
-    general_surgery: 8,      // Highest — staplers, energy devices highly commoditized
-    ivd_oncology: 3,         // Lower — specialized tests
-    ivd_infectious: 7,       // High — rapid tests commoditized
-    imaging_radiology: 2,    // Low — capital equipment, less GPO pressure
-    ophthalmology: 5,        // Medium
-    respiratory: 6,          // Medium-high
+    cardiovascular: 4, // Moderate — high-value, differentiated
+    orthopedic: 6, // Higher — commoditized segments
+    neurology: 3, // Lower — specialty niche
+    diabetes_metabolic: 7, // High — CGM becoming commodity
+    general_surgery: 8, // Highest — staplers, energy devices highly commoditized
+    ivd_oncology: 3, // Lower — specialized tests
+    ivd_infectious: 7, // High — rapid tests commoditized
+    imaging_radiology: 2, // Low — capital equipment, less GPO pressure
+    ophthalmology: 5, // Medium
+    respiratory: 6, // Medium-high
   };
 
   const gpoPressure = GPO_PRESSURE[input.device_category] || 5;
@@ -1203,7 +1608,12 @@ function buildPricingPressureModel(
     projected.push(parseFloat(asp.toFixed(0)));
   }
 
-  const erosionRisk = totalAnnualErosion < -0.05 ? 'high' as const : totalAnnualErosion < -0.03 ? 'moderate' as const : 'low' as const;
+  const erosionRisk =
+    totalAnnualErosion < -0.05
+      ? ('high' as const)
+      : totalAnnualErosion < -0.03
+        ? ('moderate' as const)
+        : ('low' as const);
 
   return {
     current_asp: input.unit_ase,
@@ -1221,23 +1631,21 @@ function buildPricingPressureModel(
 // DEAL BENCHMARK FUNCTION
 // ────────────────────────────────────────────────────────────
 
-function buildDealBenchmark(
-  input: DeviceMarketSizingInput
-): MedTechDealBenchmark {
+function buildDealBenchmark(input: DeviceMarketSizingInput): MedTechDealBenchmark {
   const categoryDeals = getDealsByCategory(input.device_category);
-  const recentDeals = categoryDeals.filter(d => {
+  const recentDeals = categoryDeals.filter((d) => {
     const dealYear = new Date(d.announced_date).getFullYear();
     return dealYear >= new Date().getFullYear() - 3;
   });
 
-  const dealsWithValue = categoryDeals.filter(d => d.value_m != null);
-  const values = dealsWithValue.map(d => d.value_m!).sort((a, b) => a - b);
+  const dealsWithValue = categoryDeals.filter((d) => d.value_m != null);
+  const values = dealsWithValue.map((d) => d.value_m!).sort((a, b) => a - b);
   const medianValue = values.length > 0 ? values[Math.floor(values.length / 2)] : 0;
 
   // Find hottest categories by deal count
   const allDeals = MEDTECH_DEAL_DATABASE;
   const categoryCounts: Record<string, number> = {};
-  allDeals.forEach(d => {
+  allDeals.forEach((d) => {
     categoryCounts[d.device_category] = (categoryCounts[d.device_category] || 0) + 1;
   });
   const hottest = Object.entries(categoryCounts)
@@ -1259,12 +1667,12 @@ function buildDealBenchmark(
 // ────────────────────────────────────────────────────────────
 
 const COMPETITOR_TRL_DEFAULTS: Record<string, { trl_low: number; trl_high: number }> = {
-  concept:          { trl_low: 1, trl_high: 2 },
-  preclinical:      { trl_low: 3, trl_high: 4 },
-  clinical_trial:   { trl_low: 5, trl_high: 6 },
-  fda_submitted:    { trl_low: 7, trl_high: 7 },
+  concept: { trl_low: 1, trl_high: 2 },
+  preclinical: { trl_low: 3, trl_high: 4 },
+  clinical_trial: { trl_low: 5, trl_high: 6 },
+  fda_submitted: { trl_low: 7, trl_high: 7 },
   cleared_approved: { trl_low: 8, trl_high: 8 },
-  commercial:       { trl_low: 9, trl_high: 9 },
+  commercial: { trl_low: 9, trl_high: 9 },
 };
 
 const TRL_LABELS: Record<number, string> = {
@@ -1292,46 +1700,316 @@ interface KnownCompetitorTRL {
 
 const KNOWN_COMPETITOR_TRL: KnownCompetitorTRL[] = [
   // Cardiovascular
-  { name: 'Medtronic', device: 'CoreValve Evolut PRO+ (TAVR)', category: 'cardiovascular', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'dominant', clinical_validation: 'Multiple RCTs; STS/ACC TVT Registry', years_to_market: 0 },
-  { name: 'Edwards Lifesciences', device: 'SAPIEN 3 Ultra RESILIA (TAVR)', category: 'cardiovascular', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'dominant', clinical_validation: 'PARTNER 3 RCT; commercial', years_to_market: 0 },
-  { name: 'Abbott', device: 'MitraClip G4 (TEER)', category: 'cardiovascular', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'COAPT RCT; post-market registries', years_to_market: 0 },
-  { name: 'Boston Scientific', device: 'WATCHMAN FLX Pro (LAAC)', category: 'cardiovascular', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'PREVAIL, PROTECT-AF RCTs', years_to_market: 0 },
-  { name: 'Abbott', device: 'Gallant ICD/CRT-D', category: 'cardiovascular', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'SCD-HeFT, MADIT legacy data', years_to_market: 0 },
-  { name: 'Medtronic', device: 'Micra AV (Leadless Pacemaker)', category: 'cardiovascular', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'dominant', clinical_validation: 'Micra AV IDE study; post-market registry', years_to_market: 0 },
-  { name: 'JenaValve Technology', device: 'Trilogy (TAVR)', category: 'cardiovascular', trl: 7, manufacturing_readiness: 'pilot', ip_strength: 'moderate', clinical_validation: 'CE Mark; US IDE trial ongoing', years_to_market: 2 },
+  {
+    name: 'Medtronic',
+    device: 'CoreValve Evolut PRO+ (TAVR)',
+    category: 'cardiovascular',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'dominant',
+    clinical_validation: 'Multiple RCTs; STS/ACC TVT Registry',
+    years_to_market: 0,
+  },
+  {
+    name: 'Edwards Lifesciences',
+    device: 'SAPIEN 3 Ultra RESILIA (TAVR)',
+    category: 'cardiovascular',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'dominant',
+    clinical_validation: 'PARTNER 3 RCT; commercial',
+    years_to_market: 0,
+  },
+  {
+    name: 'Abbott',
+    device: 'MitraClip G4 (TEER)',
+    category: 'cardiovascular',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'COAPT RCT; post-market registries',
+    years_to_market: 0,
+  },
+  {
+    name: 'Boston Scientific',
+    device: 'WATCHMAN FLX Pro (LAAC)',
+    category: 'cardiovascular',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'PREVAIL, PROTECT-AF RCTs',
+    years_to_market: 0,
+  },
+  {
+    name: 'Abbott',
+    device: 'Gallant ICD/CRT-D',
+    category: 'cardiovascular',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'SCD-HeFT, MADIT legacy data',
+    years_to_market: 0,
+  },
+  {
+    name: 'Medtronic',
+    device: 'Micra AV (Leadless Pacemaker)',
+    category: 'cardiovascular',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'dominant',
+    clinical_validation: 'Micra AV IDE study; post-market registry',
+    years_to_market: 0,
+  },
+  {
+    name: 'JenaValve Technology',
+    device: 'Trilogy (TAVR)',
+    category: 'cardiovascular',
+    trl: 7,
+    manufacturing_readiness: 'pilot',
+    ip_strength: 'moderate',
+    clinical_validation: 'CE Mark; US IDE trial ongoing',
+    years_to_market: 2,
+  },
 
   // Orthopedic
-  { name: 'Stryker', device: 'Mako SmartRobotics (TKA/THA)', category: 'orthopedic', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'dominant', clinical_validation: 'Multiple registry studies; 500K+ procedures', years_to_market: 0 },
-  { name: 'Zimmer Biomet', device: 'ROSA Knee System', category: 'orthopedic', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'Post-market registry data', years_to_market: 0 },
-  { name: 'Smith+Nephew', device: 'CORI Surgical System', category: 'orthopedic', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'moderate', clinical_validation: 'Registry-based evidence', years_to_market: 0 },
-  { name: 'DePuy Synthes (J&J)', device: 'VELYS Robotic-Assisted Solution', category: 'orthopedic', trl: 8, manufacturing_readiness: 'scaled', ip_strength: 'strong', clinical_validation: '510(k) cleared; early post-market data', years_to_market: 0 },
-  { name: 'Conformis', device: 'iTotal PS (Patient-Specific TKA)', category: 'orthopedic', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'moderate', clinical_validation: 'Registry data; niche adoption', years_to_market: 0 },
+  {
+    name: 'Stryker',
+    device: 'Mako SmartRobotics (TKA/THA)',
+    category: 'orthopedic',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'dominant',
+    clinical_validation: 'Multiple registry studies; 500K+ procedures',
+    years_to_market: 0,
+  },
+  {
+    name: 'Zimmer Biomet',
+    device: 'ROSA Knee System',
+    category: 'orthopedic',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'Post-market registry data',
+    years_to_market: 0,
+  },
+  {
+    name: 'Smith+Nephew',
+    device: 'CORI Surgical System',
+    category: 'orthopedic',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'moderate',
+    clinical_validation: 'Registry-based evidence',
+    years_to_market: 0,
+  },
+  {
+    name: 'DePuy Synthes (J&J)',
+    device: 'VELYS Robotic-Assisted Solution',
+    category: 'orthopedic',
+    trl: 8,
+    manufacturing_readiness: 'scaled',
+    ip_strength: 'strong',
+    clinical_validation: '510(k) cleared; early post-market data',
+    years_to_market: 0,
+  },
+  {
+    name: 'Conformis',
+    device: 'iTotal PS (Patient-Specific TKA)',
+    category: 'orthopedic',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'moderate',
+    clinical_validation: 'Registry data; niche adoption',
+    years_to_market: 0,
+  },
 
   // Neurology
-  { name: 'Medtronic', device: 'Percept PC (DBS)', category: 'neurology', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'dominant', clinical_validation: 'DBS pivotal trials; BrainSense technology', years_to_market: 0 },
-  { name: 'Abbott', device: 'Infinity DBS System', category: 'neurology', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'PROGRESS pivotal; directional leads', years_to_market: 0 },
-  { name: 'Boston Scientific', device: 'Vercise Genus DBS', category: 'neurology', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'INTREPID RCT; CartesiaX lead', years_to_market: 0 },
-  { name: 'Nevro', device: 'Senza HFX (High-Frequency SCS)', category: 'neurology', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'SENZA-RCT; HFX-PDN pivotal', years_to_market: 0 },
-  { name: 'Abbott', device: 'Proclaim XR (SCS)', category: 'neurology', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'BurstDR pivotal; BURST RCT', years_to_market: 0 },
-  { name: 'Medtronic', device: 'Inceptiv (Closed-Loop SCS)', category: 'neurology', trl: 8, manufacturing_readiness: 'scaled', ip_strength: 'strong', clinical_validation: 'Evoke RCT (Saluda); adaptive stimulation', years_to_market: 0 },
+  {
+    name: 'Medtronic',
+    device: 'Percept PC (DBS)',
+    category: 'neurology',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'dominant',
+    clinical_validation: 'DBS pivotal trials; BrainSense technology',
+    years_to_market: 0,
+  },
+  {
+    name: 'Abbott',
+    device: 'Infinity DBS System',
+    category: 'neurology',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'PROGRESS pivotal; directional leads',
+    years_to_market: 0,
+  },
+  {
+    name: 'Boston Scientific',
+    device: 'Vercise Genus DBS',
+    category: 'neurology',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'INTREPID RCT; CartesiaX lead',
+    years_to_market: 0,
+  },
+  {
+    name: 'Nevro',
+    device: 'Senza HFX (High-Frequency SCS)',
+    category: 'neurology',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'SENZA-RCT; HFX-PDN pivotal',
+    years_to_market: 0,
+  },
+  {
+    name: 'Abbott',
+    device: 'Proclaim XR (SCS)',
+    category: 'neurology',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'BurstDR pivotal; BURST RCT',
+    years_to_market: 0,
+  },
+  {
+    name: 'Medtronic',
+    device: 'Inceptiv (Closed-Loop SCS)',
+    category: 'neurology',
+    trl: 8,
+    manufacturing_readiness: 'scaled',
+    ip_strength: 'strong',
+    clinical_validation: 'Evoke RCT (Saluda); adaptive stimulation',
+    years_to_market: 0,
+  },
 
   // Diagnostics — NGS / Liquid Biopsy
-  { name: 'Foundation Medicine (Roche)', device: 'FoundationOne CDx (NGS Panel)', category: 'ivd_oncology', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'dominant', clinical_validation: 'PMA approved; multiple CDx labels', years_to_market: 0 },
-  { name: 'Guardant Health', device: 'Guardant360 CDx (Liquid Biopsy)', category: 'ivd_oncology', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'PMA approved for KRAS G12C', years_to_market: 0 },
-  { name: 'Tempus AI', device: 'xT CDx (NGS Panel)', category: 'ivd_oncology', trl: 8, manufacturing_readiness: 'scaled', ip_strength: 'moderate', clinical_validation: 'PMA approved 2024', years_to_market: 0 },
-  { name: 'Exact Sciences', device: 'Cologuard Plus (Stool DNA)', category: 'ivd_oncology', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'BLUE-C pivotal; PMA approved', years_to_market: 0 },
-  { name: 'Grail (Illumina)', device: 'Galleri (MCED)', category: 'ivd_oncology', trl: 7, manufacturing_readiness: 'pilot', ip_strength: 'strong', clinical_validation: 'PATHFINDER; NHS-Galleri trial ongoing', years_to_market: 2 },
-  { name: 'Natera', device: 'Signatera (MRD ctDNA)', category: 'ivd_oncology', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'Multiple clinical validation studies; tumor-informed', years_to_market: 0 },
+  {
+    name: 'Foundation Medicine (Roche)',
+    device: 'FoundationOne CDx (NGS Panel)',
+    category: 'ivd_oncology',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'dominant',
+    clinical_validation: 'PMA approved; multiple CDx labels',
+    years_to_market: 0,
+  },
+  {
+    name: 'Guardant Health',
+    device: 'Guardant360 CDx (Liquid Biopsy)',
+    category: 'ivd_oncology',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'PMA approved for KRAS G12C',
+    years_to_market: 0,
+  },
+  {
+    name: 'Tempus AI',
+    device: 'xT CDx (NGS Panel)',
+    category: 'ivd_oncology',
+    trl: 8,
+    manufacturing_readiness: 'scaled',
+    ip_strength: 'moderate',
+    clinical_validation: 'PMA approved 2024',
+    years_to_market: 0,
+  },
+  {
+    name: 'Exact Sciences',
+    device: 'Cologuard Plus (Stool DNA)',
+    category: 'ivd_oncology',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'BLUE-C pivotal; PMA approved',
+    years_to_market: 0,
+  },
+  {
+    name: 'Grail (Illumina)',
+    device: 'Galleri (MCED)',
+    category: 'ivd_oncology',
+    trl: 7,
+    manufacturing_readiness: 'pilot',
+    ip_strength: 'strong',
+    clinical_validation: 'PATHFINDER; NHS-Galleri trial ongoing',
+    years_to_market: 2,
+  },
+  {
+    name: 'Natera',
+    device: 'Signatera (MRD ctDNA)',
+    category: 'ivd_oncology',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'Multiple clinical validation studies; tumor-informed',
+    years_to_market: 0,
+  },
 
   // Surgical Robotics
-  { name: 'Intuitive Surgical', device: 'da Vinci 5 Robotic System', category: 'general_surgery', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'dominant', clinical_validation: '12M+ procedures; multiple RCTs', years_to_market: 0 },
-  { name: 'Medtronic', device: 'Hugo RAS System', category: 'general_surgery', trl: 8, manufacturing_readiness: 'scaled', ip_strength: 'moderate', clinical_validation: 'CE Mark obtained; US IDE ongoing', years_to_market: 1 },
-  { name: 'Johnson & Johnson (Ottava)', device: 'Ottava Robotic Surgical System', category: 'general_surgery', trl: 6, manufacturing_readiness: 'pilot', ip_strength: 'moderate', clinical_validation: 'Preclinical; cadaver studies', years_to_market: 3 },
-  { name: 'CMR Surgical', device: 'Versius Robotic System', category: 'general_surgery', trl: 8, manufacturing_readiness: 'scaled', ip_strength: 'moderate', clinical_validation: 'CE Mark; 10K+ procedures globally', years_to_market: 1 },
+  {
+    name: 'Intuitive Surgical',
+    device: 'da Vinci 5 Robotic System',
+    category: 'general_surgery',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'dominant',
+    clinical_validation: '12M+ procedures; multiple RCTs',
+    years_to_market: 0,
+  },
+  {
+    name: 'Medtronic',
+    device: 'Hugo RAS System',
+    category: 'general_surgery',
+    trl: 8,
+    manufacturing_readiness: 'scaled',
+    ip_strength: 'moderate',
+    clinical_validation: 'CE Mark obtained; US IDE ongoing',
+    years_to_market: 1,
+  },
+  {
+    name: 'Johnson & Johnson (Ottava)',
+    device: 'Ottava Robotic Surgical System',
+    category: 'general_surgery',
+    trl: 6,
+    manufacturing_readiness: 'pilot',
+    ip_strength: 'moderate',
+    clinical_validation: 'Preclinical; cadaver studies',
+    years_to_market: 3,
+  },
+  {
+    name: 'CMR Surgical',
+    device: 'Versius Robotic System',
+    category: 'general_surgery',
+    trl: 8,
+    manufacturing_readiness: 'scaled',
+    ip_strength: 'moderate',
+    clinical_validation: 'CE Mark; 10K+ procedures globally',
+    years_to_market: 1,
+  },
 
   // Diabetes / Metabolic
-  { name: 'Dexcom', device: 'G7 CGM', category: 'diabetes_metabolic', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'Multiple pivotal trials; iCGM cleared', years_to_market: 0 },
-  { name: 'Abbott', device: 'FreeStyle Libre 3', category: 'diabetes_metabolic', trl: 9, manufacturing_readiness: 'commercial', ip_strength: 'strong', clinical_validation: 'Pivotal trials; 5M+ global users', years_to_market: 0 },
+  {
+    name: 'Dexcom',
+    device: 'G7 CGM',
+    category: 'diabetes_metabolic',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'Multiple pivotal trials; iCGM cleared',
+    years_to_market: 0,
+  },
+  {
+    name: 'Abbott',
+    device: 'FreeStyle Libre 3',
+    category: 'diabetes_metabolic',
+    trl: 9,
+    manufacturing_readiness: 'commercial',
+    ip_strength: 'strong',
+    clinical_validation: 'Pivotal trials; 5M+ global users',
+    years_to_market: 0,
+  },
 ];
 
 const MANUFACTURING_READINESS_SCORE: Record<string, number> = {
@@ -1348,26 +2026,22 @@ const IP_STRENGTH_SCORE: Record<string, number> = {
   dominant: 9,
 };
 
-function buildTechnologyReadinessScoring(
-  competitors: string[],
-  developmentStage: string
-): TechnologyReadinessScoring {
+function buildTechnologyReadinessScoring(competitors: string[], developmentStage: string): TechnologyReadinessScoring {
   const entries: TechnologyReadinessEntry[] = [];
 
   for (const comp of competitors) {
     // Check if we have a known TRL record for this competitor
-    const known = KNOWN_COMPETITOR_TRL.find(k =>
-      k.name.toLowerCase() === comp.toLowerCase() ||
-      comp.toLowerCase().includes(k.name.toLowerCase()) ||
-      k.name.toLowerCase().includes(comp.toLowerCase())
+    const known = KNOWN_COMPETITOR_TRL.find(
+      (k) =>
+        k.name.toLowerCase() === comp.toLowerCase() ||
+        comp.toLowerCase().includes(k.name.toLowerCase()) ||
+        k.name.toLowerCase().includes(comp.toLowerCase()),
     );
 
     if (known) {
       const mfgScore = MANUFACTURING_READINESS_SCORE[known.manufacturing_readiness];
       const ipScore = IP_STRENGTH_SCORE[known.ip_strength];
-      const threatScore = parseFloat(
-        ((known.trl * 0.4 + mfgScore * 0.3 + ipScore * 0.3) / 9 * 10).toFixed(1)
-      );
+      const threatScore = parseFloat((((known.trl * 0.4 + mfgScore * 0.3 + ipScore * 0.3) / 9) * 10).toFixed(1));
 
       entries.push({
         competitor_name: known.name,
@@ -1386,20 +2060,18 @@ function buildTechnologyReadinessScoring(
       const trl = Math.round((defaults.trl_low + defaults.trl_high) / 2);
       const mfgReadiness: TechnologyReadinessEntry['manufacturing_readiness'] =
         trl >= 8 ? 'commercial' : trl >= 6 ? 'scaled' : trl >= 4 ? 'pilot' : 'prototype';
-      const ipStrength: TechnologyReadinessEntry['ip_strength'] =
-        trl >= 8 ? 'strong' : trl >= 5 ? 'moderate' : 'weak';
+      const ipStrength: TechnologyReadinessEntry['ip_strength'] = trl >= 8 ? 'strong' : trl >= 5 ? 'moderate' : 'weak';
       const mfgScore = MANUFACTURING_READINESS_SCORE[mfgReadiness];
       const ipScore = IP_STRENGTH_SCORE[ipStrength];
-      const threatScore = parseFloat(
-        ((trl * 0.4 + mfgScore * 0.3 + ipScore * 0.3) / 9 * 10).toFixed(1)
-      );
+      const threatScore = parseFloat((((trl * 0.4 + mfgScore * 0.3 + ipScore * 0.3) / 9) * 10).toFixed(1));
       const yearsToMarket = trl >= 9 ? 0 : trl >= 7 ? 1 : trl >= 5 ? 3 : 5;
 
       entries.push({
         competitor_name: comp,
         trl_level: trl,
         trl_label: TRL_LABELS[trl] || `TRL ${trl}`,
-        clinical_validation_status: trl >= 8 ? 'Clinical validation complete' : trl >= 5 ? 'Clinical studies in progress' : 'Preclinical only',
+        clinical_validation_status:
+          trl >= 8 ? 'Clinical validation complete' : trl >= 5 ? 'Clinical studies in progress' : 'Preclinical only',
         manufacturing_readiness: mfgReadiness,
         ip_strength: ipStrength,
         years_to_market: yearsToMarket,
@@ -1412,13 +2084,12 @@ function buildTechnologyReadinessScoring(
   // Sort by threat score descending
   entries.sort((a, b) => b.threat_score - a.threat_score);
 
-  const avgTrl = entries.length > 0
-    ? parseFloat((entries.reduce((sum, e) => sum + e.trl_level, 0) / entries.length).toFixed(1))
-    : 0;
+  const avgTrl =
+    entries.length > 0 ? parseFloat((entries.reduce((sum, e) => sum + e.trl_level, 0) / entries.length).toFixed(1)) : 0;
 
   const highestThreat = entries[0]?.competitor_name || 'None identified';
-  const commercialCount = entries.filter(e => e.trl_level >= 9).length;
-  const pipelineCount = entries.filter(e => e.trl_level < 7).length;
+  const commercialCount = entries.filter((e) => e.trl_level >= 9).length;
+  const pipelineCount = entries.filter((e) => e.trl_level < 7).length;
 
   return {
     entries,
@@ -1448,58 +2119,466 @@ interface DeviceClinicalBenchmark {
 
 const DEVICE_CLINICAL_BENCHMARKS: DeviceClinicalBenchmark[] = [
   // Cardiovascular — TAVR Valves
-  { device: 'SAPIEN 3 Ultra RESILIA', company: 'Edwards Lifesciences', category: 'cardiovascular', sub_category: 'tavr', success_rate_pct: 96.5, complication_rate_pct: 3.4, procedural_time_minutes: 62, hospital_los_days: 2.8, revision_rate_pct: 0.8, primary_endpoint: '1-year all-cause mortality + disabling stroke', data_quality: 'RCT' },
-  { device: 'Evolut PRO+', company: 'Medtronic', category: 'cardiovascular', sub_category: 'tavr', success_rate_pct: 95.8, complication_rate_pct: 4.1, procedural_time_minutes: 58, hospital_los_days: 3.1, revision_rate_pct: 1.0, primary_endpoint: '1-year all-cause mortality', data_quality: 'RCT' },
-  { device: 'ACURATE neo2', company: 'Boston Scientific', category: 'cardiovascular', sub_category: 'tavr', success_rate_pct: 94.2, complication_rate_pct: 4.8, procedural_time_minutes: 55, hospital_los_days: 3.0, revision_rate_pct: 1.2, primary_endpoint: '30-day composite safety', data_quality: 'RCT' },
-  { device: 'Trilogy', company: 'JenaValve', category: 'cardiovascular', sub_category: 'tavr', success_rate_pct: 92.0, complication_rate_pct: 5.5, procedural_time_minutes: 70, hospital_los_days: 3.5, revision_rate_pct: undefined, primary_endpoint: '30-day all-cause mortality', data_quality: 'single_arm' },
+  {
+    device: 'SAPIEN 3 Ultra RESILIA',
+    company: 'Edwards Lifesciences',
+    category: 'cardiovascular',
+    sub_category: 'tavr',
+    success_rate_pct: 96.5,
+    complication_rate_pct: 3.4,
+    procedural_time_minutes: 62,
+    hospital_los_days: 2.8,
+    revision_rate_pct: 0.8,
+    primary_endpoint: '1-year all-cause mortality + disabling stroke',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'Evolut PRO+',
+    company: 'Medtronic',
+    category: 'cardiovascular',
+    sub_category: 'tavr',
+    success_rate_pct: 95.8,
+    complication_rate_pct: 4.1,
+    procedural_time_minutes: 58,
+    hospital_los_days: 3.1,
+    revision_rate_pct: 1.0,
+    primary_endpoint: '1-year all-cause mortality',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'ACURATE neo2',
+    company: 'Boston Scientific',
+    category: 'cardiovascular',
+    sub_category: 'tavr',
+    success_rate_pct: 94.2,
+    complication_rate_pct: 4.8,
+    procedural_time_minutes: 55,
+    hospital_los_days: 3.0,
+    revision_rate_pct: 1.2,
+    primary_endpoint: '30-day composite safety',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'Trilogy',
+    company: 'JenaValve',
+    category: 'cardiovascular',
+    sub_category: 'tavr',
+    success_rate_pct: 92.0,
+    complication_rate_pct: 5.5,
+    procedural_time_minutes: 70,
+    hospital_los_days: 3.5,
+    revision_rate_pct: undefined,
+    primary_endpoint: '30-day all-cause mortality',
+    data_quality: 'single_arm',
+  },
 
   // Cardiovascular — LAA Closure
-  { device: 'WATCHMAN FLX Pro', company: 'Boston Scientific', category: 'cardiovascular', sub_category: 'laac', success_rate_pct: 98.8, complication_rate_pct: 2.8, procedural_time_minutes: 45, hospital_los_days: 1.5, revision_rate_pct: 0.3, primary_endpoint: 'Procedural success (seal <=5mm)', data_quality: 'RCT' },
-  { device: 'Amulet', company: 'Abbott', category: 'cardiovascular', sub_category: 'laac', success_rate_pct: 98.9, complication_rate_pct: 3.2, procedural_time_minutes: 50, hospital_los_days: 1.6, revision_rate_pct: 0.4, primary_endpoint: 'Closure success vs WATCHMAN', data_quality: 'RCT' },
+  {
+    device: 'WATCHMAN FLX Pro',
+    company: 'Boston Scientific',
+    category: 'cardiovascular',
+    sub_category: 'laac',
+    success_rate_pct: 98.8,
+    complication_rate_pct: 2.8,
+    procedural_time_minutes: 45,
+    hospital_los_days: 1.5,
+    revision_rate_pct: 0.3,
+    primary_endpoint: 'Procedural success (seal <=5mm)',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'Amulet',
+    company: 'Abbott',
+    category: 'cardiovascular',
+    sub_category: 'laac',
+    success_rate_pct: 98.9,
+    complication_rate_pct: 3.2,
+    procedural_time_minutes: 50,
+    hospital_los_days: 1.6,
+    revision_rate_pct: 0.4,
+    primary_endpoint: 'Closure success vs WATCHMAN',
+    data_quality: 'RCT',
+  },
 
   // Cardiovascular — ICD / Pacemakers
-  { device: 'Gallant ICD', company: 'Abbott', category: 'cardiovascular', sub_category: 'icd', success_rate_pct: 99.2, complication_rate_pct: 3.8, procedural_time_minutes: 75, hospital_los_days: 1.8, revision_rate_pct: 2.5, primary_endpoint: 'Appropriate shock delivery', data_quality: 'registry' },
-  { device: 'Micra AV', company: 'Medtronic', category: 'cardiovascular', sub_category: 'pacemaker', success_rate_pct: 98.3, complication_rate_pct: 2.7, procedural_time_minutes: 35, hospital_los_days: 1.2, revision_rate_pct: 0.5, primary_endpoint: 'AV synchrony responder rate', data_quality: 'RCT' },
-  { device: 'AVEIR DR', company: 'Abbott', category: 'cardiovascular', sub_category: 'pacemaker', success_rate_pct: 97.6, complication_rate_pct: 3.1, procedural_time_minutes: 42, hospital_los_days: 1.3, revision_rate_pct: 0.7, primary_endpoint: 'Dual-chamber leadless pacing safety', data_quality: 'single_arm' },
+  {
+    device: 'Gallant ICD',
+    company: 'Abbott',
+    category: 'cardiovascular',
+    sub_category: 'icd',
+    success_rate_pct: 99.2,
+    complication_rate_pct: 3.8,
+    procedural_time_minutes: 75,
+    hospital_los_days: 1.8,
+    revision_rate_pct: 2.5,
+    primary_endpoint: 'Appropriate shock delivery',
+    data_quality: 'registry',
+  },
+  {
+    device: 'Micra AV',
+    company: 'Medtronic',
+    category: 'cardiovascular',
+    sub_category: 'pacemaker',
+    success_rate_pct: 98.3,
+    complication_rate_pct: 2.7,
+    procedural_time_minutes: 35,
+    hospital_los_days: 1.2,
+    revision_rate_pct: 0.5,
+    primary_endpoint: 'AV synchrony responder rate',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'AVEIR DR',
+    company: 'Abbott',
+    category: 'cardiovascular',
+    sub_category: 'pacemaker',
+    success_rate_pct: 97.6,
+    complication_rate_pct: 3.1,
+    procedural_time_minutes: 42,
+    hospital_los_days: 1.3,
+    revision_rate_pct: 0.7,
+    primary_endpoint: 'Dual-chamber leadless pacing safety',
+    data_quality: 'single_arm',
+  },
 
   // Orthopedic — TKA Systems / Robotics
-  { device: 'Mako SmartRobotics TKA', company: 'Stryker', category: 'orthopedic', sub_category: 'tka_robotic', success_rate_pct: 97.5, complication_rate_pct: 2.1, procedural_time_minutes: 90, hospital_los_days: 2.0, revision_rate_pct: 1.8, primary_endpoint: '2-year revision rate', data_quality: 'registry' },
-  { device: 'ROSA Knee System', company: 'Zimmer Biomet', category: 'orthopedic', sub_category: 'tka_robotic', success_rate_pct: 96.8, complication_rate_pct: 2.4, procedural_time_minutes: 95, hospital_los_days: 2.1, revision_rate_pct: 2.0, primary_endpoint: 'Mechanical axis alignment', data_quality: 'registry' },
-  { device: 'CORI Surgical System', company: 'Smith+Nephew', category: 'orthopedic', sub_category: 'tka_robotic', success_rate_pct: 96.2, complication_rate_pct: 2.6, procedural_time_minutes: 88, hospital_los_days: 2.2, revision_rate_pct: 2.2, primary_endpoint: 'Alignment accuracy', data_quality: 'registry' },
-  { device: 'VELYS Robotic-Assisted TKA', company: 'DePuy Synthes (J&J)', category: 'orthopedic', sub_category: 'tka_robotic', success_rate_pct: 95.5, complication_rate_pct: 2.8, procedural_time_minutes: 92, hospital_los_days: 2.3, revision_rate_pct: undefined, primary_endpoint: 'Bone cut accuracy', data_quality: 'single_arm' },
-  { device: 'iTotal PS (Patient-Specific)', company: 'Conformis', category: 'orthopedic', sub_category: 'tka_implant', success_rate_pct: 95.0, complication_rate_pct: 3.0, procedural_time_minutes: 80, hospital_los_days: 2.2, revision_rate_pct: 2.5, primary_endpoint: 'Patient satisfaction (KSS)', data_quality: 'registry' },
+  {
+    device: 'Mako SmartRobotics TKA',
+    company: 'Stryker',
+    category: 'orthopedic',
+    sub_category: 'tka_robotic',
+    success_rate_pct: 97.5,
+    complication_rate_pct: 2.1,
+    procedural_time_minutes: 90,
+    hospital_los_days: 2.0,
+    revision_rate_pct: 1.8,
+    primary_endpoint: '2-year revision rate',
+    data_quality: 'registry',
+  },
+  {
+    device: 'ROSA Knee System',
+    company: 'Zimmer Biomet',
+    category: 'orthopedic',
+    sub_category: 'tka_robotic',
+    success_rate_pct: 96.8,
+    complication_rate_pct: 2.4,
+    procedural_time_minutes: 95,
+    hospital_los_days: 2.1,
+    revision_rate_pct: 2.0,
+    primary_endpoint: 'Mechanical axis alignment',
+    data_quality: 'registry',
+  },
+  {
+    device: 'CORI Surgical System',
+    company: 'Smith+Nephew',
+    category: 'orthopedic',
+    sub_category: 'tka_robotic',
+    success_rate_pct: 96.2,
+    complication_rate_pct: 2.6,
+    procedural_time_minutes: 88,
+    hospital_los_days: 2.2,
+    revision_rate_pct: 2.2,
+    primary_endpoint: 'Alignment accuracy',
+    data_quality: 'registry',
+  },
+  {
+    device: 'VELYS Robotic-Assisted TKA',
+    company: 'DePuy Synthes (J&J)',
+    category: 'orthopedic',
+    sub_category: 'tka_robotic',
+    success_rate_pct: 95.5,
+    complication_rate_pct: 2.8,
+    procedural_time_minutes: 92,
+    hospital_los_days: 2.3,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'Bone cut accuracy',
+    data_quality: 'single_arm',
+  },
+  {
+    device: 'iTotal PS (Patient-Specific)',
+    company: 'Conformis',
+    category: 'orthopedic',
+    sub_category: 'tka_implant',
+    success_rate_pct: 95.0,
+    complication_rate_pct: 3.0,
+    procedural_time_minutes: 80,
+    hospital_los_days: 2.2,
+    revision_rate_pct: 2.5,
+    primary_endpoint: 'Patient satisfaction (KSS)',
+    data_quality: 'registry',
+  },
 
   // Neurology — DBS
-  { device: 'Percept PC DBS', company: 'Medtronic', category: 'neurology', sub_category: 'dbs', success_rate_pct: 93.5, complication_rate_pct: 5.2, procedural_time_minutes: 180, hospital_los_days: 2.5, revision_rate_pct: 4.5, primary_endpoint: 'UPDRS motor score improvement', data_quality: 'RCT' },
-  { device: 'Infinity DBS', company: 'Abbott', category: 'neurology', sub_category: 'dbs', success_rate_pct: 92.8, complication_rate_pct: 5.5, procedural_time_minutes: 175, hospital_los_days: 2.8, revision_rate_pct: 4.8, primary_endpoint: 'Directional stimulation efficacy', data_quality: 'RCT' },
-  { device: 'Vercise Genus DBS', company: 'Boston Scientific', category: 'neurology', sub_category: 'dbs', success_rate_pct: 91.5, complication_rate_pct: 5.8, procedural_time_minutes: 185, hospital_los_days: 2.7, revision_rate_pct: 5.0, primary_endpoint: 'UPDRS-III off-medication improvement', data_quality: 'RCT' },
+  {
+    device: 'Percept PC DBS',
+    company: 'Medtronic',
+    category: 'neurology',
+    sub_category: 'dbs',
+    success_rate_pct: 93.5,
+    complication_rate_pct: 5.2,
+    procedural_time_minutes: 180,
+    hospital_los_days: 2.5,
+    revision_rate_pct: 4.5,
+    primary_endpoint: 'UPDRS motor score improvement',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'Infinity DBS',
+    company: 'Abbott',
+    category: 'neurology',
+    sub_category: 'dbs',
+    success_rate_pct: 92.8,
+    complication_rate_pct: 5.5,
+    procedural_time_minutes: 175,
+    hospital_los_days: 2.8,
+    revision_rate_pct: 4.8,
+    primary_endpoint: 'Directional stimulation efficacy',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'Vercise Genus DBS',
+    company: 'Boston Scientific',
+    category: 'neurology',
+    sub_category: 'dbs',
+    success_rate_pct: 91.5,
+    complication_rate_pct: 5.8,
+    procedural_time_minutes: 185,
+    hospital_los_days: 2.7,
+    revision_rate_pct: 5.0,
+    primary_endpoint: 'UPDRS-III off-medication improvement',
+    data_quality: 'RCT',
+  },
 
   // Neurology — SCS
-  { device: 'Senza HFX (10kHz SCS)', company: 'Nevro', category: 'neurology', sub_category: 'scs', success_rate_pct: 76.5, complication_rate_pct: 7.2, procedural_time_minutes: 120, hospital_los_days: 1.5, revision_rate_pct: 6.0, primary_endpoint: '>50% pain relief responder rate', data_quality: 'RCT' },
-  { device: 'Proclaim XR BurstDR SCS', company: 'Abbott', category: 'neurology', sub_category: 'scs', success_rate_pct: 72.0, complication_rate_pct: 7.8, procedural_time_minutes: 115, hospital_los_days: 1.4, revision_rate_pct: 6.5, primary_endpoint: 'Pain VAS reduction', data_quality: 'RCT' },
-  { device: 'Inceptiv Closed-Loop SCS', company: 'Medtronic', category: 'neurology', sub_category: 'scs', success_rate_pct: 80.1, complication_rate_pct: 6.5, procedural_time_minutes: 125, hospital_los_days: 1.5, revision_rate_pct: 5.5, primary_endpoint: 'Closed-loop vs open-loop pain relief', data_quality: 'RCT' },
+  {
+    device: 'Senza HFX (10kHz SCS)',
+    company: 'Nevro',
+    category: 'neurology',
+    sub_category: 'scs',
+    success_rate_pct: 76.5,
+    complication_rate_pct: 7.2,
+    procedural_time_minutes: 120,
+    hospital_los_days: 1.5,
+    revision_rate_pct: 6.0,
+    primary_endpoint: '>50% pain relief responder rate',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'Proclaim XR BurstDR SCS',
+    company: 'Abbott',
+    category: 'neurology',
+    sub_category: 'scs',
+    success_rate_pct: 72.0,
+    complication_rate_pct: 7.8,
+    procedural_time_minutes: 115,
+    hospital_los_days: 1.4,
+    revision_rate_pct: 6.5,
+    primary_endpoint: 'Pain VAS reduction',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'Inceptiv Closed-Loop SCS',
+    company: 'Medtronic',
+    category: 'neurology',
+    sub_category: 'scs',
+    success_rate_pct: 80.1,
+    complication_rate_pct: 6.5,
+    procedural_time_minutes: 125,
+    hospital_los_days: 1.5,
+    revision_rate_pct: 5.5,
+    primary_endpoint: 'Closed-loop vs open-loop pain relief',
+    data_quality: 'RCT',
+  },
 
   // Diagnostics — NGS Panels
-  { device: 'FoundationOne CDx', company: 'Foundation Medicine (Roche)', category: 'ivd_oncology', sub_category: 'ngs_panel', success_rate_pct: 99.2, complication_rate_pct: undefined, procedural_time_minutes: undefined, hospital_los_days: undefined, revision_rate_pct: undefined, primary_endpoint: 'Analytical sensitivity/specificity (>99%)', data_quality: 'RCT' },
-  { device: 'TruSight Oncology 500', company: 'Illumina', category: 'ivd_oncology', sub_category: 'ngs_panel', success_rate_pct: 98.5, complication_rate_pct: undefined, procedural_time_minutes: undefined, hospital_los_days: undefined, revision_rate_pct: undefined, primary_endpoint: 'Concordance with reference methods', data_quality: 'single_arm' },
-  { device: 'xT CDx', company: 'Tempus AI', category: 'ivd_oncology', sub_category: 'ngs_panel', success_rate_pct: 98.8, complication_rate_pct: undefined, procedural_time_minutes: undefined, hospital_los_days: undefined, revision_rate_pct: undefined, primary_endpoint: 'Analytical validation + CDx claim', data_quality: 'single_arm' },
-  { device: 'Oncomine Dx Target Test', company: 'Thermo Fisher', category: 'ivd_oncology', sub_category: 'ngs_panel', success_rate_pct: 97.5, complication_rate_pct: undefined, procedural_time_minutes: undefined, hospital_los_days: undefined, revision_rate_pct: undefined, primary_endpoint: 'Analytical sensitivity for key variants', data_quality: 'single_arm' },
+  {
+    device: 'FoundationOne CDx',
+    company: 'Foundation Medicine (Roche)',
+    category: 'ivd_oncology',
+    sub_category: 'ngs_panel',
+    success_rate_pct: 99.2,
+    complication_rate_pct: undefined,
+    procedural_time_minutes: undefined,
+    hospital_los_days: undefined,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'Analytical sensitivity/specificity (>99%)',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'TruSight Oncology 500',
+    company: 'Illumina',
+    category: 'ivd_oncology',
+    sub_category: 'ngs_panel',
+    success_rate_pct: 98.5,
+    complication_rate_pct: undefined,
+    procedural_time_minutes: undefined,
+    hospital_los_days: undefined,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'Concordance with reference methods',
+    data_quality: 'single_arm',
+  },
+  {
+    device: 'xT CDx',
+    company: 'Tempus AI',
+    category: 'ivd_oncology',
+    sub_category: 'ngs_panel',
+    success_rate_pct: 98.8,
+    complication_rate_pct: undefined,
+    procedural_time_minutes: undefined,
+    hospital_los_days: undefined,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'Analytical validation + CDx claim',
+    data_quality: 'single_arm',
+  },
+  {
+    device: 'Oncomine Dx Target Test',
+    company: 'Thermo Fisher',
+    category: 'ivd_oncology',
+    sub_category: 'ngs_panel',
+    success_rate_pct: 97.5,
+    complication_rate_pct: undefined,
+    procedural_time_minutes: undefined,
+    hospital_los_days: undefined,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'Analytical sensitivity for key variants',
+    data_quality: 'single_arm',
+  },
 
   // Diagnostics — Liquid Biopsy
-  { device: 'Guardant360 CDx', company: 'Guardant Health', category: 'ivd_oncology', sub_category: 'liquid_biopsy', success_rate_pct: 93.5, complication_rate_pct: undefined, procedural_time_minutes: undefined, hospital_los_days: undefined, revision_rate_pct: undefined, primary_endpoint: 'ctDNA detection sensitivity', data_quality: 'RCT' },
-  { device: 'FoundationOne Liquid CDx', company: 'Foundation Medicine (Roche)', category: 'ivd_oncology', sub_category: 'liquid_biopsy', success_rate_pct: 94.0, complication_rate_pct: undefined, procedural_time_minutes: undefined, hospital_los_days: undefined, revision_rate_pct: undefined, primary_endpoint: 'ctDNA variant detection', data_quality: 'single_arm' },
-  { device: 'Signatera (MRD)', company: 'Natera', category: 'ivd_oncology', sub_category: 'liquid_biopsy', success_rate_pct: 95.8, complication_rate_pct: undefined, procedural_time_minutes: undefined, hospital_los_days: undefined, revision_rate_pct: undefined, primary_endpoint: 'MRD detection sensitivity (tumor-informed)', data_quality: 'registry' },
-  { device: 'Galleri (MCED)', company: 'Grail (Illumina)', category: 'ivd_oncology', sub_category: 'liquid_biopsy', success_rate_pct: 51.5, complication_rate_pct: undefined, procedural_time_minutes: undefined, hospital_los_days: undefined, revision_rate_pct: undefined, primary_endpoint: 'Cancer signal detection (>50 cancer types)', data_quality: 'single_arm' },
+  {
+    device: 'Guardant360 CDx',
+    company: 'Guardant Health',
+    category: 'ivd_oncology',
+    sub_category: 'liquid_biopsy',
+    success_rate_pct: 93.5,
+    complication_rate_pct: undefined,
+    procedural_time_minutes: undefined,
+    hospital_los_days: undefined,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'ctDNA detection sensitivity',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'FoundationOne Liquid CDx',
+    company: 'Foundation Medicine (Roche)',
+    category: 'ivd_oncology',
+    sub_category: 'liquid_biopsy',
+    success_rate_pct: 94.0,
+    complication_rate_pct: undefined,
+    procedural_time_minutes: undefined,
+    hospital_los_days: undefined,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'ctDNA variant detection',
+    data_quality: 'single_arm',
+  },
+  {
+    device: 'Signatera (MRD)',
+    company: 'Natera',
+    category: 'ivd_oncology',
+    sub_category: 'liquid_biopsy',
+    success_rate_pct: 95.8,
+    complication_rate_pct: undefined,
+    procedural_time_minutes: undefined,
+    hospital_los_days: undefined,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'MRD detection sensitivity (tumor-informed)',
+    data_quality: 'registry',
+  },
+  {
+    device: 'Galleri (MCED)',
+    company: 'Grail (Illumina)',
+    category: 'ivd_oncology',
+    sub_category: 'liquid_biopsy',
+    success_rate_pct: 51.5,
+    complication_rate_pct: undefined,
+    procedural_time_minutes: undefined,
+    hospital_los_days: undefined,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'Cancer signal detection (>50 cancer types)',
+    data_quality: 'single_arm',
+  },
 
   // Surgical Robots
-  { device: 'da Vinci 5', company: 'Intuitive Surgical', category: 'general_surgery', sub_category: 'robotic_surgery', success_rate_pct: 98.5, complication_rate_pct: 2.2, procedural_time_minutes: 180, hospital_los_days: 1.8, revision_rate_pct: 0.5, primary_endpoint: 'Conversion to open rate', data_quality: 'registry' },
-  { device: 'Hugo RAS', company: 'Medtronic', category: 'general_surgery', sub_category: 'robotic_surgery', success_rate_pct: 96.0, complication_rate_pct: 3.5, procedural_time_minutes: 195, hospital_los_days: 2.2, revision_rate_pct: undefined, primary_endpoint: '30-day complication rate (Clavien-Dindo)', data_quality: 'single_arm' },
-  { device: 'Versius', company: 'CMR Surgical', category: 'general_surgery', sub_category: 'robotic_surgery', success_rate_pct: 95.5, complication_rate_pct: 3.8, procedural_time_minutes: 200, hospital_los_days: 2.3, revision_rate_pct: undefined, primary_endpoint: 'Operative time and conversion rate', data_quality: 'registry' },
-  { device: 'Ion Endoluminal System', company: 'Intuitive Surgical', category: 'respiratory', sub_category: 'robotic_bronchoscopy', success_rate_pct: 88.0, complication_rate_pct: 2.5, procedural_time_minutes: 55, hospital_los_days: 0.5, revision_rate_pct: undefined, primary_endpoint: 'Diagnostic yield for peripheral lung lesions', data_quality: 'registry' },
+  {
+    device: 'da Vinci 5',
+    company: 'Intuitive Surgical',
+    category: 'general_surgery',
+    sub_category: 'robotic_surgery',
+    success_rate_pct: 98.5,
+    complication_rate_pct: 2.2,
+    procedural_time_minutes: 180,
+    hospital_los_days: 1.8,
+    revision_rate_pct: 0.5,
+    primary_endpoint: 'Conversion to open rate',
+    data_quality: 'registry',
+  },
+  {
+    device: 'Hugo RAS',
+    company: 'Medtronic',
+    category: 'general_surgery',
+    sub_category: 'robotic_surgery',
+    success_rate_pct: 96.0,
+    complication_rate_pct: 3.5,
+    procedural_time_minutes: 195,
+    hospital_los_days: 2.2,
+    revision_rate_pct: undefined,
+    primary_endpoint: '30-day complication rate (Clavien-Dindo)',
+    data_quality: 'single_arm',
+  },
+  {
+    device: 'Versius',
+    company: 'CMR Surgical',
+    category: 'general_surgery',
+    sub_category: 'robotic_surgery',
+    success_rate_pct: 95.5,
+    complication_rate_pct: 3.8,
+    procedural_time_minutes: 200,
+    hospital_los_days: 2.3,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'Operative time and conversion rate',
+    data_quality: 'registry',
+  },
+  {
+    device: 'Ion Endoluminal System',
+    company: 'Intuitive Surgical',
+    category: 'respiratory',
+    sub_category: 'robotic_bronchoscopy',
+    success_rate_pct: 88.0,
+    complication_rate_pct: 2.5,
+    procedural_time_minutes: 55,
+    hospital_los_days: 0.5,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'Diagnostic yield for peripheral lung lesions',
+    data_quality: 'registry',
+  },
 
   // Diabetes / CGM
-  { device: 'G7 CGM', company: 'Dexcom', category: 'diabetes_metabolic', sub_category: 'cgm', success_rate_pct: undefined, complication_rate_pct: 0.5, procedural_time_minutes: undefined, hospital_los_days: undefined, revision_rate_pct: undefined, primary_endpoint: 'MARD (Mean Absolute Relative Difference)', data_quality: 'RCT' },
-  { device: 'FreeStyle Libre 3', company: 'Abbott', category: 'diabetes_metabolic', sub_category: 'cgm', success_rate_pct: undefined, complication_rate_pct: 0.8, procedural_time_minutes: undefined, hospital_los_days: undefined, revision_rate_pct: undefined, primary_endpoint: 'MARD; time in range', data_quality: 'RCT' },
+  {
+    device: 'G7 CGM',
+    company: 'Dexcom',
+    category: 'diabetes_metabolic',
+    sub_category: 'cgm',
+    success_rate_pct: undefined,
+    complication_rate_pct: 0.5,
+    procedural_time_minutes: undefined,
+    hospital_los_days: undefined,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'MARD (Mean Absolute Relative Difference)',
+    data_quality: 'RCT',
+  },
+  {
+    device: 'FreeStyle Libre 3',
+    company: 'Abbott',
+    category: 'diabetes_metabolic',
+    sub_category: 'cgm',
+    success_rate_pct: undefined,
+    complication_rate_pct: 0.8,
+    procedural_time_minutes: undefined,
+    hospital_los_days: undefined,
+    revision_rate_pct: undefined,
+    primary_endpoint: 'MARD; time in range',
+    data_quality: 'RCT',
+  },
 ];
 
 // Category-level benchmark averages (computed at runtime for flexibility)
@@ -1510,7 +2589,7 @@ function getCategoryBenchmarkAverages(category: string): {
   avg_hospital_los?: number;
   avg_revision_rate?: number;
 } {
-  const catEntries = DEVICE_CLINICAL_BENCHMARKS.filter(b => b.category === category);
+  const catEntries = DEVICE_CLINICAL_BENCHMARKS.filter((b) => b.category === category);
   if (catEntries.length === 0) return {};
 
   const avg = (vals: (number | undefined)[]) => {
@@ -1519,20 +2598,20 @@ function getCategoryBenchmarkAverages(category: string): {
   };
 
   return {
-    avg_success_rate: avg(catEntries.map(e => e.success_rate_pct)),
-    avg_complication_rate: avg(catEntries.map(e => e.complication_rate_pct)),
-    avg_procedural_time: avg(catEntries.map(e => e.procedural_time_minutes)),
-    avg_hospital_los: avg(catEntries.map(e => e.hospital_los_days)),
-    avg_revision_rate: avg(catEntries.map(e => e.revision_rate_pct)),
+    avg_success_rate: avg(catEntries.map((e) => e.success_rate_pct)),
+    avg_complication_rate: avg(catEntries.map((e) => e.complication_rate_pct)),
+    avg_procedural_time: avg(catEntries.map((e) => e.procedural_time_minutes)),
+    avg_hospital_los: avg(catEntries.map((e) => e.hospital_los_days)),
+    avg_revision_rate: avg(catEntries.map((e) => e.revision_rate_pct)),
   };
 }
 
 function buildClinicalSuperiorityMatrix(
   procedure: NonNullable<ReturnType<typeof findProcedure>>,
-  input: DeviceMarketSizingInput
+  input: DeviceMarketSizingInput,
 ): ClinicalSuperiorityMatrix {
   const category = input.device_category;
-  const benchmarks = DEVICE_CLINICAL_BENCHMARKS.filter(b => b.category === category);
+  const benchmarks = DEVICE_CLINICAL_BENCHMARKS.filter((b) => b.category === category);
   const categoryAvg = getCategoryBenchmarkAverages(category);
 
   if (benchmarks.length === 0) {
@@ -1544,7 +2623,7 @@ function buildClinicalSuperiorityMatrix(
     };
   }
 
-  const entries: ClinicalSuperiorityEntry[] = benchmarks.map(b => {
+  const entries: ClinicalSuperiorityEntry[] = benchmarks.map((b) => {
     // Superiority score: -5 (much worse than avg) to +5 (much better)
     let scoreComponents = 0;
     let componentCount = 0;
@@ -1585,19 +2664,20 @@ function buildClinicalSuperiorityMatrix(
       componentCount++;
     }
 
-    const superiorityScore = componentCount > 0
-      ? parseFloat((scoreComponents / componentCount).toFixed(1))
-      : 0;
+    const superiorityScore = componentCount > 0 ? parseFloat((scoreComponents / componentCount).toFixed(1)) : 0;
 
     // Build narrative
     const strengths: string[] = [];
     const weaknesses: string[] = [];
     if (b.success_rate_pct != null && categoryAvg.avg_success_rate != null) {
-      if (b.success_rate_pct > categoryAvg.avg_success_rate) strengths.push(`Success rate ${b.success_rate_pct}% (above avg ${categoryAvg.avg_success_rate.toFixed(1)}%)`);
-      else weaknesses.push(`Success rate ${b.success_rate_pct}% (below avg ${categoryAvg.avg_success_rate.toFixed(1)}%)`);
+      if (b.success_rate_pct > categoryAvg.avg_success_rate)
+        strengths.push(`Success rate ${b.success_rate_pct}% (above avg ${categoryAvg.avg_success_rate.toFixed(1)}%)`);
+      else
+        weaknesses.push(`Success rate ${b.success_rate_pct}% (below avg ${categoryAvg.avg_success_rate.toFixed(1)}%)`);
     }
     if (b.complication_rate_pct != null && categoryAvg.avg_complication_rate != null) {
-      if (b.complication_rate_pct < categoryAvg.avg_complication_rate) strengths.push(`Lower complications (${b.complication_rate_pct}%)`);
+      if (b.complication_rate_pct < categoryAvg.avg_complication_rate)
+        strengths.push(`Lower complications (${b.complication_rate_pct}%)`);
       else weaknesses.push(`Higher complications (${b.complication_rate_pct}%)`);
     }
 
@@ -1636,27 +2716,30 @@ function buildClinicalSuperiorityMatrix(
     keyDifferentiator = 'Clinical data not yet available — position cannot be assessed until clinical studies complete';
   } else {
     // For devices in clinical trial or later, assume comparable until proven otherwise
-    const avgScore = entries.length > 0
-      ? entries.reduce((sum, e) => sum + e.superiority_score, 0) / entries.length
-      : 0;
+    const avgScore = entries.length > 0 ? entries.reduce((sum, e) => sum + e.superiority_score, 0) / entries.length : 0;
 
     if (avgScore > 1.5) {
       userDevicePosition = 'comparable';
-      keyDifferentiator = 'Existing competitors show strong clinical profiles — differentiation will require demonstrating superior outcomes in head-to-head or registry studies';
+      keyDifferentiator =
+        'Existing competitors show strong clinical profiles — differentiation will require demonstrating superior outcomes in head-to-head or registry studies';
     } else if (avgScore > 0) {
       userDevicePosition = 'comparable';
-      keyDifferentiator = 'Market competitors show moderate clinical profiles — opportunity to demonstrate superiority through focused clinical evidence';
+      keyDifferentiator =
+        'Market competitors show moderate clinical profiles — opportunity to demonstrate superiority through focused clinical evidence';
     } else {
       userDevicePosition = 'comparable';
-      keyDifferentiator = 'Competitors show mixed clinical profiles — well-designed clinical program could establish a superior position';
+      keyDifferentiator =
+        'Competitors show mixed clinical profiles — well-designed clinical program could establish a superior position';
     }
   }
 
   // Identify highest and lowest scored competitors
   const best = entries[0];
   const worst = entries[entries.length - 1];
-  const rctCount = entries.filter(e => e.data_quality === 'RCT').length;
-  const sparseDataCount = entries.filter(e => e.data_quality === 'bench_only' || e.data_quality === 'case_series').length;
+  const rctCount = entries.filter((e) => e.data_quality === 'RCT').length;
+  const sparseDataCount = entries.filter(
+    (e) => e.data_quality === 'bench_only' || e.data_quality === 'case_series',
+  ).length;
 
   return {
     entries,
@@ -1999,10 +3082,7 @@ const SWITCHING_COST_PROFILES: Record<string, SwitchingCostProfile> = {
   },
 };
 
-function buildSurgeonSwitchingCostModel(
-  deviceCategory: string,
-  productCategory: string
-): SurgeonSwitchingCostModel {
+function buildSurgeonSwitchingCostModel(deviceCategory: string, productCategory: string): SurgeonSwitchingCostModel {
   // Try device category first, then product category, then fallback
   let profile = SWITCHING_COST_PROFILES[deviceCategory];
 
@@ -2033,15 +3113,21 @@ function buildSurgeonSwitchingCostModel(
     profile = SWITCHING_COST_PROFILES.general_surgery;
   }
 
-  const barrierLabel = profile.barrier_score >= 8 ? 'very high'
-    : profile.barrier_score >= 6 ? 'high'
-    : profile.barrier_score >= 4 ? 'moderate'
-    : profile.barrier_score >= 2 ? 'low'
-    : 'very low';
+  const barrierLabel =
+    profile.barrier_score >= 8
+      ? 'very high'
+      : profile.barrier_score >= 6
+        ? 'high'
+        : profile.barrier_score >= 4
+          ? 'moderate'
+          : profile.barrier_score >= 2
+            ? 'low'
+            : 'very low';
 
-  const costLabel = profile.switching_cost_per_site >= 100000
-    ? `$${(profile.switching_cost_per_site / 1000).toFixed(0)}K`
-    : `$${profile.switching_cost_per_site.toLocaleString()}`;
+  const costLabel =
+    profile.switching_cost_per_site >= 100000
+      ? `$${(profile.switching_cost_per_site / 1000).toFixed(0)}K`
+      : `$${profile.switching_cost_per_site.toLocaleString()}`;
 
   return {
     training_requirement_hours: profile.training_hours,

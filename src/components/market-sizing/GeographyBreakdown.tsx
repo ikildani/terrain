@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Tooltip,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { formatMetric, formatNumber, formatPercent } from '@/lib/utils/format';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import type { GeographyBreakdownItem } from '@/types';
@@ -29,11 +22,7 @@ export default function GeographyBreakdown({ data }: GeographyBreakdownProps) {
 
       {/* Bar chart */}
       <ResponsiveContainer width="100%" height={data.length * 38 + 40}>
-        <BarChart
-          layout="vertical"
-          data={chartData}
-          margin={{ top: 5, right: 70, left: 10, bottom: 5 }}
-        >
+        <BarChart layout="vertical" data={chartData} margin={{ top: 5, right: 70, left: 10, bottom: 5 }}>
           <XAxis type="number" hide />
           <YAxis
             type="category"
@@ -55,12 +44,7 @@ export default function GeographyBreakdown({ data }: GeographyBreakdownProps) {
               );
             }}
           />
-          <Bar
-            dataKey="value"
-            fill="#00C9A7"
-            radius={[0, 4, 4, 0]}
-            barSize={22}
-          />
+          <Bar dataKey="value" fill="#00C9A7" radius={[0, 4, 4, 0]} barSize={22} />
         </BarChart>
       </ResponsiveContainer>
 
@@ -79,7 +63,12 @@ export default function GeographyBreakdown({ data }: GeographyBreakdownProps) {
           <tbody>
             {data.map((row) => (
               <tr key={row.territory}>
-                <td className="text-slate-300 font-medium">{row.territory}</td>
+                <td className="text-slate-300 font-medium">
+                  {row.territory}
+                  {row.notes && (
+                    <span className="block text-2xs text-slate-600 mt-0.5 font-normal leading-tight">{row.notes}</span>
+                  )}
+                </td>
                 <td className="numeric">{formatMetric(row.tam.value, row.tam.unit)}</td>
                 <td className="numeric">{formatNumber(row.population / 1_000_000, 1)}M</td>
                 <td className="numeric">{row.market_multiplier.toFixed(2)}x</td>
@@ -96,7 +85,7 @@ export default function GeographyBreakdown({ data }: GeographyBreakdownProps) {
       <div className="mt-4 pt-3 border-t border-navy-700 flex flex-wrap gap-3">
         <DataSourceBadge source="Terrain Analysis" type="proprietary" />
         <DataSourceBadge source="WHO GBD" type="public" />
-        <DataSourceBadge source="Industry Benchmarks" type="licensed" />
+        <DataSourceBadge source="IQVIA Global Pharma Market 2024" type="licensed" />
       </div>
     </div>
   );

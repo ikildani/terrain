@@ -18,7 +18,9 @@ type SortField =
   | 'cagr_5yr'
   | 'treatment_rate'
   | 'indication'
-  | 'therapy_area';
+  | 'therapy_area'
+  | 'community_count'
+  | 'emerging_asset_count';
 
 interface OpportunityTableProps {
   rows: OpportunityRow[];
@@ -201,6 +203,22 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
                 onSort={onSort}
                 align="right"
               />
+              <SortHeader
+                field="community_count"
+                label="Community"
+                currentSort={sortBy}
+                currentOrder={sortOrder}
+                onSort={onSort}
+                align="right"
+              />
+              <SortHeader
+                field="emerging_asset_count"
+                label="Emerging"
+                currentSort={sortBy}
+                currentOrder={sortOrder}
+                onSort={onSort}
+                align="right"
+              />
             </tr>
           </thead>
           <tbody>
@@ -237,7 +255,19 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
                     {/* Indication */}
                     <td className="py-2.5 pr-3">
                       <div>
-                        <span className="text-slate-200 font-medium">{row.indication}</span>
+                        <span
+                          className={cn(
+                            'font-medium',
+                            row.data_confidence === 'low' ? 'text-slate-400' : 'text-slate-200',
+                          )}
+                        >
+                          {row.indication}
+                        </span>
+                        {row.data_confidence === 'low' && (
+                          <span className="ml-1.5 px-1 py-0.5 rounded bg-slate-700/40 text-[9px] text-slate-500 font-mono">
+                            Low data
+                          </span>
+                        )}
                         {row.top_competitors.length > 0 && (
                           <div className="text-[10px] text-slate-500 mt-0.5 truncate max-w-[200px]">
                             {row.top_competitors.slice(0, 2).join(', ')}
@@ -294,6 +324,34 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
                       <span className={row.cagr_5yr >= 8 ? 'text-emerald-400' : 'text-slate-300'}>
                         {row.cagr_5yr.toFixed(1)}%
                       </span>
+                    </td>
+
+                    {/* Community Disparities */}
+                    <td className="py-2.5 pr-3 text-right">
+                      {row.community_disparities.length > 0 ? (
+                        <span
+                          className="inline-flex items-center gap-1"
+                          title={row.community_disparities.map((c) => c.community).join(', ')}
+                        >
+                          {row.community_disparities.some(
+                            (c) => c.clinical_trial_representation === 'underrepresented',
+                          ) && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />}
+                          <span className="font-mono text-xs text-slate-300 tabular-nums">
+                            {row.community_disparities.length}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-slate-600">—</span>
+                      )}
+                    </td>
+
+                    {/* Emerging Assets */}
+                    <td className="py-2.5 pr-3 text-right font-mono text-xs tabular-nums">
+                      {row.emerging_asset_count > 0 ? (
+                        <span className="text-amber-400">{row.emerging_asset_count}</span>
+                      ) : (
+                        <span className="text-slate-600">0</span>
+                      )}
                     </td>
                   </tr>
 

@@ -3679,17 +3679,76 @@ export const COMPETITOR_DATABASE: CompetitorRecord[] = [
 // ────────────────────────────────────────────────────────────
 
 /**
+ * Strips apostrophes, smart quotes, and normalizes whitespace/dashes for
+ * robust indication name matching across data sources.
+ */
+function normalizeIndicationName(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[''`\u2018\u2019]/g, '')
+    .replace(/-/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Alias map for indication names that differ between competitor data and
+ * the canonical indication-map names. Keys are normalized canonical names;
+ * values are alternative normalized forms that should also match.
+ */
+const COMPETITOR_INDICATION_ALIASES: Record<string, string[]> = {
+  'neovascular age related macular degeneration': ['age related macular degeneration', 'wet amd', 'namd'],
+  'waldenstrom macroglobulinemia': ['waldenstroms macroglobulinemia'],
+  'metabolic dysfunction associated steatohepatitis': ['nash', 'non alcoholic steatohepatitis', 'mash'],
+  'metastatic castration resistant prostate cancer': ['prostate cancer', 'mcrpc'],
+  'triple negative breast cancer': ['tnbc'],
+  'her2 positive breast cancer': ['her2+ breast cancer'],
+  'parkinsons disease': ['parkinson disease'],
+  'alzheimers disease': ['alzheimer disease'],
+  'huntingtons disease': ['huntington disease'],
+  'crohns disease': ['crohn disease'],
+  'friedreichs ataxia': ['friedreich ataxia'],
+  'sjogrens syndrome': ['sjogren syndrome'],
+};
+
+/**
  * Returns all competitors for a given indication name.
- * Uses case-insensitive partial matching to handle synonyms and abbreviations.
+ * Uses case-insensitive partial matching with apostrophe/dash normalization
+ * and an alias map for known naming mismatches across data sources.
  */
 export function getCompetitorsForIndication(indicationName: string): CompetitorRecord[] {
-  const normalized = indicationName.toLowerCase().trim();
-  return COMPETITOR_DATABASE.filter(
-    (c) =>
-      c.indication.toLowerCase() === normalized ||
-      c.indication.toLowerCase().includes(normalized) ||
-      normalized.includes(c.indication.toLowerCase()),
-  );
+  const normalized = normalizeIndicationName(indicationName);
+  return COMPETITOR_DATABASE.filter((c) => {
+    const compName = normalizeIndicationName(c.indication);
+
+    // Direct exact or substring match (with normalized strings)
+    if (compName === normalized || compName.includes(normalized) || normalized.includes(compName)) {
+      return true;
+    }
+
+    // Check alias expansions for the queried indication
+    const aliases = COMPETITOR_INDICATION_ALIASES[normalized];
+    if (aliases) {
+      for (const alias of aliases) {
+        if (compName === alias || compName.includes(alias) || alias.includes(compName)) return true;
+      }
+    }
+
+    // Check if competitor's indication is an alias for the queried indication
+    for (const [canonical, aliasList] of Object.entries(COMPETITOR_INDICATION_ALIASES)) {
+      if (canonical === normalized || canonical.includes(normalized) || normalized.includes(canonical)) {
+        for (const alias of aliasList) {
+          if (compName === alias || compName.includes(alias) || alias.includes(compName)) return true;
+        }
+      }
+      // Also check if the competitor name matches a canonical whose aliases match the query
+      if (aliasList.some((a) => a === normalized || a.includes(normalized) || normalized.includes(a))) {
+        if (compName === canonical || compName.includes(canonical) || canonical.includes(compName)) return true;
+      }
+    }
+
+    return false;
+  });
 }
 
 /**

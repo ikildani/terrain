@@ -32,7 +32,9 @@ const TYPE_ROUTES: Record<string, string> = {
   full: '/market-sizing',
 };
 
-export default function ReportsPage() {
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+
+function ReportsContent() {
   const { reports, isLoading, deleteReport, toggleStar } = useReports();
   const { isTeam } = useSubscription();
   const [filter, setFilter] = useState<string>('all');
@@ -175,5 +177,13 @@ export default function ReportsPage() {
         />
       )}
     </>
+  );
+}
+
+export default function ReportsPage() {
+  return (
+    <ErrorBoundary>
+      <ReportsContent />
+    </ErrorBoundary>
   );
 }
