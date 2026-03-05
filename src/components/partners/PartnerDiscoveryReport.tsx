@@ -164,6 +164,11 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
               filename={`partner-discovery-${data.summary.indication.toLowerCase().replace(/\s+/g, '-')}`}
             />
             <ExportButton
+              format="xlsx"
+              data={csvData}
+              filename={`partner-discovery-${data.summary.indication.toLowerCase().replace(/\s+/g, '-')}`}
+            />
+            <ExportButton
               format="pdf"
               onPdfExport={onPdfExport}
               targetRef={reportRef}

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useUser } from '@/hooks/useUser';
 import { toast } from 'sonner';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { Users, Shield, Crown, FileText, Globe, Zap, UserPlus, X, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 
 const TEAM_FEATURES = [
@@ -122,7 +123,7 @@ export default function TeamPage() {
   // ── Non-team upgrade gate ──────────────────────────────
   if (!isTeam) {
     return (
-      <>
+      <ErrorBoundary>
         <PageHeader title="Team" subtitle="Manage team members and permissions." badge="Team" />
         <div className="card noise p-12 text-center max-w-lg mx-auto">
           <div className="w-12 h-12 rounded-full bg-amber-400/10 flex items-center justify-center mx-auto mb-4">
@@ -151,7 +152,7 @@ export default function TeamPage() {
             Upgrade to Team
           </Button>
         </div>
-      </>
+      </ErrorBoundary>
     );
   }
 
@@ -160,7 +161,7 @@ export default function TeamPage() {
   const totalSeats = 1 + members.length + pendingInvites.length;
 
   return (
-    <>
+    <ErrorBoundary>
       <PageHeader title="Team" subtitle="Manage team members and permissions." badge="Team" />
 
       <div className="space-y-6 max-w-2xl">
@@ -313,6 +314,6 @@ export default function TeamPage() {
           </div>
         </div>
       </div>
-    </>
+    </ErrorBoundary>
   );
 }

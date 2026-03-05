@@ -10,6 +10,7 @@ import { useUser } from '@/hooks/useUser';
 import { useProfile } from '@/hooks/useProfile';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { Save, Check, AlertTriangle } from 'lucide-react';
 
 const ROLE_OPTIONS = [
@@ -130,7 +131,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <>
+    <ErrorBoundary>
       <PageHeader
         title="Settings"
         subtitle="Manage your account and preferences."
@@ -295,6 +296,6 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
-    </>
+    </ErrorBoundary>
   );
 }

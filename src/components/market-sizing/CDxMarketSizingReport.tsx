@@ -622,6 +622,11 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
             filename={`terrain-cdx-${input.drug_indication.toLowerCase().replace(/\s+/g, '-')}`}
           />
           <ExportButton
+            format="xlsx"
+            data={flattenCDxForCSV(data)}
+            filename={`terrain-cdx-${input.drug_indication.toLowerCase().replace(/\s+/g, '-')}`}
+          />
+          <ExportButton
             format="email"
             reportTitle={`${input.biomarker} CDx — ${input.drug_indication}`}
             reportSubtitle={[input.drug_name, input.test_type].filter(Boolean).join(' — ') || undefined}

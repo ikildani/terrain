@@ -376,6 +376,7 @@ export default function CompetitiveLandscapeReport({
             filename={`competitive-landscape-${Date.now()}`}
           />
           <ExportButton format="csv" data={csvData} filename={`competitive-landscape-${Date.now()}`} />
+          <ExportButton format="xlsx" data={csvData} filename={`competitive-landscape-${Date.now()}`} />
           <ExportButton format="email" reportTitle={`Competitive Landscape — ${data.summary.indication}`} />
         </div>
       )}

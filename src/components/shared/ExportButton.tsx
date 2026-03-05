@@ -7,7 +7,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
 
 interface ExportButtonProps {
-  format: 'pdf' | 'csv' | 'email';
+  format: 'pdf' | 'csv' | 'xlsx' | 'email';
   data?: Record<string, unknown>[];
   filename?: string;
   className?: string;
@@ -21,7 +21,7 @@ interface ExportButtonProps {
   onPdfExport?: () => void;
 }
 
-const formatLabels = { pdf: 'PDF', csv: 'CSV', email: 'Email Report' };
+const formatLabels = { pdf: 'PDF', csv: 'CSV', xlsx: 'Excel', email: 'Email Report' };
 
 function exportCSV(data: Record<string, unknown>[], filename: string) {
   if (!data || data.length === 0) return;
@@ -66,7 +66,14 @@ export function ExportButton({
   async function handleExport() {
     setIsExporting(true);
     try {
-      if (format === 'csv' && data) {
+      if (format === 'xlsx' && data) {
+        const { exportToExcel } = await import('@/lib/export-excel');
+        await exportToExcel(data, {
+          title: reportTitle || 'Intelligence Report',
+          subtitle: reportSubtitle,
+          filename,
+        });
+      } else if (format === 'csv' && data) {
         exportCSV(data, filename);
       } else if (format === 'pdf') {
         if (onPdfExport) {
@@ -124,7 +131,7 @@ export function ExportButton({
   return (
     <button
       onClick={handleExport}
-      disabled={isExporting || (format === 'csv' && (!data || data.length === 0))}
+      disabled={isExporting || ((format === 'csv' || format === 'xlsx') && (!data || data.length === 0))}
       className={cn('btn btn-secondary', className)}
     >
       {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Icon className="w-3.5 h-3.5" />}

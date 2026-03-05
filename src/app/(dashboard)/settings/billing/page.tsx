@@ -9,6 +9,7 @@ import { useUser } from '@/hooks/useUser';
 import { createClient } from '@/lib/supabase/client';
 import { PLAN_DISPLAY, PLAN_LIMITS } from '@/lib/subscription';
 import { toast } from 'sonner';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { CreditCard, Crown, Zap, Check, ArrowRight, Loader2 } from 'lucide-react';
 import type { Plan } from '@/types';
 
@@ -134,7 +135,7 @@ export default function BillingPage() {
   }
 
   return (
-    <>
+    <ErrorBoundary>
       <PageHeader title="Billing" subtitle="Manage your subscription and payment methods." />
 
       <div className="space-y-6 max-w-2xl">
@@ -220,6 +221,6 @@ export default function BillingPage() {
           </div>
         )}
       </div>
-    </>
+    </ErrorBoundary>
   );
 }

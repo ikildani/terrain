@@ -274,6 +274,11 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
             filename={`terrain-${input.indication.toLowerCase().replace(/\s+/g, '-')}-market-sizing`}
           />
           <ExportButton
+            format="xlsx"
+            data={flattenForCSV(data)}
+            filename={`terrain-${input.indication.toLowerCase().replace(/\s+/g, '-')}-market-sizing`}
+          />
+          <ExportButton
             format="email"
             reportTitle={`${input.indication} — Market Sizing`}
             reportSubtitle={[input.subtype, input.mechanism].filter(Boolean).join(' — ') || undefined}

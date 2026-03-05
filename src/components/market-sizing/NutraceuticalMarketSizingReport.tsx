@@ -856,6 +856,11 @@ export default function NutraceuticalMarketSizingReport({
             filename={`terrain-${ingredientName.toLowerCase().replace(/\s+/g, '-')}-nutraceutical-market-sizing`}
           />
           <ExportButton
+            format="xlsx"
+            data={csvData}
+            filename={`terrain-${ingredientName.toLowerCase().replace(/\s+/g, '-')}-nutraceutical-market-sizing`}
+          />
+          <ExportButton
             format="email"
             reportTitle={`${ingredientName} — Nutraceutical Market Sizing`}
             reportSubtitle={(input?.health_category as string) || undefined}

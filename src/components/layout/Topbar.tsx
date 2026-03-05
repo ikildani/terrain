@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, ChevronRight, Settings, CreditCard, LogOut, Menu } from 'lucide-react';
+import { Search, ChevronRight, Settings, CreditCard, LogOut, Menu, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useUser } from '@/hooks/useUser';
 import { useProfile } from '@/hooks/useProfile';
@@ -35,6 +35,7 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
   const { fullName, initials } = useProfile();
   const { plan } = useSubscription();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [hasNewIntel, setHasNewIntel] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   async function handleSignOut() {
@@ -51,6 +52,41 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
     href: '/' + segments.slice(0, i + 1).join('/'),
     isLast: i === segments.length - 1,
   }));
+
+  // Check for new intelligence data since last visit
+  useEffect(() => {
+    const lastVisit = localStorage.getItem('terrain_intel_last_visit');
+    if (!lastVisit) {
+      // First-time user — show the dot to draw attention
+      setHasNewIntel(true);
+      return;
+    }
+
+    // Lightweight check: only fetches latest data source timestamp
+    async function checkForNewIntel() {
+      try {
+        const res = await fetch('/api/intelligence/check');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.success || !data.latest_refresh) return;
+
+        const lastVisitTs = parseInt(lastVisit!, 10);
+        const latestRefreshTs = new Date(data.latest_refresh).getTime();
+        setHasNewIntel(latestRefreshTs > lastVisitTs);
+      } catch {
+        // Silently fail — notification dot is non-critical
+      }
+    }
+    checkForNewIntel();
+  }, []);
+
+  // Clear the indicator when navigating to /intelligence
+  useEffect(() => {
+    if (pathname === '/intelligence') {
+      setHasNewIntel(false);
+      localStorage.setItem('terrain_intel_last_visit', Date.now().toString());
+    }
+  }, [pathname]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -108,6 +144,7 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
       <button
         onClick={onSearchClick}
         aria-label="Open command palette (⌘K)"
+        data-tour="search"
         className="relative max-w-xs hidden md:flex items-center gap-2 pl-9 pr-3 py-1.5 text-sm text-slate-500 bg-navy-800 border border-transparent hover:border-navy-600 rounded-md w-64 transition-colors cursor-pointer"
       >
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -117,8 +154,23 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
         </kbd>
       </button>
 
+      {/* Notification bell */}
+      <Link
+        href="/intelligence"
+        className="relative p-2 rounded-md hover:bg-navy-800 transition-colors ml-2"
+        aria-label="View notifications"
+      >
+        <Bell className="w-4.5 h-4.5 text-slate-400" />
+        {hasNewIntel && (
+          <>
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-teal-500 ring-2 ring-navy-900" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-teal-500 animate-ping" />
+          </>
+        )}
+      </Link>
+
       {/* User dropdown */}
-      <div className="relative ml-3" ref={dropdownRef}>
+      <div className="relative ml-1" ref={dropdownRef}>
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-navy-800 transition-colors"

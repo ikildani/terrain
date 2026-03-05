@@ -457,6 +457,11 @@ export default function DeviceMarketSizingReport({
             filename={`terrain-${input.procedure_or_condition.toLowerCase().replace(/\s+/g, '-')}-device-market-sizing`}
           />
           <ExportButton
+            format="xlsx"
+            data={flattenDeviceForCSV(data)}
+            filename={`terrain-${input.procedure_or_condition.toLowerCase().replace(/\s+/g, '-')}-device-market-sizing`}
+          />
+          <ExportButton
             format="email"
             reportTitle={`${input.procedure_or_condition} — Device Market Assessment`}
             reportSubtitle={[input.device_category, input.product_name].filter(Boolean).join(' — ') || undefined}

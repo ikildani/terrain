@@ -10,8 +10,17 @@ import { PdfPreviewOverlay } from '@/components/shared/PdfPreviewOverlay';
 import { SkeletonCard, SkeletonMetric } from '@/components/ui/Skeleton';
 import { Button } from '@/components/ui/Button';
 import { apiGet } from '@/lib/utils/api';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { ArrowLeft, FileText } from 'lucide-react';
-import type { Report, MarketSizingOutput, MarketSizingInput, DeviceMarketSizingOutput, CDxOutput, DeviceMarketSizingInput, CDxMarketSizingInput } from '@/types';
+import type {
+  Report,
+  MarketSizingOutput,
+  MarketSizingInput,
+  DeviceMarketSizingOutput,
+  CDxOutput,
+  DeviceMarketSizingInput,
+  CDxMarketSizingInput,
+} from '@/types';
 
 function renderReportForCategory(report: Report, preview = false, onPdfExport?: () => void) {
   const inputs = report.inputs as Record<string, unknown> | null;
@@ -55,11 +64,7 @@ function renderReportForCategory(report: Report, preview = false, onPdfExport?: 
   );
 }
 
-export default function MarketSizingReportPage({
-  params,
-}: {
-  params: { reportId: string };
-}) {
+export default function MarketSizingReportPage({ params }: { params: { reportId: string } }) {
   const [report, setReport] = useState<Report | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +90,7 @@ export default function MarketSizingReportPage({
   }, [params.reportId]);
 
   return (
-    <>
+    <ErrorBoundary>
       <PageHeader
         title={report?.title ?? 'Market Assessment Report'}
         subtitle={report ? `${report.indication} — ${report.report_type}` : `Report ${params.reportId}`}
@@ -100,7 +105,9 @@ export default function MarketSizingReportPage({
       {isLoading && (
         <div className="space-y-4 animate-fade-in">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => <SkeletonMetric key={i} />)}
+            {[1, 2, 3, 4].map((i) => (
+              <SkeletonMetric key={i} />
+            ))}
           </div>
           <SkeletonCard className="h-[200px]" />
           <SkeletonCard className="h-[300px]" />
@@ -110,9 +117,7 @@ export default function MarketSizingReportPage({
       {error && !isLoading && (
         <div className="card noise p-12 text-center flex flex-col items-center">
           <FileText className="w-12 h-12 text-navy-600 mb-4" />
-          <h3 className="font-display text-lg text-slate-200 mb-2">
-            Report Not Found
-          </h3>
+          <h3 className="font-display text-lg text-slate-200 mb-2">Report Not Found</h3>
           <p className="text-sm text-slate-500 max-w-md mb-6">{error}</p>
           <Link href="/market-sizing">
             <Button variant="primary">Go to Market Sizing</Button>
@@ -134,6 +139,6 @@ export default function MarketSizingReportPage({
           {renderReportForCategory(report, true)}
         </PdfPreviewOverlay>
       )}
-    </>
+    </ErrorBoundary>
   );
 }
