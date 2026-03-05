@@ -2155,19 +2155,6 @@ export const BIOMARKER_PREVALENCE: BiomarkerEntry[] = [
     trending: false,
   },
 
-  // Anti-CCP
-  {
-    biomarker: 'Anti-CCP antibody (ACPA)',
-    indications: ['rheumatoid arthritis', 'RA'],
-    prevalence_pct: 60,
-    testing_rate_pct: 90,
-    test_type: 'blood',
-    cdx_drugs: [],
-    clinical_significance:
-      'Anti-CCP is more specific than RF for RA (~95% specificity vs. ~85%). Present in ~60% of RA patients. Can predate symptom onset by years — important for early diagnosis and aggressive treatment initiation.',
-    trending: false,
-  },
-
   // Anti-dsDNA
   {
     biomarker: 'Anti-dsDNA antibody',
@@ -2333,19 +2320,6 @@ export const BIOMARKER_PREVALENCE: BiomarkerEntry[] = [
   // ---------------------------------------------------------------------------
   // RARE DISEASE
   // ---------------------------------------------------------------------------
-
-  // F508del CFTR
-  {
-    biomarker: 'F508del CFTR mutation',
-    indications: ['cystic fibrosis', 'CF'],
-    prevalence_pct: 70,
-    testing_rate_pct: 99,
-    test_type: 'genetic',
-    cdx_drugs: ['Trikafta (elexacaftor/tezacaftor/ivacaftor)'],
-    clinical_significance:
-      'F508del is the most common CFTR mutation, present in ~70% of CF patients (homozygous ~50%, compound heterozygous ~20%). Trikafta is approved for patients with at least one F508del allele, covering ~90% of CF patients.',
-    trending: false,
-  },
 
   // SMN2
   {

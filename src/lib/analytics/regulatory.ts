@@ -1022,6 +1022,43 @@ const SURROGATE_STRENGTH_DATA: Record<
       notes: 'Used in complicated infections; microbiological eradication endpoint',
     },
   ],
+  hematology: [
+    {
+      endpoint: 'Complete Remission (CR)',
+      strength: 10,
+      precedents: 30,
+      recent: true,
+      notes: 'Gold standard in AML/ALL; morphologic CR with count recovery universally required',
+    },
+    {
+      endpoint: 'MRD-Negative Status',
+      strength: 8,
+      precedents: 10,
+      recent: true,
+      notes: 'Emerging validated surrogate in AML, ALL, CLL, and MM; FDA accepted as accelerated approval basis',
+    },
+    {
+      endpoint: 'Transfusion Independence',
+      strength: 9,
+      precedents: 12,
+      recent: true,
+      notes: 'Standard in MDS, beta-thalassemia, and SCD; clinically meaningful and patient-centered',
+    },
+    {
+      endpoint: 'Major Molecular Response (MMR)',
+      strength: 9,
+      precedents: 15,
+      recent: true,
+      notes: 'Standard in CML (BCR-ABL <0.1%); validated across multiple TKI generations',
+    },
+    {
+      endpoint: 'Overall Response Rate (ORR)',
+      strength: 7,
+      precedents: 20,
+      recent: true,
+      notes: 'Widely used for accelerated approval in lymphomas and leukemias; requires durability confirmation',
+    },
+  ],
 };
 
 function buildSurrogateStrengthMatrix(therapyArea: string): SurrogateStrengthEntry[] {

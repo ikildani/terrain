@@ -1292,7 +1292,7 @@ export const INDICATION_SUBTYPES: IndicationSubtype[] = [
       'IV iron (carboxymaltose)',
     ],
     lines_of_therapy: ['GDMT initiation', 'GDMT optimization', 'Advanced therapies'],
-    therapeutic_area: 'cardiology',
+    therapeutic_area: 'cardiovascular',
   },
   {
     indication: 'Atrial Fibrillation',
@@ -1335,7 +1335,7 @@ export const INDICATION_SUBTYPES: IndicationSubtype[] = [
       'Catheter ablation',
     ],
     lines_of_therapy: ['Rate control', 'Rhythm control', 'Ablation'],
-    therapeutic_area: 'cardiology',
+    therapeutic_area: 'cardiovascular',
   },
 
   // ──────────────────────────────────────────
