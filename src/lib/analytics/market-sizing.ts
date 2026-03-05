@@ -43,6 +43,7 @@ import { findIndicationByName, INDICATION_DATA } from '@/lib/data/indication-map
 import { TERRITORY_MULTIPLIERS } from '@/lib/data/territory-multipliers';
 import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
 import { getLikelihoodOfApproval } from '@/lib/data/loa-tables';
+import { BIOMARKER_DATA } from '@/lib/data/biomarker-prevalence';
 
 // ────────────────────────────────────────────────────────────
 // STAGE-BASED PEAK MARKET SHARE RANGES
@@ -75,6 +76,12 @@ const S_CURVE_PARAMS: Record<string, { p: number; q: number }> = {
   pulmonology: { p: 0.025, q: 0.28 },
   nephrology: { p: 0.02, q: 0.25 },
   dermatology: { p: 0.03, q: 0.3 },
+  pain_management: { p: 0.015, q: 0.2 }, // Slow: payer resistance, prior auth, opioid scrutiny
+  psychiatry: { p: 0.02, q: 0.22 }, // Slow: stigma, titration requirements, treatment compliance
+  gastroenterology: { p: 0.025, q: 0.3 }, // Moderate: step therapy, TNF-first protocols
+  hepatology: { p: 0.02, q: 0.25 }, // Moderate-slow: specialist-driven, liver monitoring
+  endocrinology: { p: 0.03, q: 0.35 }, // Moderate-fast: clear biomarker endpoints (HbA1c, TSH)
+  musculoskeletal: { p: 0.02, q: 0.28 }, // Moderate-slow: conservative management first
 };
 const DEFAULT_S_CURVE = { p: 0.025, q: 0.32 };
 
@@ -456,6 +463,162 @@ const PAYER_MIX_PROFILES: Record<
     mea_penetration_yr5: 0.2,
     mea_discount: 0.12,
   },
+  metabolic: {
+    yr1_commercial: 0.5,
+    yr1_medicare: 0.3,
+    yr1_medicaid: 0.15,
+    yr1_va: 0.05,
+    yr10_commercial: 0.4,
+    yr10_medicare: 0.38,
+    yr10_medicaid: 0.17,
+    yr10_va: 0.05,
+    mea_penetration_yr5: 0.25,
+    mea_discount: 0.15,
+  },
+  psychiatry: {
+    yr1_commercial: 0.35,
+    yr1_medicare: 0.2,
+    yr1_medicaid: 0.38,
+    yr1_va: 0.07,
+    yr10_commercial: 0.3,
+    yr10_medicare: 0.25,
+    yr10_medicaid: 0.38,
+    yr10_va: 0.07,
+    mea_penetration_yr5: 0.15,
+    mea_discount: 0.1,
+  },
+  pain_management: {
+    yr1_commercial: 0.5,
+    yr1_medicare: 0.3,
+    yr1_medicaid: 0.14,
+    yr1_va: 0.06,
+    yr10_commercial: 0.4,
+    yr10_medicare: 0.38,
+    yr10_medicaid: 0.16,
+    yr10_va: 0.06,
+    mea_penetration_yr5: 0.2,
+    mea_discount: 0.12,
+  },
+  hematology: {
+    yr1_commercial: 0.5,
+    yr1_medicare: 0.25,
+    yr1_medicaid: 0.2,
+    yr1_va: 0.05,
+    yr10_commercial: 0.42,
+    yr10_medicare: 0.32,
+    yr10_medicaid: 0.2,
+    yr10_va: 0.06,
+    mea_penetration_yr5: 0.2,
+    mea_discount: 0.12,
+  },
+  ophthalmology: {
+    yr1_commercial: 0.3,
+    yr1_medicare: 0.55,
+    yr1_medicaid: 0.1,
+    yr1_va: 0.05,
+    yr10_commercial: 0.22,
+    yr10_medicare: 0.62,
+    yr10_medicaid: 0.11,
+    yr10_va: 0.05,
+    mea_penetration_yr5: 0.15,
+    mea_discount: 0.1,
+  },
+  pulmonology: {
+    yr1_commercial: 0.45,
+    yr1_medicare: 0.38,
+    yr1_medicaid: 0.12,
+    yr1_va: 0.05,
+    yr10_commercial: 0.35,
+    yr10_medicare: 0.48,
+    yr10_medicaid: 0.12,
+    yr10_va: 0.05,
+    mea_penetration_yr5: 0.22,
+    mea_discount: 0.14,
+  },
+  nephrology: {
+    yr1_commercial: 0.3,
+    yr1_medicare: 0.52,
+    yr1_medicaid: 0.12,
+    yr1_va: 0.06,
+    yr10_commercial: 0.22,
+    yr10_medicare: 0.6,
+    yr10_medicaid: 0.12,
+    yr10_va: 0.06,
+    mea_penetration_yr5: 0.18,
+    mea_discount: 0.12,
+  },
+  dermatology: {
+    yr1_commercial: 0.6,
+    yr1_medicare: 0.22,
+    yr1_medicaid: 0.13,
+    yr1_va: 0.05,
+    yr10_commercial: 0.52,
+    yr10_medicare: 0.28,
+    yr10_medicaid: 0.15,
+    yr10_va: 0.05,
+    mea_penetration_yr5: 0.28,
+    mea_discount: 0.16,
+  },
+  gastroenterology: {
+    yr1_commercial: 0.52,
+    yr1_medicare: 0.28,
+    yr1_medicaid: 0.15,
+    yr1_va: 0.05,
+    yr10_commercial: 0.42,
+    yr10_medicare: 0.35,
+    yr10_medicaid: 0.18,
+    yr10_va: 0.05,
+    mea_penetration_yr5: 0.25,
+    mea_discount: 0.15,
+  },
+  hepatology: {
+    yr1_commercial: 0.48,
+    yr1_medicare: 0.3,
+    yr1_medicaid: 0.16,
+    yr1_va: 0.06,
+    yr10_commercial: 0.38,
+    yr10_medicare: 0.38,
+    yr10_medicaid: 0.18,
+    yr10_va: 0.06,
+    mea_penetration_yr5: 0.2,
+    mea_discount: 0.12,
+  },
+  endocrinology: {
+    yr1_commercial: 0.48,
+    yr1_medicare: 0.32,
+    yr1_medicaid: 0.14,
+    yr1_va: 0.06,
+    yr10_commercial: 0.38,
+    yr10_medicare: 0.42,
+    yr10_medicaid: 0.14,
+    yr10_va: 0.06,
+    mea_penetration_yr5: 0.22,
+    mea_discount: 0.14,
+  },
+  musculoskeletal: {
+    yr1_commercial: 0.42,
+    yr1_medicare: 0.4,
+    yr1_medicaid: 0.12,
+    yr1_va: 0.06,
+    yr10_commercial: 0.32,
+    yr10_medicare: 0.5,
+    yr10_medicaid: 0.12,
+    yr10_va: 0.06,
+    mea_penetration_yr5: 0.2,
+    mea_discount: 0.12,
+  },
+  infectious_disease: {
+    yr1_commercial: 0.4,
+    yr1_medicare: 0.3,
+    yr1_medicaid: 0.22,
+    yr1_va: 0.08,
+    yr10_commercial: 0.35,
+    yr10_medicare: 0.35,
+    yr10_medicaid: 0.22,
+    yr10_va: 0.08,
+    mea_penetration_yr5: 0.15,
+    mea_discount: 0.1,
+  },
   default: {
     yr1_commercial: 0.45,
     yr1_medicare: 0.35,
@@ -599,11 +762,43 @@ function buildPatientDynamics(
 }
 
 // ────────────────────────────────────────────────────────────
-// BIOMARKER-SPECIFIC ADDRESSABILITY
-// Hardcoded prevalence rates for major biomarker-defined populations
+// BIOMARKER PREVALENCE — UNIFIED LOOKUP
+// Primary source: BIOMARKER_DATA from biomarker-prevalence.ts
+// Fallback: hardcoded map below for legacy indication/biomarker combos
 // ────────────────────────────────────────────────────────────
 
-const BIOMARKER_PREVALENCE: Record<string, Record<string, number>> = {
+/**
+ * Search the canonical BIOMARKER_DATA array for a matching indication and
+ * optional biomarker keyword.  Returns prevalence_pct / 100 (i.e. as a
+ * decimal fraction) to match the shape expected by the sizing engine.
+ */
+function getBiomarkerPrevalence(indication: string, biomarkerKeyword?: string): number | undefined {
+  const indLower = indication.toLowerCase();
+  const bmLower = biomarkerKeyword?.toLowerCase();
+
+  for (const entry of BIOMARKER_DATA) {
+    const indicationMatch = entry.indications.some((ind) => {
+      const l = ind.toLowerCase();
+      return l.includes(indLower) || indLower.includes(l);
+    });
+    if (!indicationMatch) continue;
+
+    if (!bmLower) {
+      // No biomarker keyword — return first indication match
+      return entry.prevalence_pct / 100;
+    }
+
+    // Check if biomarker name or cdx_drugs contain the keyword
+    const biomarkerLower = entry.biomarker.toLowerCase();
+    if (biomarkerLower.includes(bmLower) || bmLower.split(/[\s_-]+/).every((tok) => biomarkerLower.includes(tok))) {
+      return entry.prevalence_pct / 100;
+    }
+  }
+
+  return undefined;
+}
+
+const BIOMARKER_PREVALENCE_FALLBACK: Record<string, Record<string, number>> = {
   'non-small cell lung cancer': {
     egfr: 0.15,
     kras_g12c: 0.13,
@@ -686,6 +881,12 @@ const GROSS_TO_NET: Record<string, number> = {
   pulmonology: 0.4,
   nephrology: 0.3,
   dermatology: 0.45,
+  pain_management: 0.55,
+  psychiatry: 0.5,
+  gastroenterology: 0.4,
+  hepatology: 0.35,
+  endocrinology: 0.45,
+  musculoskeletal: 0.5,
 };
 const DEFAULT_GTN = 0.3;
 
@@ -704,6 +905,13 @@ const DEFAULT_WAC: Record<string, number> = {
   infectious_disease: 45000,
   pulmonology: 40000,
   nephrology: 50000,
+  pain_management: 15000,
+  psychiatry: 22000,
+  gastroenterology: 45000,
+  hepatology: 55000,
+  endocrinology: 30000,
+  musculoskeletal: 28000,
+  dermatology: 38000,
 };
 const DEFAULT_WAC_FALLBACK = 80000;
 
@@ -962,8 +1170,20 @@ function estimateAddressabilityFactor(input: MarketSizingInput): number {
   const text = `${input.patient_segment ?? ''} ${input.subtype ?? ''}`.toLowerCase();
   const indicationLower = input.indication.toLowerCase();
 
-  // Step 1: Check biomarker-specific prevalence lookup (most accurate)
-  const biomarkerData = BIOMARKER_PREVALENCE[indicationLower];
+  // Step 1a: Try unified BIOMARKER_DATA source first (broadest coverage)
+  const biomarkerTokens = text.match(/\b[a-z0-9][a-z0-9_.-]+\b/g) ?? [];
+  for (const token of biomarkerTokens) {
+    const unifiedPrevalence = getBiomarkerPrevalence(indicationLower, token);
+    if (unifiedPrevalence !== undefined) {
+      if (/\b(2l|3l|4l|second.line|third.line|relapsed|refractory|r\/r)\b/.test(text)) {
+        return unifiedPrevalence * 0.6;
+      }
+      return unifiedPrevalence;
+    }
+  }
+
+  // Step 1b: Fallback to hardcoded map for legacy indication/biomarker combos
+  const biomarkerData = BIOMARKER_PREVALENCE_FALLBACK[indicationLower];
   if (biomarkerData) {
     for (const [marker, prevalence] of Object.entries(biomarkerData)) {
       const markerNorm = marker.replace(/_/g, '[ _-]?');
@@ -1109,6 +1329,181 @@ function buildPayerDynamics(therapyArea: string): string {
 // ────────────────────────────────────────────────────────────
 // GEOGRAPHY BREAKDOWN
 // ────────────────────────────────────────────────────────────
+// Epidemiological prevalence adjustment factors vs US.
+// For most diseases, US prevalence rates are a reasonable proxy. For diseases with
+// known major geographic variation (infectious diseases, genetic conditions, lifestyle-
+// driven conditions), these factors correct the US-derived rate.
+// Sources: WHO GBD 2021, Lancet regional epidemiology reviews, GLOBOCAN 2022.
+const PREVALENCE_ADJUSTMENTS: Record<string, Record<string, number>> = {
+  // Hepatitis B: endemic in Asia/Africa, rare in US
+  'Hepatitis B': {
+    China: 16.0,
+    Japan: 1.5,
+    RoW: 5.0,
+    EU5: 0.8,
+    Germany: 0.9,
+    France: 0.7,
+    Italy: 0.8,
+    Spain: 0.6,
+    UK: 0.5,
+    Canada: 0.7,
+    Australia: 0.5,
+  },
+  'Chronic Hepatitis B': {
+    China: 16.0,
+    Japan: 1.5,
+    RoW: 5.0,
+    EU5: 0.8,
+    Germany: 0.9,
+    France: 0.7,
+    Italy: 0.8,
+    Spain: 0.6,
+    UK: 0.5,
+    Canada: 0.7,
+    Australia: 0.5,
+  },
+  // Gastric cancer: much higher in East Asia
+  'Gastric Cancer': {
+    China: 5.0,
+    Japan: 6.0,
+    RoW: 2.5,
+    EU5: 1.2,
+    Germany: 1.0,
+    France: 0.9,
+    Italy: 1.3,
+    Spain: 1.2,
+    UK: 0.8,
+    Canada: 0.7,
+    Australia: 0.6,
+  },
+  // Nasopharyngeal cancer: endemic in southern China/SE Asia
+  'Nasopharyngeal Cancer': {
+    China: 20.0,
+    Japan: 1.5,
+    RoW: 3.0,
+    EU5: 0.4,
+    Germany: 0.3,
+    France: 0.4,
+    Italy: 0.3,
+    Spain: 0.3,
+    UK: 0.3,
+    Canada: 0.4,
+    Australia: 0.5,
+  },
+  // Liver cancer (HCC): strongly linked to HBV/HCV prevalence
+  'Hepatocellular Carcinoma': {
+    China: 4.0,
+    Japan: 2.5,
+    RoW: 3.0,
+    EU5: 1.0,
+    Germany: 0.9,
+    France: 1.1,
+    Italy: 1.3,
+    Spain: 1.0,
+    UK: 0.7,
+    Canada: 0.6,
+    Australia: 0.5,
+  },
+  // Thalassemia: Mediterranean and SE Asian
+  'Beta-Thalassemia': {
+    China: 3.0,
+    Japan: 0.2,
+    RoW: 4.0,
+    EU5: 1.5,
+    Germany: 0.5,
+    France: 0.8,
+    Italy: 3.0,
+    Spain: 1.5,
+    UK: 0.8,
+    Canada: 0.6,
+    Australia: 0.8,
+  },
+  // Type 2 diabetes: higher in China, India, Middle East
+  'Type 2 Diabetes': {
+    China: 1.4,
+    Japan: 1.1,
+    RoW: 1.3,
+    EU5: 0.8,
+    Germany: 0.9,
+    France: 0.7,
+    Italy: 0.8,
+    Spain: 0.8,
+    UK: 0.7,
+    Canada: 0.9,
+    Australia: 0.8,
+  },
+  // NASH/MASH: follows obesity prevalence patterns
+  'Metabolic Dysfunction-Associated Steatohepatitis': {
+    China: 0.8,
+    Japan: 0.9,
+    RoW: 0.7,
+    EU5: 0.85,
+    Germany: 0.9,
+    France: 0.8,
+    Italy: 0.85,
+    Spain: 0.8,
+    UK: 0.85,
+    Canada: 0.95,
+    Australia: 0.9,
+  },
+  // Sickle cell: primarily African descent populations
+  'Sickle Cell Disease': {
+    China: 0.01,
+    Japan: 0.01,
+    RoW: 3.0,
+    EU5: 0.15,
+    Germany: 0.1,
+    France: 0.3,
+    Italy: 0.15,
+    Spain: 0.1,
+    UK: 0.25,
+    Canada: 0.15,
+    Australia: 0.1,
+  },
+  // Malaria: not relevant in developed markets but massive in RoW
+  Malaria: {
+    China: 0.01,
+    Japan: 0.01,
+    RoW: 50.0,
+    EU5: 0.01,
+    Germany: 0.01,
+    France: 0.01,
+    Italy: 0.01,
+    Spain: 0.01,
+    UK: 0.01,
+    Canada: 0.01,
+    Australia: 0.01,
+  },
+  // Tuberculosis
+  Tuberculosis: {
+    China: 5.0,
+    Japan: 1.2,
+    RoW: 10.0,
+    EU5: 0.5,
+    Germany: 0.4,
+    France: 0.5,
+    Italy: 0.4,
+    Spain: 0.5,
+    UK: 0.6,
+    Canada: 0.4,
+    Australia: 0.3,
+  },
+  // Cervical cancer: much higher where screening is limited
+  'Cervical Cancer': {
+    China: 2.0,
+    Japan: 1.2,
+    RoW: 4.0,
+    EU5: 0.7,
+    Germany: 0.6,
+    France: 0.6,
+    Italy: 0.5,
+    Spain: 0.6,
+    UK: 0.7,
+    Canada: 0.5,
+    Australia: 0.4,
+  },
+};
+
 function buildGeographyBreakdown(
   geographies: string[],
   usTamBillions: number,
@@ -1131,20 +1526,50 @@ function buildGeographyBreakdown(
     RoW: 'Variable regulatory and pricing frameworks.',
   };
 
+  // Look up prevalence adjustments for this indication (try exact name, then partial match)
+  const indicationName = indication.name;
+  const prevAdj =
+    PREVALENCE_ADJUSTMENTS[indicationName] ??
+    Object.entries(PREVALENCE_ADJUSTMENTS).find(
+      ([key]) =>
+        indicationName.toLowerCase().includes(key.toLowerCase()) ||
+        key.toLowerCase().includes(indicationName.toLowerCase()),
+    )?.[1];
+
   return geographies
     .map((geo) => {
       const territory = TERRITORY_MULTIPLIERS.find((t) => t.code === geo || t.territory === geo);
       const multiplier = territory?.multiplier ?? 0.5;
       const popM = territory?.population_m ?? 50;
-      const prevalencePerM = indication.us_prevalence / usPopM;
+      const usPrevalencePerM = indication.us_prevalence / usPopM;
+
+      // Apply territory-specific prevalence adjustment if available
+      const geoAdjustment = prevAdj?.[geo] ?? 1.0;
+      const adjustedPrevalencePerM = usPrevalencePerM * geoAdjustment;
+
+      // Build notes for non-US territories
+      let notes: string | undefined;
+      if (geo === 'US') {
+        notes = undefined; // US is the reference — no caveat needed
+      } else if (prevAdj && prevAdj[geo] !== undefined) {
+        notes =
+          geoAdjustment > 1.5
+            ? `Higher local prevalence (${geoAdjustment.toFixed(1)}x US rate). Revenue estimate uses IQVIA pharma market revenue ratio.`
+            : geoAdjustment < 0.5
+              ? `Lower local prevalence (${geoAdjustment.toFixed(1)}x US rate). Revenue estimate uses IQVIA pharma market revenue ratio.`
+              : `Revenue scaled from US using IQVIA pharma market revenue ratio (${multiplier}x). Local prevalence similar to US.`;
+      } else {
+        notes = `Revenue estimate based on US market sizing scaled by territory pharma market ratio (${multiplier}x). Local epidemiology may differ — verify with regional data.`;
+      }
 
       return {
         territory: territory?.territory ?? geo,
         tam: toMetric(usTamBillions * multiplier, multiplier > 0.3 ? 'high' : 'medium'),
         population: popM * 1_000_000,
-        prevalence_rate: parseFloat((prevalencePerM / 1_000_000).toFixed(6)),
+        prevalence_rate: parseFloat((adjustedPrevalencePerM / 1_000_000).toFixed(6)),
         market_multiplier: multiplier,
         regulatory_status: regNotes[geo] ?? 'Country-specific regulatory framework.',
+        notes,
       };
     })
     .sort((a, b) => {
@@ -1252,7 +1677,7 @@ function buildMethodology(
     '',
     `Patient Dynamics: ${patientDyn.total_share_additive_pct}% additive / ${patientDyn.total_share_cannibalistic_pct}% cannibalistic share capture modeled. Net market expansion: ${patientDyn.net_market_expansion_pct}%.`,
     '',
-    `Geography: US baseline scaled per territory using GDP-adjusted healthcare spend multipliers.`,
+    `Geography: US baseline scaled per territory using IQVIA pharma market revenue ratios (2024). Territory-specific prevalence adjustments applied for diseases with known geographic variation (e.g., HBV, gastric cancer, sickle cell). Non-US estimates should be validated with local epidemiological data.`,
   ]
     .filter(Boolean)
     .join('\n');
@@ -1312,7 +1737,7 @@ function buildBiomarkerNesting(
 ): BiomarkerNesting {
   const indicationLower = indication.name.toLowerCase();
   const segmentText = `${patientSegment ?? ''} ${subtype ?? ''}`.toLowerCase();
-  const biomarkerData = BIOMARKER_PREVALENCE[indicationLower];
+  const biomarkerFallback = BIOMARKER_PREVALENCE_FALLBACK[indicationLower];
 
   const levels: BiomarkerNestingLevel[] = [];
 
@@ -1326,11 +1751,23 @@ function buildBiomarkerNesting(
   });
 
   // Detect which biomarker is specified (if any)
+  // Try unified BIOMARKER_DATA first, then fall back to hardcoded map
   let detectedBiomarker: string | undefined;
   let biomarkerPrevalence: number | undefined;
 
-  if (biomarkerData) {
-    for (const [marker, prevalence] of Object.entries(biomarkerData)) {
+  const segmentTokens = segmentText.match(/\b[a-z0-9][a-z0-9_.-]+\b/g) ?? [];
+  for (const token of segmentTokens) {
+    const unified = getBiomarkerPrevalence(indicationLower, token);
+    if (unified !== undefined) {
+      detectedBiomarker = token;
+      biomarkerPrevalence = unified;
+      break;
+    }
+  }
+
+  // Fallback to hardcoded map if unified lookup didn't match
+  if (detectedBiomarker === undefined && biomarkerFallback) {
+    for (const [marker, prevalence] of Object.entries(biomarkerFallback)) {
       const markerNorm = marker.replace(/_/g, '[ _-]?');
       if (new RegExp(markerNorm, 'i').test(segmentText)) {
         detectedBiomarker = marker;
@@ -1341,14 +1778,27 @@ function buildBiomarkerNesting(
   }
 
   // If no biomarker detected from segment text, check mechanism for hints
-  if (!detectedBiomarker && mechanism && biomarkerData) {
+  if (!detectedBiomarker && mechanism) {
     const mechLower = mechanism.toLowerCase();
-    for (const [marker, prevalence] of Object.entries(biomarkerData)) {
-      const markerClean = marker.replace(/_/g, ' ').toLowerCase();
-      if (mechLower.includes(markerClean) || markerClean.includes(mechLower.split(' ')[0])) {
-        detectedBiomarker = marker;
-        biomarkerPrevalence = prevalence;
+    // Try unified source via mechanism keyword
+    const mechTokens = mechLower.match(/\b[a-z0-9][a-z0-9_.-]+\b/g) ?? [];
+    for (const token of mechTokens) {
+      const unified = getBiomarkerPrevalence(indicationLower, token);
+      if (unified !== undefined) {
+        detectedBiomarker = token;
+        biomarkerPrevalence = unified;
         break;
+      }
+    }
+    // Fallback to hardcoded map
+    if (!detectedBiomarker && biomarkerFallback) {
+      for (const [marker, prevalence] of Object.entries(biomarkerFallback)) {
+        const markerClean = marker.replace(/_/g, ' ').toLowerCase();
+        if (mechLower.includes(markerClean) || markerClean.includes(mechLower.split(' ')[0])) {
+          detectedBiomarker = marker;
+          biomarkerPrevalence = prevalence;
+          break;
+        }
       }
     }
   }

@@ -38,11 +38,7 @@ import type {
   FDADevicePathway,
 } from '@/types';
 
-import {
-  PREDICATE_DEVICE_DATABASE,
-  findPredicatesByCategory,
-  findPredicatesByUse,
-} from '@/lib/data/predicate-devices';
+import { PREDICATE_DEVICE_DATABASE, findPredicatesByCategory, findPredicatesByUse } from '@/lib/data/predicate-devices';
 
 import {
   REGULATORY_PATHWAYS,
@@ -80,10 +76,26 @@ export interface RegulatoryAnalysisInput {
 
 const VALIDATED_SURROGATES: Record<string, SurrogateEndpoint[]> = {
   oncology: [
-    { endpoint: 'Overall Response Rate (ORR)', status: 'reasonably_likely', fda_guidance: 'FDA Guidance: Clinical Trial Endpoints for Approval of Cancer Drugs' },
-    { endpoint: 'Progression-Free Survival (PFS)', status: 'reasonably_likely', fda_guidance: 'FDA Guidance: Clinical Trial Endpoints (2018)' },
-    { endpoint: 'Pathological Complete Response (pCR)', status: 'reasonably_likely', fda_guidance: 'FDA Guidance: Neoadjuvant Breast Cancer (2020)' },
-    { endpoint: 'Complete Remission (CR) rate', status: 'reasonably_likely', fda_guidance: 'FDA Guidance: Hematologic Malignancies' },
+    {
+      endpoint: 'Overall Response Rate (ORR)',
+      status: 'reasonably_likely',
+      fda_guidance: 'FDA Guidance: Clinical Trial Endpoints for Approval of Cancer Drugs',
+    },
+    {
+      endpoint: 'Progression-Free Survival (PFS)',
+      status: 'reasonably_likely',
+      fda_guidance: 'FDA Guidance: Clinical Trial Endpoints (2018)',
+    },
+    {
+      endpoint: 'Pathological Complete Response (pCR)',
+      status: 'reasonably_likely',
+      fda_guidance: 'FDA Guidance: Neoadjuvant Breast Cancer (2020)',
+    },
+    {
+      endpoint: 'Complete Remission (CR) rate',
+      status: 'reasonably_likely',
+      fda_guidance: 'FDA Guidance: Hematologic Malignancies',
+    },
     { endpoint: 'Duration of Response (DOR)', status: 'exploratory' },
     { endpoint: 'Minimal Residual Disease (MRD)', status: 'exploratory' },
   ],
@@ -97,7 +109,11 @@ const VALIDATED_SURROGATES: Record<string, SurrogateEndpoint[]> = {
     { endpoint: 'ACR20/50/70 Response', status: 'validated', fda_guidance: 'FDA Guidance: RA Clinical Trials' },
     { endpoint: 'PASI 75/90/100', status: 'validated', fda_guidance: 'FDA Guidance: Psoriasis' },
     { endpoint: 'EASI Score Reduction', status: 'validated' },
-    { endpoint: 'Endoscopic Remission', status: 'reasonably_likely', fda_guidance: 'FDA Guidance: IBD Clinical Trials (2022)' },
+    {
+      endpoint: 'Endoscopic Remission',
+      status: 'reasonably_likely',
+      fda_guidance: 'FDA Guidance: IBD Clinical Trials (2022)',
+    },
   ],
   cardiovascular: [
     { endpoint: 'LDL-C Reduction', status: 'validated', fda_guidance: 'FDA Guidance: Lipid-Altering Agents' },
@@ -110,10 +126,116 @@ const VALIDATED_SURROGATES: Record<string, SurrogateEndpoint[]> = {
     { endpoint: 'Functional Capacity Measures', status: 'reasonably_likely' },
   ],
   neurology: [
-    { endpoint: 'Amyloid PET Clearance', status: 'reasonably_likely', fda_guidance: 'FDA AA Pathway for Alzheimer\'s' },
-    { endpoint: 'Annualized Relapse Rate (ARR)', status: 'validated', fda_guidance: 'FDA Guidance: MS Clinical Trials' },
+    { endpoint: 'Amyloid PET Clearance', status: 'reasonably_likely', fda_guidance: "FDA AA Pathway for Alzheimer's" },
+    {
+      endpoint: 'Annualized Relapse Rate (ARR)',
+      status: 'validated',
+      fda_guidance: 'FDA Guidance: MS Clinical Trials',
+    },
     { endpoint: 'EDSS Disability Progression', status: 'validated' },
     { endpoint: 'Seizure Frequency Reduction', status: 'validated' },
+  ],
+  psychiatry: [
+    {
+      endpoint: 'HAM-D 17 Score Reduction',
+      status: 'validated',
+      fda_guidance: 'FDA Guidance: Major Depressive Disorder',
+    },
+    { endpoint: 'PANSS Total Score Reduction', status: 'validated', fda_guidance: 'FDA Guidance: Schizophrenia' },
+    { endpoint: 'MADRS Score Reduction', status: 'validated' },
+    { endpoint: 'CGI-S Improvement', status: 'reasonably_likely' },
+    { endpoint: 'Y-BOCS Score Reduction', status: 'validated', fda_guidance: 'FDA Guidance: OCD' },
+  ],
+  pain_management: [
+    {
+      endpoint: 'NRS Pain Score Reduction (≥30%)',
+      status: 'validated',
+      fda_guidance: 'FDA Guidance: Analgesic Drug Development',
+    },
+    { endpoint: 'PGIC (Patient Global Impression of Change)', status: 'reasonably_likely' },
+    {
+      endpoint: 'Monthly Migraine Days Reduction',
+      status: 'validated',
+      fda_guidance: 'FDA Guidance: Migraine Prevention',
+    },
+    { endpoint: 'Brief Pain Inventory (BPI)', status: 'reasonably_likely' },
+  ],
+  metabolic: [
+    { endpoint: 'HbA1c Reduction', status: 'validated', fda_guidance: 'FDA Guidance: Diabetes Mellitus Type 2' },
+    { endpoint: 'Body Weight Loss (%)', status: 'validated', fda_guidance: 'FDA Guidance: Obesity Drug Development' },
+    {
+      endpoint: 'Liver Fat Reduction (MRI-PDFF)',
+      status: 'reasonably_likely',
+      fda_guidance: 'FDA Guidance: NASH/MASH',
+    },
+    { endpoint: 'NAS Score Improvement (≥2 points)', status: 'reasonably_likely' },
+    { endpoint: 'Fibrosis Improvement (≥1 stage)', status: 'reasonably_likely' },
+  ],
+  dermatology: [
+    { endpoint: 'PASI 75/90/100', status: 'validated', fda_guidance: 'FDA Guidance: Psoriasis' },
+    { endpoint: 'IGA 0/1 (Clear/Almost Clear)', status: 'validated' },
+    { endpoint: 'EASI-75', status: 'validated', fda_guidance: 'FDA Guidance: Atopic Dermatitis' },
+    { endpoint: 'SALT Score (Alopecia)', status: 'reasonably_likely' },
+  ],
+  pulmonology: [
+    { endpoint: 'FEV1 Improvement', status: 'validated', fda_guidance: 'FDA Guidance: COPD' },
+    { endpoint: 'Exacerbation Rate Reduction', status: 'validated' },
+    { endpoint: 'FVC Decline Rate (IPF)', status: 'validated', fda_guidance: 'FDA Guidance: IPF' },
+    { endpoint: 'ACQ Score Improvement', status: 'reasonably_likely' },
+  ],
+  gastroenterology: [
+    { endpoint: 'Endoscopic Remission', status: 'validated', fda_guidance: 'FDA Guidance: IBD Clinical Trials (2022)' },
+    { endpoint: 'CDAI <150 (Clinical Remission)', status: 'validated' },
+    { endpoint: 'Modified Mayo Score', status: 'validated' },
+    { endpoint: 'Histologic Remission', status: 'reasonably_likely' },
+  ],
+  nephrology: [
+    {
+      endpoint: 'eGFR Slope (Total Slope)',
+      status: 'reasonably_likely',
+      fda_guidance: 'FDA Guidance: CKD Clinical Trials (2023)',
+    },
+    { endpoint: 'Proteinuria Reduction (UPCR)', status: 'reasonably_likely' },
+    { endpoint: 'Kidney Failure Composite Endpoint', status: 'validated' },
+    { endpoint: 'Complete Remission of Proteinuria', status: 'reasonably_likely' },
+  ],
+  hepatology: [
+    {
+      endpoint: 'SVR12 (Sustained Virologic Response)',
+      status: 'validated',
+      fda_guidance: 'FDA Guidance: Chronic Hepatitis C',
+    },
+    { endpoint: 'ALT Normalization', status: 'reasonably_likely' },
+    { endpoint: 'Fibrosis Improvement (Fibroscan/Biopsy)', status: 'reasonably_likely' },
+    { endpoint: 'HBsAg Loss', status: 'validated' },
+  ],
+  endocrinology: [
+    { endpoint: 'HbA1c Reduction', status: 'validated' },
+    { endpoint: 'TSH Normalization', status: 'validated' },
+    { endpoint: 'IGF-1 Normalization', status: 'validated' },
+    { endpoint: 'BMD T-score Improvement', status: 'reasonably_likely' },
+  ],
+  ophthalmology: [
+    {
+      endpoint: 'BCVA Letter Gain (≥15 letters)',
+      status: 'validated',
+      fda_guidance: 'FDA Guidance: Age-Related Macular Degeneration',
+    },
+    { endpoint: 'Central Retinal Thickness Reduction', status: 'reasonably_likely' },
+    { endpoint: 'Absence of Fluid on OCT', status: 'reasonably_likely' },
+    { endpoint: 'GA Lesion Growth Rate Reduction', status: 'reasonably_likely' },
+  ],
+  musculoskeletal: [
+    { endpoint: 'ACR20/50/70 Response', status: 'validated' },
+    { endpoint: 'Modified Total Sharp Score (mTSS)', status: 'validated' },
+    { endpoint: 'DAS28 Remission (<2.6)', status: 'validated' },
+    { endpoint: 'WOMAC Score Improvement', status: 'reasonably_likely' },
+  ],
+  infectious_disease: [
+    { endpoint: 'Viral Load Suppression', status: 'validated', fda_guidance: 'FDA Guidance: HIV Drug Development' },
+    { endpoint: 'Seroconversion Rate', status: 'validated' },
+    { endpoint: 'Clinical Cure Rate', status: 'validated' },
+    { endpoint: 'Time to Negative Culture', status: 'reasonably_likely' },
   ],
 };
 
@@ -123,47 +245,78 @@ const VALIDATED_SURROGATES: Record<string, SurrogateEndpoint[]> = {
 // rates by therapy area.
 // ────────────────────────────────────────────────────────────
 
-const CRL_RECOVERY_DATA: Record<string, {
-  historical_crl_rate_pct: number;
-  avg_months_to_resubmission: number;
-  resubmission_approval_rate_pct: number;
-  common_reasons: string[];
-}> = {
+const CRL_RECOVERY_DATA: Record<
+  string,
+  {
+    historical_crl_rate_pct: number;
+    avg_months_to_resubmission: number;
+    resubmission_approval_rate_pct: number;
+    common_reasons: string[];
+  }
+> = {
   oncology: {
     historical_crl_rate_pct: 8,
     avg_months_to_resubmission: 10,
     resubmission_approval_rate_pct: 78,
-    common_reasons: ['Manufacturing/CMC deficiencies', 'Safety signal requiring additional data', 'Clinical hold on confirmatory trial', 'Insufficient efficacy in subgroup analysis'],
+    common_reasons: [
+      'Manufacturing/CMC deficiencies',
+      'Safety signal requiring additional data',
+      'Clinical hold on confirmatory trial',
+      'Insufficient efficacy in subgroup analysis',
+    ],
   },
   neurology: {
     historical_crl_rate_pct: 18,
     avg_months_to_resubmission: 14,
     resubmission_approval_rate_pct: 62,
-    common_reasons: ['Failed primary endpoint (cognitive decline)', 'Safety concerns (ARIA, liver toxicity)', 'Inadequate benefit-risk for moderate disease', 'Surrogate endpoint not validated'],
+    common_reasons: [
+      'Failed primary endpoint (cognitive decline)',
+      'Safety concerns (ARIA, liver toxicity)',
+      'Inadequate benefit-risk for moderate disease',
+      'Surrogate endpoint not validated',
+    ],
   },
   immunology: {
     historical_crl_rate_pct: 10,
     avg_months_to_resubmission: 11,
     resubmission_approval_rate_pct: 75,
-    common_reasons: ['Safety signal (infections, malignancy risk)', 'Manufacturing comparability issues', 'Insufficient long-term safety data'],
+    common_reasons: [
+      'Safety signal (infections, malignancy risk)',
+      'Manufacturing comparability issues',
+      'Insufficient long-term safety data',
+    ],
   },
   cardiovascular: {
     historical_crl_rate_pct: 15,
     avg_months_to_resubmission: 16,
     resubmission_approval_rate_pct: 65,
-    common_reasons: ['CVOT requirement not met', 'Safety signal (CV events paradox)', 'Inadequate active-comparator data', 'Manufacturing facility issues'],
+    common_reasons: [
+      'CVOT requirement not met',
+      'Safety signal (CV events paradox)',
+      'Inadequate active-comparator data',
+      'Manufacturing facility issues',
+    ],
   },
   rare_disease: {
     historical_crl_rate_pct: 6,
     avg_months_to_resubmission: 9,
     resubmission_approval_rate_pct: 85,
-    common_reasons: ['Manufacturing scale-up issues (gene therapy)', 'Insufficient natural history data for comparison', 'Additional follow-up requested'],
+    common_reasons: [
+      'Manufacturing scale-up issues (gene therapy)',
+      'Insufficient natural history data for comparison',
+      'Additional follow-up requested',
+    ],
   },
   metabolic: {
     historical_crl_rate_pct: 12,
     avg_months_to_resubmission: 12,
     resubmission_approval_rate_pct: 70,
-    common_reasons: ['CV safety signal', 'Liver toxicity concerns', 'Inadequate glycemic durability data', 'Manufacturing issues'],
+    common_reasons: [
+      'CV safety signal',
+      'Liver toxicity concerns',
+      'Inadequate glycemic durability data',
+      'Manufacturing issues',
+    ],
   },
   hematology: {
     historical_crl_rate_pct: 8,
@@ -171,11 +324,136 @@ const CRL_RECOVERY_DATA: Record<string, {
     resubmission_approval_rate_pct: 80,
     common_reasons: ['Cytopenias / safety signal', 'Insufficient MRD data', 'Manufacturing issues for cell therapies'],
   },
+  psychiatry: {
+    historical_crl_rate_pct: 25,
+    avg_months_to_resubmission: 15,
+    resubmission_approval_rate_pct: 55,
+    common_reasons: [
+      'Failed primary endpoint (high placebo response)',
+      'Abuse liability concerns',
+      'Insufficient long-term safety (suicidality)',
+      'Complex REMS requirement',
+    ],
+  },
+  pain_management: {
+    historical_crl_rate_pct: 20,
+    avg_months_to_resubmission: 14,
+    resubmission_approval_rate_pct: 60,
+    common_reasons: [
+      'Abuse liability/scheduling concerns',
+      'Failed to separate from placebo',
+      'Liver/CV safety signal',
+      'Inadequate enrichment design',
+    ],
+  },
+  dermatology: {
+    historical_crl_rate_pct: 8,
+    avg_months_to_resubmission: 10,
+    resubmission_approval_rate_pct: 80,
+    common_reasons: [
+      'Manufacturing/formulation issues',
+      'Insufficient long-term safety data',
+      'Malignancy risk signal',
+    ],
+  },
+  pulmonology: {
+    historical_crl_rate_pct: 12,
+    avg_months_to_resubmission: 12,
+    resubmission_approval_rate_pct: 72,
+    common_reasons: [
+      'Device/inhaler combination issues',
+      'Insufficient exacerbation data',
+      'Safety signal (CV events)',
+      'Manufacturing deficiencies',
+    ],
+  },
+  gastroenterology: {
+    historical_crl_rate_pct: 10,
+    avg_months_to_resubmission: 11,
+    resubmission_approval_rate_pct: 75,
+    common_reasons: [
+      'Insufficient endoscopic remission data',
+      'Safety signal (infections)',
+      'Manufacturing comparability',
+      'Inadequate induction/maintenance design',
+    ],
+  },
+  nephrology: {
+    historical_crl_rate_pct: 14,
+    avg_months_to_resubmission: 13,
+    resubmission_approval_rate_pct: 68,
+    common_reasons: [
+      'eGFR endpoint methodology dispute',
+      'Hyperkalemia/electrolyte safety',
+      'Insufficient long-term renal outcome data',
+      'Manufacturing issues',
+    ],
+  },
+  hepatology: {
+    historical_crl_rate_pct: 12,
+    avg_months_to_resubmission: 12,
+    resubmission_approval_rate_pct: 70,
+    common_reasons: [
+      'Liver safety paradox (treating liver disease)',
+      'Biopsy endpoint variability',
+      'Insufficient fibrosis regression data',
+      'Manufacturing issues',
+    ],
+  },
+  endocrinology: {
+    historical_crl_rate_pct: 10,
+    avg_months_to_resubmission: 11,
+    resubmission_approval_rate_pct: 75,
+    common_reasons: [
+      'CV safety signal (MACE)',
+      'Thyroid C-cell tumor concern',
+      'Hypoglycemia safety profile',
+      'Manufacturing issues',
+    ],
+  },
+  ophthalmology: {
+    historical_crl_rate_pct: 9,
+    avg_months_to_resubmission: 10,
+    resubmission_approval_rate_pct: 78,
+    common_reasons: [
+      'Intravitreal injection safety concerns',
+      'Insufficient durability data',
+      'Manufacturing sterility issues',
+      'Retinal safety signal',
+    ],
+  },
+  musculoskeletal: {
+    historical_crl_rate_pct: 12,
+    avg_months_to_resubmission: 12,
+    resubmission_approval_rate_pct: 72,
+    common_reasons: [
+      'CV safety signal',
+      'Insufficient structural progression data',
+      'Pain endpoint placebo response',
+      'Manufacturing issues',
+    ],
+  },
+  infectious_disease: {
+    historical_crl_rate_pct: 8,
+    avg_months_to_resubmission: 9,
+    resubmission_approval_rate_pct: 82,
+    common_reasons: [
+      'Resistance emergence concerns',
+      'Insufficient clinical cure data',
+      'Manufacturing/supply chain issues',
+      'Inadequate PK/PD bridging',
+    ],
+  },
   default: {
     historical_crl_rate_pct: 12,
     avg_months_to_resubmission: 12,
     resubmission_approval_rate_pct: 70,
-    common_reasons: ['Safety concerns', 'Manufacturing deficiencies', 'Insufficient efficacy data', 'Labeling disagreement'],
+    common_reasons: [
+      'Safety concerns',
+      'Manufacturing deficiencies',
+      'Insufficient efficacy data',
+      'Labeling disagreement',
+    ],
   },
 };
 
@@ -183,7 +461,8 @@ function buildCRLDecayCurve(therapyArea: string): CRLDecayCurve {
   const taLower = therapyArea.toLowerCase().replace(/[\s\-]+/g, '_');
   const data = CRL_RECOVERY_DATA[taLower] ?? CRL_RECOVERY_DATA.default;
 
-  const recoveryNarrative = `Historical CRL rate in ${therapyArea}: ${data.historical_crl_rate_pct}%. ` +
+  const recoveryNarrative =
+    `Historical CRL rate in ${therapyArea}: ${data.historical_crl_rate_pct}%. ` +
     `Average time to resubmission: ${data.avg_months_to_resubmission} months. ` +
     `Resubmission approval rate: ${data.resubmission_approval_rate_pct}%. ` +
     `Most common CRL reasons: ${data.common_reasons.slice(0, 2).join('; ')}. ` +
@@ -205,40 +484,543 @@ function buildCRLDecayCurve(therapyArea: string): CRLDecayCurve {
 // counts and recent acceptance status.
 // ────────────────────────────────────────────────────────────
 
-const SURROGATE_STRENGTH_DATA: Record<string, { endpoint: string; strength: number; precedents: number; recent: boolean; notes: string }[]> = {
+const SURROGATE_STRENGTH_DATA: Record<
+  string,
+  { endpoint: string; strength: number; precedents: number; recent: boolean; notes: string }[]
+> = {
   oncology: [
-    { endpoint: 'Overall Response Rate (ORR)', strength: 7, precedents: 45, recent: true, notes: 'Most commonly used surrogate for Accelerated Approval in solid tumors' },
-    { endpoint: 'Progression-Free Survival (PFS)', strength: 8, precedents: 30, recent: true, notes: 'Accepted as primary endpoint for full approval in many tumor types' },
-    { endpoint: 'Pathological Complete Response (pCR)', strength: 7, precedents: 8, recent: true, notes: 'Validated in neoadjuvant breast cancer; FDA 2020 guidance' },
-    { endpoint: 'Complete Remission (CR)', strength: 8, precedents: 20, recent: true, notes: 'Standard in hematologic malignancies' },
-    { endpoint: 'MRD-negative status', strength: 5, precedents: 3, recent: true, notes: 'Emerging in CLL/multiple myeloma; not yet fully validated' },
-    { endpoint: 'Duration of Response (DOR)', strength: 5, precedents: 10, recent: true, notes: 'Supportive endpoint, not typically used as sole basis for approval' },
+    {
+      endpoint: 'Overall Response Rate (ORR)',
+      strength: 7,
+      precedents: 45,
+      recent: true,
+      notes: 'Most commonly used surrogate for Accelerated Approval in solid tumors',
+    },
+    {
+      endpoint: 'Progression-Free Survival (PFS)',
+      strength: 8,
+      precedents: 30,
+      recent: true,
+      notes: 'Accepted as primary endpoint for full approval in many tumor types',
+    },
+    {
+      endpoint: 'Pathological Complete Response (pCR)',
+      strength: 7,
+      precedents: 8,
+      recent: true,
+      notes: 'Validated in neoadjuvant breast cancer; FDA 2020 guidance',
+    },
+    {
+      endpoint: 'Complete Remission (CR)',
+      strength: 8,
+      precedents: 20,
+      recent: true,
+      notes: 'Standard in hematologic malignancies',
+    },
+    {
+      endpoint: 'MRD-negative status',
+      strength: 5,
+      precedents: 3,
+      recent: true,
+      notes: 'Emerging in CLL/multiple myeloma; not yet fully validated',
+    },
+    {
+      endpoint: 'Duration of Response (DOR)',
+      strength: 5,
+      precedents: 10,
+      recent: true,
+      notes: 'Supportive endpoint, not typically used as sole basis for approval',
+    },
   ],
   neurology: [
-    { endpoint: 'Amyloid PET Clearance', strength: 5, precedents: 2, recent: true, notes: 'Controversial after Aduhelm. Lecanemab showed correlation with clinical benefit' },
-    { endpoint: 'Annualized Relapse Rate (ARR)', strength: 9, precedents: 15, recent: true, notes: 'Well-validated in relapsing MS' },
-    { endpoint: 'EDSS Disability Progression', strength: 9, precedents: 12, recent: true, notes: 'Gold standard in MS, validated across multiple drug classes' },
-    { endpoint: 'Seizure Frequency Reduction', strength: 9, precedents: 20, recent: true, notes: 'Well-established in epilepsy' },
-    { endpoint: 'CDR-SB (Clinical Dementia Rating)', strength: 7, precedents: 5, recent: true, notes: 'Primary clinical endpoint for Alzheimer\'s — required for full approval' },
+    {
+      endpoint: 'Amyloid PET Clearance',
+      strength: 5,
+      precedents: 2,
+      recent: true,
+      notes: 'Controversial after Aduhelm. Lecanemab showed correlation with clinical benefit',
+    },
+    {
+      endpoint: 'Annualized Relapse Rate (ARR)',
+      strength: 9,
+      precedents: 15,
+      recent: true,
+      notes: 'Well-validated in relapsing MS',
+    },
+    {
+      endpoint: 'EDSS Disability Progression',
+      strength: 9,
+      precedents: 12,
+      recent: true,
+      notes: 'Gold standard in MS, validated across multiple drug classes',
+    },
+    {
+      endpoint: 'Seizure Frequency Reduction',
+      strength: 9,
+      precedents: 20,
+      recent: true,
+      notes: 'Well-established in epilepsy',
+    },
+    {
+      endpoint: 'CDR-SB (Clinical Dementia Rating)',
+      strength: 7,
+      precedents: 5,
+      recent: true,
+      notes: "Primary clinical endpoint for Alzheimer's — required for full approval",
+    },
   ],
   immunology: [
-    { endpoint: 'ACR20/50/70', strength: 9, precedents: 25, recent: true, notes: 'Standard in RA; well-validated across drug classes' },
-    { endpoint: 'PASI 75/90/100', strength: 9, precedents: 15, recent: true, notes: 'Standard in psoriasis; PASI 90 becoming new bar' },
-    { endpoint: 'EASI Score Reduction', strength: 9, precedents: 8, recent: true, notes: 'Standard in atopic dermatitis' },
-    { endpoint: 'Endoscopic Remission', strength: 7, precedents: 6, recent: true, notes: 'Accepted in IBD per FDA 2022 guidance' },
+    {
+      endpoint: 'ACR20/50/70',
+      strength: 9,
+      precedents: 25,
+      recent: true,
+      notes: 'Standard in RA; well-validated across drug classes',
+    },
+    {
+      endpoint: 'PASI 75/90/100',
+      strength: 9,
+      precedents: 15,
+      recent: true,
+      notes: 'Standard in psoriasis; PASI 90 becoming new bar',
+    },
+    {
+      endpoint: 'EASI Score Reduction',
+      strength: 9,
+      precedents: 8,
+      recent: true,
+      notes: 'Standard in atopic dermatitis',
+    },
+    {
+      endpoint: 'Endoscopic Remission',
+      strength: 7,
+      precedents: 6,
+      recent: true,
+      notes: 'Accepted in IBD per FDA 2022 guidance',
+    },
     { endpoint: 'Mayo Score', strength: 8, precedents: 10, recent: true, notes: 'Standard composite in UC' },
   ],
   cardiovascular: [
-    { endpoint: 'LDL-C Reduction', strength: 9, precedents: 20, recent: true, notes: 'Well-validated; FDA accepts as approvable endpoint' },
-    { endpoint: 'Blood Pressure Reduction', strength: 9, precedents: 30, recent: true, notes: 'Long-established surrogate' },
-    { endpoint: 'NT-proBNP Reduction', strength: 5, precedents: 2, recent: true, notes: 'Emerging in heart failure; not yet fully validated' },
-    { endpoint: 'MACE (Major Adverse CV Events)', strength: 10, precedents: 15, recent: true, notes: 'Gold standard outcome; required for CV outcome trials' },
+    {
+      endpoint: 'LDL-C Reduction',
+      strength: 9,
+      precedents: 20,
+      recent: true,
+      notes: 'Well-validated; FDA accepts as approvable endpoint',
+    },
+    {
+      endpoint: 'Blood Pressure Reduction',
+      strength: 9,
+      precedents: 30,
+      recent: true,
+      notes: 'Long-established surrogate',
+    },
+    {
+      endpoint: 'NT-proBNP Reduction',
+      strength: 5,
+      precedents: 2,
+      recent: true,
+      notes: 'Emerging in heart failure; not yet fully validated',
+    },
+    {
+      endpoint: 'MACE (Major Adverse CV Events)',
+      strength: 10,
+      precedents: 15,
+      recent: true,
+      notes: 'Gold standard outcome; required for CV outcome trials',
+    },
   ],
   rare_disease: [
-    { endpoint: 'Enzyme Activity Levels', strength: 7, precedents: 8, recent: true, notes: 'Accepted for ERT approvals in lysosomal storage disorders' },
-    { endpoint: 'Biomarker Substrate Reduction', strength: 7, precedents: 5, recent: true, notes: 'Used in substrate reduction therapy approvals' },
-    { endpoint: 'Functional Capacity (6MWT)', strength: 8, precedents: 10, recent: true, notes: 'Standard in neuromuscular diseases' },
+    {
+      endpoint: 'Enzyme Activity Levels',
+      strength: 7,
+      precedents: 8,
+      recent: true,
+      notes: 'Accepted for ERT approvals in lysosomal storage disorders',
+    },
+    {
+      endpoint: 'Biomarker Substrate Reduction',
+      strength: 7,
+      precedents: 5,
+      recent: true,
+      notes: 'Used in substrate reduction therapy approvals',
+    },
+    {
+      endpoint: 'Functional Capacity (6MWT)',
+      strength: 8,
+      precedents: 10,
+      recent: true,
+      notes: 'Standard in neuromuscular diseases',
+    },
     { endpoint: 'Motor Function Scores', strength: 8, precedents: 6, recent: true, notes: 'Standard in SMA, DMD' },
+  ],
+  psychiatry: [
+    {
+      endpoint: 'HAM-D 17 Score Reduction',
+      strength: 9,
+      precedents: 30,
+      recent: true,
+      notes: 'Gold standard in MDD; required for antidepressant approval',
+    },
+    {
+      endpoint: 'PANSS Total Score Reduction',
+      strength: 9,
+      precedents: 20,
+      recent: true,
+      notes: 'Standard in schizophrenia across all drug classes',
+    },
+    {
+      endpoint: 'MADRS Score Reduction',
+      strength: 8,
+      precedents: 15,
+      recent: true,
+      notes: 'Alternative to HAM-D; increasingly preferred in recent trials',
+    },
+    {
+      endpoint: 'CGI-S Improvement',
+      strength: 6,
+      precedents: 10,
+      recent: true,
+      notes: 'Supportive endpoint; rarely sole basis for approval',
+    },
+    { endpoint: 'Y-BOCS Score Reduction', strength: 9, precedents: 8, recent: true, notes: 'Standard in OCD' },
+  ],
+  pain_management: [
+    {
+      endpoint: 'NRS Pain Score Reduction (≥30%)',
+      strength: 9,
+      precedents: 25,
+      recent: true,
+      notes: 'Standard responder analysis in chronic pain; FDA-preferred threshold',
+    },
+    {
+      endpoint: 'PGIC (Patient Global Impression of Change)',
+      strength: 6,
+      precedents: 12,
+      recent: true,
+      notes: 'Supportive PRO endpoint; strengthens efficacy narrative',
+    },
+    {
+      endpoint: 'Monthly Migraine Days Reduction',
+      strength: 9,
+      precedents: 10,
+      recent: true,
+      notes: 'Well-validated in migraine prevention; basis for CGRP class approvals',
+    },
+    {
+      endpoint: 'Brief Pain Inventory (BPI)',
+      strength: 7,
+      precedents: 8,
+      recent: true,
+      notes: 'Validated PRO instrument; accepted as co-primary or key secondary',
+    },
+  ],
+  metabolic: [
+    {
+      endpoint: 'HbA1c Reduction',
+      strength: 10,
+      precedents: 50,
+      recent: true,
+      notes: 'Universal primary endpoint for T2D; decades of validation',
+    },
+    {
+      endpoint: 'Body Weight Loss (%)',
+      strength: 9,
+      precedents: 12,
+      recent: true,
+      notes: 'Primary endpoint for obesity; ≥5% threshold per FDA guidance',
+    },
+    {
+      endpoint: 'Liver Fat Reduction (MRI-PDFF)',
+      strength: 6,
+      precedents: 2,
+      recent: true,
+      notes: 'Emerging in NASH/MASH; accepted for Phase 2b but not yet for full approval',
+    },
+    {
+      endpoint: 'NAS Score Improvement (≥2 points)',
+      strength: 6,
+      precedents: 1,
+      recent: true,
+      notes: 'Histologic endpoint in NASH; resmetirom precedent with conditional acceptance',
+    },
+    {
+      endpoint: 'Fibrosis Improvement (≥1 stage)',
+      strength: 5,
+      precedents: 1,
+      recent: true,
+      notes: 'Critical for full approval in NASH; limited precedent to date',
+    },
+  ],
+  dermatology: [
+    {
+      endpoint: 'PASI 75/90/100',
+      strength: 10,
+      precedents: 20,
+      recent: true,
+      notes: 'Gold standard in psoriasis; PASI 90 increasingly the competitive bar',
+    },
+    {
+      endpoint: 'IGA 0/1 (Clear/Almost Clear)',
+      strength: 9,
+      precedents: 18,
+      recent: true,
+      notes: 'Co-primary with PASI in psoriasis; standalone in other dermatoses',
+    },
+    {
+      endpoint: 'EASI-75',
+      strength: 9,
+      precedents: 10,
+      recent: true,
+      notes: 'Standard in atopic dermatitis; basis for dupilumab and JAKi approvals',
+    },
+    {
+      endpoint: 'SALT Score (Alopecia)',
+      strength: 6,
+      precedents: 2,
+      recent: true,
+      notes: 'Validated for alopecia areata; baricitinib precedent',
+    },
+  ],
+  pulmonology: [
+    {
+      endpoint: 'FEV1 Improvement',
+      strength: 9,
+      precedents: 35,
+      recent: true,
+      notes: 'Standard in COPD and asthma; well-validated across bronchodilator classes',
+    },
+    {
+      endpoint: 'Exacerbation Rate Reduction',
+      strength: 9,
+      precedents: 20,
+      recent: true,
+      notes: 'Key efficacy endpoint in COPD/severe asthma; annualized rate ratio',
+    },
+    {
+      endpoint: 'FVC Decline Rate (IPF)',
+      strength: 8,
+      precedents: 4,
+      recent: true,
+      notes: 'Validated in IPF; basis for pirfenidone and nintedanib approvals',
+    },
+    {
+      endpoint: 'ACQ Score Improvement',
+      strength: 7,
+      precedents: 10,
+      recent: true,
+      notes: 'Patient-reported outcome in asthma; supportive or co-primary',
+    },
+  ],
+  gastroenterology: [
+    {
+      endpoint: 'Endoscopic Remission',
+      strength: 9,
+      precedents: 12,
+      recent: true,
+      notes: 'Required co-primary per FDA 2022 IBD guidance; mucosal healing standard',
+    },
+    {
+      endpoint: 'CDAI <150 (Clinical Remission)',
+      strength: 9,
+      precedents: 15,
+      recent: true,
+      notes: "Standard clinical remission in Crohn's disease",
+    },
+    {
+      endpoint: 'Modified Mayo Score',
+      strength: 9,
+      precedents: 12,
+      recent: true,
+      notes: 'Composite endpoint in UC; components well-validated individually',
+    },
+    {
+      endpoint: 'Histologic Remission',
+      strength: 6,
+      precedents: 4,
+      recent: true,
+      notes: 'Emerging endpoint in IBD; FDA increasingly interested but not yet required',
+    },
+  ],
+  nephrology: [
+    {
+      endpoint: 'eGFR Slope (Total Slope)',
+      strength: 7,
+      precedents: 5,
+      recent: true,
+      notes: 'Accepted per FDA 2023 CKD guidance; total slope preferred over chronic slope',
+    },
+    {
+      endpoint: 'Proteinuria Reduction (UPCR)',
+      strength: 6,
+      precedents: 4,
+      recent: true,
+      notes: 'Reasonably likely surrogate in glomerular diseases; sparsentan precedent',
+    },
+    {
+      endpoint: 'Kidney Failure Composite Endpoint',
+      strength: 9,
+      precedents: 8,
+      recent: true,
+      notes: 'Doubling of creatinine, ESKD, or death; gold standard outcome',
+    },
+    {
+      endpoint: 'Complete Remission of Proteinuria',
+      strength: 7,
+      precedents: 3,
+      recent: true,
+      notes: 'Used in lupus nephritis and membranous nephropathy trials',
+    },
+  ],
+  hepatology: [
+    {
+      endpoint: 'SVR12 (Sustained Virologic Response)',
+      strength: 10,
+      precedents: 25,
+      recent: true,
+      notes: 'Gold standard in HCV; functional cure endpoint with full validation',
+    },
+    {
+      endpoint: 'ALT Normalization',
+      strength: 6,
+      precedents: 5,
+      recent: true,
+      notes: 'Supportive endpoint in chronic liver disease; not sole basis for approval',
+    },
+    {
+      endpoint: 'Fibrosis Improvement (Fibroscan/Biopsy)',
+      strength: 6,
+      precedents: 2,
+      recent: true,
+      notes: 'Emerging in NASH/fibrosis; biopsy variability remains a challenge',
+    },
+    {
+      endpoint: 'HBsAg Loss',
+      strength: 9,
+      precedents: 4,
+      recent: true,
+      notes: 'Functional cure in HBV; rare but highly valued endpoint',
+    },
+  ],
+  endocrinology: [
+    {
+      endpoint: 'HbA1c Reduction',
+      strength: 10,
+      precedents: 50,
+      recent: true,
+      notes: 'Universal T2D primary endpoint; decades of regulatory precedent',
+    },
+    {
+      endpoint: 'TSH Normalization',
+      strength: 9,
+      precedents: 10,
+      recent: true,
+      notes: 'Well-established in thyroid disorders; clear biomarker-outcome link',
+    },
+    {
+      endpoint: 'IGF-1 Normalization',
+      strength: 8,
+      precedents: 6,
+      recent: true,
+      notes: 'Standard in acromegaly; validated across somatostatin analog class',
+    },
+    {
+      endpoint: 'BMD T-score Improvement',
+      strength: 7,
+      precedents: 8,
+      recent: true,
+      notes: 'Accepted as surrogate in osteoporosis; fracture reduction preferred for full approval',
+    },
+  ],
+  ophthalmology: [
+    {
+      endpoint: 'BCVA Letter Gain (≥15 letters)',
+      strength: 10,
+      precedents: 15,
+      recent: true,
+      notes: 'Gold standard in wet AMD and DME; basis for all anti-VEGF approvals',
+    },
+    {
+      endpoint: 'Central Retinal Thickness Reduction',
+      strength: 6,
+      precedents: 8,
+      recent: true,
+      notes: 'Anatomic endpoint on OCT; supportive but not sole basis for approval',
+    },
+    {
+      endpoint: 'Absence of Fluid on OCT',
+      strength: 6,
+      precedents: 5,
+      recent: true,
+      notes: 'Increasingly used as treatment response measure; durability indicator',
+    },
+    {
+      endpoint: 'GA Lesion Growth Rate Reduction',
+      strength: 7,
+      precedents: 2,
+      recent: true,
+      notes: 'Validated for geographic atrophy; pegcetacoplan and avacincaptad pegol precedent',
+    },
+  ],
+  musculoskeletal: [
+    {
+      endpoint: 'ACR20/50/70 Response',
+      strength: 9,
+      precedents: 25,
+      recent: true,
+      notes: 'Standard in RA and PsA; well-validated across biologic and JAKi classes',
+    },
+    {
+      endpoint: 'Modified Total Sharp Score (mTSS)',
+      strength: 8,
+      precedents: 12,
+      recent: true,
+      notes: 'Radiographic progression in RA; validated structural endpoint',
+    },
+    {
+      endpoint: 'DAS28 Remission (<2.6)',
+      strength: 9,
+      precedents: 15,
+      recent: true,
+      notes: 'Composite disease activity in RA; standard remission threshold',
+    },
+    {
+      endpoint: 'WOMAC Score Improvement',
+      strength: 7,
+      precedents: 8,
+      recent: true,
+      notes: 'Standard PRO in osteoarthritis; pain and function subscales',
+    },
+  ],
+  infectious_disease: [
+    {
+      endpoint: 'Viral Load Suppression',
+      strength: 10,
+      precedents: 30,
+      recent: true,
+      notes: 'Standard in HIV; <50 copies/mL threshold universally accepted',
+    },
+    {
+      endpoint: 'Seroconversion Rate',
+      strength: 9,
+      precedents: 20,
+      recent: true,
+      notes: 'Standard for vaccines; correlate of protection well-established for many pathogens',
+    },
+    {
+      endpoint: 'Clinical Cure Rate',
+      strength: 9,
+      precedents: 15,
+      recent: true,
+      notes: 'Standard in antibacterial trials; test-of-cure visit assessment',
+    },
+    {
+      endpoint: 'Time to Negative Culture',
+      strength: 7,
+      precedents: 6,
+      recent: true,
+      notes: 'Used in complicated infections; microbiological eradication endpoint',
+    },
   ],
 };
 
@@ -247,7 +1029,7 @@ function buildSurrogateStrengthMatrix(therapyArea: string): SurrogateStrengthEnt
   const data = SURROGATE_STRENGTH_DATA[taLower];
   if (!data) return [];
 
-  return data.map(d => ({
+  return data.map((d) => ({
     endpoint: d.endpoint,
     indication: therapyArea,
     strength_score: d.strength,
@@ -271,10 +1053,10 @@ const DEVELOPMENT_COST_BY_STAGE: Record<DevelopmentStage, { low_m: number; base_
 };
 
 const COST_MULTIPLIERS: Record<string, number> = {
-  oncology: 1.3,       // Larger trials, complex endpoints
-  neurology: 1.5,      // Long trials, difficult enrollment
-  cardiovascular: 1.4,  // Large outcome trials
-  rare_disease: 0.7,    // Smaller trials
+  oncology: 1.3, // Larger trials, complex endpoints
+  neurology: 1.5, // Long trials, difficult enrollment
+  cardiovascular: 1.4, // Large outcome trials
+  rare_disease: 0.7, // Smaller trials
   immunology: 1.1,
   hematology: 1.0,
   ophthalmology: 0.9,
@@ -313,7 +1095,9 @@ function estimateDevelopmentCosts(
     low *= 1.2;
     base *= 1.2;
     high *= 1.2;
-    notes.push('Biologic manufacturing adds ~20% to development costs (CMC complexity, process validation, facility requirements)');
+    notes.push(
+      'Biologic manufacturing adds ~20% to development costs (CMC complexity, process validation, facility requirements)',
+    );
   }
 
   const pdufaFee = hasOrphanDesignation ? 0 : PDUFA_FEE_M;
@@ -337,9 +1121,7 @@ function estimateDevelopmentCosts(
 // Recommends optimal global filing order
 // ────────────────────────────────────────────────────────────
 
-function recommendFilingSequence(
-  input: RegulatoryAnalysisInput,
-): FilingSequenceEntry[] {
+function recommendFilingSequence(input: RegulatoryAnalysisInput): FilingSequenceEntry[] {
   const sequence: FilingSequenceEntry[] = [];
   const indicationData = findIndicationData(input.indication);
   const isRare = indicationData ? indicationData.us_prevalence < 200000 : input.has_orphan_potential;
@@ -349,7 +1131,8 @@ function recommendFilingSequence(
     sequence.push({
       agency: 'FDA',
       recommended_offset_months: 0,
-      rationale: 'FDA filing first: fastest expedited pathways (Breakthrough, Fast Track, Accelerated Approval), largest single market, sets global reference price.',
+      rationale:
+        'FDA filing first: fastest expedited pathways (Breakthrough, Fast Track, Accelerated Approval), largest single market, sets global reference price.',
     });
   }
 
@@ -359,9 +1142,10 @@ function recommendFilingSequence(
     sequence.push({
       agency: 'EMA',
       recommended_offset_months: offset,
-      rationale: offset === 0
-        ? 'Simultaneous EMA filing recommended for high-unmet-need: PRIME designation enables parallel review. Conditional Marketing Authorization possible.'
-        : 'EMA filing 6 months post-FDA: allows FDA review feedback to strengthen EU dossier. CHMP scientific advice recommended.',
+      rationale:
+        offset === 0
+          ? 'Simultaneous EMA filing recommended for high-unmet-need: PRIME designation enables parallel review. Conditional Marketing Authorization possible.'
+          : 'EMA filing 6 months post-FDA: allows FDA review feedback to strengthen EU dossier. CHMP scientific advice recommended.',
     });
   }
 
@@ -382,7 +1166,8 @@ function recommendFilingSequence(
     sequence.push({
       agency: 'NMPA',
       recommended_offset_months: 12,
-      rationale: 'NMPA filing 12 months post-FDA: allows for China-specific clinical data requirements and NMPA pre-submission meeting. Consider including Chinese sites in global pivotal trials for accelerated review.',
+      rationale:
+        'NMPA filing 12 months post-FDA: allows for China-specific clinical data requirements and NMPA pre-submission meeting. Consider including Chinese sites in global pivotal trials for accelerated review.',
     });
   }
 
@@ -403,11 +1188,14 @@ function recommendFilingSequence(
 // ────────────────────────────────────────────────────────────
 
 // Historical AdCom convening rate and favorable vote rates by therapy area
-const ADCOM_RATES: Record<string, {
-  convening_pct: number;       // Probability FDA will convene AdCom
-  favorable_vote_pct: number;  // Probability of favorable vote IF convened
-  crl_base_pct: number;        // Base CRL probability regardless of AdCom
-}> = {
+const ADCOM_RATES: Record<
+  string,
+  {
+    convening_pct: number; // Probability FDA will convene AdCom
+    favorable_vote_pct: number; // Probability of favorable vote IF convened
+    crl_base_pct: number; // Base CRL probability regardless of AdCom
+  }
+> = {
   oncology: { convening_pct: 25, favorable_vote_pct: 78, crl_base_pct: 8 },
   neurology: { convening_pct: 55, favorable_vote_pct: 62, crl_base_pct: 18 },
   psychiatry: { convening_pct: 65, favorable_vote_pct: 55, crl_base_pct: 25 },
@@ -423,9 +1211,7 @@ const ADCOM_RATES: Record<string, {
   default: { convening_pct: 35, favorable_vote_pct: 72, crl_base_pct: 12 },
 };
 
-function buildAdvisoryCommitteeModel(
-  input: RegulatoryAnalysisInput,
-): AdvisoryCommitteeModel {
+function buildAdvisoryCommitteeModel(input: RegulatoryAnalysisInput): AdvisoryCommitteeModel {
   const indicationData = findIndicationData(input.indication);
   const therapyArea = indicationData?.therapy_area?.toLowerCase() ?? 'default';
   const rates = ADCOM_RATES[therapyArea] ?? ADCOM_RATES.default;
@@ -458,7 +1244,9 @@ function buildAdvisoryCommitteeModel(
     conveningPct += 10;
     favorableVotePct -= 8;
     crlPct += 5;
-    riskFactors.push('Low unmet need — FDA more likely to convene AdCom to validate benefit-risk in context of existing therapies');
+    riskFactors.push(
+      'Low unmet need — FDA more likely to convene AdCom to validate benefit-risk in context of existing therapies',
+    );
   }
 
   // Factor 4: Orphan designation reduces AdCom probability
@@ -476,11 +1264,13 @@ function buildAdvisoryCommitteeModel(
 
   // Factor 6: Competitive landscape affects CRL risk
   const competitors = getCompetitorsForIndication(input.indication);
-  const approvedCount = competitors.filter(c => c.phase === 'Approved').length;
+  const approvedCount = competitors.filter((c) => c.phase === 'Approved').length;
   if (approvedCount >= 5) {
     conveningPct += 10;
     crlPct += 5;
-    riskFactors.push(`Crowded market (${approvedCount} approved) — FDA may require demonstration of added benefit over existing options`);
+    riskFactors.push(
+      `Crowded market (${approvedCount} approved) — FDA may require demonstration of added benefit over existing options`,
+    );
   }
 
   // Factor 7: Safety signal severity (biologics with known class effects)
@@ -488,16 +1278,26 @@ function buildAdvisoryCommitteeModel(
   if (mechanismLower.includes('car-t') || mechanismLower.includes('gene therapy')) {
     conveningPct += 15;
     crlPct += 5;
-    riskFactors.push('Cell/gene therapy — FDA routinely convenes AdCom for novel gene therapies due to long-term safety unknowns');
-  } else if (mechanismLower.includes('checkpoint') || mechanismLower.includes('pd-1') || mechanismLower.includes('pd-l1')) {
+    riskFactors.push(
+      'Cell/gene therapy — FDA routinely convenes AdCom for novel gene therapies due to long-term safety unknowns',
+    );
+  } else if (
+    mechanismLower.includes('checkpoint') ||
+    mechanismLower.includes('pd-1') ||
+    mechanismLower.includes('pd-l1')
+  ) {
     conveningPct += 5;
-    riskFactors.push('Checkpoint inhibitor — immune-related adverse events require comprehensive safety characterization');
+    riskFactors.push(
+      'Checkpoint inhibitor — immune-related adverse events require comprehensive safety characterization',
+    );
   }
 
   // Factor 8: Active comparator availability
   if (approvedCount >= 3 && input.unmet_need !== 'high') {
     crlPct += 3;
-    riskFactors.push('Multiple approved competitors — FDA may require active-comparator data rather than placebo-controlled');
+    riskFactors.push(
+      'Multiple approved competitors — FDA may require active-comparator data rather than placebo-controlled',
+    );
   }
 
   // Factor 9: Pediatric requirements (PREA)
@@ -508,7 +1308,11 @@ function buildAdvisoryCommitteeModel(
   }
 
   // Factor 10: REMS likelihood
-  if (mechanismLower.includes('opioid') || mechanismLower.includes('immunosuppress') || mechanismLower.includes('cytotoxic')) {
+  if (
+    mechanismLower.includes('opioid') ||
+    mechanismLower.includes('immunosuppress') ||
+    mechanismLower.includes('cytotoxic')
+  ) {
     crlPct += 5;
     riskFactors.push('REMS program likely — may delay approval timeline and restrict distribution');
   }
@@ -517,7 +1321,9 @@ function buildAdvisoryCommitteeModel(
   if (input.unmet_need === 'high' && therapyArea === 'oncology') {
     favorableVotePct += 3;
     crlPct -= 2;
-    riskFactors.push('Oncology with high unmet need — strong Accelerated Approval track record (post-FDORA enforcement notwithstanding)');
+    riskFactors.push(
+      'Oncology with high unmet need — strong Accelerated Approval track record (post-FDORA enforcement notwithstanding)',
+    );
   }
 
   // Factor 12: Manufacturing complexity for novel modalities
@@ -529,7 +1335,7 @@ function buildAdvisoryCommitteeModel(
   // Factor 13: Prior CRL history in indication
   const indicationLower = input.indication.toLowerCase();
   const highCRLIndications = ['alzheimer', 'nash', 'mash', 'obesity', 'depression', 'mdd'];
-  if (highCRLIndications.some(ind => indicationLower.includes(ind))) {
+  if (highCRLIndications.some((ind) => indicationLower.includes(ind))) {
     crlPct += 5;
     conveningPct += 5;
     riskFactors.push('Indication with historically elevated CRL rate — heightened regulatory scrutiny expected');
@@ -557,15 +1363,25 @@ function buildAdvisoryCommitteeModel(
   // Historical context
   const contextParts: string[] = [];
   if (therapyArea === 'oncology') {
-    contextParts.push('ODAC (Oncologic Drugs Advisory Committee) has voted favorably on ~78% of products presented 2015-2025. FDA has followed ODAC recommendation in ~85% of cases.');
+    contextParts.push(
+      'ODAC (Oncologic Drugs Advisory Committee) has voted favorably on ~78% of products presented 2015-2025. FDA has followed ODAC recommendation in ~85% of cases.',
+    );
   } else if (therapyArea === 'neurology') {
-    contextParts.push('PCNS Advisory Committee has been more cautious, with ~62% favorable votes. The Aduhelm controversy (2021) has increased scrutiny on surrogate endpoints in neurodegeneration.');
+    contextParts.push(
+      'PCNS Advisory Committee has been more cautious, with ~62% favorable votes. The Aduhelm controversy (2021) has increased scrutiny on surrogate endpoints in neurodegeneration.',
+    );
   } else if (therapyArea === 'psychiatry') {
-    contextParts.push('PCNS Advisory Committee for psychiatric drugs shows ~55% favorable vote rate, reflecting difficulty in demonstrating meaningful clinical benefit with subjective endpoints.');
+    contextParts.push(
+      'PCNS Advisory Committee for psychiatric drugs shows ~55% favorable vote rate, reflecting difficulty in demonstrating meaningful clinical benefit with subjective endpoints.',
+    );
   } else if (therapyArea === 'rare_disease') {
-    contextParts.push('Rare disease AdCom meetings are less common (~20% of filings). When convened, favorable vote rates are high (~82%) reflecting high unmet need and smaller evidence packages.');
+    contextParts.push(
+      'Rare disease AdCom meetings are less common (~20% of filings). When convened, favorable vote rates are high (~82%) reflecting high unmet need and smaller evidence packages.',
+    );
   } else {
-    contextParts.push(`Historical FDA advisory committee favorable vote rate for ${therapyArea}: ~${Math.round(favorableVotePct)}%. FDA follows AdCom recommendation approximately 75-85% of the time.`);
+    contextParts.push(
+      `Historical FDA advisory committee favorable vote rate for ${therapyArea}: ~${Math.round(favorableVotePct)}%. FDA follows AdCom recommendation approximately 75-85% of the time.`,
+    );
   }
 
   return {
@@ -575,8 +1391,8 @@ function buildAdvisoryCommitteeModel(
     risk_factors: riskFactors,
     historical_context: contextParts.join(' '),
     timeline_impact_months: {
-      if_favorable: 0,        // No additional delay
-      if_unfavorable: 6,      // 6-month delay for re-analysis, additional data, or resubmission
+      if_favorable: 0, // No additional delay
+      if_unfavorable: 6, // 6-month delay for re-analysis, additional data, or resubmission
     },
   };
 }
@@ -598,14 +1414,15 @@ function findPrecedentTrialDesigns(
   const therapyAreaLower = therapyArea.toLowerCase().replace(/[\s\-]+/g, '_');
   const mechanismLower = (mechanism ?? '').toLowerCase();
 
-  const scored = PRECEDENT_TRIALS
-    .filter(t => t.approval_year > 0) // Only approved trials
-    .map(trial => {
+  const scored = PRECEDENT_TRIALS.filter((t) => t.approval_year > 0) // Only approved trials
+    .map((trial) => {
       let score = 0;
 
       // Exact indication match (case-insensitive substring): +10
-      if (trial.indication.toLowerCase().includes(indicationLower) ||
-          indicationLower.includes(trial.indication.toLowerCase().split(',')[0].trim())) {
+      if (
+        trial.indication.toLowerCase().includes(indicationLower) ||
+        indicationLower.includes(trial.indication.toLowerCase().split(',')[0].trim())
+      ) {
         score += 10;
       }
 
@@ -615,11 +1432,12 @@ function findPrecedentTrialDesigns(
       }
 
       // Mechanism overlap (mechanism keyword found in trial drug/indication): +3
-      if (mechanismLower && (
-        trial.drug.toLowerCase().includes(mechanismLower) ||
-        trial.indication.toLowerCase().includes(mechanismLower) ||
-        trial.result_summary.toLowerCase().includes(mechanismLower)
-      )) {
+      if (
+        mechanismLower &&
+        (trial.drug.toLowerCase().includes(mechanismLower) ||
+          trial.indication.toLowerCase().includes(mechanismLower) ||
+          trial.result_summary.toLowerCase().includes(mechanismLower))
+      ) {
         score += 3;
       }
 
@@ -635,7 +1453,7 @@ function findPrecedentTrialDesigns(
 
       return { trial, score };
     })
-    .filter(item => item.score >= 5)
+    .filter((item) => item.score >= 5)
     .sort((a, b) => b.score - a.score)
     .slice(0, 8);
 
@@ -667,13 +1485,11 @@ function buildTrialDesignRecommendation(
   const indicationData = findIndicationData(input.indication);
   const therapyArea = (indicationData?.therapy_area ?? 'default').toLowerCase();
   const competitors = getCompetitorsForIndication(input.indication);
-  const approvedCount = competitors.filter(c => c.phase === 'Approved').length;
+  const approvedCount = competitors.filter((c) => c.phase === 'Approved').length;
 
   // ── Design type ──
-  const hasAcceleratedPrecedent = precedentTrials.some(
-    t => PRECEDENT_TRIALS.find(
-      pt => pt.drug === t.drug && pt.was_accelerated
-    )
+  const hasAcceleratedPrecedent = precedentTrials.some((t) =>
+    PRECEDENT_TRIALS.find((pt) => pt.drug === t.drug && pt.was_accelerated),
   );
   let recommendedDesign: string;
   if (input.unmet_need === 'high' && (input.has_orphan_potential || hasAcceleratedPrecedent)) {
@@ -692,7 +1508,7 @@ function buildTrialDesignRecommendation(
   let sampleBase: number;
   let sampleHigh: number;
   if (precedentTrials.length > 0) {
-    const sizes = precedentTrials.map(t => t.sample_size).sort((a, b) => a - b);
+    const sizes = precedentTrials.map((t) => t.sample_size).sort((a, b) => a - b);
     const medianSize = sizes[Math.floor(sizes.length / 2)];
     sampleLow = Math.round(medianSize * 0.8);
     sampleBase = medianSize;
@@ -700,9 +1516,13 @@ function buildTrialDesignRecommendation(
   } else {
     // Stage-based defaults
     if (input.development_stage === 'phase2') {
-      sampleLow = 100; sampleBase = 150; sampleHigh = 200;
+      sampleLow = 100;
+      sampleBase = 150;
+      sampleHigh = 200;
     } else {
-      sampleLow = 300; sampleBase = 400; sampleHigh = 500;
+      sampleLow = 300;
+      sampleBase = 400;
+      sampleHigh = 500;
     }
   }
 
@@ -714,9 +1534,9 @@ function buildTrialDesignRecommendation(
   }
   // Check biomarker_defined via the RegulatoryInput pattern — use has_orphan_potential + mechanism as proxy
   // Since RegulatoryAnalysisInput doesn't have biomarker_defined, we infer it from context
-  const isBiomarkerDefined = precedentTrials.some(
-    t => PRECEDENT_TRIALS.find(pt => pt.drug === t.drug && pt.biomarker_enriched)
-  ) || (input.mechanism ?? '').toLowerCase().match(/biomarker|pd-l1|her2|egfr|kras|alk|ret|braf|brca|fgfr|ntrk|met|ros1/);
+  const isBiomarkerDefined =
+    precedentTrials.some((t) => PRECEDENT_TRIALS.find((pt) => pt.drug === t.drug && pt.biomarker_enriched)) ||
+    (input.mechanism ?? '').toLowerCase().match(/biomarker|pd-l1|her2|egfr|kras|alk|ret|braf|brca|fgfr|ntrk|met|ros1/);
   if (isBiomarkerDefined) {
     adaptiveElements.push('Adaptive randomization');
   }
@@ -736,12 +1556,13 @@ function buildTrialDesignRecommendation(
   let recommendedEndpoint: string;
   let endpointRationale: string;
   if (surrogateEndpoints && surrogateEndpoints.length > 0) {
-    const validated = surrogateEndpoints.find(e => e.status === 'validated');
-    const reasonablyLikely = surrogateEndpoints.find(e => e.status === 'reasonably_likely');
+    const validated = surrogateEndpoints.find((e) => e.status === 'validated');
+    const reasonablyLikely = surrogateEndpoints.find((e) => e.status === 'reasonably_likely');
     const chosen = validated ?? reasonablyLikely;
     if (chosen) {
       recommendedEndpoint = chosen.endpoint;
-      endpointRationale = `${chosen.endpoint} is ${chosen.status === 'validated' ? 'a validated surrogate endpoint' : 'a reasonably likely surrogate'} in ${therapyArea}. ` +
+      endpointRationale =
+        `${chosen.endpoint} is ${chosen.status === 'validated' ? 'a validated surrogate endpoint' : 'a reasonably likely surrogate'} in ${therapyArea}. ` +
         (chosen.fda_guidance ? `Supported by ${chosen.fda_guidance}. ` : '') +
         'This endpoint balances regulatory acceptance with feasible trial duration.';
     } else {
@@ -755,7 +1576,7 @@ function buildTrialDesignRecommendation(
   // ── Enrollment months ──
   let enrollmentMonths: number;
   if (precedentTrials.length > 0) {
-    const months = precedentTrials.map(t => t.enrollment_months).sort((a, b) => a - b);
+    const months = precedentTrials.map((t) => t.enrollment_months).sort((a, b) => a - b);
     enrollmentMonths = months[Math.floor(months.length / 2)];
   } else {
     enrollmentMonths = input.development_stage === 'phase2' ? 18 : 30;
@@ -780,10 +1601,14 @@ function buildTrialDesignRecommendation(
     keyDesignRisks.push('Small patient population may limit enrollment speed and statistical power');
   }
   if (input.development_stage === 'phase2') {
-    keyDesignRisks.push('Phase 2 data may not support seamless transition to registration; confirmatory Phase 3 may be required');
+    keyDesignRisks.push(
+      'Phase 2 data may not support seamless transition to registration; confirmatory Phase 3 may be required',
+    );
   }
   if (recommendedDesign.includes('Single-arm')) {
-    keyDesignRisks.push('Single-arm design requires well-characterized natural history or historical control data for regulatory acceptance');
+    keyDesignRisks.push(
+      'Single-arm design requires well-characterized natural history or historical control data for regulatory acceptance',
+    );
   }
   if (therapyArea === 'neurology') {
     keyDesignRisks.push('Long trial duration and high placebo response rates typical in neurology indications');
@@ -809,27 +1634,32 @@ function getDefaultEndpoint(therapyArea: string): { endpoint: string; rationale:
     case 'oncology':
       return {
         endpoint: 'Overall Survival (OS)',
-        rationale: 'OS is the gold standard endpoint in oncology. While surrogate endpoints (ORR, PFS) may support accelerated approval, OS remains the most robust basis for full approval.',
+        rationale:
+          'OS is the gold standard endpoint in oncology. While surrogate endpoints (ORR, PFS) may support accelerated approval, OS remains the most robust basis for full approval.',
       };
     case 'cardiovascular':
       return {
         endpoint: 'Clinical composite endpoint',
-        rationale: 'MACE composite (CV death, nonfatal MI, nonfatal stroke) is the standard primary endpoint for cardiovascular outcomes trials per FDA guidance.',
+        rationale:
+          'MACE composite (CV death, nonfatal MI, nonfatal stroke) is the standard primary endpoint for cardiovascular outcomes trials per FDA guidance.',
       };
     case 'neurology':
       return {
         endpoint: 'Disability progression',
-        rationale: 'Disability progression endpoints (e.g., EDSS for MS, CDR-SB for Alzheimer\'s) are the regulatory standard in neurology, reflecting clinically meaningful outcomes.',
+        rationale:
+          "Disability progression endpoints (e.g., EDSS for MS, CDR-SB for Alzheimer's) are the regulatory standard in neurology, reflecting clinically meaningful outcomes.",
       };
     case 'immunology':
       return {
         endpoint: 'Disease-free interval',
-        rationale: 'Validated composite endpoints (ACR responses for RA, PASI for psoriasis, EASI for AD) are well-accepted primary endpoints with strong regulatory precedent.',
+        rationale:
+          'Validated composite endpoints (ACR responses for RA, PASI for psoriasis, EASI for AD) are well-accepted primary endpoints with strong regulatory precedent.',
       };
     default:
       return {
         endpoint: 'Primary clinical endpoint per FDA disease-specific guidance',
-        rationale: 'Endpoint selection should be guided by FDA disease-specific draft or final guidance documents. Early FDA interaction (Type B meeting) is recommended to align on primary endpoint.',
+        rationale:
+          'Endpoint selection should be guided by FDA disease-specific draft or final guidance documents. Early FDA interaction (Type B meeting) is recommended to align on primary endpoint.',
       };
   }
 }
@@ -844,19 +1674,19 @@ function buildLabelScopeScenarios(
   input: RegulatoryAnalysisInput,
   comparableApprovals: ComparableApproval[],
 ): LabelScopeScenario[] {
-  const isBiomarkerDefined = (input.mechanism ?? '').toLowerCase().match(
-    /biomarker|pd-l1|her2|egfr|kras|alk|ret|braf|brca|fgfr|ntrk|met|ros1/
-  );
+  const isBiomarkerDefined = (input.mechanism ?? '')
+    .toLowerCase()
+    .match(/biomarker|pd-l1|her2|egfr|kras|alk|ret|braf|brca|fgfr|ntrk|met|ros1/);
 
   // ── Narrow scenario ──
-  const narrowProb = input.has_orphan_potential ? 0.40 : 0.25;
+  const narrowProb = input.has_orphan_potential ? 0.4 : 0.25;
   const narrowLabelDesc = isBiomarkerDefined
     ? 'Biomarker-selected population, specific line of therapy, restricted to prior treatment failure'
     : 'Specific subpopulation based on prior therapy or risk stratification';
   const narrowPrecedents = comparableApprovals
-    .filter(a => a.accelerated)
+    .filter((a) => a.accelerated)
     .slice(0, 3)
-    .map(a => `${a.drug} (${a.indication}, ${a.approval_year})`);
+    .map((a) => `${a.drug} (${a.indication}, ${a.approval_year})`);
   const narrowNarrative =
     `Narrow label scenario reflects a conservative regulatory outcome where the approved indication is restricted to a defined subset. ` +
     (isBiomarkerDefined
@@ -868,9 +1698,7 @@ function buildLabelScopeScenarios(
 
   // ── Base scenario ──
   const baseProb = 0.45;
-  const basePrecedents = comparableApprovals
-    .slice(0, 3)
-    .map(a => `${a.drug} (${a.indication}, ${a.approval_year})`);
+  const basePrecedents = comparableApprovals.slice(0, 3).map((a) => `${a.drug} (${a.indication}, ${a.approval_year})`);
   const baseNarrative =
     'Base label scenario reflects the most likely regulatory outcome based on clinical trial design and comparable approval precedents. ' +
     'Standard indication with typical restrictions based on development stage and clinical evidence. ' +
@@ -882,9 +1710,9 @@ function buildLabelScopeScenarios(
   const broadProb = Math.round((1.0 - narrowProb - baseProb) * 100) / 100;
   const broadRevMultiplier = input.unmet_need === 'high' ? 1.4 : 1.25;
   const broadPrecedents = comparableApprovals
-    .filter(a => !a.accelerated)
+    .filter((a) => !a.accelerated)
     .slice(0, 3)
-    .map(a => `${a.drug} (${a.indication}, ${a.approval_year})`);
+    .map((a) => `${a.drug} (${a.indication}, ${a.approval_year})`);
   const broadNarrative =
     'Broad label scenario represents an optimistic outcome with all-comers indication, multiple lines of therapy, and potential combination claims. ' +
     (input.unmet_need === 'high'
@@ -941,27 +1769,59 @@ interface ModalityCMCProfile {
 }
 
 const MODALITY_CMC_COMPLEXITY: Record<string, ModalityCMCProfile> = {
-  small_molecule:     { complexity: 3,  inspection: 'low',    validation_months: 8,  cost_low: 5,  cost_base: 12,  cost_high: 20 },
-  monoclonal_antibody: { complexity: 5, inspection: 'medium', validation_months: 15, cost_low: 20, cost_base: 40,  cost_high: 65 },
-  mab:                { complexity: 5,  inspection: 'medium', validation_months: 15, cost_low: 20, cost_base: 40,  cost_high: 65 },
-  adc:                { complexity: 8,  inspection: 'high',   validation_months: 21, cost_low: 35, cost_base: 60,  cost_high: 90 },
-  'antibody-drug':    { complexity: 8,  inspection: 'high',   validation_months: 21, cost_low: 35, cost_base: 60,  cost_high: 90 },
-  bispecific:         { complexity: 7,  inspection: 'medium', validation_months: 18, cost_low: 30, cost_base: 55,  cost_high: 80 },
-  car_t:              { complexity: 9,  inspection: 'high',   validation_months: 27, cost_low: 50, cost_base: 80,  cost_high: 120 },
-  'car-t':            { complexity: 9,  inspection: 'high',   validation_months: 27, cost_low: 50, cost_base: 80,  cost_high: 120 },
-  gene_therapy:       { complexity: 10, inspection: 'high',   validation_months: 30, cost_low: 60, cost_base: 100, cost_high: 150 },
-  vaccine:            { complexity: 6,  inspection: 'medium', validation_months: 15, cost_low: 15, cost_base: 30,  cost_high: 50 },
-  rna:                { complexity: 7,  inspection: 'medium', validation_months: 18, cost_low: 25, cost_base: 45,  cost_high: 70 },
-  mrna:               { complexity: 7,  inspection: 'medium', validation_months: 18, cost_low: 25, cost_base: 45,  cost_high: 70 },
-  sirna:              { complexity: 7,  inspection: 'medium', validation_months: 18, cost_low: 25, cost_base: 45,  cost_high: 70 },
-  aso:                { complexity: 7,  inspection: 'medium', validation_months: 18, cost_low: 25, cost_base: 45,  cost_high: 70 },
-  pharmaceutical:     { complexity: 4,  inspection: 'low',    validation_months: 10, cost_low: 8,  cost_base: 18,  cost_high: 30 },
+  small_molecule: { complexity: 3, inspection: 'low', validation_months: 8, cost_low: 5, cost_base: 12, cost_high: 20 },
+  monoclonal_antibody: {
+    complexity: 5,
+    inspection: 'medium',
+    validation_months: 15,
+    cost_low: 20,
+    cost_base: 40,
+    cost_high: 65,
+  },
+  mab: { complexity: 5, inspection: 'medium', validation_months: 15, cost_low: 20, cost_base: 40, cost_high: 65 },
+  adc: { complexity: 8, inspection: 'high', validation_months: 21, cost_low: 35, cost_base: 60, cost_high: 90 },
+  'antibody-drug': {
+    complexity: 8,
+    inspection: 'high',
+    validation_months: 21,
+    cost_low: 35,
+    cost_base: 60,
+    cost_high: 90,
+  },
+  bispecific: {
+    complexity: 7,
+    inspection: 'medium',
+    validation_months: 18,
+    cost_low: 30,
+    cost_base: 55,
+    cost_high: 80,
+  },
+  car_t: { complexity: 9, inspection: 'high', validation_months: 27, cost_low: 50, cost_base: 80, cost_high: 120 },
+  'car-t': { complexity: 9, inspection: 'high', validation_months: 27, cost_low: 50, cost_base: 80, cost_high: 120 },
+  gene_therapy: {
+    complexity: 10,
+    inspection: 'high',
+    validation_months: 30,
+    cost_low: 60,
+    cost_base: 100,
+    cost_high: 150,
+  },
+  vaccine: { complexity: 6, inspection: 'medium', validation_months: 15, cost_low: 15, cost_base: 30, cost_high: 50 },
+  rna: { complexity: 7, inspection: 'medium', validation_months: 18, cost_low: 25, cost_base: 45, cost_high: 70 },
+  mrna: { complexity: 7, inspection: 'medium', validation_months: 18, cost_low: 25, cost_base: 45, cost_high: 70 },
+  sirna: { complexity: 7, inspection: 'medium', validation_months: 18, cost_low: 25, cost_base: 45, cost_high: 70 },
+  aso: { complexity: 7, inspection: 'medium', validation_months: 18, cost_low: 25, cost_base: 45, cost_high: 70 },
+  pharmaceutical: {
+    complexity: 4,
+    inspection: 'low',
+    validation_months: 10,
+    cost_low: 8,
+    cost_base: 18,
+    cost_high: 30,
+  },
 };
 
-function resolveModalityCMCProfile(
-  productType: string,
-  mechanism?: string,
-): ModalityCMCProfile {
+function resolveModalityCMCProfile(productType: string, mechanism?: string): ModalityCMCProfile {
   const mechLower = (mechanism ?? '').toLowerCase();
   const ptLower = productType.toLowerCase();
 
@@ -980,11 +1840,7 @@ function resolveModalityCMCProfile(
   return MODALITY_CMC_COMPLEXITY.pharmaceutical;
 }
 
-function buildCMCRiskAssessment(
-  productType: string,
-  mechanism?: string,
-  developmentStage?: string,
-): CMCRiskAssessment {
+function buildCMCRiskAssessment(productType: string, mechanism?: string, developmentStage?: string): CMCRiskAssessment {
   const profile = resolveModalityCMCProfile(productType, mechanism);
   const mechLower = (mechanism ?? '').toLowerCase();
 
@@ -1013,7 +1869,12 @@ function buildCMCRiskAssessment(
     keyCMCRisks.push('Cell line productivity optimization');
     keyCMCRisks.push('Glycosylation profile consistency');
     keyCMCRisks.push('Process-related impurity clearance validation');
-  } else if (mechLower.includes('rna') || mechLower.includes('mrna') || mechLower.includes('sirna') || mechLower.includes('aso')) {
+  } else if (
+    mechLower.includes('rna') ||
+    mechLower.includes('mrna') ||
+    mechLower.includes('sirna') ||
+    mechLower.includes('aso')
+  ) {
     keyCMCRisks.push('LNP formulation consistency');
     keyCMCRisks.push('RNA integrity during scale-up');
     keyCMCRisks.push('Cold chain storage requirements');
@@ -1058,13 +1919,23 @@ function buildCMCRiskAssessment(
   }
 
   // ── Narrative ──
-  const modalityLabel = mechLower.includes('car-t') || mechLower.includes('car_t') ? 'CAR-T cell therapy'
-    : mechLower.includes('gene_therapy') || mechLower.includes('gene therapy') ? 'gene therapy'
-    : mechLower.includes('adc') || mechLower.includes('antibody-drug') ? 'antibody-drug conjugate (ADC)'
-    : mechLower.includes('bispecific') ? 'bispecific antibody'
-    : mechLower.includes('mrna') || mechLower.includes('rna') || mechLower.includes('sirna') || mechLower.includes('aso') ? 'RNA-based therapeutic'
-    : productType === 'biologic' ? 'biologic (monoclonal antibody)'
-    : 'small molecule pharmaceutical';
+  const modalityLabel =
+    mechLower.includes('car-t') || mechLower.includes('car_t')
+      ? 'CAR-T cell therapy'
+      : mechLower.includes('gene_therapy') || mechLower.includes('gene therapy')
+        ? 'gene therapy'
+        : mechLower.includes('adc') || mechLower.includes('antibody-drug')
+          ? 'antibody-drug conjugate (ADC)'
+          : mechLower.includes('bispecific')
+            ? 'bispecific antibody'
+            : mechLower.includes('mrna') ||
+                mechLower.includes('rna') ||
+                mechLower.includes('sirna') ||
+                mechLower.includes('aso')
+              ? 'RNA-based therapeutic'
+              : productType === 'biologic'
+                ? 'biologic (monoclonal antibody)'
+                : 'small molecule pharmaceutical';
 
   const narrative =
     `CMC complexity for ${modalityLabel}: ${profile.complexity}/10. ` +
@@ -1089,9 +1960,7 @@ function buildCMCRiskAssessment(
 // MAIN ANALYSIS FUNCTION
 // ────────────────────────────────────────────────────────────
 
-export async function analyzeRegulatory(
-  input: RegulatoryAnalysisInput,
-): Promise<RegulatoryOutput> {
+export async function analyzeRegulatory(input: RegulatoryAnalysisInput): Promise<RegulatoryOutput> {
   const primaryAgency = input.geography[0] ?? 'FDA';
 
   // 1. Recommend pathway
@@ -1136,9 +2005,7 @@ export async function analyzeRegulatory(
   const surrogates = VALIDATED_SURROGATES[therapyArea.toLowerCase()] ?? [];
 
   // 10. Filing sequence
-  const filingSequence = input.geography.length > 1
-    ? recommendFilingSequence(input)
-    : undefined;
+  const filingSequence = input.geography.length > 1 ? recommendFilingSequence(input) : undefined;
 
   // 11. Development cost estimate
   const costEstimate = estimateDevelopmentCosts(
@@ -1155,11 +2022,7 @@ export async function analyzeRegulatory(
   const surrogateStrengthMatrix = buildSurrogateStrengthMatrix(therapyArea);
 
   // 14. Precedent trial designs
-  const precedentTrialDesigns = findPrecedentTrialDesigns(
-    input.indication,
-    therapyArea,
-    input.mechanism,
-  );
+  const precedentTrialDesigns = findPrecedentTrialDesigns(input.indication, therapyArea, input.mechanism);
 
   // 15. Trial design recommendation (uses precedent results + available surrogates)
   const trialDesignRecommendation = buildTrialDesignRecommendation(
@@ -1172,18 +2035,15 @@ export async function analyzeRegulatory(
   const labelScopeScenarios = buildLabelScopeScenarios(input, comparables);
 
   // 17. CMC risk assessment
-  const cmcRisk = buildCMCRiskAssessment(
-    input.product_type,
-    input.mechanism,
-    input.development_stage,
-  );
+  const cmcRisk = buildCMCRiskAssessment(input.product_type, input.mechanism, input.development_stage);
 
   // 11b. Add CRL risk from AdCom model if significant
   if (advisoryCommitteeModel.crl_probability_pct >= 15) {
     risks.push({
       risk: `Complete Response Letter (CRL) probability estimated at ${advisoryCommitteeModel.crl_probability_pct}%. ${advisoryCommitteeModel.crl_probability_pct >= 25 ? 'This is above the industry average and represents a significant regulatory risk.' : 'This is within the normal range but warrants proactive mitigation.'} Advisory committee meeting probability: ${advisoryCommitteeModel.adcom_probability_pct}%.`,
       severity: advisoryCommitteeModel.crl_probability_pct >= 25 ? 'high' : 'medium',
-      mitigation: 'Conduct mock advisory committee with external KOLs 6 months before anticipated PDUFA date. Develop comprehensive benefit-risk framework. Ensure post-marketing commitments are well-defined. Consider proactive FDA engagement via Type A meeting if safety signals emerge.',
+      mitigation:
+        'Conduct mock advisory committee with external KOLs 6 months before anticipated PDUFA date. Develop comprehensive benefit-risk framework. Ensure post-marketing commitments are well-defined. Consider proactive FDA engagement via Type A meeting if safety signals emerge.',
     });
   }
 
@@ -1219,9 +2079,7 @@ export async function analyzeRegulatory(
 // PATHWAY RECOMMENDATION
 // ────────────────────────────────────────────────────────────
 
-function mapProductType(
-  pt: RegulatoryAnalysisInput['product_type'],
-): RegulatoryPathwayDefinition['product_type'] {
+function mapProductType(pt: RegulatoryAnalysisInput['product_type']): RegulatoryPathwayDefinition['product_type'] {
   switch (pt) {
     case 'pharmaceutical':
       return 'pharma';
@@ -1243,24 +2101,19 @@ function recommendPathway(
   const productType = mapProductType(input.product_type);
 
   // Filter pathways by agency and product type
-  let candidates = REGULATORY_PATHWAYS.filter(
-    (p) => p.agency === agency && p.product_type === productType,
-  );
+  let candidates = REGULATORY_PATHWAYS.filter((p) => p.agency === agency && p.product_type === productType);
 
   // Also include special designations for this agency
   const designationPaths = REGULATORY_PATHWAYS.filter(
     (p) =>
       p.agency === agency &&
       p.product_type === 'pharma' &&
-      (p.pathway.includes('Orphan') ||
-        p.pathway.includes('Rare Pediatric')),
+      (p.pathway.includes('Orphan') || p.pathway.includes('Rare Pediatric')),
   );
 
   if (candidates.length === 0) {
     // Fall back to pharma pathways for the agency
-    candidates = REGULATORY_PATHWAYS.filter(
-      (p) => p.agency === agency && p.product_type === 'pharma',
-    );
+    candidates = REGULATORY_PATHWAYS.filter((p) => p.agency === agency && p.product_type === 'pharma');
   }
 
   // Score each candidate
@@ -1284,10 +2137,7 @@ function recommendPathway(
   };
 }
 
-function scorePathway(
-  pathway: RegulatoryPathwayDefinition,
-  input: RegulatoryAnalysisInput,
-): number {
+function scorePathway(pathway: RegulatoryPathwayDefinition, input: RegulatoryAnalysisInput): number {
   let score = 0;
 
   // Base: prefer higher success rates
@@ -1312,26 +2162,17 @@ function scorePathway(
   }
 
   // Biologics should prefer BLA
-  if (
-    input.product_type === 'biologic' &&
-    pathway.pathway.includes('BLA')
-  ) {
+  if (input.product_type === 'biologic' && pathway.pathway.includes('BLA')) {
     score += 20;
   }
 
   // Penalize BLA for small molecules (not biologics)
-  if (
-    input.product_type === 'pharmaceutical' &&
-    pathway.pathway.includes('BLA')
-  ) {
+  if (input.product_type === 'pharmaceutical' && pathway.pathway.includes('BLA')) {
     score -= 20;
   }
 
   // Standard NDA is baseline for pharma
-  if (
-    input.product_type === 'pharmaceutical' &&
-    pathway.pathway === 'Standard NDA'
-  ) {
+  if (input.product_type === 'pharmaceutical' && pathway.pathway === 'Standard NDA') {
     score += 10;
   }
 
@@ -1432,14 +2273,19 @@ function buildPathwayRationale(
 // INDICATION-SPECIFIC TIMELINE MODIFIERS
 // ────────────────────────────────────────────────────────────
 
-const THERAPY_AREA_TIMELINE_MODIFIERS: Record<string, { optimistic: number; realistic: number; pessimistic: number }> = {
-  oncology: { optimistic: -6, realistic: -3, pessimistic: 0 },
-  neurology: { optimistic: 6, realistic: 12, pessimistic: 18 },
-  rare_disease: { optimistic: -3, realistic: 0, pessimistic: 12 },
-  cardiovascular: { optimistic: 6, realistic: 6, pessimistic: 12 },
-};
+const THERAPY_AREA_TIMELINE_MODIFIERS: Record<string, { optimistic: number; realistic: number; pessimistic: number }> =
+  {
+    oncology: { optimistic: -6, realistic: -3, pessimistic: 0 },
+    neurology: { optimistic: 6, realistic: 12, pessimistic: 18 },
+    rare_disease: { optimistic: -3, realistic: 0, pessimistic: 12 },
+    cardiovascular: { optimistic: 6, realistic: 6, pessimistic: 12 },
+  };
 
-function getTherapyAreaTimelineModifier(indication: string): { optimistic: number; realistic: number; pessimistic: number } {
+function getTherapyAreaTimelineModifier(indication: string): {
+  optimistic: number;
+  realistic: number;
+  pessimistic: number;
+} {
   const text = indication.toLowerCase();
   if (/cancer|carcinoma|lymphoma|leukemia|melanoma|sarcoma|glioma|myeloma|tumor|nsclc|sclc|hcc|rcc/.test(text)) {
     return THERAPY_AREA_TIMELINE_MODIFIERS.oncology;
@@ -1457,7 +2303,10 @@ function getTherapyAreaTimelineModifier(indication: string): { optimistic: numbe
 // TIMELINE ESTIMATION
 // ────────────────────────────────────────────────────────────
 
-const STAGE_TO_REMAINING_MONTHS: Record<DevelopmentStage, { optimistic: number; realistic: number; pessimistic: number }> = {
+const STAGE_TO_REMAINING_MONTHS: Record<
+  DevelopmentStage,
+  { optimistic: number; realistic: number; pessimistic: number }
+> = {
   preclinical: { optimistic: 60, realistic: 84, pessimistic: 120 },
   phase1: { optimistic: 42, realistic: 60, pessimistic: 84 },
   phase2: { optimistic: 24, realistic: 42, pessimistic: 60 },
@@ -1501,18 +2350,9 @@ function estimateTimeline(
   // Add review time
   const reviewMonths = primaryPathway.typical_review_months;
 
-  const totalOptimistic = Math.max(
-    0,
-    baseTimeline.optimistic + optimisticAdj + reviewMonths,
-  );
-  const totalRealistic = Math.max(
-    0,
-    baseTimeline.realistic + realisticAdj + reviewMonths,
-  );
-  const totalPessimistic = Math.max(
-    0,
-    baseTimeline.pessimistic + pessimisticAdj + reviewMonths,
-  );
+  const totalOptimistic = Math.max(0, baseTimeline.optimistic + optimisticAdj + reviewMonths);
+  const totalRealistic = Math.max(0, baseTimeline.realistic + realisticAdj + reviewMonths);
+  const totalPessimistic = Math.max(0, baseTimeline.pessimistic + pessimisticAdj + reviewMonths);
 
   // Build milestone estimates based on current stage
   const now = new Date();
@@ -1567,19 +2407,11 @@ function addMonths(date: Date, months: number): Date {
 // DESIGNATION ELIGIBILITY SCORING
 // ────────────────────────────────────────────────────────────
 
-function scoreDesignations(
-  input: RegulatoryAnalysisInput,
-  agency: RegulatoryAgency,
-): DesignationOpportunity[] {
-  const relevantDesignations = DESIGNATION_DEFINITIONS.filter(
-    (d) => d.agency === agency,
-  );
+function scoreDesignations(input: RegulatoryAnalysisInput, agency: RegulatoryAgency): DesignationOpportunity[] {
+  const relevantDesignations = DESIGNATION_DEFINITIONS.filter((d) => d.agency === agency);
 
   return relevantDesignations.map((def) => {
-    const { eligibility, criteriaMet, criteriaUnmet } = assessEligibility(
-      def,
-      input,
-    );
+    const { eligibility, criteriaMet, criteriaUnmet } = assessEligibility(def, input);
 
     let timeSavings: string | undefined;
     if (def.typical_timeline_reduction_months > 0) {
@@ -1706,9 +2538,16 @@ function assessEligibility(
       // Check for validated surrogates in this therapy area
       const ta = indicationData?.therapy_area?.toLowerCase() ?? '';
       const surrogatesForTA = VALIDATED_SURROGATES[ta] ?? [];
-      const validatedSurrogates = surrogatesForTA.filter(s => s.status === 'validated' || s.status === 'reasonably_likely');
+      const validatedSurrogates = surrogatesForTA.filter(
+        (s) => s.status === 'validated' || s.status === 'reasonably_likely',
+      );
       if (validatedSurrogates.length > 0) {
-        criteriaMet.push(`${validatedSurrogates.length} validated/reasonably-likely surrogate endpoint(s) available for ${ta} (${validatedSurrogates.map(s => s.endpoint).slice(0, 2).join(', ')})`);
+        criteriaMet.push(
+          `${validatedSurrogates.length} validated/reasonably-likely surrogate endpoint(s) available for ${ta} (${validatedSurrogates
+            .map((s) => s.endpoint)
+            .slice(0, 2)
+            .join(', ')})`,
+        );
         score += 15;
       } else if (indicationData && indicationData.therapy_area === 'oncology') {
         criteriaMet.push('Oncology indications frequently use surrogate endpoints (ORR, PFS)');
@@ -1741,7 +2580,9 @@ function assessEligibility(
         criteriaMet.push('Product may qualify as regenerative medicine therapy');
         score += 25;
       } else {
-        criteriaUnmet.push('RMAT designation requires a regenerative medicine therapy (cell, gene, tissue engineering)');
+        criteriaUnmet.push(
+          'RMAT designation requires a regenerative medicine therapy (cell, gene, tissue engineering)',
+        );
         score -= 30;
       }
       if (isSeriousCondition) {
@@ -1810,16 +2651,12 @@ function assessEligibility(
 // COMPARABLE APPROVALS
 // ────────────────────────────────────────────────────────────
 
-function findComparableApprovals(
-  input: RegulatoryAnalysisInput,
-): ComparableApproval[] {
+function findComparableApprovals(input: RegulatoryAnalysisInput): ComparableApproval[] {
   const indicationData = findIndicationData(input.indication);
   const therapyArea = indicationData?.therapy_area ?? '';
 
   // Find by therapy area first
-  let matches = COMPARABLE_APPROVALS.filter(
-    (a) => a.therapy_area.toLowerCase() === therapyArea.toLowerCase(),
-  );
+  let matches = COMPARABLE_APPROVALS.filter((a) => a.therapy_area.toLowerCase() === therapyArea.toLowerCase());
 
   // If not enough matches, broaden to all
   if (matches.length < 3) {
@@ -1887,9 +2724,7 @@ function formatComparable(record: ComparableApprovalRecord): ComparableApproval 
     ind_to_bla_months: record.total_development_months - record.review_months,
     review_months: record.review_months,
     approval_year: record.approval_year,
-    accelerated:
-      record.pathway.includes('Accelerated') ||
-      record.designations.includes('Accelerated Approval'),
+    accelerated: record.pathway.includes('Accelerated') || record.designations.includes('Accelerated Approval'),
   };
 }
 
@@ -1897,10 +2732,7 @@ function formatComparable(record: ComparableApprovalRecord): ComparableApproval 
 // RISK ASSESSMENT
 // ────────────────────────────────────────────────────────────
 
-function assessRisks(
-  input: RegulatoryAnalysisInput,
-  primaryPathway: RegulatoryPathway,
-): RegulatoryRisk[] {
+function assessRisks(input: RegulatoryAnalysisInput, primaryPathway: RegulatoryPathway): RegulatoryRisk[] {
   const risks: RegulatoryRisk[] = [];
 
   // Clinical data risks
@@ -1908,7 +2740,8 @@ function assessRisks(
     risks.push({
       risk: 'Early-stage development: limited clinical data increases regulatory uncertainty. Pivotal trial design may change substantially based on early results.',
       severity: 'high',
-      mitigation: 'Engage FDA via Pre-IND meeting (Type B) and End-of-Phase 2 meeting to align on pivotal trial design, endpoints, and patient population before committing to Phase 3.',
+      mitigation:
+        'Engage FDA via Pre-IND meeting (Type B) and End-of-Phase 2 meeting to align on pivotal trial design, endpoints, and patient population before committing to Phase 3.',
     });
   }
 
@@ -1917,7 +2750,8 @@ function assessRisks(
     risks.push({
       risk: 'Accelerated Approval requires post-marketing confirmatory trial. Under FDORA 2022, FDA has strengthened enforcement and expedited withdrawal authority if confirmatory trial fails.',
       severity: 'high',
-      mitigation: 'Design confirmatory trial protocol before filing for Accelerated Approval. Ensure statistical plan and enrollment feasibility are robust. Consider initiating confirmatory trial before approval.',
+      mitigation:
+        'Design confirmatory trial protocol before filing for Accelerated Approval. Ensure statistical plan and enrollment feasibility are robust. Consider initiating confirmatory trial before approval.',
     });
   }
 
@@ -1926,7 +2760,8 @@ function assessRisks(
     risks.push({
       risk: 'Biologic manufacturing complexity: pre-approval inspection (PAI) failures can delay approval by 6-12 months. Immunogenicity risk may require extensive characterization.',
       severity: 'medium',
-      mitigation: 'Begin manufacturing process validation early. Ensure CMC package is submission-ready before BLA filing. Conduct pre-PAI readiness assessments.',
+      mitigation:
+        'Begin manufacturing process validation early. Ensure CMC package is submission-ready before BLA filing. Conduct pre-PAI readiness assessments.',
     });
   }
 
@@ -1935,7 +2770,8 @@ function assessRisks(
     risks.push({
       risk: 'FDA Advisory Committee (AdCom) meeting is likely for this product profile. Unfavorable AdCom vote can delay or prevent approval, even though FDA is not bound by the vote.',
       severity: 'medium',
-      mitigation: 'Prepare comprehensive AdCom briefing document. Conduct mock advisory committee with external KOLs. Develop patient advocacy support strategy.',
+      mitigation:
+        'Prepare comprehensive AdCom briefing document. Conduct mock advisory committee with external KOLs. Develop patient advocacy support strategy.',
     });
   }
 
@@ -1944,7 +2780,8 @@ function assessRisks(
     risks.push({
       risk: 'Low unmet medical need: FDA may require larger comparative trials rather than single-arm studies. Active comparator trial design increases cost, timeline, and regulatory complexity.',
       severity: 'medium',
-      mitigation: 'Conduct thorough competitive landscape analysis. Consider biomarker-selected patient population to demonstrate superiority in a subgroup even if non-inferior overall.',
+      mitigation:
+        'Conduct thorough competitive landscape analysis. Consider biomarker-selected patient population to demonstrate superiority in a subgroup even if non-inferior overall.',
     });
   }
 
@@ -1953,7 +2790,8 @@ function assessRisks(
     risks.push({
       risk: 'Rare disease clinical trial enrollment: small patient population makes recruitment challenging. Single-arm studies may face FDA pushback on external controls.',
       severity: 'medium',
-      mitigation: 'Establish global clinical trial network with rare disease centers of excellence. Consider natural history study to establish external control arm. Leverage patient registries for enrollment.',
+      mitigation:
+        'Establish global clinical trial network with rare disease centers of excellence. Consider natural history study to establish external control arm. Leverage patient registries for enrollment.',
     });
   }
 
@@ -1962,7 +2800,8 @@ function assessRisks(
     risks.push({
       risk: 'Medical device development uncertainty: predicate device identification (510k) or novel classification (De Novo) may change during FDA engagement. IDE clinical trial design may require modification.',
       severity: 'medium',
-      mitigation: 'Submit Pre-Submission (Q-Sub) to FDA early. Clearly define intended use and indications for use. Identify predicate devices and prepare substantial equivalence arguments before formal submission.',
+      mitigation:
+        'Submit Pre-Submission (Q-Sub) to FDA early. Clearly define intended use and indications for use. Identify predicate devices and prepare substantial equivalence arguments before formal submission.',
     });
   }
 
@@ -1970,14 +2809,16 @@ function assessRisks(
   risks.push({
     risk: 'Evolving regulatory landscape: FDA guidance documents, review division reorganizations, and policy changes (e.g., FDA user fee reauthorization, FDORA provisions) may affect the review pathway or requirements.',
     severity: 'low',
-    mitigation: 'Maintain ongoing regulatory intelligence monitoring. Engage external regulatory consultants familiar with the relevant review division. Participate in industry trade group regulatory policy discussions.',
+    mitigation:
+      'Maintain ongoing regulatory intelligence monitoring. Engage external regulatory consultants familiar with the relevant review division. Participate in industry trade group regulatory policy discussions.',
   });
 
   // Labeling/commercial risk
   risks.push({
     risk: 'Label negotiation: FDA-approved labeling may be narrower than desired (restricted indication, boxed warning, REMS requirement), limiting commercial potential.',
     severity: 'medium',
-    mitigation: 'Negotiate labeling early in the review process. Design clinical program to support broadest possible label. Consider post-marketing commitments to expand indications.',
+    mitigation:
+      'Negotiate labeling early in the review process. Design clinical program to support broadest possible label. Consider post-marketing commitments to expand indications.',
   });
 
   return risks;
@@ -1988,26 +2829,23 @@ function assessRisks(
 // Warns when competitive landscape creates regulatory challenges
 // ────────────────────────────────────────────────────────────
 
-function assessCompetitiveCrowdingRisks(
-  input: RegulatoryAnalysisInput,
-): RegulatoryRisk[] {
+function assessCompetitiveCrowdingRisks(input: RegulatoryAnalysisInput): RegulatoryRisk[] {
   const risks: RegulatoryRisk[] = [];
 
   try {
     const competitors = getCompetitorsForIndication(input.indication);
     if (competitors.length === 0) return risks;
 
-    const approved = competitors.filter(c => c.phase === 'Approved');
-    const lateStage = competitors.filter(
-      c => c.phase === 'Phase 3' || c.phase === 'Phase 2/3'
-    );
+    const approved = competitors.filter((c) => c.phase === 'Approved');
+    const lateStage = competitors.filter((c) => c.phase === 'Phase 3' || c.phase === 'Phase 2/3');
 
     // ≥3 approved products: warn about active-comparator requirements
     if (approved.length >= 3) {
       risks.push({
         risk: `Crowded approved market (${approved.length} approved products): FDA may require active-comparator controlled trials rather than placebo-controlled studies. This increases trial cost, complexity, and risk of a negative outcome.`,
         severity: approved.length >= 5 ? 'high' : 'medium',
-        mitigation: 'Consider superiority trial design in a biomarker-selected subgroup, or demonstrate clinically meaningful advantages on patient-relevant endpoints (safety, convenience, tolerability) to differentiate from standard of care.',
+        mitigation:
+          'Consider superiority trial design in a biomarker-selected subgroup, or demonstrate clinically meaningful advantages on patient-relevant endpoints (safety, convenience, tolerability) to differentiate from standard of care.',
       });
     }
 
@@ -2016,7 +2854,8 @@ function assessCompetitiveCrowdingRisks(
       risks.push({
         risk: `Pipeline congestion (${lateStage.length} late-stage programs): Multiple competitors may reach market around the same time, potentially affecting commercial viability and FDA's assessment of unmet need for expedited designations.`,
         severity: 'medium',
-        mitigation: 'Accelerate development timeline to establish first-mover advantage. Differentiate through patient selection strategy, unique endpoints, or combination approach.',
+        mitigation:
+          'Accelerate development timeline to establish first-mover advantage. Differentiate through patient selection strategy, unique endpoints, or combination approach.',
       });
     }
   } catch {
@@ -2030,25 +2869,16 @@ function assessCompetitiveCrowdingRisks(
 // HELPER FUNCTIONS
 // ────────────────────────────────────────────────────────────
 
-function findIndicationData(
-  indication: string,
-): (typeof INDICATION_DATA)[number] | undefined {
+function findIndicationData(indication: string): (typeof INDICATION_DATA)[number] | undefined {
   const normalized = indication.toLowerCase();
   return INDICATION_DATA.find(
-    (ind) =>
-      ind.name.toLowerCase() === normalized ||
-      ind.synonyms.some((s) => s.toLowerCase() === normalized),
+    (ind) => ind.name.toLowerCase() === normalized || ind.synonyms.some((s) => s.toLowerCase() === normalized),
   );
 }
 
-function getReviewDivision(
-  input: RegulatoryAnalysisInput,
-  agency: RegulatoryAgency,
-): string {
+function getReviewDivision(input: RegulatoryAnalysisInput, agency: RegulatoryAgency): string {
   if (agency !== 'FDA') {
-    return agency === 'EMA'
-      ? 'CHMP (Committee for Medicinal Products for Human Use)'
-      : 'PMDA Review Division';
+    return agency === 'EMA' ? 'CHMP (Committee for Medicinal Products for Human Use)' : 'PMDA Review Division';
   }
 
   const indicationData = findIndicationData(input.indication);
@@ -2070,7 +2900,8 @@ function getReviewDivision(
   if (ta === 'neurology') return 'CDER - Office of Neuroscience';
   if (ta === 'immunology' || ta === 'autoimmune') return 'CDER - Office of Immunology and Inflammation';
   if (ta === 'rare_disease') return 'CDER - Office of Rare Diseases, Pediatrics, Urologic and Reproductive Medicine';
-  if (ta === 'cardiology' || ta === 'cardiovascular') return 'CDER - Office of Cardiology, Hematology, Endocrinology, and Nephrology';
+  if (ta === 'cardiology' || ta === 'cardiovascular')
+    return 'CDER - Office of Cardiology, Hematology, Endocrinology, and Nephrology';
   if (ta === 'metabolic') return 'CDER - Office of Cardiology, Hematology, Endocrinology, and Nephrology';
   if (ta === 'infectious_disease') return 'CDER - Office of Infectious Diseases';
   if (ta === 'ophthalmology') return 'CDER - Office of Immunology and Inflammation';
@@ -2144,15 +2975,12 @@ function getDataSources(): DataSource[] {
 // returns top 8 sorted by score.
 // ────────────────────────────────────────────────────────────
 
-export function findPredicateDevices(
-  deviceCategory: DeviceCategory,
-  intendedUse: string,
-): PredicateDeviceRecord[] {
+export function findPredicateDevices(deviceCategory: DeviceCategory, intendedUse: string): PredicateDeviceRecord[] {
   // Split intended use into keyword tokens for the predicate search
   const intendedUseKeywords = intendedUse
     .toLowerCase()
     .split(/[\s,;.\/\-]+/)
-    .filter(w => w.length > 3);
+    .filter((w) => w.length > 3);
 
   const allPredicates = [
     ...findPredicatesByCategory(deviceCategory),
@@ -2171,12 +2999,10 @@ export function findPredicateDevices(
   }
 
   const intendedUseLower = intendedUse.toLowerCase();
-  const useKeywords = intendedUseLower
-    .split(/[\s,;.\/\-]+/)
-    .filter(w => w.length > 3);
+  const useKeywords = intendedUseLower.split(/[\s,;.\/\-]+/).filter((w) => w.length > 3);
   const currentYear = new Date().getFullYear();
 
-  const scored = unique.map(predicate => {
+  const scored = unique.map((predicate) => {
     let score = 0;
 
     // Exact category match: +10
@@ -2208,7 +3034,7 @@ export function findPredicateDevices(
 
   scored.sort((a, b) => b.score - a.score);
 
-  return scored.slice(0, 8).map(s => s.predicate);
+  return scored.slice(0, 8).map((s) => s.predicate);
 }
 
 // ────────────────────────────────────────────────────────────
@@ -2374,14 +3200,46 @@ const DEVICE_PRIMARY_ENDPOINTS: Record<string, string> = {
 };
 
 const DEVICE_STUDY_RISKS: Record<string, string[]> = {
-  cardiovascular: ['High adverse event rate requiring DSMB oversight', 'Sham procedure ethical concerns', 'Long-term follow-up attrition for implant durability'],
-  orthopedic: ['Surgeon learning curve confounding early outcomes', 'Long follow-up required for implant longevity (minimum 2 years)', 'Crossover from control to treatment arm'],
-  neurology: ['Sham surgery ethics in device trials', 'High placebo response rate', 'Endpoint variability and subjective assessment bias'],
-  ophthalmology: ['Contralateral eye as control raises statistical issues', 'Masking challenges with device procedures', 'Variable natural history complicating endpoint assessment'],
-  diabetes_metabolic: ['Sensor accuracy variability across glucose ranges', 'Real-world vs. controlled-setting performance gap', 'Insulin dosing confounders'],
-  ivd_oncology: ['Specimen quality variability affecting assay performance', 'Evolving molecular classification during study', 'Clinical utility vs. analytical validity distinction'],
-  general_surgery: ['Surgeon variability in procedural outcomes', 'Standardization of surgical technique across sites', 'Short-term endpoints may not predict long-term safety'],
-  default: ['Enrollment competition with other device trials', 'Site variability in procedural technique', 'Regulatory endpoint alignment with commercial value proposition'],
+  cardiovascular: [
+    'High adverse event rate requiring DSMB oversight',
+    'Sham procedure ethical concerns',
+    'Long-term follow-up attrition for implant durability',
+  ],
+  orthopedic: [
+    'Surgeon learning curve confounding early outcomes',
+    'Long follow-up required for implant longevity (minimum 2 years)',
+    'Crossover from control to treatment arm',
+  ],
+  neurology: [
+    'Sham surgery ethics in device trials',
+    'High placebo response rate',
+    'Endpoint variability and subjective assessment bias',
+  ],
+  ophthalmology: [
+    'Contralateral eye as control raises statistical issues',
+    'Masking challenges with device procedures',
+    'Variable natural history complicating endpoint assessment',
+  ],
+  diabetes_metabolic: [
+    'Sensor accuracy variability across glucose ranges',
+    'Real-world vs. controlled-setting performance gap',
+    'Insulin dosing confounders',
+  ],
+  ivd_oncology: [
+    'Specimen quality variability affecting assay performance',
+    'Evolving molecular classification during study',
+    'Clinical utility vs. analytical validity distinction',
+  ],
+  general_surgery: [
+    'Surgeon variability in procedural outcomes',
+    'Standardization of surgical technique across sites',
+    'Short-term endpoints may not predict long-term safety',
+  ],
+  default: [
+    'Enrollment competition with other device trials',
+    'Site variability in procedural technique',
+    'Regulatory endpoint alignment with commercial value proposition',
+  ],
 };
 
 const DEVICE_FDA_GUIDANCES: Record<string, string[]> = {
@@ -2483,7 +3341,8 @@ export function buildDeviceClinicalEvidenceStrategy(
   const spec: DeviceEvidenceSpec = pathwayReqs[productKey] ?? pathwayReqs['default'];
 
   // Get primary endpoint for this device category
-  const primaryEndpoint = DEVICE_PRIMARY_ENDPOINTS[deviceCategory] ?? 'Primary clinical endpoint per FDA device-specific guidance';
+  const primaryEndpoint =
+    DEVICE_PRIMARY_ENDPOINTS[deviceCategory] ?? 'Primary clinical endpoint per FDA device-specific guidance';
 
   // Get study risks
   const studyRisks = DEVICE_STUDY_RISKS[deviceCategory] ?? DEVICE_STUDY_RISKS['default'];
@@ -2511,15 +3370,16 @@ export function buildDeviceClinicalEvidenceStrategy(
   }
 
   // Build study rationale
-  const rationaleStr = pathwayKey === '510(k) Clearance' && spec.sample_size.base === 0
-    ? `For 510(k) clearance of this ${deviceCategory} device, bench testing and biocompatibility data are expected to be sufficient to demonstrate substantial equivalence to the predicate device. Clinical data may be required only if the predicate comparison reveals meaningful differences in technology, materials, or intended use.`
-    : pathwayKey === 'HDE (Humanitarian Device Exemption)'
-    ? `HDE pathway requires demonstration of probable benefit with safety data. Given the small patient population (<8,000/yr), a feasibility study of ${spec.sample_size.low}-${spec.sample_size.high} patients with safety as the primary endpoint is the standard approach. IRB approval at each institution is required for use.`
-    : `${spec.study_type} is recommended based on FDA precedent for ${deviceCategory} devices pursuing ${pathwayKey}. ` +
-      `Estimated enrollment of ${spec.sample_size.base} patients over ${spec.enrollment_months} months with ${spec.follow_up_months}-month follow-up. ` +
-      `Primary endpoint: ${primaryEndpoint}. ` +
-      `Estimated study cost: $${spec.cost_m.low}M-$${spec.cost_m.high}M (base: $${spec.cost_m.base}M). ` +
-      `Pre-Submission (Q-Sub) meeting with FDA is strongly recommended to align on study design, primary endpoint, and acceptance criteria before trial initiation.`;
+  const rationaleStr =
+    pathwayKey === '510(k) Clearance' && spec.sample_size.base === 0
+      ? `For 510(k) clearance of this ${deviceCategory} device, bench testing and biocompatibility data are expected to be sufficient to demonstrate substantial equivalence to the predicate device. Clinical data may be required only if the predicate comparison reveals meaningful differences in technology, materials, or intended use.`
+      : pathwayKey === 'HDE (Humanitarian Device Exemption)'
+        ? `HDE pathway requires demonstration of probable benefit with safety data. Given the small patient population (<8,000/yr), a feasibility study of ${spec.sample_size.low}-${spec.sample_size.high} patients with safety as the primary endpoint is the standard approach. IRB approval at each institution is required for use.`
+        : `${spec.study_type} is recommended based on FDA precedent for ${deviceCategory} devices pursuing ${pathwayKey}. ` +
+          `Estimated enrollment of ${spec.sample_size.base} patients over ${spec.enrollment_months} months with ${spec.follow_up_months}-month follow-up. ` +
+          `Primary endpoint: ${primaryEndpoint}. ` +
+          `Estimated study cost: $${spec.cost_m.low}M-$${spec.cost_m.high}M (base: $${spec.cost_m.base}M). ` +
+          `Pre-Submission (Q-Sub) meeting with FDA is strongly recommended to align on study design, primary endpoint, and acceptance criteria before trial initiation.`;
 
   return {
     recommended_study_type: spec.study_type,
@@ -2569,38 +3429,41 @@ interface IndicationScopeTemplate {
 const INDICATION_SCOPE_TEMPLATES: Record<string, IndicationScopeTemplate> = {
   '510(k) Clearance': {
     narrow: { multiplier_range: [0.5, 0.7], probability: 0.85, risk: 'low' },
-    base: { multiplier: 1.0, probability: 0.70, risk: 'moderate' },
-    broad: { multiplier_range: [1.3, 1.5], probability: 0.40, risk: 'high' },
+    base: { multiplier: 1.0, probability: 0.7, risk: 'moderate' },
+    broad: { multiplier_range: [1.3, 1.5], probability: 0.4, risk: 'high' },
   },
   'PMA (Premarket Approval)': {
-    narrow: { multiplier_range: [0.5, 0.7], probability: 0.90, risk: 'low' },
+    narrow: { multiplier_range: [0.5, 0.7], probability: 0.9, risk: 'low' },
     base: { multiplier: 1.0, probability: 0.65, risk: 'moderate' },
     broad: { multiplier_range: [1.3, 1.5], probability: 0.35, risk: 'high' },
   },
   'De Novo Classification': {
-    narrow: { multiplier_range: [0.4, 0.6], probability: 0.80, risk: 'low' },
-    base: { multiplier: 1.0, probability: 0.60, risk: 'moderate' },
-    broad: { multiplier_range: [1.5, 1.8], probability: 0.30, risk: 'high' },
+    narrow: { multiplier_range: [0.4, 0.6], probability: 0.8, risk: 'low' },
+    base: { multiplier: 1.0, probability: 0.6, risk: 'moderate' },
+    broad: { multiplier_range: [1.5, 1.8], probability: 0.3, risk: 'high' },
   },
   'HDE (Humanitarian Device Exemption)': {
-    narrow: { multiplier_range: [0.6, 0.8], probability: 0.90, risk: 'low' },
+    narrow: { multiplier_range: [0.6, 0.8], probability: 0.9, risk: 'low' },
     base: { multiplier: 1.0, probability: 0.75, risk: 'moderate' },
     broad: { multiplier_range: [1.2, 1.4], probability: 0.45, risk: 'high' },
   },
 };
 
 // Indication scope details per device category for realistic narratives
-const DEVICE_INDICATION_SCOPE_DETAILS: Record<string, {
-  narrow_indication: string;
-  narrow_population: string[];
-  narrow_settings: string[];
-  base_indication: string;
-  base_population: string[];
-  base_settings: string[];
-  broad_indication: string;
-  broad_population: string[];
-  broad_settings: string[];
-}> = {
+const DEVICE_INDICATION_SCOPE_DETAILS: Record<
+  string,
+  {
+    narrow_indication: string;
+    narrow_population: string[];
+    narrow_settings: string[];
+    base_indication: string;
+    base_population: string[];
+    base_settings: string[];
+    broad_indication: string;
+    broad_population: string[];
+    broad_settings: string[];
+  }
+> = {
   cardiovascular: {
     narrow_indication: 'Severe symptomatic aortic stenosis in patients at extreme/high surgical risk',
     narrow_population: ['Age ≥75', 'STS score ≥8%', 'Heart team determination of inoperability'],
@@ -2609,7 +3472,11 @@ const DEVICE_INDICATION_SCOPE_DETAILS: Record<string, {
     base_population: ['Adults with symptomatic severe AS', 'All surgical risk categories'],
     base_settings: ['Hospitals with structural heart programs', 'High-volume cardiac surgery centers'],
     broad_indication: 'Aortic stenosis including moderate AS and asymptomatic severe AS',
-    broad_population: ['All adults with severe AS', 'Expansion to moderate AS', 'Asymptomatic patients with LV dysfunction'],
+    broad_population: [
+      'All adults with severe AS',
+      'Expansion to moderate AS',
+      'Asymptomatic patients with LV dysfunction',
+    ],
     broad_settings: ['Community hospitals with catheterization labs', 'Ambulatory surgical centers'],
   },
   orthopedic: {
@@ -2715,8 +3582,8 @@ export function buildDeviceIndicationScopeScenarios(
     (pathwayKey === '510(k) Clearance'
       ? 'For 510(k), this means exact predicate match with single indication and specific population. Predicate chain is straightforward and review is expedited.'
       : pathwayKey === 'PMA (Premarket Approval)'
-      ? 'For PMA, biomarker-selected or single-site-of-care restriction ensures robust efficacy signal in pivotal trial but limits commercial potential.'
-      : 'Narrow scope minimizes regulatory risk and enables faster time to market.');
+        ? 'For PMA, biomarker-selected or single-site-of-care restriction ensures robust efficacy signal in pivotal trial but limits commercial potential.'
+        : 'Narrow scope minimizes regulatory risk and enables faster time to market.');
 
   // Build base scenario
   const baseNarrative =
@@ -2729,8 +3596,8 @@ export function buildDeviceIndicationScopeScenarios(
     (pathwayKey === '510(k) Clearance'
       ? 'For 510(k), slightly broader indication than predicate but within the same device category. Standard substantial equivalence argument.'
       : pathwayKey === 'PMA (Premarket Approval)'
-      ? 'For PMA, broad indication across multiple settings. Pivotal RCT must demonstrate safety and effectiveness in the intended population.'
-      : 'Standard indication scope aligned with clinical development program.');
+        ? 'For PMA, broad indication across multiple settings. Pivotal RCT must demonstrate safety and effectiveness in the intended population.'
+        : 'Standard indication scope aligned with clinical development program.');
 
   // Build broad scenario
   const broadNarrative =
@@ -2743,10 +3610,10 @@ export function buildDeviceIndicationScopeScenarios(
     (pathwayKey === '510(k) Clearance'
       ? 'For 510(k), this requires establishing a new predicate chain with expanded indications. FDA may request clinical data or reclassify the submission as De Novo.'
       : pathwayKey === 'PMA (Premarket Approval)'
-      ? 'For PMA, all-comers trial with expanded settings including ASCs and expanded operator credentials. Post-market study commitments likely required.'
-      : pathwayKey === 'De Novo Classification'
-      ? 'For De Novo, expansion to OTC or point-of-care use with expanded indications. Creates a new classification that competitors can reference.'
-      : 'Broad scope maximizes commercial potential but carries highest regulatory risk.');
+        ? 'For PMA, all-comers trial with expanded settings including ASCs and expanded operator credentials. Post-market study commitments likely required.'
+        : pathwayKey === 'De Novo Classification'
+          ? 'For De Novo, expansion to OTC or point-of-care use with expanded indications. Creates a new classification that competitors can reference.'
+          : 'Broad scope maximizes commercial potential but carries highest regulatory risk.');
 
   return [
     {
@@ -2831,11 +3698,7 @@ const DEVICE_MANUFACTURING_PROFILES: Record<string, ManufacturingProfile> = {
     sterilization_method: 'Ethylene oxide (EtO)',
     sterilization_risk: 'moderate',
     validation_months: 12,
-    biocompat_tests: [
-      'Cytotoxicity (ISO 10993-5)',
-      'Sensitization (ISO 10993-10)',
-      'Irritation (ISO 10993-23)',
-    ],
+    biocompat_tests: ['Cytotoxicity (ISO 10993-5)', 'Sensitization (ISO 10993-10)', 'Irritation (ISO 10993-23)'],
     iso_standards: ['ISO 13485', 'ISO 14971', 'IEC 60601-1 (electrical safety, if applicable)'],
     cogs_range: { low_pct: 20, high_pct: 40 },
     scale_up_challenges: [
@@ -2882,7 +3745,13 @@ const DEVICE_MANUFACTURING_PROFILES: Record<string, ManufacturingProfile> = {
       'Hemocompatibility (ISO 10993-4)',
       'Drug-device interaction testing',
     ],
-    iso_standards: ['ISO 13485', 'ISO 10993 series', 'ISO 14971', 'ICH Q8/Q9 (drug substance)', '21 CFR 4 (combination products)'],
+    iso_standards: [
+      'ISO 13485',
+      'ISO 10993 series',
+      'ISO 14971',
+      'ICH Q8/Q9 (drug substance)',
+      '21 CFR 4 (combination products)',
+    ],
     cogs_range: { low_pct: 20, high_pct: 40 },
     scale_up_challenges: [
       'Combination product regulatory complexity (CDER/CDRH jurisdiction)',
@@ -2900,7 +3769,12 @@ const DEVICE_MANUFACTURING_PROFILES: Record<string, ManufacturingProfile> = {
     sterilization_risk: 'low',
     validation_months: 6,
     biocompat_tests: [],
-    iso_standards: ['IEC 62304 (software lifecycle)', 'ISO 14971', 'IEC 82304 (health software)', 'ISO 13485 (if hardware component)'],
+    iso_standards: [
+      'IEC 62304 (software lifecycle)',
+      'ISO 14971',
+      'IEC 82304 (health software)',
+      'ISO 13485 (if hardware component)',
+    ],
     cogs_range: { low_pct: 5, high_pct: 15 },
     scale_up_challenges: [
       'Cybersecurity compliance (FDA premarket cybersecurity guidance)',
@@ -2935,9 +3809,7 @@ const DEVICE_MANUFACTURING_PROFILES: Record<string, ManufacturingProfile> = {
     sterilization_method: 'Gamma radiation for reagent cartridges',
     sterilization_risk: 'moderate',
     validation_months: 10,
-    biocompat_tests: [
-      'Cytotoxicity (ISO 10993-5) — for specimen-contact components',
-    ],
+    biocompat_tests: ['Cytotoxicity (ISO 10993-5) — for specimen-contact components'],
     iso_standards: ['ISO 13485', 'ISO 14971', 'ISO 15197 (glucose monitoring)', 'CLSI EP (evaluation protocols)'],
     cogs_range: { low_pct: 15, high_pct: 30 },
     scale_up_challenges: [
@@ -2955,7 +3827,12 @@ const DEVICE_MANUFACTURING_PROFILES: Record<string, ManufacturingProfile> = {
     sterilization_risk: 'low',
     validation_months: 12,
     biocompat_tests: [],
-    iso_standards: ['ISO 13485', 'ISO 14971', 'ISO 23640 (IVD performance evaluation)', 'CLSI EP (evaluation protocols)'],
+    iso_standards: [
+      'ISO 13485',
+      'ISO 14971',
+      'ISO 23640 (IVD performance evaluation)',
+      'CLSI EP (evaluation protocols)',
+    ],
     cogs_range: { low_pct: 10, high_pct: 25 },
     scale_up_challenges: [
       'Reagent lot-to-lot consistency and stability',
@@ -3055,9 +3932,7 @@ export function buildDeviceManufacturingRisk(
 // regulatory pathway logic.
 // ────────────────────────────────────────────────────────────
 
-export async function analyzeDeviceRegulatory(
-  input: DeviceRegulatoryInput,
-): Promise<DeviceRegulatoryOutput> {
+export async function analyzeDeviceRegulatory(input: DeviceRegulatoryInput): Promise<DeviceRegulatoryOutput> {
   // Determine recommended pathway
   const pathwayResult = recommendDevicePathway(input);
 
@@ -3074,10 +3949,7 @@ export async function analyzeDeviceRegulatory(
   const pathwayStr = pathwayResult.primary.pathway;
 
   // ── NEW: Function 1 — Predicate device search ──
-  const predicateDevices = findPredicateDevices(
-    inferDeviceCategory(input),
-    input.intended_use,
-  );
+  const predicateDevices = findPredicateDevices(inferDeviceCategory(input), input.intended_use);
 
   // ── NEW: Function 2 — Clinical evidence strategy ──
   const deviceClinicalEvidenceStrategy = buildDeviceClinicalEvidenceStrategy(
@@ -3093,10 +3965,7 @@ export async function analyzeDeviceRegulatory(
   );
 
   // ── NEW: Function 4 — Manufacturing risk ──
-  const deviceManufacturingRisk = buildDeviceManufacturingRisk(
-    input.product_category,
-    input.device_description,
-  );
+  const deviceManufacturingRisk = buildDeviceManufacturingRisk(input.product_category, input.device_description);
 
   // Build special designations
   const specialDesignations = scoreDeviceDesignations(input);
@@ -3108,7 +3977,7 @@ export async function analyzeDeviceRegulatory(
   const keyRisks = assessDeviceRisks(input, pathwayStr);
 
   // Comparable clearances
-  const comparableClearances = predicateDevices.slice(0, 5).map(p => ({
+  const comparableClearances = predicateDevices.slice(0, 5).map((p) => ({
     device: p.device_name,
     company: p.company,
     pathway: p.pathway,
@@ -3216,9 +4085,7 @@ function inferDeviceClass(input: DeviceRegulatoryInput): FDADeviceClassType {
   return 'Class II';
 }
 
-function recommendDevicePathway(
-  input: DeviceRegulatoryInput,
-): {
+function recommendDevicePathway(input: DeviceRegulatoryInput): {
   primary: { pathway: FDADevicePathway; requirements: string[] };
   alternatives: { pathway: string; rationale: string; tradeoffs: string }[];
   rationale: string;
@@ -3239,8 +4106,10 @@ function recommendDevicePathway(
     ];
     alternatives.push({
       pathway: 'PMA (Premarket Approval)',
-      rationale: 'If clinical data supports full effectiveness claim, PMA allows broader commercialization without per-institution IRB requirement',
-      tradeoffs: 'Significantly higher cost ($15-50M) and longer timeline (3-5 years) but removes HDE distribution restrictions',
+      rationale:
+        'If clinical data supports full effectiveness claim, PMA allows broader commercialization without per-institution IRB requirement',
+      tradeoffs:
+        'Significantly higher cost ($15-50M) and longer timeline (3-5 years) but removes HDE distribution restrictions',
     });
   }
   // PMA for Class III or novel high-risk
@@ -3261,13 +4130,17 @@ function recommendDevicePathway(
     ];
     alternatives.push({
       pathway: 'Breakthrough Device Designation',
-      rationale: 'If device treats a life-threatening or irreversibly debilitating condition and represents breakthrough technology',
-      tradeoffs: 'Adds interactive review and priority review but does not change submission type (still PMA). Application required early in development.',
+      rationale:
+        'If device treats a life-threatening or irreversibly debilitating condition and represents breakthrough technology',
+      tradeoffs:
+        'Adds interactive review and priority review but does not change submission type (still PMA). Application required early in development.',
     });
     alternatives.push({
       pathway: 'De Novo Classification',
-      rationale: 'If FDA agrees device is low-to-moderate risk despite no predicate, De Novo creates new Class II classification',
-      tradeoffs: 'Lower evidence burden than PMA but longer review time than 510(k). Creates predicate path for future competitors.',
+      rationale:
+        'If FDA agrees device is low-to-moderate risk despite no predicate, De Novo creates new Class II classification',
+      tradeoffs:
+        'Lower evidence burden than PMA but longer review time than 510(k). Creates predicate path for future competitors.',
     });
   }
   // De Novo for novel, low-to-moderate risk
@@ -3285,11 +4158,13 @@ function recommendDevicePathway(
     alternatives.push({
       pathway: '510(k) Clearance',
       rationale: 'If a suitable predicate device can be identified through creative predicate chain analysis',
-      tradeoffs: 'Faster and less expensive but requires substantial equivalence argument. May be challenged by FDA reviewer.',
+      tradeoffs:
+        'Faster and less expensive but requires substantial equivalence argument. May be challenged by FDA reviewer.',
     });
     alternatives.push({
       pathway: 'PMA (Premarket Approval)',
-      rationale: 'If FDA disagrees with low-to-moderate risk classification, automatic Class III designation triggers PMA requirement',
+      rationale:
+        'If FDA disagrees with low-to-moderate risk classification, automatic Class III designation triggers PMA requirement',
       tradeoffs: 'Significantly higher evidence burden, cost, and timeline. Clinical trial required.',
     });
   }
@@ -3308,16 +4183,20 @@ function recommendDevicePathway(
     ];
     alternatives.push({
       pathway: 'De Novo Classification',
-      rationale: 'If predicate comparison is weak or FDA challenges substantial equivalence, De Novo provides alternative pathway',
-      tradeoffs: 'Longer review time (12-18 months vs 3-6 months) but creates new classification. Clinical data may be required.',
+      rationale:
+        'If predicate comparison is weak or FDA challenges substantial equivalence, De Novo provides alternative pathway',
+      tradeoffs:
+        'Longer review time (12-18 months vs 3-6 months) but creates new classification. Clinical data may be required.',
     });
   }
 
   // Always suggest Q-Sub
   alternatives.push({
     pathway: 'Q-Submission (Pre-Sub Meeting)',
-    rationale: 'Pre-Submission meeting with FDA is recommended regardless of pathway to align on submission strategy, testing requirements, and clinical evidence expectations',
-    tradeoffs: 'Adds 3-4 months to timeline but significantly reduces risk of FDA additional information requests or refuse-to-accept.',
+    rationale:
+      'Pre-Submission meeting with FDA is recommended regardless of pathway to align on submission strategy, testing requirements, and clinical evidence expectations',
+    tradeoffs:
+      'Adds 3-4 months to timeline but significantly reduces risk of FDA additional information requests or refuse-to-accept.',
   });
 
   // Build rationale
@@ -3329,10 +4208,10 @@ function recommendDevicePathway(
     (primaryPathway === '510(k) Clearance'
       ? 'The presence of a predicate device supports 510(k) substantial equivalence. FDA review is typically 3-6 months. Pre-Submission meeting is strongly recommended to confirm predicate acceptability.'
       : primaryPathway === 'De Novo Classification'
-      ? 'As a novel device with no identified predicate, De Novo classification is appropriate for low-to-moderate risk devices. This creates a new regulatory classification and product code.'
-      : primaryPathway === 'PMA (Premarket Approval)'
-      ? 'The high-risk profile of this device requires PMA with valid scientific evidence of safety and effectiveness. An IDE clinical trial is typically required. Breakthrough Device Designation should be evaluated for interactive FDA review.'
-      : 'HDE is appropriate for devices targeting conditions affecting fewer than 8,000 patients per year in the US. Probable benefit (not effectiveness) must be demonstrated.');
+        ? 'As a novel device with no identified predicate, De Novo classification is appropriate for low-to-moderate risk devices. This creates a new regulatory classification and product code.'
+        : primaryPathway === 'PMA (Premarket Approval)'
+          ? 'The high-risk profile of this device requires PMA with valid scientific evidence of safety and effectiveness. An IDE clinical trial is typically required. Breakthrough Device Designation should be evaluated for interactive FDA review.'
+          : 'HDE is appropriate for devices targeting conditions affecting fewer than 8,000 patients per year in the US. Probable benefit (not effectiveness) must be demonstrated.');
 
   return { primary: { pathway: primaryPathway, requirements }, alternatives, rationale };
 }
@@ -3345,9 +4224,16 @@ function scoreDeviceDesignations(input: DeviceRegulatoryInput): DeviceRegulatory
   const isBreakthroughTech = input.is_novel_technology;
   designations.push({
     designation: 'Breakthrough Device',
-    eligibility: isLifeThreatening && isBreakthroughTech ? 'likely' : isLifeThreatening || isBreakthroughTech ? 'possible' : 'unlikely',
-    benefit: 'Interactive and timely FDA review, data development plan, priority review of premarket submission, senior management involvement in review',
-    criteria: 'Device provides more effective treatment or diagnosis of life-threatening or irreversibly debilitating human disease or condition AND represents breakthrough technology OR no approved/cleared alternative exists OR significant advantages over existing alternatives',
+    eligibility:
+      isLifeThreatening && isBreakthroughTech
+        ? 'likely'
+        : isLifeThreatening || isBreakthroughTech
+          ? 'possible'
+          : 'unlikely',
+    benefit:
+      'Interactive and timely FDA review, data development plan, priority review of premarket submission, senior management involvement in review',
+    criteria:
+      'Device provides more effective treatment or diagnosis of life-threatening or irreversibly debilitating human disease or condition AND represents breakthrough technology OR no approved/cleared alternative exists OR significant advantages over existing alternatives',
   });
 
   // HDE
@@ -3356,7 +4242,8 @@ function scoreDeviceDesignations(input: DeviceRegulatoryInput): DeviceRegulatory
     designation: 'HDE',
     eligibility: isHDEEligible ? 'likely' : 'unlikely',
     benefit: 'Requires probable benefit rather than effectiveness, smaller clinical studies, PDUFA fee exemption',
-    criteria: 'Device is intended to benefit patients in the treatment or diagnosis of a disease or condition that affects or is manifested in not more than 8,000 individuals in the United States per year',
+    criteria:
+      'Device is intended to benefit patients in the treatment or diagnosis of a disease or condition that affects or is manifested in not more than 8,000 individuals in the United States per year',
   });
 
   // De Novo
@@ -3364,8 +4251,10 @@ function scoreDeviceDesignations(input: DeviceRegulatoryInput): DeviceRegulatory
   designations.push({
     designation: 'De Novo',
     eligibility: isDeNovoCandidate ? 'likely' : 'possible',
-    benefit: 'Creates new Class I or Class II device classification, establishes regulatory pathway for similar devices, lower evidence burden than PMA',
-    criteria: 'Novel device with no identified predicate that is low-to-moderate risk. Cannot be classified by the 510(k) process because no predicate exists.',
+    benefit:
+      'Creates new Class I or Class II device classification, establishes regulatory pathway for similar devices, lower evidence burden than PMA',
+    criteria:
+      'Novel device with no identified predicate that is low-to-moderate risk. Cannot be classified by the 510(k) process because no predicate exists.',
   });
 
   // EUA
@@ -3373,7 +4262,8 @@ function scoreDeviceDesignations(input: DeviceRegulatoryInput): DeviceRegulatory
     designation: 'EUA',
     eligibility: 'unlikely',
     benefit: 'Emergency authorization during declared public health emergency',
-    criteria: 'Public health emergency declared by HHS Secretary, and device may be effective for emergency use. Not applicable outside of declared emergencies.',
+    criteria:
+      'Public health emergency declared by HHS Secretary, and device may be effective for emergency use. Not applicable outside of declared emergencies.',
   });
 
   // MDUFA Priority Review
@@ -3381,7 +4271,8 @@ function scoreDeviceDesignations(input: DeviceRegulatoryInput): DeviceRegulatory
     designation: 'MDUFA Priority Review',
     eligibility: isLifeThreatening ? 'possible' : 'unlikely',
     benefit: 'Shorter FDA review timeline, dedicated review team',
-    criteria: 'Device addresses significant clinical need for life-threatening or irreversibly debilitating condition. Applied at time of premarket submission.',
+    criteria:
+      'Device addresses significant clinical need for life-threatening or irreversibly debilitating condition. Applied at time of premarket submission.',
   });
 
   return designations;
@@ -3467,10 +4358,7 @@ function estimateDeviceTimeline(
   };
 }
 
-function assessDeviceRisks(
-  input: DeviceRegulatoryInput,
-  pathway: string,
-): DeviceRegulatoryOutput['key_risks'] {
+function assessDeviceRisks(input: DeviceRegulatoryInput, pathway: string): DeviceRegulatoryOutput['key_risks'] {
   const risks: DeviceRegulatoryOutput['key_risks'] = [];
 
   // Predicate risk for 510(k)
@@ -3478,7 +4366,8 @@ function assessDeviceRisks(
     risks.push({
       risk: 'Predicate device identification: FDA may disagree with predicate selection or substantial equivalence argument, triggering reclassification to De Novo or Class III.',
       severity: input.has_predicate ? 'moderate' : 'high',
-      mitigation: 'Submit Pre-Submission (Q-Sub) with proposed predicate(s) and substantial equivalence rationale. Identify backup predicates. Prepare De Novo strategy as contingency.',
+      mitigation:
+        'Submit Pre-Submission (Q-Sub) with proposed predicate(s) and substantial equivalence rationale. Identify backup predicates. Prepare De Novo strategy as contingency.',
     });
   }
 
@@ -3487,7 +4376,8 @@ function assessDeviceRisks(
     risks.push({
       risk: 'Novel technology: FDA may request additional testing or reclassify the device to a higher risk class. Longer review times and additional information requests are likely.',
       severity: 'high',
-      mitigation: 'Engage FDA early via Q-Sub. Develop comprehensive risk analysis per ISO 14971. Consider Breakthrough Device Designation for interactive review.',
+      mitigation:
+        'Engage FDA early via Q-Sub. Develop comprehensive risk analysis per ISO 14971. Consider Breakthrough Device Designation for interactive review.',
     });
   }
 
@@ -3496,7 +4386,8 @@ function assessDeviceRisks(
     risks.push({
       risk: 'Combination product complexity: Dual regulatory jurisdiction (CDRH + CDER/CBER) adds complexity. Primary mode of action determination affects lead center assignment.',
       severity: 'high',
-      mitigation: 'Request combination product designation from Office of Combination Products (OCP) early. Develop both device and drug components in parallel. Follow 21 CFR Part 4.',
+      mitigation:
+        'Request combination product designation from Office of Combination Products (OCP) early. Develop both device and drug components in parallel. Follow 21 CFR Part 4.',
     });
   }
 
@@ -3505,7 +4396,8 @@ function assessDeviceRisks(
     risks.push({
       risk: 'Clinical evidence gap: No clinical data currently available. IDE clinical trial required for PMA; clinical data likely needed for De Novo.',
       severity: 'high',
-      mitigation: 'Initiate IDE application process. Design pivotal trial aligned with FDA guidance for this device category. Consider feasibility study to de-risk before pivotal.',
+      mitigation:
+        'Initiate IDE application process. Design pivotal trial aligned with FDA guidance for this device category. Consider feasibility study to de-risk before pivotal.',
     });
   }
 
@@ -3513,14 +4405,16 @@ function assessDeviceRisks(
   risks.push({
     risk: 'Manufacturing and quality system compliance: FDA may conduct pre-approval inspection. Design control and production process must comply with 21 CFR 820 (Quality System Regulation).',
     severity: 'moderate',
-    mitigation: 'Establish QMS per ISO 13485/21 CFR 820 early. Complete Design History File (DHF). Conduct internal audit and mock FDA inspection before submission.',
+    mitigation:
+      'Establish QMS per ISO 13485/21 CFR 820 early. Complete Design History File (DHF). Conduct internal audit and mock FDA inspection before submission.',
   });
 
   // Post-market risk
   risks.push({
     risk: 'Post-market surveillance requirements: FDA may require post-market studies, MDR reporting, and periodic safety update reports. For PMA, annual reports and PMA supplements for changes.',
     severity: 'low',
-    mitigation: 'Build post-market surveillance plan into development timeline. Establish MDR reporting procedures. Budget for post-market clinical study if required.',
+    mitigation:
+      'Build post-market surveillance plan into development timeline. Establish MDR reporting procedures. Budget for post-market clinical study if required.',
   });
 
   // EU MDR risk
@@ -3528,17 +4422,15 @@ function assessDeviceRisks(
     risks.push({
       risk: 'EU MDR/IVDR compliance: New regulations (MDR 2017/745, IVDR 2017/746) impose stricter requirements including clinical evaluation, post-market surveillance, and Notified Body capacity constraints.',
       severity: 'high',
-      mitigation: 'Engage Notified Body early. Prepare Clinical Evaluation Report (CER) per MEDDEV 2.7/1. Budget for longer EU certification timeline (12-24 months). Monitor MDCG guidance updates.',
+      mitigation:
+        'Engage Notified Body early. Prepare Clinical Evaluation Report (CER) per MEDDEV 2.7/1. Budget for longer EU certification timeline (12-24 months). Monitor MDCG guidance updates.',
     });
   }
 
   return risks;
 }
 
-function buildPostMarketRequirements(
-  input: DeviceRegulatoryInput,
-  pathway: string,
-): string[] {
+function buildPostMarketRequirements(input: DeviceRegulatoryInput, pathway: string): string[] {
   const reqs: string[] = [];
 
   reqs.push('Medical Device Reporting (MDR) per 21 CFR 803 — mandatory adverse event reporting');

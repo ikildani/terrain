@@ -1908,6 +1908,642 @@ export const BIOMARKER_PREVALENCE: BiomarkerEntry[] = [
       'Emerging target beyond traditional indications. T-DXd and other HER2-directed therapies being evaluated in HER2-expressing endometrial and biliary cancers.',
     trending: true,
   },
+
+  // ---------------------------------------------------------------------------
+  // ONCOLOGY — ADDITIONAL BIOMARKERS
+  // ---------------------------------------------------------------------------
+
+  // FLT3-ITD
+  {
+    biomarker: 'FLT3-ITD',
+    indications: ['AML', 'acute myeloid leukemia'],
+    prevalence_pct: 28,
+    testing_rate_pct: 90,
+    test_type: 'NGS',
+    cdx_drugs: ['Rydapt (midostaurin)', 'Xospata (gilteritinib)'],
+    clinical_significance:
+      'FLT3 internal tandem duplications are the most common activating mutation in AML. Associated with poor prognosis. Midostaurin added to induction and gilteritinib for relapsed/refractory disease.',
+    trending: false,
+  },
+
+  // IDH1
+  {
+    biomarker: 'IDH1 mutation',
+    indications: ['AML', 'acute myeloid leukemia'],
+    prevalence_pct: 8,
+    testing_rate_pct: 85,
+    test_type: 'NGS',
+    cdx_drugs: ['Tibsovo (ivosidenib)'],
+    clinical_significance:
+      'IDH1 mutations produce 2-hydroxyglutarate, blocking myeloid differentiation. Ivosidenib approved for newly diagnosed and relapsed/refractory IDH1-mutant AML.',
+    trending: false,
+  },
+
+  // IDH2
+  {
+    biomarker: 'IDH2 mutation',
+    indications: ['AML', 'acute myeloid leukemia'],
+    prevalence_pct: 12,
+    testing_rate_pct: 85,
+    test_type: 'NGS',
+    cdx_drugs: ['Idhifa (enasidenib)'],
+    clinical_significance:
+      'IDH2 mutations are functionally similar to IDH1. Enasidenib is a selective IDH2 inhibitor approved for relapsed/refractory AML with IDH2 mutation.',
+    trending: false,
+  },
+
+  // NPM1
+  {
+    biomarker: 'NPM1 mutation',
+    indications: ['AML', 'acute myeloid leukemia'],
+    prevalence_pct: 30,
+    testing_rate_pct: 88,
+    test_type: 'genetic',
+    cdx_drugs: [],
+    clinical_significance:
+      'Most common mutation in AML. NPM1-mutant without FLT3-ITD defines a favorable-risk subgroup. Important for prognosis and measurable residual disease monitoring.',
+    trending: false,
+  },
+
+  // del(17p)/TP53
+  {
+    biomarker: 'del(17p)/TP53 mutation',
+    indications: ['CLL', 'chronic lymphocytic leukemia', 'multiple myeloma', 'MM'],
+    prevalence_pct: 7,
+    testing_rate_pct: 80,
+    test_type: 'FISH/sequencing',
+    cdx_drugs: [],
+    clinical_significance:
+      'del(17p) and TP53 mutations confer resistance to chemoimmunotherapy in CLL (~7%) and poor prognosis in myeloma (~10%). BTK inhibitors and venetoclax preferred in CLL; emerging targeted approaches in MM.',
+    trending: false,
+  },
+
+  // FGFR alterations
+  {
+    biomarker: 'FGFR alterations (fusions, mutations, amplifications)',
+    indications: ['bladder cancer', 'urothelial carcinoma', 'cholangiocarcinoma', 'biliary tract cancer'],
+    prevalence_pct: 15,
+    testing_rate_pct: 60,
+    test_type: 'NGS',
+    cdx_drugs: ['Balversa (erdafitinib)', 'Pemazyre (pemigatinib)'],
+    clinical_significance:
+      'FGFR2 fusions in ~15% of cholangiocarcinoma; FGFR3 mutations/fusions in ~15% of bladder cancer. Erdafitinib approved for FGFR-altered urothelial carcinoma; pemigatinib for FGFR2-fusion cholangiocarcinoma.',
+    trending: true,
+  },
+
+  // NTRK fusion
+  {
+    biomarker: 'NTRK fusion',
+    indications: ['solid tumors', 'pan-cancer'],
+    prevalence_pct: 1,
+    testing_rate_pct: 55,
+    test_type: 'NGS',
+    cdx_drugs: ['Vitrakvi (larotrectinib)', 'Rozlytrek (entrectinib)'],
+    clinical_significance:
+      'Rare (~1% pan-cancer) but highly actionable. NTRK fusions are tissue-agnostic targets with ORR >75% to TRK inhibitors. Higher prevalence in rare tumor types (secretory breast, infantile fibrosarcoma).',
+    trending: true,
+  },
+
+  // ROS1 fusion (broader)
+  {
+    biomarker: 'ROS1 fusion',
+    indications: ['NSCLC', 'non-small cell lung cancer'],
+    prevalence_pct: 2,
+    testing_rate_pct: 72,
+    test_type: 'NGS/FISH',
+    cdx_drugs: ['Xalkori (crizotinib)', 'Rozlytrek (entrectinib)'],
+    clinical_significance:
+      'ROS1 fusions define a highly targetable NSCLC subset (~2%). Crizotinib ORR ~72%; entrectinib provides CNS penetration. Break-apart FISH or NGS for detection.',
+    trending: false,
+  },
+
+  // MET exon 14 skipping
+  {
+    biomarker: 'MET exon 14 skipping mutation',
+    indications: ['NSCLC', 'non-small cell lung cancer'],
+    prevalence_pct: 3,
+    testing_rate_pct: 65,
+    test_type: 'NGS',
+    cdx_drugs: ['Tabrecta (capmatinib)', 'Tepmetko (tepotinib)'],
+    clinical_significance:
+      'MET exon 14 skipping mutations occur in ~3% of NSCLC, enriched in sarcomatoid histology. Capmatinib and tepotinib approved with ORR ~40-70% depending on treatment line.',
+    trending: true,
+  },
+
+  // RET fusion
+  {
+    biomarker: 'RET fusion/mutation',
+    indications: ['NSCLC', 'non-small cell lung cancer', 'thyroid cancer', 'medullary thyroid carcinoma'],
+    prevalence_pct: 2,
+    testing_rate_pct: 68,
+    test_type: 'NGS',
+    cdx_drugs: ['Retevmo (selpercatinib)', 'Gavreto (pralsetinib)'],
+    clinical_significance:
+      'RET fusions in ~2% of NSCLC and 10-20% of papillary thyroid cancer. RET mutations in ~90% of MTC. Selective RET inhibitors provide durable responses with manageable toxicity.',
+    trending: true,
+  },
+
+  // KRAS G12C
+  {
+    biomarker: 'KRAS G12C mutation',
+    indications: ['NSCLC', 'non-small cell lung cancer', 'colorectal cancer', 'CRC'],
+    prevalence_pct: 13,
+    testing_rate_pct: 75,
+    test_type: 'NGS',
+    cdx_drugs: ['Lumakras (sotorasib)', 'Krazati (adagrasib)'],
+    clinical_significance:
+      'KRAS G12C is the most common actionable KRAS mutation in NSCLC (~13%) and present in ~3% of CRC. First-in-class covalent inhibitors lock KRAS in inactive state. Lower response rates in CRC require combination strategies.',
+    trending: true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // NEUROLOGY
+  // ---------------------------------------------------------------------------
+
+  // Amyloid PET
+  {
+    biomarker: 'Amyloid PET positivity',
+    indications: ['mild cognitive impairment', 'MCI', 'Alzheimer disease', 'AD dementia'],
+    prevalence_pct: 70,
+    testing_rate_pct: 30,
+    test_type: 'PET imaging',
+    cdx_drugs: ['Leqembi (lecanemab)', 'Kisunla (donanemab)'],
+    clinical_significance:
+      'Amyloid PET confirms beta-amyloid plaque burden — required for anti-amyloid therapy eligibility. ~70% of MCI patients and ~85% of clinically diagnosed AD dementia are amyloid-positive. Testing rate constrained by PET access and cost.',
+    trending: true,
+  },
+
+  // Tau PET
+  {
+    biomarker: 'Tau PET positivity',
+    indications: ['Alzheimer disease', 'early AD', 'AD dementia'],
+    prevalence_pct: 50,
+    testing_rate_pct: 10,
+    test_type: 'PET imaging',
+    cdx_drugs: [],
+    clinical_significance:
+      'Tau PET (e.g., flortaucipir) detects neurofibrillary tangle distribution. ~50% of early AD shows significant tau accumulation. Increasingly used for staging and as a trial endpoint; not yet required for approved therapies.',
+    trending: true,
+  },
+
+  // NfL
+  {
+    biomarker: 'Neurofilament light chain (NfL) elevation',
+    indications: ['ALS', 'amyotrophic lateral sclerosis', 'multiple sclerosis', 'MS', 'Alzheimer disease', 'AD'],
+    prevalence_pct: 90,
+    testing_rate_pct: 25,
+    test_type: 'blood/CSF',
+    cdx_drugs: [],
+    clinical_significance:
+      'NfL is a non-specific marker of neuroaxonal damage elevated across neurodegenerative diseases. Emerging as a treatment response biomarker in MS and ALS clinical trials. Blood-based assays (Simoa) expanding access.',
+    trending: true,
+  },
+
+  // SOD1
+  {
+    biomarker: 'SOD1 mutation',
+    indications: ['ALS', 'amyotrophic lateral sclerosis'],
+    prevalence_pct: 2,
+    testing_rate_pct: 60,
+    test_type: 'genetic',
+    cdx_drugs: [],
+    clinical_significance:
+      'SOD1 mutations account for ~2% of all ALS (~20% of familial ALS). Tofersen (antisense oligonucleotide) targets SOD1 mRNA and received accelerated approval. Genetic testing increasingly recommended at diagnosis.',
+    trending: true,
+  },
+
+  // C9orf72
+  {
+    biomarker: 'C9orf72 repeat expansion',
+    indications: ['ALS', 'amyotrophic lateral sclerosis', 'frontotemporal dementia', 'FTD'],
+    prevalence_pct: 10,
+    testing_rate_pct: 55,
+    test_type: 'genetic',
+    cdx_drugs: [],
+    clinical_significance:
+      'C9orf72 hexanucleotide repeat expansion is the most common genetic cause of ALS (~10%) and FTD (~5%). Multiple antisense and gene therapy approaches in clinical development targeting the repeat expansion.',
+    trending: true,
+  },
+
+  // JCV antibody
+  {
+    biomarker: 'JCV antibody positivity',
+    indications: ['multiple sclerosis', 'MS'],
+    prevalence_pct: 55,
+    testing_rate_pct: 95,
+    test_type: 'blood serology',
+    cdx_drugs: [],
+    clinical_significance:
+      'JCV antibody status stratifies progressive multifocal leukoencephalopathy (PML) risk with natalizumab. ~55% of MS patients are JCV antibody-positive. Anti-JCV index >1.5 confers highest risk and often triggers therapy switching.',
+    trending: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // IMMUNOLOGY / RHEUMATOLOGY
+  // ---------------------------------------------------------------------------
+
+  // RF
+  {
+    biomarker: 'Rheumatoid Factor (RF)',
+    indications: ['rheumatoid arthritis', 'RA'],
+    prevalence_pct: 70,
+    testing_rate_pct: 95,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'RF is present in ~70% of RA patients (seropositive RA). Seropositive status associated with more aggressive joint erosion and extra-articular manifestations. Used in ACR/EULAR classification criteria.',
+    trending: false,
+  },
+
+  // Anti-CCP
+  {
+    biomarker: 'Anti-CCP antibody (ACPA)',
+    indications: ['rheumatoid arthritis', 'RA'],
+    prevalence_pct: 60,
+    testing_rate_pct: 90,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'Anti-CCP is more specific than RF for RA (~95% specificity vs. ~85%). Present in ~60% of RA patients. Can predate symptom onset by years — important for early diagnosis and aggressive treatment initiation.',
+    trending: false,
+  },
+
+  // Anti-dsDNA
+  {
+    biomarker: 'Anti-dsDNA antibody',
+    indications: ['systemic lupus erythematosus', 'SLE', 'lupus'],
+    prevalence_pct: 60,
+    testing_rate_pct: 95,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'Anti-dsDNA is highly specific for SLE (~95%) and present in ~60% of patients. Titers correlate with disease activity and renal involvement. Central to SLEDAI scoring and lupus nephritis risk stratification.',
+    trending: false,
+  },
+
+  // Anti-Sm
+  {
+    biomarker: 'Anti-Smith (Anti-Sm) antibody',
+    indications: ['systemic lupus erythematosus', 'SLE', 'lupus'],
+    prevalence_pct: 30,
+    testing_rate_pct: 80,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'Anti-Sm is the most specific autoantibody for SLE (~99% specificity) but low sensitivity (~30%). Presence is virtually pathognomonic for SLE. Titers do not correlate well with disease activity.',
+    trending: false,
+  },
+
+  // ANCA
+  {
+    biomarker: 'ANCA (p-ANCA/c-ANCA)',
+    indications: [
+      'granulomatosis with polyangiitis',
+      'GPA',
+      'microscopic polyangiitis',
+      'MPA',
+      'ANCA-associated vasculitis',
+    ],
+    prevalence_pct: 90,
+    testing_rate_pct: 95,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'c-ANCA (anti-PR3) present in ~90% of GPA; p-ANCA (anti-MPO) present in ~70% of MPA. Essential for diagnosis and disease classification. Rising titers may predict relapse, though clinical utility of serial monitoring is debated.',
+    trending: false,
+  },
+
+  // HLA-B27
+  {
+    biomarker: 'HLA-B27',
+    indications: ['ankylosing spondylitis', 'AS', 'axial spondyloarthritis', 'reactive arthritis'],
+    prevalence_pct: 90,
+    testing_rate_pct: 85,
+    test_type: 'genetic',
+    cdx_drugs: [],
+    clinical_significance:
+      'HLA-B27 is present in ~90% of ankylosing spondylitis and ~50% of reactive arthritis patients vs. ~8% of general population. Supports diagnosis but is not diagnostic alone. Associated with anterior uveitis and inflammatory bowel disease.',
+    trending: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // CARDIOVASCULAR
+  // ---------------------------------------------------------------------------
+
+  // NT-proBNP
+  {
+    biomarker: 'NT-proBNP elevated (>125 pg/mL)',
+    indications: ['heart failure', 'HF', 'HFrEF', 'HFpEF'],
+    prevalence_pct: 100,
+    testing_rate_pct: 90,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'NT-proBNP is universally elevated in symptomatic heart failure. >125 pg/mL rules in HF; <125 pg/mL has strong negative predictive value. Used for diagnosis, prognosis, and treatment monitoring. Obesity reduces levels (adjust cutoffs for BMI >30).',
+    trending: false,
+  },
+
+  // Lp(a)
+  {
+    biomarker: 'Lipoprotein(a) elevated (>50 mg/dL)',
+    indications: [
+      'atherosclerotic cardiovascular disease',
+      'ASCVD',
+      'familial hypercholesterolemia',
+      'aortic stenosis',
+    ],
+    prevalence_pct: 20,
+    testing_rate_pct: 15,
+    test_type: 'blood',
+    cdx_drugs: ['Olpasiran (Phase 3)'],
+    clinical_significance:
+      'Lp(a) >50 mg/dL (>100 nmol/L) is an independent cardiovascular risk factor present in ~20% of the general population. Genetically determined — not responsive to statins. Olpasiran (siRNA), pelacarsen (ASO), and lepodisiran are in Phase 3 development.',
+    trending: true,
+  },
+
+  // Troponin-I
+  {
+    biomarker: 'High-sensitivity Troponin-I (hs-TnI) elevated',
+    indications: ['acute coronary syndrome', 'ACS', 'myocardial infarction', 'MI'],
+    prevalence_pct: 100,
+    testing_rate_pct: 99,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'hs-TnI is the gold standard for diagnosing acute myocardial injury. Rising and falling pattern diagnostic for MI. High-sensitivity assays detect troponin at lower thresholds, enabling earlier rule-in/rule-out protocols.',
+    trending: false,
+  },
+
+  // PCSK9 gain-of-function
+  {
+    biomarker: 'PCSK9 gain-of-function mutation',
+    indications: ['familial hypercholesterolemia', 'FH'],
+    prevalence_pct: 0.2,
+    testing_rate_pct: 40,
+    test_type: 'genetic',
+    cdx_drugs: [],
+    clinical_significance:
+      'PCSK9 gain-of-function mutations cause ~2% of autosomal dominant familial hypercholesterolemia. Patients respond well to PCSK9 inhibitors (evolocumab, alirocumab). Genetic testing recommended in FH cascade screening.',
+    trending: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // METABOLIC
+  // ---------------------------------------------------------------------------
+
+  // HbA1c
+  {
+    biomarker: 'HbA1c >9% (poorly controlled)',
+    indications: ['type 2 diabetes', 'T2D', 'diabetes mellitus'],
+    prevalence_pct: 25,
+    testing_rate_pct: 98,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'HbA1c >9% indicates poor glycemic control and is present in ~25% of T2D patients. These patients are typically escalated to injectable therapies (GLP-1 RAs, insulin) and represent a high-unmet-need subgroup for novel agents.',
+    trending: false,
+  },
+
+  // PNPLA3
+  {
+    biomarker: 'PNPLA3 I148M variant',
+    indications: ['NASH', 'non-alcoholic steatohepatitis', 'MASH', 'metabolic dysfunction-associated steatohepatitis'],
+    prevalence_pct: 30,
+    testing_rate_pct: 10,
+    test_type: 'genetic',
+    cdx_drugs: [],
+    clinical_significance:
+      'PNPLA3 I148M (rs738409) is the strongest genetic risk factor for NASH/MASH. ~30% of NASH patients carry at least one risk allele. Homozygous carriers have 3-5x higher risk of steatohepatitis and fibrosis progression.',
+    trending: true,
+  },
+
+  // GLP-1R
+  {
+    biomarker: 'GLP-1 receptor expression',
+    indications: ['type 2 diabetes', 'T2D', 'obesity'],
+    prevalence_pct: 100,
+    testing_rate_pct: 5,
+    test_type: 'tissue/genetic',
+    cdx_drugs: [],
+    clinical_significance:
+      'GLP-1R is expressed on pancreatic beta cells, gut, and brain. Expression levels vary but are not currently used for patient selection. Research exploring GLP-1R expression as a predictor of GLP-1 RA response is ongoing.',
+    trending: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // RARE DISEASE
+  // ---------------------------------------------------------------------------
+
+  // F508del CFTR
+  {
+    biomarker: 'F508del CFTR mutation',
+    indications: ['cystic fibrosis', 'CF'],
+    prevalence_pct: 70,
+    testing_rate_pct: 99,
+    test_type: 'genetic',
+    cdx_drugs: ['Trikafta (elexacaftor/tezacaftor/ivacaftor)'],
+    clinical_significance:
+      'F508del is the most common CFTR mutation, present in ~70% of CF patients (homozygous ~50%, compound heterozygous ~20%). Trikafta is approved for patients with at least one F508del allele, covering ~90% of CF patients.',
+    trending: false,
+  },
+
+  // SMN2
+  {
+    biomarker: 'SMN2 copy number',
+    indications: ['spinal muscular atrophy', 'SMA'],
+    prevalence_pct: 100,
+    testing_rate_pct: 99,
+    test_type: 'genetic',
+    cdx_drugs: ['Zolgensma (onasemnogene abeparvovec)', 'Spinraza (nusinersen)'],
+    clinical_significance:
+      'SMN2 copy number is the primary disease modifier in SMA — 1 copy (~10%) = Type I, 2 copies (~70%) = Type I/II, 3 copies (~15%) = Type II/III, 4+ copies (~5%) = milder phenotype. Determines treatment urgency and gene therapy eligibility.',
+    trending: false,
+  },
+
+  // GLA
+  {
+    biomarker: 'GLA gene variants',
+    indications: ['Fabry disease'],
+    prevalence_pct: 100,
+    testing_rate_pct: 85,
+    test_type: 'genetic',
+    cdx_drugs: [],
+    clinical_significance:
+      'GLA mutations cause alpha-galactosidase A deficiency in Fabry disease. Over 1,000 pathogenic variants identified. Genotype-phenotype correlations inform ERT eligibility and chaperone therapy (migalastat) amenability.',
+    trending: false,
+  },
+
+  // GAA
+  {
+    biomarker: 'GAA gene variants',
+    indications: ['Pompe disease', 'glycogen storage disease type II'],
+    prevalence_pct: 100,
+    testing_rate_pct: 90,
+    test_type: 'genetic/enzyme assay',
+    cdx_drugs: [],
+    clinical_significance:
+      'GAA mutations cause acid alpha-glucosidase deficiency. Enzyme activity <1% = infantile-onset Pompe; 1-30% = late-onset. Newborn screening with DBS enzyme assay expanding early diagnosis. ERT (alglucosidase alfa, avalglucosidase alfa) is standard of care.',
+    trending: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // NEPHROLOGY
+  // ---------------------------------------------------------------------------
+
+  // PLA2R
+  {
+    biomarker: 'PLA2R antibody',
+    indications: ['membranous nephropathy', 'primary membranous nephropathy'],
+    prevalence_pct: 70,
+    testing_rate_pct: 80,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'Anti-PLA2R antibodies are present in ~70% of primary membranous nephropathy. Titer levels correlate with disease activity and predict spontaneous remission vs. need for immunosuppression. Serial monitoring guides treatment decisions.',
+    trending: false,
+  },
+
+  // Anti-GBM
+  {
+    biomarker: 'Anti-GBM antibody',
+    indications: ['Goodpasture syndrome', 'anti-GBM disease'],
+    prevalence_pct: 100,
+    testing_rate_pct: 95,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'Anti-GBM antibodies are pathognomonic for Goodpasture syndrome / anti-GBM disease. Target the alpha-3 chain of type IV collagen in glomerular and alveolar basement membranes. Requires urgent plasmapheresis and immunosuppression.',
+    trending: false,
+  },
+
+  // Complement C3/C4
+  {
+    biomarker: 'Complement C3/C4 (low levels)',
+    indications: ['lupus nephritis', 'C3 glomerulopathy', 'C3GN', 'systemic lupus erythematosus'],
+    prevalence_pct: 75,
+    testing_rate_pct: 90,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'Low C3 and C4 indicate complement consumption in lupus nephritis (~75% have low complement). In C3 glomerulopathy, C3 is low with normal C4. Serial complement monitoring tracks disease activity and treatment response.',
+    trending: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // HEMATOLOGY (NON-ONCOLOGY / OVERLAP)
+  // ---------------------------------------------------------------------------
+
+  // Factor VIII inhibitors
+  {
+    biomarker: 'Factor VIII inhibitors',
+    indications: ['hemophilia A', 'severe hemophilia A'],
+    prevalence_pct: 30,
+    testing_rate_pct: 98,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'Inhibitory antibodies to Factor VIII develop in ~30% of severe hemophilia A patients, rendering factor replacement ineffective. Emicizumab (bispecific antibody) bypasses Factor VIII entirely. Inhibitor status drives treatment algorithm.',
+    trending: false,
+  },
+
+  // BCR-ABL
+  {
+    biomarker: 'BCR-ABL fusion (Philadelphia chromosome)',
+    indications: ['CML', 'chronic myeloid leukemia', 'Ph+ ALL', 'acute lymphoblastic leukemia'],
+    prevalence_pct: 95,
+    testing_rate_pct: 99,
+    test_type: 'FISH/PCR',
+    cdx_drugs: ['Gleevec (imatinib)', 'Sprycel (dasatinib)', 'Tasigna (nilotinib)', 'Scemblix (asciminib)'],
+    clinical_significance:
+      'BCR-ABL defines CML (~95%) and Ph+ ALL (~25%). TKI therapy transformed CML prognosis — most patients achieve deep molecular remission. Quantitative BCR-ABL PCR monitoring every 3 months guides treatment-free remission eligibility.',
+    trending: false,
+  },
+
+  // JAK2 V617F
+  {
+    biomarker: 'JAK2 V617F mutation',
+    indications: ['polycythemia vera', 'PV', 'essential thrombocythemia', 'ET', 'myelofibrosis', 'MF'],
+    prevalence_pct: 95,
+    testing_rate_pct: 95,
+    test_type: 'genetic',
+    cdx_drugs: ['Jakafi (ruxolitinib)'],
+    clinical_significance:
+      'JAK2 V617F is present in ~95% of PV and ~50% of ET/MF. A WHO diagnostic criterion for myeloproliferative neoplasms. Ruxolitinib (JAK1/2 inhibitor) is standard for symptomatic MF and hydroxyurea-resistant PV.',
+    trending: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // PULMONOLOGY
+  // ---------------------------------------------------------------------------
+
+  // IgE
+  {
+    biomarker: 'Total IgE elevated (>100 IU/mL)',
+    indications: ['allergic asthma', 'severe asthma', 'asthma'],
+    prevalence_pct: 50,
+    testing_rate_pct: 70,
+    test_type: 'blood',
+    cdx_drugs: ['Xolair (omalizumab)'],
+    clinical_significance:
+      'Elevated total IgE (>100 IU/mL) characterizes allergic asthma phenotype (~50% of severe asthma). Omalizumab (anti-IgE) requires IgE 30-1500 IU/mL and documented allergen sensitization. Dosing based on IgE level and body weight.',
+    trending: false,
+  },
+
+  // Blood eosinophils
+  {
+    biomarker: 'Blood eosinophils >300/mcL',
+    indications: ['severe asthma', 'eosinophilic asthma', 'asthma'],
+    prevalence_pct: 40,
+    testing_rate_pct: 80,
+    test_type: 'blood',
+    cdx_drugs: ['Nucala (mepolizumab)', 'Fasenra (benralizumab)', 'Dupixent (dupilumab)'],
+    clinical_significance:
+      'Blood eosinophils >300/mcL define eosinophilic asthma (~40% of severe asthma). Higher eosinophil counts predict greater response to anti-IL-5 (mepolizumab, benralizumab) and anti-IL-4R (dupilumab) biologics. Simple CBC-based biomarker.',
+    trending: false,
+  },
+
+  // TSLP
+  {
+    biomarker: 'TSLP pathway activation',
+    indications: ['asthma', 'severe asthma'],
+    prevalence_pct: 70,
+    testing_rate_pct: 20,
+    test_type: 'blood',
+    cdx_drugs: ['Tezspire (tezepelumab)'],
+    clinical_significance:
+      'TSLP is an epithelial cytokine upstream of multiple inflammatory pathways. Tezepelumab is the first biologic effective across asthma phenotypes regardless of eosinophil count or allergic status, broadening the eligible population beyond traditional Type 2 biomarkers.',
+    trending: true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // DERMATOLOGY
+  // ---------------------------------------------------------------------------
+
+  // Th2 cytokines
+  {
+    biomarker: 'Th2 cytokine profile (IL-4/IL-13 elevated)',
+    indications: ['atopic dermatitis', 'AD', 'eczema'],
+    prevalence_pct: 85,
+    testing_rate_pct: 15,
+    test_type: 'blood/tissue',
+    cdx_drugs: [],
+    clinical_significance:
+      'IL-4 and IL-13 are central drivers of atopic dermatitis pathology. Elevated in ~85% of moderate-to-severe AD. Dupilumab (anti-IL-4Ralpha) and tralokinumab (anti-IL-13) target this pathway. Biomarker testing not required for prescribing but research-relevant.',
+    trending: false,
+  },
+
+  // IL-17
+  {
+    biomarker: 'IL-17 pathway activation',
+    indications: ['psoriasis', 'plaque psoriasis', 'psoriatic arthritis'],
+    prevalence_pct: 90,
+    testing_rate_pct: 10,
+    test_type: 'tissue',
+    cdx_drugs: [],
+    clinical_significance:
+      'IL-17A is the dominant effector cytokine in psoriasis, elevated in ~90% of lesional skin. Anti-IL-17 biologics (secukinumab, ixekizumab, bimekizumab) achieve PASI 90/100 in >50% of patients. Tissue testing not required clinically — diagnosis is clinical.',
+    trending: false,
+  },
 ];
 
 export function getBiomarkersForIndication(indication: string): BiomarkerEntry[] {
@@ -1919,3 +2555,6 @@ export function getBiomarkerByName(name: string): BiomarkerEntry | undefined {
   const query = name.toLowerCase();
   return BIOMARKER_PREVALENCE.find((entry) => entry.biomarker.toLowerCase().includes(query));
 }
+
+/** Alias for use by market-sizing engine and other consumers. */
+export const BIOMARKER_DATA = BIOMARKER_PREVALENCE;

@@ -131,6 +131,105 @@ export const INDICATION_SPECIFIC_LOA: Record<string, Record<DevelopmentStage, nu
   // CARDIOVASCULAR
   'heart failure': { preclinical: 0.04, phase1: 0.06, phase2: 0.13, phase3: 0.48, approved: 1.0 },
   'atrial fibrillation': { preclinical: 0.04, phase1: 0.07, phase2: 0.15, phase3: 0.52, approved: 1.0 },
+
+  // ──────────────────────────────────────────────────────────
+  // EXPANDED INDICATION-SPECIFIC LoA (2025 update)
+  // Sources: BIO/QLS 2023, Nature Reviews Drug Discovery 2024,
+  // FDA CDER/CBER approval data 2021-2025, Citeline Pharmaprojects
+  // ──────────────────────────────────────────────────────────
+
+  // IMMUNOLOGY (additional sub-indications)
+  'systemic lupus erythematosus': { preclinical: 0.03, phase1: 0.05, phase2: 0.12, phase3: 0.38, approved: 1.0 },
+  "inflammatory bowel disease (crohn's)": {
+    preclinical: 0.04,
+    phase1: 0.07,
+    phase2: 0.18,
+    phase3: 0.52,
+    approved: 1.0,
+  },
+  'inflammatory bowel disease (uc)': { preclinical: 0.05, phase1: 0.08, phase2: 0.2, phase3: 0.55, approved: 1.0 },
+  'psoriatic arthritis': { preclinical: 0.07, phase1: 0.11, phase2: 0.25, phase3: 0.62, approved: 1.0 },
+
+  // METABOLIC (additional sub-indications)
+  'nash/mash': { preclinical: 0.03, phase1: 0.05, phase2: 0.1, phase3: 0.25, approved: 1.0 },
+
+  // RARE DISEASE (additional sub-indications)
+  'gene therapy (general)': { preclinical: 0.05, phase1: 0.09, phase2: 0.22, phase3: 0.5, approved: 1.0 },
+  'enzyme replacement therapy': { preclinical: 0.1, phase1: 0.16, phase2: 0.35, phase3: 0.72, approved: 1.0 },
+
+  // PSYCHIATRY
+  'treatment-resistant depression': { preclinical: 0.02, phase1: 0.04, phase2: 0.08, phase3: 0.3, approved: 1.0 },
+  schizophrenia: { preclinical: 0.02, phase1: 0.04, phase2: 0.1, phase3: 0.35, approved: 1.0 },
+  adhd: { preclinical: 0.04, phase1: 0.08, phase2: 0.25, phase3: 0.55, approved: 1.0 },
+  'bipolar disorder': { preclinical: 0.02, phase1: 0.05, phase2: 0.12, phase3: 0.38, approved: 1.0 },
+  ptsd: { preclinical: 0.02, phase1: 0.04, phase2: 0.1, phase3: 0.32, approved: 1.0 },
+  ocd: { preclinical: 0.02, phase1: 0.05, phase2: 0.12, phase3: 0.35, approved: 1.0 },
+
+  // PAIN MANAGEMENT
+  'migraine prevention': { preclinical: 0.06, phase1: 0.1, phase2: 0.28, phase3: 0.6, approved: 1.0 },
+  'chronic pain (non-opioid)': { preclinical: 0.02, phase1: 0.04, phase2: 0.08, phase3: 0.28, approved: 1.0 },
+  'neuropathic pain': { preclinical: 0.02, phase1: 0.04, phase2: 0.1, phase3: 0.32, approved: 1.0 },
+
+  // NEPHROLOGY
+  'iga nephropathy': { preclinical: 0.04, phase1: 0.07, phase2: 0.2, phase3: 0.45, approved: 1.0 },
+  'ckd (non-diabetic)': { preclinical: 0.05, phase1: 0.08, phase2: 0.22, phase3: 0.5, approved: 1.0 },
+  'diabetic kidney disease': { preclinical: 0.05, phase1: 0.09, phase2: 0.25, phase3: 0.52, approved: 1.0 },
+  fsgs: { preclinical: 0.03, phase1: 0.05, phase2: 0.12, phase3: 0.35, approved: 1.0 },
+  'focal segmental glomerulosclerosis': { preclinical: 0.03, phase1: 0.05, phase2: 0.12, phase3: 0.35, approved: 1.0 },
+  'lupus nephritis': { preclinical: 0.03, phase1: 0.06, phase2: 0.15, phase3: 0.4, approved: 1.0 },
+
+  // PULMONOLOGY
+  'severe asthma': { preclinical: 0.06, phase1: 0.1, phase2: 0.28, phase3: 0.55, approved: 1.0 },
+  copd: { preclinical: 0.05, phase1: 0.08, phase2: 0.22, phase3: 0.5, approved: 1.0 },
+  'chronic obstructive pulmonary disease': {
+    preclinical: 0.05,
+    phase1: 0.08,
+    phase2: 0.22,
+    phase3: 0.5,
+    approved: 1.0,
+  },
+  ipf: { preclinical: 0.03, phase1: 0.06, phase2: 0.15, phase3: 0.35, approved: 1.0 },
+  'idiopathic pulmonary fibrosis': { preclinical: 0.03, phase1: 0.06, phase2: 0.15, phase3: 0.35, approved: 1.0 },
+
+  // HEMATOLOGY (additional sub-indications)
+  'gene therapy (hemophilia)': { preclinical: 0.06, phase1: 0.1, phase2: 0.25, phase3: 0.48, approved: 1.0 },
+  'hemophilia (factor replacement)': { preclinical: 0.1, phase1: 0.16, phase2: 0.35, phase3: 0.7, approved: 1.0 },
+
+  // OPHTHALMOLOGY
+  'wet amd': { preclinical: 0.06, phase1: 0.1, phase2: 0.28, phase3: 0.55, approved: 1.0 },
+  'wet age-related macular degeneration': { preclinical: 0.06, phase1: 0.1, phase2: 0.28, phase3: 0.55, approved: 1.0 },
+  'geographic atrophy': { preclinical: 0.03, phase1: 0.06, phase2: 0.15, phase3: 0.4, approved: 1.0 },
+  dme: { preclinical: 0.05, phase1: 0.09, phase2: 0.25, phase3: 0.52, approved: 1.0 },
+  'diabetic macular edema': { preclinical: 0.05, phase1: 0.09, phase2: 0.25, phase3: 0.52, approved: 1.0 },
+
+  // DERMATOLOGY (additional sub-indications)
+  'psoriasis (moderate-severe)': { preclinical: 0.08, phase1: 0.13, phase2: 0.32, phase3: 0.65, approved: 1.0 },
+  'alopecia areata': { preclinical: 0.04, phase1: 0.07, phase2: 0.18, phase3: 0.42, approved: 1.0 },
+
+  // GASTROENTEROLOGY
+  'celiac disease': { preclinical: 0.02, phase1: 0.04, phase2: 0.1, phase3: 0.28, approved: 1.0 },
+  'eosinophilic esophagitis': { preclinical: 0.05, phase1: 0.08, phase2: 0.22, phase3: 0.5, approved: 1.0 },
+  eoe: { preclinical: 0.05, phase1: 0.08, phase2: 0.22, phase3: 0.5, approved: 1.0 },
+
+  // HEPATOLOGY
+  'hepatitis b (functional cure)': { preclinical: 0.02, phase1: 0.03, phase2: 0.08, phase3: 0.22, approved: 1.0 },
+  'primary biliary cholangitis': { preclinical: 0.05, phase1: 0.09, phase2: 0.25, phase3: 0.55, approved: 1.0 },
+  pbc: { preclinical: 0.05, phase1: 0.09, phase2: 0.25, phase3: 0.55, approved: 1.0 },
+
+  // ENDOCRINOLOGY
+  'thyroid eye disease': { preclinical: 0.05, phase1: 0.08, phase2: 0.22, phase3: 0.5, approved: 1.0 },
+  ted: { preclinical: 0.05, phase1: 0.08, phase2: 0.22, phase3: 0.5, approved: 1.0 },
+  'growth hormone deficiency': { preclinical: 0.07, phase1: 0.12, phase2: 0.3, phase3: 0.65, approved: 1.0 },
+
+  // MUSCULOSKELETAL
+  'gout (refractory)': { preclinical: 0.04, phase1: 0.08, phase2: 0.2, phase3: 0.48, approved: 1.0 },
+  osteoporosis: { preclinical: 0.05, phase1: 0.09, phase2: 0.25, phase3: 0.55, approved: 1.0 },
+
+  // INFECTIOUS DISEASE
+  'hiv (long-acting)': { preclinical: 0.07, phase1: 0.12, phase2: 0.3, phase3: 0.62, approved: 1.0 },
+  'rsv (prevention)': { preclinical: 0.06, phase1: 0.11, phase2: 0.28, phase3: 0.58, approved: 1.0 },
+  'rsv prevention': { preclinical: 0.06, phase1: 0.11, phase2: 0.28, phase3: 0.58, approved: 1.0 },
+  'antibiotic-resistant infections': { preclinical: 0.04, phase1: 0.07, phase2: 0.18, phase3: 0.42, approved: 1.0 },
 };
 
 // ────────────────────────────────────────────────────────────

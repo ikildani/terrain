@@ -111,6 +111,119 @@ const REFERENCE_MECHANISMS: Record<string, string[]> = {
     'siRNA',
     'anti_inflammatory',
   ],
+  metabolic: [
+    'glp1_agonist',
+    'sglt2_inhibitor',
+    'insulin_analog',
+    'dpp4_inhibitor',
+    'ppar_agonist',
+    'amylin_analog',
+    'fgf21_analog',
+    'glucagon_receptor_antagonist',
+  ],
+  psychiatry: [
+    'ssri',
+    'snri',
+    'atypical_antipsychotic',
+    'nmda_modulator',
+    'psychedelic',
+    'gaba_modulator',
+    'dopamine_modulator',
+    'sigma_receptor_agonist',
+  ],
+  pain_management: [
+    'opioid',
+    'nsaid',
+    'sodium_channel_blocker',
+    'cgrp_inhibitor',
+    'trpv1_antagonist',
+    'neuromodulation',
+    'cannabinoid',
+    'nk1_antagonist',
+  ],
+  infectious_disease: [
+    'antiviral_direct_acting',
+    'nucleoside_analog',
+    'protease_inhibitor',
+    'integrase_inhibitor',
+    'vaccine_mrna',
+    'vaccine_protein',
+    'monoclonal_antibody',
+    'antibiotic_novel',
+  ],
+  hematology: [
+    'factor_replacement',
+    'gene_therapy',
+    'bispecific',
+    'anti_cd20',
+    'btk_inhibitor',
+    'jak_inhibitor',
+    'complement_inhibitor',
+    'rna_interference',
+  ],
+  ophthalmology: [
+    'anti_vegf',
+    'complement_inhibitor',
+    'gene_therapy',
+    'corticosteroid_implant',
+    'neuroprotective',
+    'tyrosine_kinase_inhibitor',
+    'anti_il6',
+  ],
+  pulmonology: [
+    'bronchodilator_laba',
+    'bronchodilator_lama',
+    'inhaled_corticosteroid',
+    'anti_il5',
+    'anti_tslp',
+    'anti_il4_il13',
+    'pde_inhibitor',
+    'anti_fibrotic',
+  ],
+  nephrology: [
+    'sglt2_inhibitor',
+    'mineralocorticoid_antagonist',
+    'endothelin_receptor_antagonist',
+    'complement_inhibitor',
+    'anti_cd20',
+    'calcineurin_inhibitor',
+  ],
+  dermatology: [
+    'anti_il17',
+    'anti_il23',
+    'anti_il4_il13',
+    'jak_inhibitor',
+    'pde4_inhibitor',
+    'anti_ige',
+    'tyrosine_kinase_inhibitor',
+  ],
+  gastroenterology: ['anti_tnf', 'anti_integrin', 'anti_il23', 'jak_inhibitor', 's1p_modulator', 'ppi', 'anti_il12_23'],
+  hepatology: [
+    'nucleoside_analog',
+    'direct_acting_antiviral',
+    'thr_beta_agonist',
+    'fxr_agonist',
+    'anti_fibrotic',
+    'glp1_agonist',
+  ],
+  endocrinology: [
+    'glp1_agonist',
+    'thyroid_hormone',
+    'growth_hormone',
+    'somatostatin_analog',
+    'pth_analog',
+    'sglt2_inhibitor',
+    'insulin_analog',
+  ],
+  musculoskeletal: [
+    'anti_tnf',
+    'anti_il17',
+    'anti_rankl',
+    'anti_sclerostin',
+    'jak_inhibitor',
+    'bisphosphonate',
+    'urate_lowering',
+  ],
 };
 
 // ────────────────────────────────────────────────────────────
@@ -120,13 +233,15 @@ const REFERENCE_MECHANISMS: Record<string, string[]> = {
 // ────────────────────────────────────────────────────────────
 
 const PHASE_EVIDENCE_MAP: Record<ClinicalPhase, number> = {
-  'Approved': 8,
+  Approved: 8,
+  Withdrawn: 6,
+  Discontinued: 1,
   'Phase 3': 6,
   'Phase 2/3': 5,
   'Phase 2': 4,
   'Phase 1/2': 3,
   'Phase 1': 2,
-  'Preclinical': 1,
+  Preclinical: 1,
 };
 
 // ────────────────────────────────────────────────────────────
@@ -165,28 +280,29 @@ function parseEfficacyData(keyData?: string): ParsedEfficacy | undefined {
   const result: ParsedEfficacy = {};
 
   // ORR: "ORR 42%", "ORR: 42%", "ORR of 42%", "42% ORR"
-  const orrMatch = text.match(/orr[\s:=of]*(\d+(?:\.\d+)?)\s*%/) ||
-                   text.match(/(\d+(?:\.\d+)?)\s*%\s*orr/);
+  const orrMatch = text.match(/orr[\s:=of]*(\d+(?:\.\d+)?)\s*%/) || text.match(/(\d+(?:\.\d+)?)\s*%\s*orr/);
   if (orrMatch) result.orr_pct = parseFloat(orrMatch[1]);
 
   // CR: "CR 12%", "CR: 12%", "complete response 12%"
-  const crMatch = text.match(/\bcr[\s:=of]*(\d+(?:\.\d+)?)\s*%/) ||
-                  text.match(/complete\s*response[\s:=of]*(\d+(?:\.\d+)?)\s*%/);
+  const crMatch =
+    text.match(/\bcr[\s:=of]*(\d+(?:\.\d+)?)\s*%/) || text.match(/complete\s*response[\s:=of]*(\d+(?:\.\d+)?)\s*%/);
   if (crMatch) result.cr_pct = parseFloat(crMatch[1]);
 
   // PFS: "mPFS 8.4 months", "PFS 8.4mo", "PFS: 8.4 months", "median PFS 8.4"
-  const pfsMatch = text.match(/(?:m(?:edian)?\s*)?pfs[\s:=of]*(\d+(?:\.\d+)?)\s*(?:mo(?:nths?)?)?/) ||
-                   text.match(/pfs[\s:=]*(\d+(?:\.\d+)?)/);
+  const pfsMatch =
+    text.match(/(?:m(?:edian)?\s*)?pfs[\s:=of]*(\d+(?:\.\d+)?)\s*(?:mo(?:nths?)?)?/) ||
+    text.match(/pfs[\s:=]*(\d+(?:\.\d+)?)/);
   if (pfsMatch) result.pfs_months = parseFloat(pfsMatch[1]);
 
   // OS: "mOS 24.6 months", "OS 24.6mo", "median OS 24.6", "overall survival 24.6"
-  const osMatch = text.match(/(?:m(?:edian)?\s*)?(?:overall\s*survival|os)[\s:=of]*(\d+(?:\.\d+)?)\s*(?:mo(?:nths?)?)?/);
+  const osMatch = text.match(
+    /(?:m(?:edian)?\s*)?(?:overall\s*survival|os)[\s:=of]*(\d+(?:\.\d+)?)\s*(?:mo(?:nths?)?)?/,
+  );
   if (osMatch) result.os_months = parseFloat(osMatch[1]);
 
   // OS HR: "HR 0.63", "OS HR 0.63", "HR=0.63", "hazard ratio 0.63"
   // Be careful: this may also capture PFS HR, so check context
-  const osHrMatch = text.match(/(?:os\s*)?(?:hazard\s*ratio|hr)[\s:=]*(\d\.\d+)/) ||
-                    text.match(/hr[\s:=]*(\d\.\d+)/);
+  const osHrMatch = text.match(/(?:os\s*)?(?:hazard\s*ratio|hr)[\s:=]*(\d\.\d+)/) || text.match(/hr[\s:=]*(\d\.\d+)/);
   if (osHrMatch) result.os_hr = parseFloat(osHrMatch[1]);
 
   // PFS HR: "PFS HR 0.58", "PFS HR=0.58"
@@ -194,11 +310,13 @@ function parseEfficacyData(keyData?: string): ParsedEfficacy | undefined {
   if (pfsHrMatch) result.pfs_hr = parseFloat(pfsHrMatch[1]);
 
   // DOR: "DOR 12.5 months", "mDOR 12.5mo", "duration of response 12.5"
-  const dorMatch = text.match(/(?:m(?:edian)?\s*)?(?:duration\s*of\s*response|dor)[\s:=of]*(\d+(?:\.\d+)?)\s*(?:mo(?:nths?)?)?/);
+  const dorMatch = text.match(
+    /(?:m(?:edian)?\s*)?(?:duration\s*of\s*response|dor)[\s:=of]*(\d+(?:\.\d+)?)\s*(?:mo(?:nths?)?)?/,
+  );
   if (dorMatch) result.dor_months = parseFloat(dorMatch[1]);
 
   // Only return if we parsed at least one field
-  const hasData = Object.values(result).some(v => v !== undefined);
+  const hasData = Object.values(result).some((v) => v !== undefined);
   return hasData ? result : undefined;
 }
 
@@ -214,13 +332,15 @@ function parseEfficacyData(keyData?: string): ParsedEfficacy | undefined {
 // ────────────────────────────────────────────────────────────
 
 const PHASE_THREAT_SCORE: Record<ClinicalPhase, number> = {
-  'Approved': 4,
+  Approved: 4,
+  Withdrawn: 0,
+  Discontinued: 0,
   'Phase 3': 3,
   'Phase 2/3': 2.5,
   'Phase 2': 2,
   'Phase 1/2': 1,
   'Phase 1': 0.5,
-  'Preclinical': 0,
+  Preclinical: 0,
 };
 
 function calculateThreatLevel(
@@ -248,7 +368,7 @@ function calculateThreatLevel(
       // Check for related mechanisms (same category)
       const mechCat = record.mechanism_category;
       const userTokens = userMechLower.split(/[\s\-_]+/);
-      const catMatches = userTokens.some(t => mechCat.includes(t));
+      const catMatches = userTokens.some((t) => mechCat.includes(t));
       if (catMatches) {
         score += 1;
         factors.push('Related mechanism category');
@@ -298,39 +418,33 @@ function calculateThreatLevel(
 // mechanism launches pose displacement risk for new entrants.
 // ────────────────────────────────────────────────────────────
 
-function assessDisplacementRisk(
-  competitors: Competitor[],
-  userMechanism?: string,
-): DisplacementRisk {
+function assessDisplacementRisk(competitors: Competitor[], userMechanism?: string): DisplacementRisk {
   const threats: string[] = [];
 
   // Check for dominant approved incumbents
-  const approved = competitors.filter(c => c.phase === 'Approved');
-  const dominantIncumbents = approved.filter(
-    c => c.differentiation_score >= 7 && c.evidence_strength >= 8
-  );
+  const approved = competitors.filter((c) => c.phase === 'Approved');
+  const dominantIncumbents = approved.filter((c) => c.differentiation_score >= 7 && c.evidence_strength >= 8);
   if (dominantIncumbents.length > 0) {
     threats.push(
-      ...dominantIncumbents.map(c =>
-        `${c.company} (${c.asset_name}) — highly differentiated approved product with strong evidence`
-      )
+      ...dominantIncumbents.map(
+        (c) => `${c.company} (${c.asset_name}) — highly differentiated approved product with strong evidence`,
+      ),
     );
   }
 
   // Check for near-term same-mechanism Phase 3 launches
   if (userMechanism) {
     const mechLower = userMechanism.toLowerCase();
-    const sameMechP3 = competitors.filter(c => {
+    const sameMechP3 = competitors.filter((c) => {
       const isLateStage = c.phase === 'Phase 3' || c.phase === 'Phase 2/3';
-      const mechMatch = c.mechanism.toLowerCase().includes(mechLower) ||
-                        mechLower.includes(c.mechanism.toLowerCase());
+      const mechMatch = c.mechanism.toLowerCase().includes(mechLower) || mechLower.includes(c.mechanism.toLowerCase());
       return isLateStage && mechMatch;
     });
     if (sameMechP3.length > 0) {
       threats.push(
-        ...sameMechP3.map(c =>
-          `${c.company} (${c.asset_name}) — same mechanism in ${c.phase}, near-term launch risk`
-        )
+        ...sameMechP3.map(
+          (c) => `${c.company} (${c.asset_name}) — same mechanism in ${c.phase}, near-term launch risk`,
+        ),
       );
     }
   }
@@ -351,11 +465,17 @@ function assessDisplacementRisk(
 
   const narrativeParts: string[] = [];
   if (risk_level === 'low') {
-    narrativeParts.push('Low displacement risk. No dominant incumbents or near-term same-mechanism competitors identified.');
+    narrativeParts.push(
+      'Low displacement risk. No dominant incumbents or near-term same-mechanism competitors identified.',
+    );
   } else if (risk_level === 'medium') {
-    narrativeParts.push('Moderate displacement risk. Some competitive pressure exists, but differentiated positioning can mitigate.');
+    narrativeParts.push(
+      'Moderate displacement risk. Some competitive pressure exists, but differentiated positioning can mitigate.',
+    );
   } else {
-    narrativeParts.push('High displacement risk. Dominant incumbents and/or near-term same-mechanism competitors create significant barriers to market entry.');
+    narrativeParts.push(
+      'High displacement risk. Dominant incumbents and/or near-term same-mechanism competitors create significant barriers to market entry.',
+    );
   }
 
   return {
@@ -382,10 +502,7 @@ function assessDisplacementRisk(
 //   Clamped to [1, 10]
 // ────────────────────────────────────────────────────────────
 
-function calculateDifferentiationScore(
-  record: CompetitorRecord,
-  allRecords: CompetitorRecord[]
-): number {
+function calculateDifferentiationScore(record: CompetitorRecord, allRecords: CompetitorRecord[]): number {
   let score = 5;
 
   // First-in-class bonus: a truly novel mechanism commands premium differentiation
@@ -398,9 +515,7 @@ function calculateDifferentiationScore(
   if (record.has_biomarker_selection) score += 1;
 
   // Mechanism uniqueness assessment
-  const sameMechanismCount = allRecords.filter(
-    (r) => r.mechanism_category === record.mechanism_category
-  ).length;
+  const sameMechanismCount = allRecords.filter((r) => r.mechanism_category === record.mechanism_category).length;
 
   if (sameMechanismCount === 1) {
     // This is the only asset with this mechanism — unique
@@ -426,10 +541,7 @@ function calculateDifferentiationScore(
 // Clamped to [1, 10]
 // ────────────────────────────────────────────────────────────
 
-function calculateEvidenceStrength(
-  record: CompetitorRecord,
-  parsedEfficacy?: ParsedEfficacy,
-): number {
+function calculateEvidenceStrength(record: CompetitorRecord, parsedEfficacy?: ParsedEfficacy): number {
   let score = PHASE_EVIDENCE_MAP[record.phase] ?? 1;
 
   // Bonus for having reported clinical data
@@ -453,7 +565,7 @@ function calculateEvidenceStrength(
     if (parsedEfficacy.pfs_months && parsedEfficacy.pfs_months >= 6) {
       score += 0.5; // Clinically meaningful PFS
     }
-    if (parsedEfficacy.os_hr && parsedEfficacy.os_hr < 0.70) {
+    if (parsedEfficacy.os_hr && parsedEfficacy.os_hr < 0.7) {
       score += 0.5; // Strong survival benefit
     }
   }
@@ -486,18 +598,20 @@ function calculateEvidenceStrength(
 // ────────────────────────────────────────────────────────────
 
 const PHASE_CROWDING_WEIGHT: Record<ClinicalPhase, number> = {
-  'Approved': 2.0,
+  Approved: 2.0,
+  Withdrawn: 0.1,
+  Discontinued: 0.05,
   'Phase 3': 1.5,
   'Phase 2/3': 1.25,
   'Phase 2': 1.0,
   'Phase 1/2': 0.5,
   'Phase 1': 0.3,
-  'Preclinical': 0.1,
+  Preclinical: 0.1,
 };
 
 function calculateCrowdingScore(
   competitors: CompetitorRecord[],
-  _indicationData: { therapy_area: string }
+  _indicationData: { therapy_area: string },
 ): { score: number; label: LandscapeSummary['crowding_label'] } {
   const total = competitors.length;
 
@@ -520,8 +634,7 @@ function calculateCrowdingScore(
   if (total > 0) {
     const mechanismCounts: Record<string, number> = {};
     for (const c of competitors) {
-      mechanismCounts[c.mechanism_category] =
-        (mechanismCounts[c.mechanism_category] || 0) + 1;
+      mechanismCounts[c.mechanism_category] = (mechanismCounts[c.mechanism_category] || 0) + 1;
     }
     const maxMechanismCount = Math.max(...Object.values(mechanismCounts));
     const dominantPct = maxMechanismCount / total;
@@ -535,9 +648,7 @@ function calculateCrowdingScore(
   }
 
   // Step 3: Late-stage density adjustment
-  const lateStageCount = competitors.filter(
-    (c) => c.phase === 'Phase 3' || c.phase === 'Phase 2/3'
-  ).length;
+  const lateStageCount = competitors.filter((c) => c.phase === 'Phase 3' || c.phase === 'Phase 2/3').length;
   if (lateStageCount >= 5) {
     score += 1;
   }
@@ -564,11 +675,7 @@ function calculateCrowdingScore(
 // Returns up to 5 items.
 // ────────────────────────────────────────────────────────────
 
-function identifyWhiteSpace(
-  competitors: CompetitorRecord[],
-  therapyArea: string,
-  indicationName: string
-): string[] {
+function identifyWhiteSpace(competitors: CompetitorRecord[], therapyArea: string, indicationName: string): string[] {
   const whiteSpace: string[] = [];
 
   // 1. Mechanism category gaps: compare present categories against the reference set
@@ -578,28 +685,20 @@ function identifyWhiteSpace(
   for (const refMech of refMechanisms) {
     if (!presentMechanisms.has(refMech)) {
       // Convert mechanism_category slug to a readable label
-      const readable = refMech
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, (c) => c.toUpperCase());
-      whiteSpace.push(
-        `No ${readable} assets in ${indicationName} — potential novel mechanism opportunity`
-      );
+      const readable = refMech.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      whiteSpace.push(`No ${readable} assets in ${indicationName} — potential novel mechanism opportunity`);
     }
     // Stop early if we already have enough
     if (whiteSpace.length >= 3) break;
   }
 
   // 2. Line-of-therapy gaps
-  const linesPresent = new Set(
-    competitors.map((c) => c.line_of_therapy).filter(Boolean)
-  );
+  const linesPresent = new Set(competitors.map((c) => c.line_of_therapy).filter(Boolean));
   const keyLines = ['1L', '2L', '2L+', 'maintenance'];
 
   for (const line of keyLines) {
     if (!linesPresent.has(line) && whiteSpace.length < 5) {
-      whiteSpace.push(
-        `No approved or late-stage asset targeting ${line} treatment in ${indicationName}`
-      );
+      whiteSpace.push(`No approved or late-stage asset targeting ${line} treatment in ${indicationName}`);
     }
   }
 
@@ -608,31 +707,31 @@ function identifyWhiteSpace(
   const anyBiomarkerSelected = competitors.some((c) => c.has_biomarker_selection);
   if (!anyBiomarkerSelected && whiteSpace.length < 6) {
     whiteSpace.push(
-      `No biomarker-selected therapies in ${indicationName} — precision medicine approach could differentiate`
+      `No biomarker-selected therapies in ${indicationName} — precision medicine approach could differentiate`,
     );
   }
 
   // 4. Combination therapy gap: if most competitors are monotherapy,
   //    rational combination approaches may be underexplored.
   const comboCompetitors = competitors.filter(
-    c => c.indication_specifics.includes('+') || c.indication_specifics.toLowerCase().includes('combin')
+    (c) => c.indication_specifics.includes('+') || c.indication_specifics.toLowerCase().includes('combin'),
   );
   if (comboCompetitors.length === 0 && competitors.length >= 3 && whiteSpace.length < 6) {
     whiteSpace.push(
-      `No combination regimens in development for ${indicationName} — rational combos with existing agents could differentiate`
+      `No combination regimens in development for ${indicationName} — rational combos with existing agents could differentiate`,
     );
   }
 
   // 5. Geographic gap: if all approved are US-only, EU/Japan represents white space.
-  const approvedRecs = competitors.filter(c => c.phase === 'Approved');
+  const approvedRecs = competitors.filter((c) => c.phase === 'Approved');
   if (approvedRecs.length > 0) {
-    const anyEU = approvedRecs.some(c => {
+    const anyEU = approvedRecs.some((c) => {
       const text = ((c as unknown as { key_data?: string }).key_data ?? '').toLowerCase();
       return text.includes('ema') || text.includes('eu ') || text.includes('europe');
     });
     if (!anyEU && whiteSpace.length < 6) {
       whiteSpace.push(
-        `EU5 may be underserved — ${approvedRecs.length} approved product(s) appear US-centric, potential for ex-US licensing`
+        `EU5 may be underserved — ${approvedRecs.length} approved product(s) appear US-centric, potential for ex-US licensing`,
       );
     }
   }
@@ -659,9 +758,7 @@ function enrichWithPricingData(record: CompetitorRecord): PricingEnrichment {
 
   // Match pricing benchmarks by drug name (case-insensitive)
   const assetLower = record.asset_name.toLowerCase();
-  const pricingMatch = PRICING_BENCHMARKS.find(
-    (p) => p.drug_name.toLowerCase() === assetLower
-  );
+  const pricingMatch = PRICING_BENCHMARKS.find((p) => p.drug_name.toLowerCase() === assetLower);
 
   if (pricingMatch) {
     // Estimate peak sales from current list price and therapy area context.
@@ -706,7 +803,7 @@ function enrichWithDealData(record: CompetitorRecord): DealEnrichment {
     p.recent_deals.map((d) => ({
       ...d,
       parent_company: p.company,
-    }))
+    })),
   );
 
   const assetLower = record.asset_name.toLowerCase();
@@ -714,17 +811,16 @@ function enrichWithDealData(record: CompetitorRecord): DealEnrichment {
 
   // Try matching by asset name first (most specific)
   const assetMatch = allDeals.find(
-    (d) =>
-      d.asset.toLowerCase().includes(assetLower) ||
-      assetLower.includes(d.asset.toLowerCase())
+    (d) => d.asset.toLowerCase().includes(assetLower) || assetLower.includes(d.asset.toLowerCase()),
   );
 
   if (assetMatch) {
     result.partner = assetMatch.parent_company;
     if (assetMatch.total_value_m > 0) {
-      result.partnership_deal_value = `$${assetMatch.total_value_m >= 1000
-        ? `${(assetMatch.total_value_m / 1000).toFixed(1)}B`
-        : `${assetMatch.total_value_m}M`
+      result.partnership_deal_value = `$${
+        assetMatch.total_value_m >= 1000
+          ? `${(assetMatch.total_value_m / 1000).toFixed(1)}B`
+          : `${assetMatch.total_value_m}M`
       } total deal value`;
     }
     return result;
@@ -732,24 +828,22 @@ function enrichWithDealData(record: CompetitorRecord): DealEnrichment {
 
   // Fall back to indication match (broader — only use for companies without a deal)
   const indicationMatch = allDeals.find(
-    (d) =>
-      d.indication.toLowerCase().includes(indicationLower) ||
-      indicationLower.includes(d.indication.toLowerCase())
+    (d) => d.indication.toLowerCase().includes(indicationLower) || indicationLower.includes(d.indication.toLowerCase()),
   );
 
   if (indicationMatch) {
     result.partner = indicationMatch.parent_company;
     if (indicationMatch.total_value_m > 0) {
-      result.partnership_deal_value = `$${indicationMatch.total_value_m >= 1000
-        ? `${(indicationMatch.total_value_m / 1000).toFixed(1)}B`
-        : `${indicationMatch.total_value_m}M`
+      result.partnership_deal_value = `$${
+        indicationMatch.total_value_m >= 1000
+          ? `${(indicationMatch.total_value_m / 1000).toFixed(1)}B`
+          : `${indicationMatch.total_value_m}M`
       } total deal value`;
     }
   }
 
   return result;
 }
-
 
 // ────────────────────────────────────────────────────────────
 // COMPETITIVE TIMELINE MODEL
@@ -764,23 +858,27 @@ function enrichWithDealData(record: CompetitorRecord): DealEnrichment {
 // ────────────────────────────────────────────────────────────
 
 const PHASE_READOUT_MONTHS: Record<ClinicalPhase, { min: number; max: number } | null> = {
-  'Preclinical': { min: 36, max: 60 },
+  Preclinical: { min: 36, max: 60 },
   'Phase 1': { min: 12, max: 18 },
   'Phase 1/2': { min: 18, max: 24 },
   'Phase 2': { min: 12, max: 24 },
   'Phase 2/3': { min: 18, max: 30 },
   'Phase 3': { min: 24, max: 36 },
-  'Approved': null,
+  Approved: null,
+  Withdrawn: null,
+  Discontinued: null,
 };
 
 const PHASE_CONFIDENCE: Record<ClinicalPhase, 'high' | 'medium' | 'low'> = {
-  'Approved': 'high',
+  Approved: 'high',
+  Withdrawn: 'high',
+  Discontinued: 'medium',
   'Phase 3': 'high',
   'Phase 2/3': 'medium',
   'Phase 2': 'medium',
   'Phase 1/2': 'low',
   'Phase 1': 'low',
-  'Preclinical': 'low',
+  Preclinical: 'low',
 };
 
 function formatFutureDate(monthsFromNow: number): string {
@@ -807,10 +905,20 @@ function buildCompetitiveTimeline(record: CompetitorRecord): CompetitiveTimeline
   if (record.orphan_drug) {
     riskFactors.push('Rare disease enrollment challenges may extend timelines');
   }
-  if (mechLower.includes('car-t') || mechLower.includes('car_t') || mechLower.includes('gene therapy') || mechLower.includes('gene_therapy')) {
+  if (
+    mechLower.includes('car-t') ||
+    mechLower.includes('car_t') ||
+    mechLower.includes('gene therapy') ||
+    mechLower.includes('gene_therapy')
+  ) {
     riskFactors.push('Manufacturing complexity for cell/gene therapy may delay scale-up');
   }
-  if (mechLower.includes('biologic') || mechLower.includes('antibody') || mechLower.includes('adc') || mechLower.includes('bispecific')) {
+  if (
+    mechLower.includes('biologic') ||
+    mechLower.includes('antibody') ||
+    mechLower.includes('adc') ||
+    mechLower.includes('bispecific')
+  ) {
     riskFactors.push('Biologics manufacturing and CMC requirements add regulatory complexity');
   }
   if (indicLower.includes('pediatric') || indicLower.includes('children')) {
@@ -833,7 +941,8 @@ function buildCompetitiveTimeline(record: CompetitorRecord): CompetitiveTimeline
       estimated_filing_date: undefined,
       estimated_launch_date: 'Launched',
       confidence: 'high',
-      timeline_risk_factors: riskFactors.length > 0 ? riskFactors : ['Product already on market — minimal timeline risk'],
+      timeline_risk_factors:
+        riskFactors.length > 0 ? riskFactors : ['Product already on market — minimal timeline risk'],
     };
   }
 
@@ -876,7 +985,6 @@ function buildCompetitiveTimeline(record: CompetitorRecord): CompetitiveTimeline
   };
 }
 
-
 // ────────────────────────────────────────────────────────────
 // EFFICACY DELTA SCORING
 //
@@ -901,9 +1009,7 @@ function buildEfficacyDeltas(
   if (!competitor.parsed_efficacy) return deltas;
 
   // Establish best-in-class benchmarks from approved products
-  const approvedWithEfficacy = allCompetitors.filter(
-    c => c.phase === 'Approved' && c.parsed_efficacy
-  );
+  const approvedWithEfficacy = allCompetitors.filter((c) => c.phase === 'Approved' && c.parsed_efficacy);
 
   if (approvedWithEfficacy.length === 0) return deltas;
 
@@ -916,17 +1022,17 @@ function buildEfficacyDeltas(
 
   // Calculate benchmark values: median among approved products
   const approvedORRs = approvedWithEfficacy
-    .map(c => c.parsed_efficacy?.orr_pct)
+    .map((c) => c.parsed_efficacy?.orr_pct)
     .filter((v): v is number => v !== undefined)
     .sort((a, b) => a - b);
 
   const approvedPFS = approvedWithEfficacy
-    .map(c => c.parsed_efficacy?.pfs_months)
+    .map((c) => c.parsed_efficacy?.pfs_months)
     .filter((v): v is number => v !== undefined)
     .sort((a, b) => a - b);
 
   const approvedOSHR = approvedWithEfficacy
-    .map(c => c.parsed_efficacy?.os_hr)
+    .map((c) => c.parsed_efficacy?.os_hr)
     .filter((v): v is number => v !== undefined)
     .sort((a, b) => a - b);
 
@@ -1026,7 +1132,6 @@ function buildEfficacyDeltas(
   return deltas;
 }
 
-
 // ────────────────────────────────────────────────────────────
 // BARRIER-TO-ENTRY ASSESSMENT
 //
@@ -1065,12 +1170,12 @@ function assessBarriers(
   _userMechanism?: string,
 ): BarrierAssessment {
   const barriers: BarrierToEntry[] = [];
-  const approved = competitors.filter(c => c.phase === 'Approved');
-  const approvedRecords = competitorRecords.filter(r => r.phase === 'Approved');
+  const approved = competitors.filter((c) => c.phase === 'Approved');
+  const approvedRecords = competitorRecords.filter((r) => r.phase === 'Approved');
 
   // 1. IP Protection
-  const orphanDrugCompetitors = competitorRecords.filter(r => r.orphan_drug && r.phase === 'Approved');
-  const firstInClassApproved = competitorRecords.filter(r => r.first_in_class && r.phase === 'Approved');
+  const orphanDrugCompetitors = competitorRecords.filter((r) => r.orphan_drug && r.phase === 'Approved');
+  const firstInClassApproved = competitorRecords.filter((r) => r.first_in_class && r.phase === 'Approved');
 
   let ipSeverity: BarrierToEntry['severity'] = 'low';
   const ipAffected: string[] = [];
@@ -1088,10 +1193,15 @@ function assessBarriers(
 
   const ipDescParts: string[] = [];
   if (orphanDrugCompetitors.length > 0) {
-    ipDescParts.push(orphanDrugCompetitors.length + ' approved product(s) hold orphan drug designation with 7-year market exclusivity');
+    ipDescParts.push(
+      orphanDrugCompetitors.length + ' approved product(s) hold orphan drug designation with 7-year market exclusivity',
+    );
   }
   if (firstInClassApproved.length > 0) {
-    ipDescParts.push(firstInClassApproved.length + ' first-in-class approved product(s) may hold composition-of-matter patents blocking similar mechanisms');
+    ipDescParts.push(
+      firstInClassApproved.length +
+        ' first-in-class approved product(s) may hold composition-of-matter patents blocking similar mechanisms',
+    );
   }
 
   if (ipDescParts.length > 0) {
@@ -1104,42 +1214,53 @@ function assessBarriers(
   }
 
   // 2. Manufacturing Complexity
-  const allMechanisms = competitorRecords.map(r => r.mechanism.toLowerCase());
-  const complexModalities = ['car-t', 'car_t', 'gene therapy', 'gene_therapy', 'bispecific', 'adc', 'antibody-drug conjugate'];
+  const allMechanisms = competitorRecords.map((r) => r.mechanism.toLowerCase());
+  const complexModalities = [
+    'car-t',
+    'car_t',
+    'gene therapy',
+    'gene_therapy',
+    'bispecific',
+    'adc',
+    'antibody-drug conjugate',
+  ];
   const dominantMechanism = findDominantMechanism(competitorRecords);
   const dominantMechLower = dominantMechanism.toLowerCase();
 
-  const isComplexModality = complexModalities.some(m =>
-    dominantMechLower.includes(m) || allMechanisms.some(am => am.includes(m))
+  const isComplexModality = complexModalities.some(
+    (m) => dominantMechLower.includes(m) || allMechanisms.some((am) => am.includes(m)),
   );
 
   if (isComplexModality) {
     const complexCompetitors = competitorRecords
-      .filter(r => complexModalities.some(m => r.mechanism.toLowerCase().includes(m)))
-      .map(r => r.company + ' (' + r.asset_name + ')');
+      .filter((r) => complexModalities.some((m) => r.mechanism.toLowerCase().includes(m)))
+      .map((r) => r.company + ' (' + r.asset_name + ')');
 
     barriers.push({
       barrier_type: 'manufacturing_complexity',
       severity: 'high',
-      description: 'Dominant competitive modalities involve complex biologics (CAR-T, gene therapy, ADC, or bispecific antibodies), requiring specialized manufacturing infrastructure, supply chain capabilities, and CMC expertise that create significant barriers for new entrants.',
+      description:
+        'Dominant competitive modalities involve complex biologics (CAR-T, gene therapy, ADC, or bispecific antibodies), requiring specialized manufacturing infrastructure, supply chain capabilities, and CMC expertise that create significant barriers for new entrants.',
       affected_competitors: Array.from(new Set(complexCompetitors)),
     });
   } else {
-    const biologicsPresent = allMechanisms.some(m =>
-      m.includes('antibody') || m.includes('biologic') || (m.includes('inhibitor') && !m.includes('small molecule'))
+    const biologicsPresent = allMechanisms.some(
+      (m) =>
+        m.includes('antibody') || m.includes('biologic') || (m.includes('inhibitor') && !m.includes('small molecule')),
     );
     if (biologicsPresent) {
       barriers.push({
         barrier_type: 'manufacturing_complexity',
         severity: 'medium',
-        description: 'Biologics-based therapies in the landscape require specialized manufacturing and are subject to FDA/EMA biosimilar exclusivity periods.',
+        description:
+          'Biologics-based therapies in the landscape require specialized manufacturing and are subject to FDA/EMA biosimilar exclusivity periods.',
         affected_competitors: [],
       });
     }
   }
 
   // 3. First-Mover Advantage
-  const dominantIncumbents = approved.filter(c => c.evidence_strength >= 8);
+  const dominantIncumbents = approved.filter((c) => c.evidence_strength >= 8);
   let fmaSeverity: BarrierToEntry['severity'] = 'low';
 
   if (dominantIncumbents.length >= 2) {
@@ -1152,8 +1273,10 @@ function assessBarriers(
     barriers.push({
       barrier_type: 'first_mover',
       severity: fmaSeverity,
-      description: dominantIncumbents.length + ' approved product(s) have high evidence strength (>=8/10), establishing entrenched clinical adoption, guideline inclusion, and prescribing habits that new entrants must overcome.',
-      affected_competitors: dominantIncumbents.map(c => c.company + ' (' + c.asset_name + ')'),
+      description:
+        dominantIncumbents.length +
+        ' approved product(s) have high evidence strength (>=8/10), establishing entrenched clinical adoption, guideline inclusion, and prescribing habits that new entrants must overcome.',
+      affected_competitors: dominantIncumbents.map((c) => c.company + ' (' + c.asset_name + ')'),
     });
   }
 
@@ -1162,31 +1285,42 @@ function assessBarriers(
   const exclusivityAffected: string[] = [];
 
   if (orphanDrugCompetitors.length > 0) {
-    exclusivityBarriers.push('Orphan Drug Exclusivity (7 years) held by ' + orphanDrugCompetitors.length + ' product(s)');
-    orphanDrugCompetitors.forEach(r => exclusivityAffected.push(r.company + ' (' + r.asset_name + ')'));
+    exclusivityBarriers.push(
+      'Orphan Drug Exclusivity (7 years) held by ' + orphanDrugCompetitors.length + ' product(s)',
+    );
+    orphanDrugCompetitors.forEach((r) => exclusivityAffected.push(r.company + ' (' + r.asset_name + ')'));
   }
 
-  const recentApprovals = approvedRecords.filter(r => {
+  const recentApprovals = approvedRecords.filter((r) => {
     const year = parseInt(r.last_updated.slice(0, 4), 10);
     return year >= 2020;
   });
   if (recentApprovals.length > 0) {
-    exclusivityBarriers.push('Potential NCE exclusivity (5 years) for ' + recentApprovals.length + ' recently approved product(s)');
-    recentApprovals.forEach(r => {
+    exclusivityBarriers.push(
+      'Potential NCE exclusivity (5 years) for ' + recentApprovals.length + ' recently approved product(s)',
+    );
+    recentApprovals.forEach((r) => {
       const name = r.company + ' (' + r.asset_name + ')';
       if (!exclusivityAffected.includes(name)) exclusivityAffected.push(name);
     });
   }
 
-  const biologicApprovals = approvedRecords.filter(r => {
+  const biologicApprovals = approvedRecords.filter((r) => {
     const mechLower = r.mechanism.toLowerCase();
-    return mechLower.includes('antibody') || mechLower.includes('biologic') ||
-           mechLower.includes('adc') || mechLower.includes('bispecific') ||
-           mechLower.includes('car-t') || mechLower.includes('gene therapy');
+    return (
+      mechLower.includes('antibody') ||
+      mechLower.includes('biologic') ||
+      mechLower.includes('adc') ||
+      mechLower.includes('bispecific') ||
+      mechLower.includes('car-t') ||
+      mechLower.includes('gene therapy')
+    );
   });
   if (biologicApprovals.length > 0) {
-    exclusivityBarriers.push('Biologics reference product exclusivity (12 years) for ' + biologicApprovals.length + ' approved biologic(s)');
-    biologicApprovals.forEach(r => {
+    exclusivityBarriers.push(
+      'Biologics reference product exclusivity (12 years) for ' + biologicApprovals.length + ' approved biologic(s)',
+    );
+    biologicApprovals.forEach((r) => {
       const name = r.company + ' (' + r.asset_name + ')';
       if (!exclusivityAffected.includes(name)) exclusivityAffected.push(name);
     });
@@ -1213,20 +1347,25 @@ function assessBarriers(
     barriers.push({
       barrier_type: 'payer_entrenchment',
       severity: 'high',
-      description: 'With ' + approved.length + ' approved products, payers have established step therapy requirements, preferred formulary positions, and rebate contracts. New entrants must demonstrate substantial clinical differentiation or cost advantages to gain formulary access.',
-      affected_competitors: approved.map(c => c.company + ' (' + c.asset_name + ')'),
+      description:
+        'With ' +
+        approved.length +
+        ' approved products, payers have established step therapy requirements, preferred formulary positions, and rebate contracts. New entrants must demonstrate substantial clinical differentiation or cost advantages to gain formulary access.',
+      affected_competitors: approved.map((c) => c.company + ' (' + c.asset_name + ')'),
     });
   } else if (approved.length >= 3) {
     barriers.push({
       barrier_type: 'payer_entrenchment',
       severity: 'medium',
-      description: approved.length + ' approved products have established formulary positions. Payer negotiations will require evidence of incremental clinical benefit to justify addition to coverage.',
-      affected_competitors: approved.map(c => c.company + ' (' + c.asset_name + ')'),
+      description:
+        approved.length +
+        ' approved products have established formulary positions. Payer negotiations will require evidence of incremental clinical benefit to justify addition to coverage.',
+      affected_competitors: approved.map((c) => c.company + ' (' + c.asset_name + ')'),
     });
   }
 
   // 6. KOL Network
-  const longTermIncumbents = approvedRecords.filter(r => {
+  const longTermIncumbents = approvedRecords.filter((r) => {
     const year = parseInt(r.last_updated.slice(0, 4), 10);
     return year <= 2022 || (r.key_data && r.key_data.length > 100);
   });
@@ -1235,15 +1374,18 @@ function assessBarriers(
     barriers.push({
       barrier_type: 'kol_network',
       severity: 'high',
-      description: longTermIncumbents.length + ' established products have built deep KOL relationships through years of clinical experience, advisory boards, and investigator-sponsored studies. New entrants must invest significantly in medical affairs to build comparable thought leader engagement.',
-      affected_competitors: longTermIncumbents.map(r => r.company + ' (' + r.asset_name + ')'),
+      description:
+        longTermIncumbents.length +
+        ' established products have built deep KOL relationships through years of clinical experience, advisory boards, and investigator-sponsored studies. New entrants must invest significantly in medical affairs to build comparable thought leader engagement.',
+      affected_competitors: longTermIncumbents.map((r) => r.company + ' (' + r.asset_name + ')'),
     });
   } else if (longTermIncumbents.length >= 1) {
     barriers.push({
       barrier_type: 'kol_network',
       severity: 'medium',
-      description: 'Established incumbent(s) have existing KOL relationships that provide prescribing inertia. New entrants should prioritize medical affairs engagement and investigator-sponsored study programs.',
-      affected_competitors: longTermIncumbents.map(r => r.company + ' (' + r.asset_name + ')'),
+      description:
+        'Established incumbent(s) have existing KOL relationships that provide prescribing inertia. New entrants should prioritize medical affairs engagement and investigator-sponsored study programs.',
+      affected_competitors: longTermIncumbents.map((r) => r.company + ' (' + r.asset_name + ')'),
     });
   }
 
@@ -1260,9 +1402,7 @@ function assessBarriers(
   }
 
   // Normalize to 1-10 scale. Max possible is 6 barriers * 3 = 18
-  const rawScore = barriers.length > 0
-    ? (totalWeight / Math.max(barriers.length, 1)) * (barriers.length / 6) * 10
-    : 1;
+  const rawScore = barriers.length > 0 ? (totalWeight / Math.max(barriers.length, 1)) * (barriers.length / 6) * 10 : 1;
   const overallScore = clamp(Math.round(rawScore * 10) / 10, 1, 10);
 
   let barrierLabel: BarrierAssessment['barrier_label'];
@@ -1272,18 +1412,47 @@ function assessBarriers(
   else barrierLabel = 'Very High';
 
   // Build narrative
-  const highBarriers = barriers.filter(b => b.severity === 'high');
-  const mediumBarriers = barriers.filter(b => b.severity === 'medium');
+  const highBarriers = barriers.filter((b) => b.severity === 'high');
+  const mediumBarriers = barriers.filter((b) => b.severity === 'medium');
 
   let narrative: string;
   if (barriers.length === 0) {
-    narrative = 'The ' + indicationData.therapy_area + ' landscape presents minimal barriers to entry. No significant IP protection, manufacturing complexity, or payer entrenchment barriers were identified, suggesting relatively open competitive access for new entrants.';
+    narrative =
+      'The ' +
+      indicationData.therapy_area +
+      ' landscape presents minimal barriers to entry. No significant IP protection, manufacturing complexity, or payer entrenchment barriers were identified, suggesting relatively open competitive access for new entrants.';
   } else if (highBarriers.length >= 3) {
-    narrative = 'The competitive landscape presents very high barriers to entry (' + overallScore + '/10). ' + highBarriers.length + ' high-severity barriers were identified, including ' + highBarriers.map(b => b.barrier_type.replace(/_/g, ' ')).join(', ') + '. New entrants require transformative clinical differentiation, substantial manufacturing capabilities, and robust market access strategies to compete effectively.';
+    narrative =
+      'The competitive landscape presents very high barriers to entry (' +
+      overallScore +
+      '/10). ' +
+      highBarriers.length +
+      ' high-severity barriers were identified, including ' +
+      highBarriers.map((b) => b.barrier_type.replace(/_/g, ' ')).join(', ') +
+      '. New entrants require transformative clinical differentiation, substantial manufacturing capabilities, and robust market access strategies to compete effectively.';
   } else if (highBarriers.length >= 1) {
-    narrative = 'The competitive landscape presents ' + barrierLabel.toLowerCase() + ' barriers to entry (' + overallScore + '/10). Key challenges include ' + highBarriers.map(b => b.barrier_type.replace(/_/g, ' ')).join(', ') + (mediumBarriers.length > 0 ? ', with moderate barriers in ' + mediumBarriers.map(b => b.barrier_type.replace(/_/g, ' ')).join(', ') : '') + '. Differentiated clinical profiles and strategic positioning can mitigate these barriers.';
+    narrative =
+      'The competitive landscape presents ' +
+      barrierLabel.toLowerCase() +
+      ' barriers to entry (' +
+      overallScore +
+      '/10). Key challenges include ' +
+      highBarriers.map((b) => b.barrier_type.replace(/_/g, ' ')).join(', ') +
+      (mediumBarriers.length > 0
+        ? ', with moderate barriers in ' + mediumBarriers.map((b) => b.barrier_type.replace(/_/g, ' ')).join(', ')
+        : '') +
+      '. Differentiated clinical profiles and strategic positioning can mitigate these barriers.';
   } else {
-    narrative = 'The competitive landscape presents ' + barrierLabel.toLowerCase() + ' barriers to entry (' + overallScore + '/10) across ' + barriers.length + ' dimension(s). While no single barrier is prohibitive, cumulative challenges in ' + barriers.map(b => b.barrier_type.replace(/_/g, ' ')).join(', ') + ' should be factored into market entry planning.';
+    narrative =
+      'The competitive landscape presents ' +
+      barrierLabel.toLowerCase() +
+      ' barriers to entry (' +
+      overallScore +
+      '/10) across ' +
+      barriers.length +
+      ' dimension(s). While no single barrier is prohibitive, cumulative challenges in ' +
+      barriers.map((b) => b.barrier_type.replace(/_/g, ' ')).join(', ') +
+      ' should be factored into market entry planning.';
   }
 
   return {
@@ -1293,7 +1462,6 @@ function assessBarriers(
     narrative,
   };
 }
-
 
 // ────────────────────────────────────────────────────────────
 // SAFETY PROFILE PARSING
@@ -1308,13 +1476,13 @@ function assessBarriers(
 
 const MECHANISM_SAFETY_DEFAULTS: Record<string, { grade3: number; disc: number; irae: number }> = {
   checkpoint_inhibitor: { grade3: 15, disc: 8, irae: 25 },
-  car_t:               { grade3: 60, disc: 5, irae: 0 },
-  adc:                 { grade3: 25, disc: 12, irae: 0 },
-  small_molecule_tki:  { grade3: 20, disc: 10, irae: 0 },
-  bispecific:          { grade3: 30, disc: 8, irae: 0 },
-  cdk_inhibitor:       { grade3: 18, disc: 7, irae: 0 },
-  vegf_inhibitor:      { grade3: 22, disc: 9, irae: 0 },
-  default:             { grade3: 20, disc: 10, irae: 0 },
+  car_t: { grade3: 60, disc: 5, irae: 0 },
+  adc: { grade3: 25, disc: 12, irae: 0 },
+  small_molecule_tki: { grade3: 20, disc: 10, irae: 0 },
+  bispecific: { grade3: 30, disc: 8, irae: 0 },
+  cdk_inhibitor: { grade3: 18, disc: 7, irae: 0 },
+  vegf_inhibitor: { grade3: 22, disc: 9, irae: 0 },
+  default: { grade3: 20, disc: 10, irae: 0 },
 };
 
 function parseSafetyProfile(keyData?: string, mechanism?: string): SafetyProfile | undefined {
@@ -1325,18 +1493,14 @@ function parseSafetyProfile(keyData?: string, mechanism?: string): SafetyProfile
   // Attempt regex extraction from keyData
   if (keyData && keyData.trim().length > 0) {
     const grade3Match = keyData.match(
-      /(?:grade?\s*3\+?|g3\+?|≥?\s*grade\s*3)\s*(?:ae|adverse|toxicit)[\w]*[\s:]*(\d+(?:\.\d+)?)\s*%/i
+      /(?:grade?\s*3\+?|g3\+?|≥?\s*grade\s*3)\s*(?:ae|adverse|toxicit)[\w]*[\s:]*(\d+(?:\.\d+)?)\s*%/i,
     );
     if (grade3Match) grade3 = parseFloat(grade3Match[1]);
 
-    const discMatch = keyData.match(
-      /(?:treatment\s+)?discontinu[\w]*[\s:]*(\d+(?:\.\d+)?)\s*%/i
-    );
+    const discMatch = keyData.match(/(?:treatment\s+)?discontinu[\w]*[\s:]*(\d+(?:\.\d+)?)\s*%/i);
     if (discMatch) disc = parseFloat(discMatch[1]);
 
-    const iraeMatch = keyData.match(
-      /(?:ir[- ]?ae|immune[- ]related)[\w\s]*[\s:]*(\d+(?:\.\d+)?)\s*%/i
-    );
+    const iraeMatch = keyData.match(/(?:ir[- ]?ae|immune[- ]related)[\w\s]*[\s:]*(\d+(?:\.\d+)?)\s*%/i);
     if (iraeMatch) irae = parseFloat(iraeMatch[1]);
   }
 
@@ -1391,7 +1555,6 @@ function parseSafetyProfile(keyData?: string, mechanism?: string): SafetyProfile
   };
 }
 
-
 // ────────────────────────────────────────────────────────────
 // MARKET SHARE DISTRIBUTION
 //
@@ -1407,19 +1570,18 @@ function parseSafetyProfile(keyData?: string, mechanism?: string): SafetyProfile
 // ────────────────────────────────────────────────────────────
 
 const PHASE_SHARE_WEIGHT: Record<ClinicalPhase, number> = {
-  'Approved':    40,
-  'Phase 3':     20,
-  'Phase 2/3':   15,
-  'Phase 2':     5,
-  'Phase 1/2':   2,
-  'Phase 1':     1,
-  'Preclinical': 0.5,
+  Approved: 40,
+  Withdrawn: 0,
+  Discontinued: 0,
+  'Phase 3': 20,
+  'Phase 2/3': 15,
+  'Phase 2': 5,
+  'Phase 1/2': 2,
+  'Phase 1': 1,
+  Preclinical: 0.5,
 };
 
-function buildMarketShareDistribution(
-  competitors: Competitor[],
-  _therapyArea: string,
-): MarketShareDistribution {
+function buildMarketShareDistribution(competitors: Competitor[], _therapyArea: string): MarketShareDistribution {
   if (competitors.length === 0) {
     return {
       competitors: [],
@@ -1431,7 +1593,7 @@ function buildMarketShareDistribution(
   }
 
   // Score each competitor
-  const scored = competitors.map(c => {
+  const scored = competitors.map((c) => {
     const phaseWeight = PHASE_SHARE_WEIGHT[c.phase] ?? 1;
     let score = phaseWeight * c.evidence_strength * (c.differentiation_score / 10);
 
@@ -1449,21 +1611,17 @@ function buildMarketShareDistribution(
 
   // Normalize to percentages
   const totalScore = scored.reduce((sum, s) => sum + s.score, 0);
-  const withShares = scored.map(s => ({
+  const withShares = scored.map((s) => ({
     name: s.name,
     phase: s.phase,
-    estimated_share_pct: totalScore > 0
-      ? Math.round((s.score / totalScore) * 1000) / 10
-      : 0,
+    estimated_share_pct: totalScore > 0 ? Math.round((s.score / totalScore) * 1000) / 10 : 0,
   }));
 
   // Sort by share descending
   withShares.sort((a, b) => b.estimated_share_pct - a.estimated_share_pct);
 
   // HHI = sum of (share_pct)^2 (using whole number percentages)
-  const hhi = Math.round(
-    withShares.reduce((sum, s) => sum + s.estimated_share_pct * s.estimated_share_pct, 0)
-  );
+  const hhi = Math.round(withShares.reduce((sum, s) => sum + s.estimated_share_pct * s.estimated_share_pct, 0));
 
   let concentration_label: MarketShareDistribution['concentration_label'];
   if (hhi < 1500) concentration_label = 'Fragmented';
@@ -1496,7 +1654,6 @@ function buildMarketShareDistribution(
   };
 }
 
-
 // ────────────────────────────────────────────────────────────
 // COMPETITOR SUCCESS PROBABILITIES
 //
@@ -1508,13 +1665,13 @@ function buildMarketShareDistribution(
 // ────────────────────────────────────────────────────────────
 
 const PHASE_TO_STAGE: Record<string, DevelopmentStage> = {
-  'Approved':    'approved',
-  'Phase 3':     'phase3',
-  'Phase 2/3':   'phase3',
-  'Phase 2':     'phase2',
-  'Phase 1/2':   'phase1',
-  'Phase 1':     'phase1',
-  'Preclinical': 'preclinical',
+  Approved: 'approved',
+  'Phase 3': 'phase3',
+  'Phase 2/3': 'phase3',
+  'Phase 2': 'phase2',
+  'Phase 1/2': 'phase1',
+  'Phase 1': 'phase1',
+  Preclinical: 'preclinical',
 };
 
 function buildCompetitorSuccessProbabilities(
@@ -1523,7 +1680,7 @@ function buildCompetitorSuccessProbabilities(
 ): CompetitorSuccessProbability[] {
   const normalized = therapyArea.toLowerCase().replace(/[\s\-]+/g, '_');
 
-  const results: CompetitorSuccessProbability[] = competitors.map(c => {
+  const results: CompetitorSuccessProbability[] = competitors.map((c) => {
     const stage = PHASE_TO_STAGE[c.phase] ?? 'preclinical';
 
     let probability: number;
@@ -1531,7 +1688,7 @@ function buildCompetitorSuccessProbabilities(
       probability = 1.0;
     } else {
       const areaTable = LOA_BY_PHASE_AND_AREA[normalized];
-      probability = areaTable?.[stage] ?? DEFAULT_LOA[stage] ?? 0.10;
+      probability = areaTable?.[stage] ?? DEFAULT_LOA[stage] ?? 0.1;
     }
 
     const threatScore = c.threat_assessment?.threat_score ?? 5;
@@ -1564,7 +1721,6 @@ function buildCompetitorSuccessProbabilities(
 
   return results;
 }
-
 
 // ────────────────────────────────────────────────────────────
 // DOSING CONVENIENCE INFERENCE
@@ -1619,7 +1775,7 @@ function inferDosingConvenience(record: CompetitorRecord): DosingConvenience {
   // Find matching modality
   let matched: ModalityConvenienceEntry | undefined;
   for (const entry of MODALITY_CONVENIENCE) {
-    if (entry.patterns.some(p => mechLower.includes(p))) {
+    if (entry.patterns.some((p) => mechLower.includes(p))) {
       matched = entry.entry;
       break;
     }
@@ -1708,7 +1864,6 @@ function inferDosingConvenience(record: CompetitorRecord): DosingConvenience {
   };
 }
 
-
 // ────────────────────────────────────────────────────────────
 // BUILD COMPETITOR OBJECT
 //
@@ -1716,11 +1871,7 @@ function inferDosingConvenience(record: CompetitorRecord): DosingConvenience {
 // scores into the Competitor type defined in @/types.
 // ────────────────────────────────────────────────────────────
 
-function buildCompetitor(
-  record: CompetitorRecord,
-  allRecords: CompetitorRecord[],
-  userMechanism?: string,
-): Competitor {
+function buildCompetitor(record: CompetitorRecord, allRecords: CompetitorRecord[], userMechanism?: string): Competitor {
   const pricingEnrichment = enrichWithPricingData(record);
   const dealEnrichment = enrichWithDealData(record);
   const differentiationScore = calculateDifferentiationScore(record, allRecords);
@@ -1746,9 +1897,7 @@ function buildCompetitor(
     primary_endpoint: record.primary_endpoint,
     key_data: record.key_data,
     partner: record.partner ?? dealEnrichment.partner,
-    partnership_deal_value:
-      pricingEnrichment.partnership_deal_value ??
-      dealEnrichment.partnership_deal_value,
+    partnership_deal_value: pricingEnrichment.partnership_deal_value ?? dealEnrichment.partnership_deal_value,
     estimated_peak_sales: pricingEnrichment.estimated_peak_sales,
     differentiation_score: differentiationScore,
     evidence_strength: evidenceStrength,
@@ -1791,76 +1940,52 @@ function buildComparisonMatrix(competitors: Competitor[]): ComparisonAttribute[]
     'Phase 1',
     'Preclinical',
   ];
-  const sorted = [...competitors].sort(
-    (a, b) => phaseOrder.indexOf(a.phase) - phaseOrder.indexOf(b.phase)
-  );
+  const sorted = [...competitors].sort((a, b) => phaseOrder.indexOf(a.phase) - phaseOrder.indexOf(b.phase));
   const topCompetitors = sorted.slice(0, 12);
 
   const attributes: ComparisonAttribute[] = [
     {
       attribute: 'Mechanism',
-      competitors: Object.fromEntries(
-        topCompetitors.map((c) => [`${c.company} — ${c.asset_name}`, c.mechanism])
-      ),
+      competitors: Object.fromEntries(topCompetitors.map((c) => [`${c.company} — ${c.asset_name}`, c.mechanism])),
     },
     {
       attribute: 'Phase',
-      competitors: Object.fromEntries(
-        topCompetitors.map((c) => [`${c.company} — ${c.asset_name}`, c.phase])
-      ),
+      competitors: Object.fromEntries(topCompetitors.map((c) => [`${c.company} — ${c.asset_name}`, c.phase])),
     },
     {
       attribute: 'Primary Endpoint',
       competitors: Object.fromEntries(
-        topCompetitors.map((c) => [
-          `${c.company} — ${c.asset_name}`,
-          c.primary_endpoint ?? 'N/A',
-        ])
+        topCompetitors.map((c) => [`${c.company} — ${c.asset_name}`, c.primary_endpoint ?? 'N/A']),
       ),
     },
     {
       attribute: 'Differentiation',
       competitors: Object.fromEntries(
-        topCompetitors.map((c) => [
-          `${c.company} — ${c.asset_name}`,
-          c.differentiation_score,
-        ])
+        topCompetitors.map((c) => [`${c.company} — ${c.asset_name}`, c.differentiation_score]),
       ),
     },
     {
       attribute: 'Evidence Strength',
       competitors: Object.fromEntries(
-        topCompetitors.map((c) => [
-          `${c.company} — ${c.asset_name}`,
-          c.evidence_strength,
-        ])
+        topCompetitors.map((c) => [`${c.company} — ${c.asset_name}`, c.evidence_strength]),
       ),
     },
     {
       attribute: 'Partnership',
       competitors: Object.fromEntries(
-        topCompetitors.map((c) => [
-          `${c.company} — ${c.asset_name}`,
-          c.partner ?? 'None disclosed',
-        ])
+        topCompetitors.map((c) => [`${c.company} — ${c.asset_name}`, c.partner ?? 'None disclosed']),
       ),
     },
     {
       attribute: 'Estimated Peak Sales',
       competitors: Object.fromEntries(
-        topCompetitors.map((c) => [
-          `${c.company} — ${c.asset_name}`,
-          c.estimated_peak_sales ?? 'N/A',
-        ])
+        topCompetitors.map((c) => [`${c.company} — ${c.asset_name}`, c.estimated_peak_sales ?? 'N/A']),
       ),
     },
     {
       attribute: 'Indication Specifics',
       competitors: Object.fromEntries(
-        topCompetitors.map((c) => [
-          `${c.company} — ${c.asset_name}`,
-          c.indication_specifics ?? 'N/A',
-        ])
+        topCompetitors.map((c) => [`${c.company} — ${c.asset_name}`, c.indication_specifics ?? 'N/A']),
       ),
     },
   ];
@@ -1876,13 +2001,11 @@ function buildDifferentiationOpportunity(
   competitors: Competitor[],
   whiteSpace: string[],
   indicationName: string,
-  crowdingLabel: LandscapeSummary['crowding_label']
+  crowdingLabel: LandscapeSummary['crowding_label'],
 ): string {
   const approved = competitors.filter((c) => c.phase === 'Approved');
   const uniqueMechanisms = new Set(competitors.map((c) => c.mechanism));
-  const avgDiff =
-    competitors.reduce((sum, c) => sum + c.differentiation_score, 0) /
-    (competitors.length || 1);
+  const avgDiff = competitors.reduce((sum, c) => sum + c.differentiation_score, 0) / (competitors.length || 1);
 
   if (crowdingLabel === 'Low') {
     return (
@@ -1899,9 +2022,7 @@ function buildDifferentiationOpportunity(
       `${competitors.length} assets across ${uniqueMechanisms.size} mechanisms. ` +
       `The average differentiation score is ${avgDiff.toFixed(1)}/10, suggesting ` +
       `opportunities for assets with novel mechanisms or biomarker-selected approaches. ` +
-      (whiteSpace.length > 0
-        ? `Key gaps include: ${whiteSpace[0].toLowerCase()}.`
-        : '')
+      (whiteSpace.length > 0 ? `Key gaps include: ${whiteSpace[0].toLowerCase()}.` : '')
     );
   }
 
@@ -1930,20 +2051,15 @@ function buildDifferentiationOpportunity(
 // BUILD KEY INSIGHT NARRATIVE
 // ────────────────────────────────────────────────────────────
 
-function buildKeyInsight(
-  competitors: Competitor[],
-  indicationName: string,
-  mechanism?: string
-): string {
+function buildKeyInsight(competitors: Competitor[], indicationName: string, mechanism?: string): string {
   const approved = competitors.filter((c) => c.phase === 'Approved');
-  const lateStage = competitors.filter(
-    (c) => c.phase === 'Phase 3' || c.phase === 'Phase 2/3'
-  );
+  const lateStage = competitors.filter((c) => c.phase === 'Phase 3' || c.phase === 'Phase 2/3');
   const biomarkerSelected = competitors.filter(
-    (c) => c.indication_specifics.toLowerCase().includes('biomarker') ||
-           c.indication_specifics.toLowerCase().includes('mutated') ||
-           c.indication_specifics.toLowerCase().includes('positive') ||
-           c.indication_specifics.toLowerCase().includes('+')
+    (c) =>
+      c.indication_specifics.toLowerCase().includes('biomarker') ||
+      c.indication_specifics.toLowerCase().includes('mutated') ||
+      c.indication_specifics.toLowerCase().includes('positive') ||
+      c.indication_specifics.toLowerCase().includes('+'),
   );
 
   const parts: string[] = [];
@@ -1951,7 +2067,7 @@ function buildKeyInsight(
   // Headline stat
   parts.push(
     `The ${indicationName} landscape comprises ${competitors.length} tracked competitive ` +
-    `assets: ${approved.length} approved, ${lateStage.length} in late-stage development.`
+      `assets: ${approved.length} approved, ${lateStage.length} in late-stage development.`,
   );
 
   // Biomarker trend
@@ -1959,7 +2075,7 @@ function buildKeyInsight(
     const pct = Math.round((biomarkerSelected.length / competitors.length) * 100);
     parts.push(
       `Approximately ${pct}% of programs use biomarker-selected populations, ` +
-      `reflecting the trend toward precision medicine in this indication.`
+        `reflecting the trend toward precision medicine in this indication.`,
     );
   }
 
@@ -1968,18 +2084,18 @@ function buildKeyInsight(
     const mechCompetitors = competitors.filter(
       (c) =>
         c.mechanism.toLowerCase().includes(mechanism.toLowerCase()) ||
-        mechanism.toLowerCase().includes(c.mechanism.toLowerCase())
+        mechanism.toLowerCase().includes(c.mechanism.toLowerCase()),
     );
     if (mechCompetitors.length > 0) {
       parts.push(
         `Within the ${mechanism} class specifically, there are ${mechCompetitors.length} ` +
-        `tracked programs, creating direct competitive pressure for new entrants ` +
-        `with the same mechanism.`
+          `tracked programs, creating direct competitive pressure for new entrants ` +
+          `with the same mechanism.`,
       );
     } else {
       parts.push(
         `No current competitors target the ${mechanism} mechanism, which could ` +
-        `represent a first-in-class opportunity if supported by strong rationale.`
+          `represent a first-in-class opportunity if supported by strong rationale.`,
       );
     }
   }
@@ -2052,10 +2168,16 @@ function inferExclusivity(record: CompetitorRecord): ExclusivityInfo {
     return { type: 'orphan', expiry: `${expiryYear}-12-31` };
   }
 
-  const isBiologic = mechLower.includes('antibody') || mechLower.includes('adc') ||
-    mechLower.includes('bispecific') || mechLower.includes('car-t') || mechLower.includes('car_t') ||
-    mechLower.includes('gene therapy') || mechLower.includes('gene_therapy') ||
-    mechLower.includes('fusion protein') || mechLower.includes('biologic');
+  const isBiologic =
+    mechLower.includes('antibody') ||
+    mechLower.includes('adc') ||
+    mechLower.includes('bispecific') ||
+    mechLower.includes('car-t') ||
+    mechLower.includes('car_t') ||
+    mechLower.includes('gene therapy') ||
+    mechLower.includes('gene_therapy') ||
+    mechLower.includes('fusion protein') ||
+    mechLower.includes('biologic');
 
   if (isBiologic) {
     const expiryYear = approvalYear + 12;
@@ -2080,26 +2202,53 @@ function inferExclusivity(record: CompetitorRecord): ExclusivityInfo {
 // ────────────────────────────────────────────────────────────
 
 const KNOWN_COMBO_AGENTS = [
-  'chemotherapy', 'chemo', 'platinum', 'carboplatin', 'cisplatin', 'pemetrexed',
-  'lenvatinib', 'bevacizumab', 'trastuzumab', 'rituximab', 'pertuzumab',
-  'pembrolizumab', 'nivolumab', 'ipilimumab', 'atezolizumab', 'durvalumab',
-  'olaparib', 'rucaparib', 'niraparib', 'tucatinib', 'lapatinib',
-  'dexamethasone', 'lenalidomide', 'pomalidomide', 'bortezomib', 'carfilzomib',
-  'venetoclax', 'obinutuzumab', 'ibrutinib', 'acalabrutinib',
+  'chemotherapy',
+  'chemo',
+  'platinum',
+  'carboplatin',
+  'cisplatin',
+  'pemetrexed',
+  'lenvatinib',
+  'bevacizumab',
+  'trastuzumab',
+  'rituximab',
+  'pertuzumab',
+  'pembrolizumab',
+  'nivolumab',
+  'ipilimumab',
+  'atezolizumab',
+  'durvalumab',
+  'olaparib',
+  'rucaparib',
+  'niraparib',
+  'tucatinib',
+  'lapatinib',
+  'dexamethasone',
+  'lenalidomide',
+  'pomalidomide',
+  'bortezomib',
+  'carfilzomib',
+  'venetoclax',
+  'obinutuzumab',
+  'ibrutinib',
+  'acalabrutinib',
 ];
 
 function inferCombinationPartners(record: CompetitorRecord): string[] {
   if (!record.key_data && !record.indication_specifics) return [];
 
-  const text = (
-    (record.key_data ?? '') + ' ' + (record.indication_specifics ?? '')
-  ).toLowerCase();
+  const text = ((record.key_data ?? '') + ' ' + (record.indication_specifics ?? '')).toLowerCase();
 
   const partners: string[] = [];
 
   // Check for explicit combination language
-  if (!text.includes('+') && !text.includes('combin') && !text.includes('plus ') &&
-      !text.includes('with ') && !text.includes('added to')) {
+  if (
+    !text.includes('+') &&
+    !text.includes('combin') &&
+    !text.includes('plus ') &&
+    !text.includes('with ') &&
+    !text.includes('added to')
+  ) {
     return [];
   }
 
@@ -2124,7 +2273,11 @@ function inferGeographies(record: CompetitorRecord): string[] {
   if (record.phase !== 'Approved') return [];
 
   const text = (
-    (record.key_data ?? '') + ' ' + (record.indication_specifics ?? '') + ' ' + (record.source ?? '')
+    (record.key_data ?? '') +
+    ' ' +
+    (record.indication_specifics ?? '') +
+    ' ' +
+    (record.source ?? '')
   ).toLowerCase();
 
   const geos: string[] = [];
@@ -2133,8 +2286,13 @@ function inferGeographies(record: CompetitorRecord): string[] {
   geos.push('US');
 
   // Look for EMA / EU signals
-  if (text.includes('ema') || text.includes('eu ') || text.includes('europe') ||
-      text.includes('chmp') || text.includes('epar')) {
+  if (
+    text.includes('ema') ||
+    text.includes('eu ') ||
+    text.includes('europe') ||
+    text.includes('chmp') ||
+    text.includes('epar')
+  ) {
     geos.push('EU');
   }
 
@@ -2163,7 +2321,13 @@ function buildPatentCliffTimeline(
   competitors: Competitor[],
   competitorRecords: CompetitorRecord[],
 ): { company: string; asset: string; exclusivity_type: string; expiry: string; revenue_at_risk?: string }[] {
-  const timeline: { company: string; asset: string; exclusivity_type: string; expiry: string; revenue_at_risk?: string }[] = [];
+  const timeline: {
+    company: string;
+    asset: string;
+    exclusivity_type: string;
+    expiry: string;
+    revenue_at_risk?: string;
+  }[] = [];
 
   for (let i = 0; i < competitors.length; i++) {
     const comp = competitors[i];
@@ -2195,7 +2359,12 @@ function buildPatentCliffTimeline(
 
 function buildLOTCrowding(
   competitorRecords: CompetitorRecord[],
-): { line: string; competitor_count: number; approved_count: number; crowding_intensity: 'low' | 'moderate' | 'high' }[] {
+): {
+  line: string;
+  competitor_count: number;
+  approved_count: number;
+  crowding_intensity: 'low' | 'moderate' | 'high';
+}[] {
   const lotBuckets: Record<string, { total: number; approved: number }> = {};
 
   for (const r of competitorRecords) {
@@ -2205,7 +2374,12 @@ function buildLOTCrowding(
     if (r.phase === 'Approved') lotBuckets[lot].approved++;
   }
 
-  const result: { line: string; competitor_count: number; approved_count: number; crowding_intensity: 'low' | 'moderate' | 'high' }[] = [];
+  const result: {
+    line: string;
+    competitor_count: number;
+    approved_count: number;
+    crowding_intensity: 'low' | 'moderate' | 'high';
+  }[] = [];
 
   // Define display order
   const lotOrder = ['1L', '2L', '2L+', '3L+', 'maintenance', 'adjuvant', 'neoadjuvant', 'unspecified'];
@@ -2245,9 +2419,8 @@ function buildLOTCrowding(
 // ────────────────────────────────────────────────────────────
 
 export async function analyzeCompetitiveLandscape(
-  input: CompetitiveLandscapeInput
+  input: CompetitiveLandscapeInput,
 ): Promise<CompetitiveLandscapeOutput> {
-
   // ── Step 1: Indication lookup ─────────────────────────────
   // Validate that the indication exists in our data map.
   // This ensures we have epidemiology context and therapy area.
@@ -2255,8 +2428,8 @@ export async function analyzeCompetitiveLandscape(
   if (!indication) {
     throw new Error(
       `Indication not found: "${input.indication}". ` +
-      `Check spelling or try a more common name. ` +
-      `Terrain covers 150+ indications across oncology, neurology, immunology, rare disease, and more.`
+        `Check spelling or try a more common name. ` +
+        `Terrain covers 150+ indications across oncology, neurology, immunology, rare disease, and more.`,
     );
   }
 
@@ -2289,7 +2462,11 @@ export async function analyzeCompetitiveLandscape(
       early_pipeline: [],
       comparison_matrix: [],
       data_sources: [
-        { name: 'Terrain Competitive Database', type: 'proprietary', last_updated: new Date().toISOString().split('T')[0] },
+        {
+          name: 'Terrain Competitive Database',
+          type: 'proprietary',
+          last_updated: new Date().toISOString().split('T')[0],
+        },
         { name: 'ClinicalTrials.gov', type: 'public', last_updated: new Date().toISOString().split('T')[0] },
       ],
       generated_at: new Date().toISOString(),
@@ -2304,7 +2481,7 @@ export async function analyzeCompetitiveLandscape(
   //   - Calculate evidence strength (1-10)
   //   - Build the typed Competitor object
   const competitors: Competitor[] = competitorRecords.map((record) =>
-    buildCompetitor(record, competitorRecords, input.mechanism)
+    buildCompetitor(record, competitorRecords, input.mechanism),
   );
 
   // ── Step 8b: Calculate efficacy deltas for each competitor ─
@@ -2316,67 +2493,41 @@ export async function analyzeCompetitiveLandscape(
 
   // ── Step 8c: Build competitive timelines array ────────────
   const competitiveTimelines: CompetitiveTimeline[] = competitors
-    .map(c => c.competitive_timeline)
+    .map((c) => c.competitive_timeline)
     .filter((t): t is CompetitiveTimeline => t !== undefined);
 
   // ── Step 8d: Build barrier-to-entry assessment ────────────
-  const barrierAssessment = assessBarriers(
-    competitors,
-    competitorRecords,
-    indication,
-  );
+  const barrierAssessment = assessBarriers(competitors, competitorRecords, indication);
 
   // ── Step 8e: Build market share distribution ────────────
-  const marketShareDistribution = buildMarketShareDistribution(
-    competitors,
-    indication.therapy_area,
-  );
+  const marketShareDistribution = buildMarketShareDistribution(competitors, indication.therapy_area);
 
   // ── Step 8f: Build competitor success probabilities ─────
-  const competitorSuccessProbabilities = buildCompetitorSuccessProbabilities(
-    competitors,
-    indication.therapy_area,
-  );
+  const competitorSuccessProbabilities = buildCompetitorSuccessProbabilities(competitors, indication.therapy_area);
 
   // ── Step 9: Bucket by clinical phase ──────────────────────
   const approved_products = competitors.filter((c) => c.phase === 'Approved');
-  const late_stage_pipeline = competitors.filter(
-    (c) => c.phase === 'Phase 3' || c.phase === 'Phase 2/3'
-  );
+  const late_stage_pipeline = competitors.filter((c) => c.phase === 'Phase 3' || c.phase === 'Phase 2/3');
   const mid_stage_pipeline = competitors.filter((c) => c.phase === 'Phase 2');
   const early_pipeline = competitors.filter(
-    (c) =>
-      c.phase === 'Phase 1' ||
-      c.phase === 'Phase 1/2' ||
-      c.phase === 'Preclinical'
+    (c) => c.phase === 'Phase 1' || c.phase === 'Phase 1/2' || c.phase === 'Preclinical',
   );
 
   // ── Step 10: Calculate crowding score ─────────────────────
-  const { score: crowdingScore, label: crowdingLabel } = calculateCrowdingScore(
-    competitorRecords,
-    indication
-  );
+  const { score: crowdingScore, label: crowdingLabel } = calculateCrowdingScore(competitorRecords, indication);
 
   // ── Step 11: Identify white space ─────────────────────────
-  const whiteSpace = identifyWhiteSpace(
-    competitorRecords,
-    indication.therapy_area,
-    indication.name
-  );
+  const whiteSpace = identifyWhiteSpace(competitorRecords, indication.therapy_area, indication.name);
 
   // ── Step 12: Build narratives ─────────────────────────────
   const differentiationOpportunity = buildDifferentiationOpportunity(
     competitors,
     whiteSpace,
     indication.name,
-    crowdingLabel
+    crowdingLabel,
   );
 
-  const keyInsight = buildKeyInsight(
-    competitors,
-    indication.name,
-    input.mechanism
-  );
+  const keyInsight = buildKeyInsight(competitors, indication.name, input.mechanism);
 
   // ── Step 13: Add mechanism-specific context to summary ────
   // If the user specified a mechanism, add targeted context.
