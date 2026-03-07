@@ -561,6 +561,34 @@ export const INDICATION_DATA: IndicationData[] = [
   },
 
   {
+    name: 'Nasopharyngeal Carcinoma',
+    synonyms: ['nasopharyngeal cancer', 'NPC', 'nasopharyngeal carcinoma', 'EBV-associated nasopharyngeal cancer'],
+    icd10_codes: ['C11', 'C11.0', 'C11.1', 'C11.2', 'C11.3', 'C11.8', 'C11.9'],
+    therapy_area: 'oncology',
+    us_prevalence: 15000,
+    us_incidence: 2500,
+    prevalence_source:
+      'SEER Database 2024; American Cancer Society; WHO Global Cancer Observatory — NPC rare in US, endemic in Southern China/Southeast Asia',
+    diagnosis_rate: 0.85,
+    treatment_rate: 0.9,
+    cagr_5yr: 9.0,
+    major_competitors: [
+      'Cisplatin + gemcitabine (generic) — 1L standard',
+      'Keytruda (pembrolizumab, MSD) — 1L/2L PD-L1+ NPC',
+      'Opdivo (nivolumab, BMS) — 2L+ NPC',
+      'Camrelizumab (Hengrui) — 1L NPC (China-approved)',
+      'Toripalimab (Coherus/Junshi) — 1L NPC (FDA-approved Jan 2024)',
+    ],
+    market_growth_driver:
+      'First FDA-approved IO specifically for NPC (toripalimab 2024), EBV-targeted therapies in development, ADCs, combination IO strategies, cell therapy approaches for EBV+ tumors',
+    therapy_area_pricing_context:
+      'IO pricing $150K+ annually; toripalimab priced competitively vs established checkpoint inhibitors. EBV-targeted approaches may command orphan pricing in Western markets.',
+    severity_distribution: { stage_I_II: 0.15, stage_III: 0.35, stage_IV: 0.5 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+
+  {
     name: 'Glioblastoma',
     synonyms: ['GBM', 'glioblastoma multiforme', 'grade IV glioma', 'high-grade glioma', 'malignant glioma'],
     icd10_codes: ['C71.0', 'C71.1', 'C71.2', 'C71.3', 'C71.4', 'C71.9'],
@@ -3306,6 +3334,42 @@ export const INDICATION_DATA: IndicationData[] = [
       'Standard HF therapy backbone; genotype-specific gene therapy could command $500K-$2M one-time. Growing genetic testing adoption.',
     severity_distribution: { nyha_I_II: 0.55, nyha_III: 0.3, nyha_IV: 0.15 },
     data_confidence: 'medium',
+    last_verified_year: 2024,
+  },
+
+  {
+    name: 'Ischemic Stroke',
+    synonyms: [
+      'stroke',
+      'ischemic stroke',
+      'cerebrovascular accident',
+      'CVA',
+      'cerebrovascular',
+      'hemorrhagic stroke',
+      'TIA',
+      'transient ischemic attack',
+    ],
+    icd10_codes: ['I63', 'I63.0', 'I63.3', 'I63.5', 'I63.9', 'I61', 'G45'],
+    therapy_area: 'cardiovascular',
+    us_prevalence: 7600000,
+    us_incidence: 795000,
+    prevalence_source: 'American Heart Association 2024 Heart Disease and Stroke Statistics; CDC WONDER',
+    diagnosis_rate: 0.9,
+    treatment_rate: 0.75,
+    cagr_5yr: 6.0,
+    major_competitors: [
+      'Alteplase (tPA, Genentech) — IV thrombolysis',
+      'Tenecteplase (off-label, Genentech) — IV thrombolysis',
+      'Mechanical thrombectomy (Stryker, Medtronic) — devices',
+      'Eliquis/Xarelto (DOACs) — secondary prevention',
+      'Aspirin + clopidogrel — antiplatelet',
+    ],
+    market_growth_driver:
+      'Neuroprotective agents in pipeline, extended thrombectomy time windows, tenecteplase replacing alteplase, novel anticoagulants for secondary prevention, AI-assisted stroke detection',
+    therapy_area_pricing_context:
+      'Acute treatment: tPA at ~$6K per dose; thrombectomy devices $15K-$25K per procedure. Secondary prevention dominated by generic antiplatelets and DOACs at $5K-$6K/year.',
+    severity_distribution: { mild_nihss_0_4: 0.4, moderate_nihss_5_15: 0.35, severe_nihss_16_plus: 0.25 },
+    data_confidence: 'high',
     last_verified_year: 2024,
   },
 

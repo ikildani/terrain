@@ -30,7 +30,9 @@ const regulatoryFormSchema = z.object({
   product_type: z.enum(['pharmaceutical', 'biologic', 'device', 'diagnostic']).default('pharmaceutical'),
   development_stage: z.enum(['preclinical', 'phase1', 'phase2', 'phase3', 'approved']).default('phase2'),
   mechanism: z.string().optional().default(''),
-  geography: z.array(z.enum(['FDA', 'EMA', 'PMDA', 'NMPA'])).min(1, 'Select at least one agency'),
+  geography: z
+    .array(z.enum(['FDA', 'EMA', 'PMDA', 'NMPA', 'MHRA', 'TGA', 'Health_Canada']))
+    .min(1, 'Select at least one agency'),
   unmet_need: z.enum(['high', 'medium', 'low']).default('high'),
   has_orphan_potential: z.boolean().default(false),
 });
@@ -59,8 +61,11 @@ const STAGES: { value: DevelopmentStage; label: string }[] = [
 const GEOGRAPHIES: { value: RegulatoryAgency; label: string; flag: string }[] = [
   { value: 'FDA', label: 'FDA (US)', flag: 'US' },
   { value: 'EMA', label: 'EMA (EU)', flag: 'EU' },
+  { value: 'MHRA', label: 'MHRA (UK)', flag: 'GB' },
   { value: 'PMDA', label: 'PMDA (Japan)', flag: 'JP' },
   { value: 'NMPA', label: 'NMPA (China)', flag: 'CN' },
+  { value: 'Health_Canada', label: 'Health Canada', flag: 'CA' },
+  { value: 'TGA', label: 'TGA (Australia)', flag: 'AU' },
 ];
 
 const UNMET_NEED_OPTIONS: { value: 'high' | 'medium' | 'low'; label: string; description: string }[] = [
