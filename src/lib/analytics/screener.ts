@@ -251,6 +251,27 @@ export interface OpportunityRow {
   nearest_patent_cliff_year: number | null;
   loe_revenue_at_risk: number;
   score_explanations: Record<string, string>;
+
+  // Investor-focused fields
+  deal_activity: DealActivity;
+  catalyst_signals: CatalystSignal[];
+  investment_thesis: string;
+}
+
+export interface DealActivity {
+  recent_deal_count: number;
+  avg_deal_upfront_m: number;
+  avg_deal_total_m: number;
+  largest_deal_total_m: number;
+  deal_velocity_trend: 'accelerating' | 'stable' | 'decelerating' | 'no_data';
+  notable_deals: { company: string; asset: string; total_value_m: number; year: number }[];
+}
+
+export interface CatalystSignal {
+  type: 'patent_cliff' | 'pipeline_catalyst' | 'deal_momentum' | 'regulatory_tailwind' | 'unmet_need' | 'market_growth';
+  signal: string;
+  timing: string;
+  impact: 'high' | 'medium' | 'low';
 }
 
 export interface EarlyStageAsset {
@@ -775,6 +796,280 @@ function scorePartnerLandscape(
 }
 
 // ────────────────────────────────────────────────────────────
+// DEAL ACTIVITY (investor feature)
+// ────────────────────────────────────────────────────────────
+
+function computeDealActivity(indicationName: string, therapyArea: string): DealActivity {
+  const indicationLower = indicationName.toLowerCase();
+  const taLower = therapyArea.toLowerCase().replace(/[\s\-]+/g, '_');
+  const currentYear = new Date().getFullYear();
+
+  // Collect all deals matching this indication (direct or via therapy area)
+  const indicationDeals: { company: string; asset: string; total_value_m: number; upfront_m: number; year: number }[] =
+    [];
+  const taDeals: typeof indicationDeals = [];
+
+  for (const partner of PHARMA_PARTNER_DATABASE) {
+    for (const deal of partner.recent_deals) {
+      const dealInd = deal.indication.toLowerCase();
+      if (dealInd.includes(indicationLower) || indicationLower.includes(dealInd)) {
+        indicationDeals.push({
+          company: partner.company,
+          asset: deal.asset,
+          total_value_m: deal.total_value_m,
+          upfront_m: deal.upfront_m,
+          year: deal.year,
+        });
+      } else if (
+        partner.therapeutic_areas.some((ta) =>
+          ta
+            .toLowerCase()
+            .replace(/[\s\-]+/g, '_')
+            .includes(taLower),
+        )
+      ) {
+        taDeals.push({
+          company: partner.company,
+          asset: deal.asset,
+          total_value_m: deal.total_value_m,
+          upfront_m: deal.upfront_m,
+          year: deal.year,
+        });
+      }
+    }
+  }
+
+  // Use indication-level deals if available, otherwise therapy-area deals
+  const relevantDeals = indicationDeals.length >= 2 ? indicationDeals : [...indicationDeals, ...taDeals.slice(0, 10)];
+
+  if (relevantDeals.length === 0) {
+    return {
+      recent_deal_count: 0,
+      avg_deal_upfront_m: 0,
+      avg_deal_total_m: 0,
+      largest_deal_total_m: 0,
+      deal_velocity_trend: 'no_data',
+      notable_deals: [],
+    };
+  }
+
+  const withValues = relevantDeals.filter((d) => d.total_value_m > 0);
+  const avgUpfront = withValues.length > 0 ? withValues.reduce((s, d) => s + d.upfront_m, 0) / withValues.length : 0;
+  const avgTotal = withValues.length > 0 ? withValues.reduce((s, d) => s + d.total_value_m, 0) / withValues.length : 0;
+  const largest = withValues.reduce((max, d) => Math.max(max, d.total_value_m), 0);
+
+  // Deal velocity: compare recent deals (last 2 years) vs older
+  const recent = relevantDeals.filter((d) => d.year >= currentYear - 1).length;
+  const older = relevantDeals.filter((d) => d.year < currentYear - 1).length;
+  const trend: DealActivity['deal_velocity_trend'] =
+    recent > older * 1.5 ? 'accelerating' : recent < older * 0.5 ? 'decelerating' : 'stable';
+
+  // Notable deals: top 3 by total value
+  const notable = [...withValues].sort((a, b) => b.total_value_m - a.total_value_m).slice(0, 3);
+
+  return {
+    recent_deal_count: relevantDeals.length,
+    avg_deal_upfront_m: Math.round(avgUpfront),
+    avg_deal_total_m: Math.round(avgTotal),
+    largest_deal_total_m: Math.round(largest),
+    deal_velocity_trend: trend,
+    notable_deals: notable.map((d) => ({
+      company: d.company,
+      asset: d.asset,
+      total_value_m: d.total_value_m,
+      year: d.year,
+    })),
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// CATALYST SIGNALS (investor feature)
+// ────────────────────────────────────────────────────────────
+
+function buildCatalystSignals(
+  indication: IndicationData,
+  loeImpact: { score: number; nearestCliffYear: number | null; totalRevenueAtRisk: number; cliffCount: number },
+  dealActivity: DealActivity,
+  competitors: CompetitorRecord[],
+  crowdingScore: number,
+): CatalystSignal[] {
+  const signals: CatalystSignal[] = [];
+  const currentYear = new Date().getFullYear();
+
+  // Patent cliff catalyst
+  if (loeImpact.nearestCliffYear && loeImpact.nearestCliffYear >= currentYear) {
+    const yearsOut = loeImpact.nearestCliffYear - currentYear;
+    signals.push({
+      type: 'patent_cliff',
+      signal: `$${loeImpact.totalRevenueAtRisk.toFixed(1)}B revenue at risk across ${loeImpact.cliffCount} drug(s) losing exclusivity`,
+      timing:
+        yearsOut <= 2 ? 'Imminent (0-2 years)' : yearsOut <= 4 ? 'Near-term (2-4 years)' : `${yearsOut} years out`,
+      impact: yearsOut <= 2 ? 'high' : yearsOut <= 4 ? 'medium' : 'low',
+    });
+  }
+
+  // Pipeline catalyst — Phase 3 readouts suggest near-term market changes
+  const ph3Count = competitors.filter((c) => c.phase === 'Phase 3').length;
+  if (ph3Count > 0) {
+    signals.push({
+      type: 'pipeline_catalyst',
+      signal: `${ph3Count} Phase 3 program(s) with potential near-term readouts`,
+      timing: 'Next 12-24 months',
+      impact: ph3Count >= 3 ? 'high' : 'medium',
+    });
+  }
+
+  // Emerging pipeline activity — lots of early-stage = future competition wave
+  const earlyCount = competitors.filter((c) => ['Preclinical', 'Phase 1', 'Phase 1/2'].includes(c.phase)).length;
+  if (earlyCount >= 5) {
+    signals.push({
+      type: 'pipeline_catalyst',
+      signal: `${earlyCount} early-stage assets signaling strong R&D interest`,
+      timing: '3-7 years',
+      impact: earlyCount >= 10 ? 'high' : 'medium',
+    });
+  }
+
+  // Deal momentum
+  if (dealActivity.deal_velocity_trend === 'accelerating') {
+    signals.push({
+      type: 'deal_momentum',
+      signal: `Deal activity accelerating — ${dealActivity.recent_deal_count} recent transactions, avg $${dealActivity.avg_deal_total_m}M total value`,
+      timing: 'Current',
+      impact: 'high',
+    });
+  } else if (dealActivity.recent_deal_count >= 3) {
+    signals.push({
+      type: 'deal_momentum',
+      signal: `Active deal market — ${dealActivity.recent_deal_count} transactions with avg $${dealActivity.avg_deal_upfront_m}M upfront`,
+      timing: 'Current',
+      impact: 'medium',
+    });
+  }
+
+  // Regulatory tailwind — orphan drug / high unmet need
+  if (indication.us_prevalence < 200000) {
+    signals.push({
+      type: 'regulatory_tailwind',
+      signal: 'Orphan drug designation eligible — accelerated review, 7-year market exclusivity, tax credits',
+      timing: 'Ongoing regulatory advantage',
+      impact: 'high',
+    });
+  }
+
+  // Unmet need signal
+  if (indication.treatment_rate < 0.4) {
+    signals.push({
+      type: 'unmet_need',
+      signal: `Only ${(indication.treatment_rate * 100).toFixed(0)}% of patients treated — large addressable gap for new entrants`,
+      timing: 'Structural opportunity',
+      impact: indication.treatment_rate < 0.2 ? 'high' : 'medium',
+    });
+  }
+
+  // Market growth signal
+  if (indication.cagr_5yr >= 8) {
+    signals.push({
+      type: 'market_growth',
+      signal: `${indication.cagr_5yr.toFixed(1)}% 5-year CAGR — above-average market expansion`,
+      timing: 'Next 5 years',
+      impact: indication.cagr_5yr >= 12 ? 'high' : 'medium',
+    });
+  }
+
+  // Low crowding = open market
+  if (crowdingScore < 3 && competitors.length >= 1) {
+    signals.push({
+      type: 'regulatory_tailwind',
+      signal: `Low competitive crowding (${crowdingScore.toFixed(1)}/10) — favorable market entry window`,
+      timing: 'Current',
+      impact: 'medium',
+    });
+  }
+
+  // Sort by impact (high first)
+  const impactOrder = { high: 0, medium: 1, low: 2 };
+  signals.sort((a, b) => impactOrder[a.impact] - impactOrder[b.impact]);
+
+  return signals.slice(0, 6); // Cap at 6 most important
+}
+
+// ────────────────────────────────────────────────────────────
+// INVESTMENT THESIS (investor feature)
+// ────────────────────────────────────────────────────────────
+
+function buildInvestmentThesis(
+  indication: IndicationData,
+  opportunityScore: number,
+  crowdingScore: number,
+  dealActivity: DealActivity,
+  loeImpact: { nearestCliffYear: number | null; totalRevenueAtRisk: number; cliffCount: number },
+  competitorCount: number,
+  catalysts: CatalystSignal[],
+): string {
+  const parts: string[] = [];
+
+  // Market characterization
+  const marketSize =
+    indication.us_prevalence >= 1000000
+      ? `large (${(indication.us_prevalence / 1000000).toFixed(1)}M US patients)`
+      : indication.us_prevalence >= 200000
+        ? `mid-size (${Math.round(indication.us_prevalence / 1000)}K US patients)`
+        : `rare/niche (${indication.us_prevalence < 10000 ? `${Math.round(indication.us_prevalence / 1000)}K` : `${Math.round(indication.us_prevalence / 1000)}K`} US patients)`;
+
+  const growthDescriptor = indication.cagr_5yr >= 10 ? 'high-growth' : indication.cagr_5yr >= 5 ? 'growing' : 'mature';
+
+  parts.push(`${indication.name} is a ${growthDescriptor}, ${marketSize} market`);
+
+  // Competitive dynamics
+  if (crowdingScore >= 7) {
+    parts[0] += ` with significant competitive density (${competitorCount} programs)`;
+  } else if (crowdingScore >= 4) {
+    parts[0] += ` with moderate competition (${competitorCount} programs)`;
+  } else if (competitorCount > 0) {
+    parts[0] += ` with limited competition (${competitorCount} programs) — favorable for differentiated entrants`;
+  }
+  parts[0] += '.';
+
+  // "Why now" — pick the strongest catalyst
+  const highImpactCatalysts = catalysts.filter((c) => c.impact === 'high');
+  if (highImpactCatalysts.length > 0) {
+    const whyNow = highImpactCatalysts[0];
+    if (whyNow.type === 'patent_cliff') {
+      parts.push(
+        `Key timing catalyst: $${loeImpact.totalRevenueAtRisk.toFixed(0)}B in incumbent revenue faces LOE by ${loeImpact.nearestCliffYear}, creating a window for next-generation assets.`,
+      );
+    } else if (whyNow.type === 'deal_momentum') {
+      parts.push(
+        `Active deal environment with ${dealActivity.recent_deal_count} recent transactions (avg $${dealActivity.avg_deal_upfront_m}M upfront / $${dealActivity.avg_deal_total_m}M total), suggesting strong acquirer interest.`,
+      );
+    } else if (whyNow.type === 'regulatory_tailwind') {
+      parts.push(`Regulatory tailwind: ${whyNow.signal.charAt(0).toLowerCase() + whyNow.signal.slice(1)}.`);
+    } else if (whyNow.type === 'unmet_need') {
+      parts.push(`Significant unmet need: ${whyNow.signal.charAt(0).toLowerCase() + whyNow.signal.slice(1)}.`);
+    } else {
+      parts.push(`${whyNow.signal}.`);
+    }
+  }
+
+  // Deal landscape context
+  if (dealActivity.largest_deal_total_m > 0 && !parts.some((p) => p.includes('deal'))) {
+    parts.push(
+      `Comparable transactions range up to $${dealActivity.largest_deal_total_m >= 1000 ? `${(dealActivity.largest_deal_total_m / 1000).toFixed(1)}B` : `${dealActivity.largest_deal_total_m}M`} total value.`,
+    );
+  }
+
+  // Score-based verdict
+  if (opportunityScore >= 75) {
+    parts.push('Opportunity score indicates a top-tier investment thesis.');
+  } else if (opportunityScore >= 55) {
+    parts.push('Opportunity score supports a credible investment case with manageable risk.');
+  }
+
+  return parts.join(' ');
+}
+
+// ────────────────────────────────────────────────────────────
 // COMPOSITE SCORE
 // ────────────────────────────────────────────────────────────
 
@@ -950,11 +1245,25 @@ function scoreIndication(
   // ── Emerging asset count ──
   const emergingAssetCount = competitors.filter((c) => earlyPhases.has(c.phase) && !c.partner).length;
 
+  // ── Investor features: deal activity, catalysts, thesis ──
+  const dealActivity = computeDealActivity(indication.name, indication.therapy_area);
+  const catalystSignals = buildCatalystSignals(indication, loeImpact, dealActivity, competitors, crowdingScore);
+
   // ── Data confidence — reuse earlier computation ──
   const dataConfidence: DataConfidence = confidenceLevel;
 
   // ── Severity profile ──
   const severityProfile = indication.severity_distribution ?? null;
+
+  const investmentThesis = buildInvestmentThesis(
+    indication,
+    opportunityScore,
+    crowdingScore,
+    dealActivity,
+    loeImpact,
+    competitorCount,
+    catalystSignals,
+  );
 
   const row: OpportunityRow = {
     indication: indication.name,
@@ -1002,6 +1311,11 @@ function scoreIndication(
     nearest_patent_cliff_year: loeImpact.nearestCliffYear,
     loe_revenue_at_risk: loeImpact.totalRevenueAtRisk,
     score_explanations: scoreExplanations,
+
+    // Investor-focused fields
+    deal_activity: dealActivity,
+    catalyst_signals: catalystSignals,
+    investment_thesis: investmentThesis,
   };
 
   return { row };
@@ -1074,7 +1388,10 @@ type SortableField =
   | 'subtype_count'
   | 'unpartnered_fic_count'
   | 'novel_mechanism_count'
-  | 'revenue_potential_label';
+  | 'revenue_potential_label'
+  | 'deal_count'
+  | 'catalyst_count'
+  | 'avg_deal_total_m';
 
 /**
  * Revenue potential label sort order for consistent sorting.
@@ -1161,6 +1478,15 @@ function compareRows(a: OpportunityRow, b: OpportunityRow, sortBy: string, sortO
     case 'revenue_potential_label':
       comparison =
         (REVENUE_LABEL_ORDER[a.revenue_potential_label] ?? 4) - (REVENUE_LABEL_ORDER[b.revenue_potential_label] ?? 4);
+      break;
+    case 'deal_count':
+      comparison = a.deal_activity.recent_deal_count - b.deal_activity.recent_deal_count;
+      break;
+    case 'catalyst_count':
+      comparison = a.catalyst_signals.length - b.catalyst_signals.length;
+      break;
+    case 'avg_deal_total_m':
+      comparison = a.deal_activity.avg_deal_total_m - b.deal_activity.avg_deal_total_m;
       break;
     default:
       comparison = a.opportunity_score - b.opportunity_score;

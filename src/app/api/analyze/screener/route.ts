@@ -47,6 +47,9 @@ const ScreenerRequestSchema = z.object({
       'subtype_count',
       'unpartnered_fic_count',
       'novel_mechanism_count',
+      'deal_count',
+      'catalyst_count',
+      'avg_deal_total_m',
     ])
     .default('opportunity_score'),
   sort_order: z.enum(['asc', 'desc']).default('desc'),

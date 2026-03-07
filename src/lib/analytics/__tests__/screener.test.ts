@@ -346,3 +346,93 @@ describe('screener output integrity', () => {
     }
   });
 });
+
+// ────────────────────────────────────────────────────────────
+// INVESTOR FEATURES
+// ────────────────────────────────────────────────────────────
+
+describe('investor features', () => {
+  it('should include deal_activity on every row', () => {
+    const { opportunities } = scoreAllIndications(undefined, 'opportunity_score', 'desc', 50, 0);
+
+    for (const row of opportunities) {
+      expect(row.deal_activity).toBeDefined();
+      expect(typeof row.deal_activity.recent_deal_count).toBe('number');
+      expect(typeof row.deal_activity.avg_deal_upfront_m).toBe('number');
+      expect(typeof row.deal_activity.avg_deal_total_m).toBe('number');
+      expect(typeof row.deal_activity.largest_deal_total_m).toBe('number');
+      expect(['accelerating', 'stable', 'decelerating', 'no_data']).toContain(row.deal_activity.deal_velocity_trend);
+      expect(row.deal_activity.notable_deals).toBeInstanceOf(Array);
+    }
+  });
+
+  it('should include catalyst_signals on every row', () => {
+    const { opportunities } = scoreAllIndications(undefined, 'opportunity_score', 'desc', 50, 0);
+
+    for (const row of opportunities) {
+      expect(row.catalyst_signals).toBeInstanceOf(Array);
+      for (const catalyst of row.catalyst_signals) {
+        expect(catalyst.type).toBeDefined();
+        expect(catalyst.signal).toBeDefined();
+        expect(catalyst.signal.length).toBeGreaterThan(10);
+        expect(catalyst.timing).toBeDefined();
+        expect(['high', 'medium', 'low']).toContain(catalyst.impact);
+      }
+    }
+  });
+
+  it('should include investment_thesis on every row', () => {
+    const { opportunities } = scoreAllIndications(undefined, 'opportunity_score', 'desc', 50, 0);
+
+    for (const row of opportunities) {
+      expect(typeof row.investment_thesis).toBe('string');
+      expect(row.investment_thesis.length).toBeGreaterThan(20);
+    }
+  });
+
+  it('should have deal activity for well-known oncology indications', () => {
+    const { opportunities } = scoreAllIndications(undefined, 'opportunity_score', 'desc', 300, 0);
+    const nsclc = opportunities.find((r) => r.indication === 'Non-Small Cell Lung Cancer');
+    expect(nsclc).toBeDefined();
+    expect(nsclc!.deal_activity.recent_deal_count).toBeGreaterThan(0);
+  });
+
+  it('should generate catalyst signals for indications with patent cliffs', () => {
+    const { opportunities } = scoreAllIndications(undefined, 'opportunity_score', 'desc', 300, 0);
+    const withCliffs = opportunities.filter((r) => r.nearest_patent_cliff_year !== null);
+
+    // At least some indications with patent cliffs should have patent_cliff catalysts
+    const withCliffCatalysts = withCliffs.filter((r) => r.catalyst_signals.some((c) => c.type === 'patent_cliff'));
+    expect(withCliffCatalysts.length).toBeGreaterThan(0);
+  });
+
+  it('should sort by deal_count', () => {
+    const { opportunities } = scoreAllIndications(undefined, 'deal_count', 'desc', 10, 0);
+    expect(opportunities.length).toBeGreaterThan(0);
+
+    for (let i = 1; i < opportunities.length; i++) {
+      expect(opportunities[i - 1].deal_activity.recent_deal_count).toBeGreaterThanOrEqual(
+        opportunities[i].deal_activity.recent_deal_count,
+      );
+    }
+  });
+
+  it('should sort by catalyst_count', () => {
+    const { opportunities } = scoreAllIndications(undefined, 'catalyst_count', 'desc', 10, 0);
+    expect(opportunities.length).toBeGreaterThan(0);
+
+    for (let i = 1; i < opportunities.length; i++) {
+      expect(opportunities[i - 1].catalyst_signals.length).toBeGreaterThanOrEqual(
+        opportunities[i].catalyst_signals.length,
+      );
+    }
+  });
+
+  it('should cap catalyst_signals at 6 per indication', () => {
+    const { opportunities } = scoreAllIndications(undefined, 'opportunity_score', 'desc', 300, 0);
+
+    for (const row of opportunities) {
+      expect(row.catalyst_signals.length).toBeLessThanOrEqual(6);
+    }
+  });
+});

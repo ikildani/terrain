@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { ScoreBreakdownBar } from './OpportunityScoreBar';
-import type { OpportunityScoreBreakdown } from '@/lib/analytics/screener';
+import type { OpportunityScoreBreakdown, DealActivity, CatalystSignal } from '@/lib/analytics/screener';
 import { formatNumber, formatDate } from '@/lib/utils/format';
 
 // ── Detail API response types ──────────────────────────────
@@ -150,10 +150,14 @@ interface OpportunityDetailPanelProps {
   scoreBreakdown: OpportunityScoreBreakdown;
   scoreExplanations?: Record<string, string>;
   isOpen: boolean;
+  dealActivity?: DealActivity;
+  catalystSignals?: CatalystSignal[];
+  investmentThesis?: string;
 }
 
 type DetailTab =
   | 'score'
+  | 'investor'
   | 'subtypes'
   | 'biomarkers'
   | 'pricing'
@@ -166,6 +170,7 @@ type DetailTab =
 
 const TABS: { id: DetailTab; label: string; icon: typeof Beaker }[] = [
   { id: 'score', label: 'Score Breakdown', icon: Lightbulb },
+  { id: 'investor', label: 'Investor View', icon: TrendingUp },
   { id: 'subtypes', label: 'Subtypes & Segments', icon: Layers },
   { id: 'biomarkers', label: 'Biomarkers', icon: Dna },
   { id: 'pricing', label: 'Pricing & Revenue', icon: DollarSign },
@@ -188,6 +193,9 @@ export function OpportunityDetailPanel({
   scoreBreakdown,
   scoreExplanations,
   isOpen,
+  dealActivity,
+  catalystSignals,
+  investmentThesis,
 }: OpportunityDetailPanelProps) {
   const [activeTab, setActiveTab] = useState<DetailTab>('score');
   const [detail, setDetail] = useState<DetailData | null>(null);
@@ -406,6 +414,136 @@ export function OpportunityDetailPanel({
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ═══════════ Investor View ═══════════ */}
+          {activeTab === 'investor' && (
+            <div className="space-y-6">
+              {/* Investment thesis */}
+              {investmentThesis && (
+                <div className="p-4 rounded-lg bg-navy-800/40 border border-navy-700/40">
+                  <h4 className="text-xs font-medium text-teal-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5" />
+                    Investment Thesis
+                  </h4>
+                  <p className="text-sm text-slate-300 leading-relaxed">{investmentThesis}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Deal landscape */}
+                <div>
+                  <h4 className="text-xs font-medium text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                    Deal Landscape
+                  </h4>
+                  {dealActivity && dealActivity.recent_deal_count > 0 ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="p-2 rounded bg-navy-800/30 border border-navy-700/30">
+                          <div className="text-[10px] text-slate-500 font-mono uppercase">Deals Tracked</div>
+                          <div className="text-lg font-mono text-white">{dealActivity.recent_deal_count}</div>
+                        </div>
+                        <div className="p-2 rounded bg-navy-800/30 border border-navy-700/30">
+                          <div className="text-[10px] text-slate-500 font-mono uppercase">Velocity</div>
+                          <div
+                            className={cn(
+                              'text-sm font-medium capitalize',
+                              dealActivity.deal_velocity_trend === 'accelerating'
+                                ? 'text-emerald-400'
+                                : dealActivity.deal_velocity_trend === 'decelerating'
+                                  ? 'text-red-400'
+                                  : 'text-slate-300',
+                            )}
+                          >
+                            {dealActivity.deal_velocity_trend.replace('_', ' ')}
+                          </div>
+                        </div>
+                        <div className="p-2 rounded bg-navy-800/30 border border-navy-700/30">
+                          <div className="text-[10px] text-slate-500 font-mono uppercase">Avg Upfront</div>
+                          <div className="text-sm font-mono text-white">
+                            {dealActivity.avg_deal_upfront_m >= 1000
+                              ? `$${(dealActivity.avg_deal_upfront_m / 1000).toFixed(1)}B`
+                              : `$${dealActivity.avg_deal_upfront_m}M`}
+                          </div>
+                        </div>
+                        <div className="p-2 rounded bg-navy-800/30 border border-navy-700/30">
+                          <div className="text-[10px] text-slate-500 font-mono uppercase">Avg Total</div>
+                          <div className="text-sm font-mono text-white">
+                            {dealActivity.avg_deal_total_m >= 1000
+                              ? `$${(dealActivity.avg_deal_total_m / 1000).toFixed(1)}B`
+                              : `$${dealActivity.avg_deal_total_m}M`}
+                          </div>
+                        </div>
+                      </div>
+                      {dealActivity.notable_deals.length > 0 && (
+                        <div>
+                          <div className="text-[10px] text-slate-500 font-mono uppercase mb-1.5">
+                            Notable Transactions
+                          </div>
+                          <div className="space-y-1.5">
+                            {dealActivity.notable_deals.map((deal, i) => (
+                              <div
+                                key={i}
+                                className="flex items-center justify-between p-1.5 rounded bg-navy-800/20 border border-navy-700/20"
+                              >
+                                <div>
+                                  <span className="text-xs text-slate-200">{deal.company}</span>
+                                  <span className="text-[10px] text-slate-500 ml-1.5">{deal.asset}</span>
+                                </div>
+                                <div className="text-xs font-mono text-emerald-400">
+                                  {deal.total_value_m >= 1000
+                                    ? `$${(deal.total_value_m / 1000).toFixed(1)}B`
+                                    : `$${deal.total_value_m}M`}
+                                  <span className="text-[10px] text-slate-500 ml-1">{deal.year}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500">No comparable deals tracked for this indication.</p>
+                  )}
+                </div>
+
+                {/* Catalyst signals */}
+                <div>
+                  <h4 className="text-xs font-medium text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <Rocket className="w-3.5 h-3.5 text-amber-400" />
+                    Catalyst Signals
+                  </h4>
+                  {catalystSignals && catalystSignals.length > 0 ? (
+                    <div className="space-y-2">
+                      {catalystSignals.map((catalyst, i) => (
+                        <div key={i} className="p-2 rounded-md bg-navy-800/30 border border-navy-700/30">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span
+                              className={cn(
+                                'w-1.5 h-1.5 rounded-full flex-shrink-0',
+                                catalyst.impact === 'high'
+                                  ? 'bg-emerald-400'
+                                  : catalyst.impact === 'medium'
+                                    ? 'bg-amber-400'
+                                    : 'bg-slate-500',
+                              )}
+                            />
+                            <span className="text-[10px] font-mono text-slate-500 uppercase">
+                              {catalyst.type.replace('_', ' ')}
+                            </span>
+                            <span className="text-[10px] text-slate-600 ml-auto">{catalyst.timing}</span>
+                          </div>
+                          <p className="text-xs text-slate-300 leading-relaxed">{catalyst.signal}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500">No notable catalysts identified.</p>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 

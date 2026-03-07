@@ -25,7 +25,10 @@ type SortField =
   | 'biomarker_count'
   | 'subtype_count'
   | 'unpartnered_fic_count'
-  | 'novel_mechanism_count';
+  | 'novel_mechanism_count'
+  | 'deal_count'
+  | 'catalyst_count'
+  | 'avg_deal_total_m';
 
 interface OpportunityTableProps {
   rows: OpportunityRow[];
@@ -248,6 +251,22 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
                 onSort={onSort}
                 align="right"
               />
+              <SortHeader
+                field="deal_count"
+                label="Deals"
+                currentSort={sortBy}
+                currentOrder={sortOrder}
+                onSort={onSort}
+                align="right"
+              />
+              <SortHeader
+                field="catalyst_count"
+                label="Catalysts"
+                currentSort={sortBy}
+                currentOrder={sortOrder}
+                onSort={onSort}
+                align="right"
+              />
             </tr>
           </thead>
           <tbody>
@@ -409,6 +428,44 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
                         <span className="text-slate-600">0</span>
                       )}
                     </td>
+
+                    {/* Deals */}
+                    <td className="py-2.5 pr-3 text-right font-mono text-xs tabular-nums">
+                      {row.deal_activity?.recent_deal_count > 0 ? (
+                        <span
+                          className={
+                            row.deal_activity.deal_velocity_trend === 'accelerating'
+                              ? 'text-emerald-400 font-medium'
+                              : 'text-slate-300'
+                          }
+                          title={
+                            row.deal_activity.avg_deal_total_m > 0
+                              ? `Avg $${row.deal_activity.avg_deal_total_m}M total value`
+                              : undefined
+                          }
+                        >
+                          {row.deal_activity.recent_deal_count}
+                        </span>
+                      ) : (
+                        <span className="text-slate-600">0</span>
+                      )}
+                    </td>
+
+                    {/* Catalysts */}
+                    <td className="py-2.5 pr-3 text-right">
+                      {row.catalyst_signals?.length > 0 ? (
+                        <span className="inline-flex items-center gap-1">
+                          {row.catalyst_signals.some((c) => c.impact === 'high') && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                          )}
+                          <span className="font-mono text-xs text-slate-300 tabular-nums">
+                            {row.catalyst_signals.length}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-slate-600">—</span>
+                      )}
+                    </td>
                   </tr>
 
                   {/* Expanded detail panel */}
@@ -417,6 +474,9 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
                     scoreBreakdown={row.score_breakdown}
                     scoreExplanations={row.score_explanations}
                     isOpen={isExpanded}
+                    dealActivity={row.deal_activity}
+                    catalystSignals={row.catalyst_signals}
+                    investmentThesis={row.investment_thesis}
                   />
                 </Fragment>
               );

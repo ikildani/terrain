@@ -14,6 +14,8 @@ import {
   Rocket,
   Dna,
   SlidersHorizontal,
+  DollarSign,
+  Shield,
 } from 'lucide-react';
 import { OpportunityFilterBar, type ScreenerFilters } from './OpportunityFilterBar';
 import { OpportunityTable } from './OpportunityTable';
@@ -42,10 +44,12 @@ function SummaryStats({
   rows,
   totalCount,
   allRows,
+  weightProfile,
 }: {
   rows: OpportunityRow[];
   totalCount: number;
   allRows: OpportunityRow[];
+  weightProfile?: string;
 }) {
   if (allRows.length === 0) return null;
 
@@ -56,6 +60,13 @@ function SummaryStats({
   const therapyAreas = new Set(allRows.map((r) => r.therapy_area)).size;
   const totalUnpartneredFic = allRows.reduce((sum, r) => sum + (r.unpartnered_fic_count ?? 0), 0);
   const totalNovelMoa = allRows.reduce((sum, r) => sum + (r.novel_mechanism_count ?? 0), 0);
+
+  // Investor-specific stats
+  const isInvestor = weightProfile === 'investor';
+  const totalDeals = allRows.reduce((sum, r) => sum + (r.deal_activity?.recent_deal_count ?? 0), 0);
+  const withCatalysts = allRows.filter((r) => (r.catalyst_signals?.length ?? 0) > 0).length;
+  const withHighCatalysts = allRows.filter((r) => r.catalyst_signals?.some((c) => c.impact === 'high') ?? false).length;
+  const withPatentCliffs = allRows.filter((r) => r.nearest_patent_cliff_year !== null).length;
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
@@ -88,32 +99,65 @@ function SummaryStats({
         <p className="text-[10px] text-slate-500 mt-1">scoring 60+</p>
       </div>
 
-      <div className="stat-card">
-        <div className="flex items-center gap-1.5 mb-2">
-          <Users className="w-3.5 h-3.5 text-slate-500" />
-          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Open Markets</span>
-        </div>
-        <div className="font-mono text-xl text-teal-400 font-medium">{openMarkets}</div>
-        <p className="text-[10px] text-slate-500 mt-1">crowding &lt; 4</p>
-      </div>
+      {isInvestor ? (
+        <>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <DollarSign className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Deal Activity</span>
+            </div>
+            <div className="font-mono text-xl text-emerald-400 font-medium">{totalDeals}</div>
+            <p className="text-[10px] text-slate-500 mt-1">transactions tracked</p>
+          </div>
 
-      <div className="stat-card">
-        <div className="flex items-center gap-1.5 mb-2">
-          <Rocket className="w-3.5 h-3.5 text-slate-500" />
-          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Unpartnered FIC</span>
-        </div>
-        <div className="font-mono text-xl text-teal-400 font-medium">{totalUnpartneredFic}</div>
-        <p className="text-[10px] text-slate-500 mt-1">scouting targets</p>
-      </div>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Rocket className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">High Catalysts</span>
+            </div>
+            <div className="font-mono text-xl text-amber-400 font-medium">{withHighCatalysts}</div>
+            <p className="text-[10px] text-slate-500 mt-1">of {withCatalysts} with signals</p>
+          </div>
 
-      <div className="stat-card">
-        <div className="flex items-center gap-1.5 mb-2">
-          <Dna className="w-3.5 h-3.5 text-slate-500" />
-          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Novel MoA</span>
-        </div>
-        <div className="font-mono text-xl text-violet-400 font-medium">{totalNovelMoa}</div>
-        <p className="text-[10px] text-slate-500 mt-1">differentiated assets</p>
-      </div>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Shield className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Patent Cliffs</span>
+            </div>
+            <div className="font-mono text-xl text-teal-400 font-medium">{withPatentCliffs}</div>
+            <p className="text-[10px] text-slate-500 mt-1">with LOE exposure</p>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Users className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Open Markets</span>
+            </div>
+            <div className="font-mono text-xl text-teal-400 font-medium">{openMarkets}</div>
+            <p className="text-[10px] text-slate-500 mt-1">crowding &lt; 4</p>
+          </div>
+
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Rocket className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Unpartnered FIC</span>
+            </div>
+            <div className="font-mono text-xl text-teal-400 font-medium">{totalUnpartneredFic}</div>
+            <p className="text-[10px] text-slate-500 mt-1">scouting targets</p>
+          </div>
+
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Dna className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Novel MoA</span>
+            </div>
+            <div className="font-mono text-xl text-violet-400 font-medium">{totalNovelMoa}</div>
+            <p className="text-[10px] text-slate-500 mt-1">differentiated assets</p>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -494,7 +538,9 @@ export default function OpportunityScreener() {
       )}
 
       {/* Summary stats */}
-      {hasSearched && !isLoading && <SummaryStats rows={filteredRows} totalCount={totalCount} allRows={rows} />}
+      {hasSearched && !isLoading && (
+        <SummaryStats rows={filteredRows} totalCount={totalCount} allRows={rows} weightProfile={weightProfile} />
+      )}
 
       {/* Generated at timestamp */}
       {hasSearched && !isLoading && generatedAt && (
