@@ -1329,6 +1329,20 @@ function buildPayerDynamics(therapyArea: string): string {
     pulmonology:
       'Competitive inhaler market with generic pressure. Biologics for severe asthma have moderate restrictions.',
     nephrology: 'Growing market with novel agents. Dialysis products face Medicare bundled payment dynamics.',
+    psychiatry:
+      'Heavy Medicaid exposure (30%+). State supplemental rebates compound federal best-price. Step-through generic antidepressants/antipsychotics mandated before novel agents. Long-acting injectables face medical benefit vs pharmacy benefit complexity.',
+    pain_management:
+      'Highest payer scrutiny. Prior authorization near-universal. Opioid policies restrict new entrants. CGRP migraine class has moderate access but utilization management via quantity limits. Non-opioid chronic pain lacks clear reimbursement pathways.',
+    dermatology:
+      'Biologic step-through policies (topicals → phototherapy → systemic → biologic). IL-17/IL-23/JAK class crowded with preferred formulary competition. Specialty pharmacy distribution. Copay accumulator programs impact patient out-of-pocket.',
+    gastroenterology:
+      'IBD biologics face step-through (anti-TNF first). Biosimilar infliximab/adalimumab disrupting. JAK/S1P oral agents gaining share but safety monitoring required. PPI class fully genericized.',
+    hepatology:
+      'HCV direct-acting antivirals faced aggressive payer management (cure-based value contracts). NASH/MASH emerging with uncertain reimbursement — payers await long-term outcome data. Subscription/Netflix pricing models for HCV.',
+    endocrinology:
+      'Insulin price caps ($35/month Medicare, expanding to commercial). GLP-1 class under intense utilization management for weight loss vs diabetes indications. IRA negotiation exposure for high-revenue agents. Thyroid/GH generics available.',
+    musculoskeletal:
+      'Anti-TNF biosimilar wave driving 30-50% discounts. Novel mechanisms (anti-IL17 for SpA, anti-sclerostin for osteoporosis) face step-through requirements. Osteoporosis agents face adherence-driven coverage restrictions. Gout treatment underpenetrated.',
   };
   return (
     d[therapyArea] ??
@@ -3627,6 +3641,136 @@ const TREATMENT_LINE_ATTRITION: Record<
     '1L_ceiling': 0.2,
     '2L_ceiling': 0.12,
     '3L_ceiling': 0.06,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.0,
+  },
+  metabolic: {
+    // GLP-1/SGLT2 class — high 1L penetration, moderate attrition
+    '1L_to_2L': 0.35,
+    '2L_to_3L': 0.5,
+    '1L_ceiling': 0.25,
+    '2L_ceiling': 0.15,
+    '3L_ceiling': 0.08,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.0,
+  },
+  psychiatry: {
+    // High switching rates, treatment resistance common
+    '1L_to_2L': 0.5,
+    '2L_to_3L': 0.55,
+    '1L_ceiling': 0.2,
+    '2L_ceiling': 0.15,
+    '3L_ceiling': 0.1,
+    '2L_price_mult': 1.1,
+    '3L_price_mult': 1.2,
+  },
+  pain_management: {
+    // Step-therapy mandated by payers
+    '1L_to_2L': 0.55,
+    '2L_to_3L': 0.6,
+    '1L_ceiling': 0.15,
+    '2L_ceiling': 0.12,
+    '3L_ceiling': 0.08,
+    '2L_price_mult': 1.05,
+    '3L_price_mult': 1.15,
+  },
+  infectious_disease: {
+    // Cure-based — minimal LOT concept for most
+    '1L_to_2L': 0.2,
+    '2L_to_3L': 0.4,
+    '1L_ceiling': 0.35,
+    '2L_ceiling': 0.2,
+    '3L_ceiling': 0.1,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.1,
+  },
+  hematology: {
+    // Gene therapy / factor replacement — limited LOT
+    '1L_to_2L': 0.3,
+    '2L_to_3L': 0.45,
+    '1L_ceiling': 0.3,
+    '2L_ceiling': 0.2,
+    '3L_ceiling': 0.12,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.1,
+  },
+  ophthalmology: {
+    // Anti-VEGF — minimal LOT switching
+    '1L_to_2L': 0.25,
+    '2L_to_3L': 0.45,
+    '1L_ceiling': 0.3,
+    '2L_ceiling': 0.18,
+    '3L_ceiling': 0.1,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.0,
+  },
+  pulmonology: {
+    // Biologic step-up from ICS/LABA
+    '1L_to_2L': 0.4,
+    '2L_to_3L': 0.5,
+    '1L_ceiling': 0.2,
+    '2L_ceiling': 0.15,
+    '3L_ceiling': 0.08,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.05,
+  },
+  nephrology: {
+    // Limited treatment options — low switching
+    '1L_to_2L': 0.3,
+    '2L_to_3L': 0.5,
+    '1L_ceiling': 0.25,
+    '2L_ceiling': 0.15,
+    '3L_ceiling': 0.08,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.05,
+  },
+  dermatology: {
+    // Biologic cycling common (IL-17 → IL-23 → JAK)
+    '1L_to_2L': 0.4,
+    '2L_to_3L': 0.5,
+    '1L_ceiling': 0.25,
+    '2L_ceiling': 0.18,
+    '3L_ceiling': 0.1,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.0,
+  },
+  gastroenterology: {
+    // IBD step-through: anti-TNF → vedolizumab → JAK
+    '1L_to_2L': 0.45,
+    '2L_to_3L': 0.5,
+    '1L_ceiling': 0.2,
+    '2L_ceiling': 0.15,
+    '3L_ceiling': 0.08,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.05,
+  },
+  hepatology: {
+    // HCV cure-based; NASH chronic
+    '1L_to_2L': 0.2,
+    '2L_to_3L': 0.4,
+    '1L_ceiling': 0.3,
+    '2L_ceiling': 0.18,
+    '3L_ceiling': 0.1,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.05,
+  },
+  endocrinology: {
+    // Insulin/GLP-1 titration, moderate switching
+    '1L_to_2L': 0.35,
+    '2L_to_3L': 0.5,
+    '1L_ceiling': 0.25,
+    '2L_ceiling': 0.15,
+    '3L_ceiling': 0.08,
+    '2L_price_mult': 1.0,
+    '3L_price_mult': 1.0,
+  },
+  musculoskeletal: {
+    // Anti-TNF cycling + biosimilar switching
+    '1L_to_2L': 0.4,
+    '2L_to_3L': 0.5,
+    '1L_ceiling': 0.2,
+    '2L_ceiling': 0.15,
+    '3L_ceiling': 0.08,
     '2L_price_mult': 1.0,
     '3L_price_mult': 1.0,
   },

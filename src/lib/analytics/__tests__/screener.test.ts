@@ -300,21 +300,36 @@ describe('screener output integrity', () => {
     }
   });
 
-  it('should have score_breakdown components that sum to opportunity_score (with confidence discount)', () => {
+  it('should have score_breakdown components that produce opportunity_score via weighted normalization', () => {
     const { opportunities } = scoreAllIndications(undefined, 'opportunity_score', 'desc', 300, 0);
 
-    for (const row of opportunities) {
-      const sum =
-        row.score_breakdown.market_attractiveness +
-        row.score_breakdown.competitive_openness +
-        row.score_breakdown.unmet_need +
-        row.score_breakdown.development_feasibility +
-        row.score_breakdown.partner_landscape;
+    // Default balanced weights: 30/25/20/15/10
+    const w = {
+      market_attractiveness: 30,
+      competitive_openness: 25,
+      unmet_need: 20,
+      development_feasibility: 15,
+      partner_landscape: 10,
+    };
+    const maxes = {
+      market_attractiveness: 30,
+      competitive_openness: 25,
+      unmet_need: 20,
+      development_feasibility: 15,
+      partner_landscape: 10,
+    };
 
-      // Confidence discount: low=0.85x, medium=0.95x, high=1.0x
-      // So opportunity_score = sum * multiplier. Verify it's within expected range.
+    for (const row of opportunities) {
+      const b = row.score_breakdown;
+      const weighted =
+        (b.market_attractiveness / maxes.market_attractiveness) * w.market_attractiveness +
+        (b.competitive_openness / maxes.competitive_openness) * w.competitive_openness +
+        (b.unmet_need / maxes.unmet_need) * w.unmet_need +
+        (b.development_feasibility / maxes.development_feasibility) * w.development_feasibility +
+        (b.partner_landscape / maxes.partner_landscape) * w.partner_landscape;
+
       const multiplier = row.data_confidence === 'low' ? 0.85 : row.data_confidence === 'medium' ? 0.95 : 1.0;
-      const expected = sum * multiplier;
+      const expected = weighted * multiplier;
       expect(Math.abs(expected - row.opportunity_score)).toBeLessThan(0.2);
     }
   });

@@ -30,6 +30,7 @@ import type { IndicationSubtype } from '@/lib/data/indication-subtypes';
 import { BIOMARKER_DATA, getBiomarkersForIndication } from '@/lib/data/biomarker-prevalence';
 import type { BiomarkerEntry } from '@/lib/data/biomarker-prevalence';
 import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
+import { computeLoeImpactScore } from '@/lib/data/patent-cliffs';
 import type { DevelopmentStage } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -84,6 +85,93 @@ function formatLargeNum(n: number): string {
 // ────────────────────────────────────────────────────────────
 // EXPORTED TYPES
 // ────────────────────────────────────────────────────────────
+
+// ────────────────────────────────────────────────────────────
+// WEIGHT PROFILES — User-configurable scoring lens
+// ────────────────────────────────────────────────────────────
+
+/**
+ * Scoring weight profile. All values are 0-100 and must sum to 100.
+ * Default is the balanced profile (30/25/20/15/10).
+ */
+export interface ScoringWeightProfile {
+  market_attractiveness: number;
+  competitive_openness: number;
+  unmet_need: number;
+  development_feasibility: number;
+  partner_landscape: number;
+}
+
+/** Pre-built weight profiles for different strategic lenses. */
+export const WEIGHT_PROFILES: Record<string, { label: string; description: string; weights: ScoringWeightProfile }> = {
+  balanced: {
+    label: 'Balanced',
+    description: 'Equal emphasis across all dimensions — general-purpose screening',
+    weights: {
+      market_attractiveness: 30,
+      competitive_openness: 25,
+      unmet_need: 20,
+      development_feasibility: 15,
+      partner_landscape: 10,
+    },
+  },
+  rare_disease: {
+    label: 'Rare Disease',
+    description: 'Prioritizes unmet need and feasibility over market size — orphan drug strategy',
+    weights: {
+      market_attractiveness: 15,
+      competitive_openness: 20,
+      unmet_need: 35,
+      development_feasibility: 20,
+      partner_landscape: 10,
+    },
+  },
+  big_pharma_bd: {
+    label: 'Big Pharma BD',
+    description: 'Prioritizes large markets and partner activity — in-licensing focus',
+    weights: {
+      market_attractiveness: 35,
+      competitive_openness: 20,
+      unmet_need: 15,
+      development_feasibility: 15,
+      partner_landscape: 15,
+    },
+  },
+  competitive_entry: {
+    label: 'Competitive Entry',
+    description: 'Prioritizes open markets and competitive dynamics — white space hunting',
+    weights: {
+      market_attractiveness: 20,
+      competitive_openness: 35,
+      unmet_need: 20,
+      development_feasibility: 15,
+      partner_landscape: 10,
+    },
+  },
+  investor: {
+    label: 'Investor',
+    description: 'Prioritizes market attractiveness and feasibility — ROI-oriented',
+    weights: {
+      market_attractiveness: 35,
+      competitive_openness: 20,
+      unmet_need: 10,
+      development_feasibility: 25,
+      partner_landscape: 10,
+    },
+  },
+};
+
+/** Default weight profile key. */
+export const DEFAULT_WEIGHT_PROFILE = 'balanced';
+
+/** Max raw score per dimension (for normalization to 0-1 before applying weights). */
+const DIMENSION_MAX: ScoringWeightProfile = {
+  market_attractiveness: 30,
+  competitive_openness: 25,
+  unmet_need: 20,
+  development_feasibility: 15,
+  partner_landscape: 10,
+};
 
 export interface OpportunityFilters {
   therapy_areas?: string[];
@@ -695,8 +783,14 @@ interface ScoredIndication {
 /**
  * Computes the full opportunity profile for a single indication.
  * Accepts an optional pre-fetched competitors array to avoid redundant lookups.
+ * When weights are provided, normalizes each sub-score to 0-1 and applies
+ * the user-selected weight profile for a customized composite score.
  */
-function scoreIndication(indication: IndicationData, prefetchedCompetitors?: CompetitorRecord[]): ScoredIndication {
+function scoreIndication(
+  indication: IndicationData,
+  prefetchedCompetitors?: CompetitorRecord[],
+  weights?: ScoringWeightProfile,
+): ScoredIndication {
   // Competitors
   const competitors = prefetchedCompetitors ?? getCompetitorsForIndication(indication.name);
   const competitorCount = competitors.length;
@@ -762,8 +856,15 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
   );
   const partnerResult = scorePartnerLandscape(indication.therapy_area, indication.name, competitors);
 
+  // Composite scoring: when custom weights are provided, normalize each
+  // sub-score to 0-1 and apply weights (sum to 100). Otherwise use raw sums.
+  const w = weights ?? WEIGHT_PROFILES[DEFAULT_WEIGHT_PROFILE].weights;
   const rawOpportunityScore =
-    marketAttractiveness + competitiveOpenness + unmetNeed + devFeasibility.score + partnerResult.score;
+    (marketAttractiveness / DIMENSION_MAX.market_attractiveness) * w.market_attractiveness +
+    (competitiveOpenness / DIMENSION_MAX.competitive_openness) * w.competitive_openness +
+    (unmetNeed / DIMENSION_MAX.unmet_need) * w.unmet_need +
+    (devFeasibility.score / DIMENSION_MAX.development_feasibility) * w.development_feasibility +
+    (partnerResult.score / DIMENSION_MAX.partner_landscape) * w.partner_landscape;
 
   // Confidence discount: low-confidence indications (0 competitors, sparse data)
   // get a 15% discount; medium gets 5%. Prevents low-data indications from
@@ -1059,13 +1160,14 @@ function compareRows(a: OpportunityRow, b: OpportunityRow, sortBy: string, sortO
 // ────────────────────────────────────────────────────────────
 
 /**
- * Scores all 214 indications, applies filters, sorts, and paginates.
+ * Scores all indications, applies filters, sorts, and paginates.
  *
- * @param filters  - Optional filters to narrow results
- * @param sortBy   - Field to sort by (default: 'opportunity_score')
- * @param sortOrder - 'asc' or 'desc' (default: 'desc')
- * @param limit    - Maximum rows per page (default: 50)
- * @param offset   - Starting index for pagination (default: 0)
+ * @param filters       - Optional filters to narrow results
+ * @param sortBy        - Field to sort by (default: 'opportunity_score')
+ * @param sortOrder     - 'asc' or 'desc' (default: 'desc')
+ * @param limit         - Maximum rows per page (default: 50)
+ * @param offset        - Starting index for pagination (default: 0)
+ * @param weightProfile - Optional scoring weight profile key or custom weights
  *
  * @returns Paginated opportunity rows and total count after filtering.
  */
@@ -1075,13 +1177,18 @@ export function scoreAllIndications(
   sortOrder: 'asc' | 'desc' = 'desc',
   limit: number = 50,
   offset: number = 0,
+  weightProfile?: string | ScoringWeightProfile,
 ): ScreenerResult {
+  // Resolve weight profile
+  const weights: ScoringWeightProfile | undefined =
+    typeof weightProfile === 'string' ? WEIGHT_PROFILES[weightProfile]?.weights : weightProfile;
+
   const scoredRows: OpportunityRow[] = [];
 
   for (const indication of INDICATION_DATA) {
     // Fetch competitors once and pass to both scoreIndication and passesFilters
     const competitors = getCompetitorsForIndication(indication.name);
-    const { row } = scoreIndication(indication, competitors);
+    const { row } = scoreIndication(indication, competitors, weights);
 
     // Apply filters (reuses already-fetched competitors for phase filter)
     if (filters) {
@@ -1109,15 +1216,21 @@ export function scoreAllIndications(
 
 /**
  * Scores a single indication by name. Returns null if the indication
- * is not found in the database.
+ * is not found in the database. Accepts optional weight profile.
  */
-export function scoreIndicationByName(indicationName: string): OpportunityRow | null {
+export function scoreIndicationByName(
+  indicationName: string,
+  weightProfile?: string | ScoringWeightProfile,
+): OpportunityRow | null {
   const normalized = indicationName.toLowerCase().trim();
   const match = INDICATION_DATA.find((ind) => ind.name.toLowerCase().trim() === normalized);
 
   if (!match) return null;
 
-  const { row } = scoreIndication(match);
+  const weights: ScoringWeightProfile | undefined =
+    typeof weightProfile === 'string' ? WEIGHT_PROFILES[weightProfile]?.weights : weightProfile;
+
+  const { row } = scoreIndication(match, undefined, weights);
   return row;
 }
 

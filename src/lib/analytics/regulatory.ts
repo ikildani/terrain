@@ -1090,16 +1090,24 @@ const DEVELOPMENT_COST_BY_STAGE: Record<DevelopmentStage, { low_m: number; base_
 };
 
 const COST_MULTIPLIERS: Record<string, number> = {
-  oncology: 1.3, // Larger trials, complex endpoints
-  neurology: 1.5, // Long trials, difficult enrollment
-  cardiovascular: 1.4, // Large outcome trials
-  rare_disease: 0.7, // Smaller trials
-  immunology: 1.1,
-  hematology: 1.0,
-  ophthalmology: 0.9,
-  infectious_disease: 0.9,
-  metabolic: 1.2,
-  dermatology: 0.8,
+  oncology: 1.3, // Larger trials, complex endpoints, biomarker stratification
+  neurology: 1.5, // Long trials, difficult enrollment, imaging endpoints
+  cardiovascular: 1.4, // Large CVOT outcome trials (5,000-15,000 patients)
+  rare_disease: 0.7, // Smaller trials, natural history comparators
+  immunology: 1.1, // Moderate trial sizes, standardized endpoints
+  hematology: 1.0, // Variable — gene therapy expensive, standard chemo moderate
+  ophthalmology: 0.9, // Smaller trials, objective imaging endpoints
+  infectious_disease: 0.9, // Shorter trials for acute infections, vaccine trials larger
+  metabolic: 1.2, // Large trials for MACE safety, HbA1c endpoints well-defined
+  dermatology: 0.8, // Short trials (12-16wk), clear visual endpoints (PASI, IGA)
+  psychiatry: 1.3, // High placebo response → larger trials needed, multiple failed trials common
+  pain_management: 1.2, // Subjective endpoints, high placebo response, abuse deterrent studies
+  pulmonology: 1.1, // Moderate trial sizes, exacerbation endpoints require 48-52wk
+  nephrology: 1.3, // Long eGFR slope trials (2-3 years), kidney failure composites
+  gastroenterology: 1.1, // Moderate — endoscopic endpoints, 52wk induction/maintenance
+  hepatology: 1.2, // NASH requires liver biopsy trials, HCV shorter (12wk SVR)
+  endocrinology: 1.1, // HbA1c trials standardized but CVOT adds cost for diabetes
+  musculoskeletal: 1.1, // Moderate — structural endpoints (mTSS) require 52wk, ACR faster
 };
 
 const PDUFA_FEE_M = 4.0; // ~$4M in 2025/2026
@@ -1278,6 +1286,13 @@ const ADCOM_RATES: Record<
   infectious_disease: { convening_pct: 35, favorable_vote_pct: 70, crl_base_pct: 12 },
   gene_cell_therapy: { convening_pct: 60, favorable_vote_pct: 70, crl_base_pct: 15 },
   dermatology: { convening_pct: 25, favorable_vote_pct: 80, crl_base_pct: 8 },
+  pain_management: { convening_pct: 55, favorable_vote_pct: 60, crl_base_pct: 20 }, // Abuse potential scrutiny, AADPAC involvement
+  pulmonology: { convening_pct: 30, favorable_vote_pct: 75, crl_base_pct: 12 }, // PAC review for inhaler/device combination products
+  gastroenterology: { convening_pct: 30, favorable_vote_pct: 76, crl_base_pct: 10 }, // GI drugs AdCom convened for safety
+  nephrology: { convening_pct: 40, favorable_vote_pct: 70, crl_base_pct: 14 }, // eGFR endpoint debates; CRDAC review
+  hepatology: { convening_pct: 35, favorable_vote_pct: 72, crl_base_pct: 12 }, // DILI monitoring requirements
+  endocrinology: { convening_pct: 35, favorable_vote_pct: 74, crl_base_pct: 10 }, // EMDAC review for metabolic/endocrine
+  musculoskeletal: { convening_pct: 35, favorable_vote_pct: 72, crl_base_pct: 12 }, // AARAC review for CV safety in RA agents
   default: { convening_pct: 35, favorable_vote_pct: 72, crl_base_pct: 12 },
 };
 
@@ -2349,10 +2364,24 @@ function buildPathwayRationale(
 
 const THERAPY_AREA_TIMELINE_MODIFIERS: Record<string, { optimistic: number; realistic: number; pessimistic: number }> =
   {
-    oncology: { optimistic: -6, realistic: -3, pessimistic: 0 },
-    neurology: { optimistic: 6, realistic: 12, pessimistic: 18 },
-    rare_disease: { optimistic: -3, realistic: 0, pessimistic: 12 },
-    cardiovascular: { optimistic: 6, realistic: 6, pessimistic: 12 },
+    oncology: { optimistic: -6, realistic: -3, pessimistic: 0 }, // Expedited pathways (BTD, AA), Project Orbis
+    immunology: { optimistic: 0, realistic: 3, pessimistic: 6 }, // Standard timelines, well-characterized endpoints
+    neurology: { optimistic: 6, realistic: 12, pessimistic: 18 }, // Long trials, difficult endpoints, AdCom scrutiny
+    rare_disease: { optimistic: -3, realistic: 0, pessimistic: 12 }, // Orphan/BTD shortcuts, but small n may need post-market
+    cardiovascular: { optimistic: 6, realistic: 6, pessimistic: 12 }, // Large CVOT trials add years
+    metabolic: { optimistic: 3, realistic: 6, pessimistic: 12 }, // CVOT/MACE safety required for diabetes agents
+    psychiatry: { optimistic: 6, realistic: 12, pessimistic: 24 }, // High placebo response, multiple failed trials common
+    pain_management: { optimistic: 6, realistic: 12, pessimistic: 18 }, // Abuse potential studies (AADPAC), REMS requirements
+    infectious_disease: { optimistic: -6, realistic: -3, pessimistic: 3 }, // Emergency pathways, accelerated for AMR/pandemic
+    hematology: { optimistic: -3, realistic: 0, pessimistic: 6 }, // Single-arm possible for rare hematologic malignancies
+    ophthalmology: { optimistic: 0, realistic: 3, pessimistic: 6 }, // Clear imaging endpoints, moderate trial sizes
+    pulmonology: { optimistic: 0, realistic: 6, pessimistic: 12 }, // Exacerbation endpoints require 48-52wk trials
+    nephrology: { optimistic: 6, realistic: 12, pessimistic: 18 }, // eGFR slope trials 2-3yrs, kidney failure composites long
+    dermatology: { optimistic: -3, realistic: 0, pessimistic: 3 }, // Short 12-16wk trials, visual endpoints, fast enrollment
+    gastroenterology: { optimistic: 0, realistic: 3, pessimistic: 6 }, // Moderate — endoscopic endpoints established
+    hepatology: { optimistic: 3, realistic: 6, pessimistic: 12 }, // Liver biopsy trials (NASH) vs short SVR12 (HCV)
+    endocrinology: { optimistic: 0, realistic: 3, pessimistic: 9 }, // HbA1c trials short, but CVOT adds time for diabetes
+    musculoskeletal: { optimistic: 0, realistic: 3, pessimistic: 6 }, // ACR/DAS28 endpoints well-defined, moderate trial sizes
   };
 
 function getTherapyAreaTimelineModifier(indication: string): {
@@ -2360,6 +2389,16 @@ function getTherapyAreaTimelineModifier(indication: string): {
   realistic: number;
   pessimistic: number;
 } {
+  // Try indication map first for reliable TA lookup
+  const indicationData = findIndicationData(indication);
+  if (indicationData) {
+    const ta = indicationData.therapy_area.toLowerCase();
+    if (THERAPY_AREA_TIMELINE_MODIFIERS[ta]) {
+      return THERAPY_AREA_TIMELINE_MODIFIERS[ta];
+    }
+  }
+
+  // Fallback to keyword matching
   const text = indication.toLowerCase();
   if (/cancer|carcinoma|lymphoma|leukemia|melanoma|sarcoma|glioma|myeloma|tumor|nsclc|sclc|hcc|rcc/.test(text)) {
     return THERAPY_AREA_TIMELINE_MODIFIERS.oncology;
@@ -2369,6 +2408,51 @@ function getTherapyAreaTimelineModifier(indication: string): {
   }
   if (/heart failure|atrial fibrillation|hypertension|atherosclerosis|cardiovascular|myocardial|coronary/.test(text)) {
     return THERAPY_AREA_TIMELINE_MODIFIERS.cardiovascular;
+  }
+  if (/depression|mdd|schizophrenia|bipolar|adhd|ptsd|anxiety|ocd|psychiatric/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.psychiatry;
+  }
+  if (/pain|migraine|fibromyalgia|neuropathic|cgrp/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.pain_management;
+  }
+  if (/diabetes|obesity|nash|mash|glp-1|sglt2|metabolic/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.metabolic;
+  }
+  if (/hiv|hepatitis|rsv|influenza|covid|antibiotic|antiviral|vaccine|tuberculosis/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.infectious_disease;
+  }
+  if (/asthma|copd|ipf|pulmonary fibrosis|respiratory/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.pulmonology;
+  }
+  if (/kidney|renal|iga nephropathy|fsgs|ckd|dialysis/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.nephrology;
+  }
+  if (/psoriasis|atopic dermatitis|eczema|dermat/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.dermatology;
+  }
+  if (/crohn|ulcerative colitis|ibd|gerd|ibs/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.gastroenterology;
+  }
+  if (/liver|cirrhosis|hepatic|pbc/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.hepatology;
+  }
+  if (/rheumatoid|osteoarthritis|osteoporosis|gout|ankylosing/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.musculoskeletal;
+  }
+  if (/thyroid|acromegaly|growth hormone|cushing|adrenal/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.endocrinology;
+  }
+  if (/macular|glaucoma|retinal|amd|diabetic retinopathy|dry eye/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.ophthalmology;
+  }
+  if (/lupus|rheumatoid|autoimmune|il-17|il-23|jak/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.immunology;
+  }
+  if (/sickle cell|hemophilia|thalassemia|myelofibrosis|itp/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.hematology;
+  }
+  if (/orphan|rare|fabry|gaucher|pompe|duchenne|sma|cystic fibrosis/.test(text)) {
+    return THERAPY_AREA_TIMELINE_MODIFIERS.rare_disease;
   }
   return { optimistic: 0, realistic: 0, pessimistic: 0 };
 }

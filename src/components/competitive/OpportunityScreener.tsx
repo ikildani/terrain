@@ -3,12 +3,25 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Radar, TrendingUp, Users, Target, BarChart3, Search, Download, Rocket, Dna } from 'lucide-react';
+import {
+  Radar,
+  TrendingUp,
+  Users,
+  Target,
+  BarChart3,
+  Search,
+  Download,
+  Rocket,
+  Dna,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { OpportunityFilterBar, type ScreenerFilters } from './OpportunityFilterBar';
 import { OpportunityTable } from './OpportunityTable';
 import { OpportunityScoreBar } from './OpportunityScoreBar';
 import { SkeletonTable, SkeletonMetric } from '@/components/ui/Skeleton';
+import { cn } from '@/lib/utils/cn';
 import type { OpportunityRow } from '@/lib/analytics/screener';
+import { WEIGHT_PROFILES, DEFAULT_WEIGHT_PROFILE } from '@/lib/analytics/screener';
 
 // ── Types ──────────────────────────────────────────────────
 
@@ -286,6 +299,7 @@ export default function OpportunityScreener() {
   const [hasSearched, setHasSearched] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);
+  const [weightProfile, setWeightProfile] = useState<string>(DEFAULT_WEIGHT_PROFILE);
 
   // Client-side text filtering on indication name
   const filteredRows = searchQuery.trim()
@@ -298,6 +312,7 @@ export default function OpportunityScreener() {
       sort_by: string;
       sort_order: 'asc' | 'desc';
       offset: number;
+      weight_profile?: string;
     }): Promise<ScreenerApiResponse> => {
       const apiFilters: Record<string, unknown> = {};
       if (params.filters.therapy_areas.length > 0) apiFilters.therapy_areas = params.filters.therapy_areas;
@@ -316,6 +331,7 @@ export default function OpportunityScreener() {
           sort_order: params.sort_order,
           limit: PAGE_SIZE,
           offset: params.offset,
+          weight_profile: params.weight_profile,
         }),
       });
       const json = await res.json();
@@ -339,9 +355,15 @@ export default function OpportunityScreener() {
   const runScreener = useCallback(
     (newOffset = 0) => {
       setOffset(newOffset);
-      mutation.mutate({ filters, sort_by: sortBy, sort_order: sortOrder, offset: newOffset });
+      mutation.mutate({
+        filters,
+        sort_by: sortBy,
+        sort_order: sortOrder,
+        offset: newOffset,
+        weight_profile: weightProfile,
+      });
     },
-    [filters, sortBy, sortOrder, mutation],
+    [filters, sortBy, sortOrder, weightProfile, mutation],
   );
 
   // Auto-run on initial mount
@@ -357,7 +379,7 @@ export default function OpportunityScreener() {
     setSortBy(field);
     setSortOrder(newOrder);
     setOffset(0);
-    mutation.mutate({ filters, sort_by: field, sort_order: newOrder, offset: 0 });
+    mutation.mutate({ filters, sort_by: field, sort_order: newOrder, offset: 0, weight_profile: weightProfile });
   }
 
   function handleFiltersChange(newFilters: ScreenerFilters) {
@@ -366,7 +388,13 @@ export default function OpportunityScreener() {
 
   function handleApplyFilters() {
     setOffset(0);
-    mutation.mutate({ filters, sort_by: sortBy, sort_order: sortOrder, offset: 0 });
+    mutation.mutate({ filters, sort_by: sortBy, sort_order: sortOrder, offset: 0, weight_profile: weightProfile });
+  }
+
+  function handleWeightProfileChange(profile: string) {
+    setWeightProfile(profile);
+    setOffset(0);
+    mutation.mutate({ filters, sort_by: sortBy, sort_order: sortOrder, offset: 0, weight_profile: profile });
   }
 
   const isLoading = mutation.isPending;
@@ -381,6 +409,27 @@ export default function OpportunityScreener() {
         isLoading={isLoading}
         totalCount={hasSearched ? totalCount : undefined}
       />
+
+      {/* Strategic lens selector */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mr-1">Strategic Lens</span>
+        {Object.entries(WEIGHT_PROFILES).map(([key, profile]) => (
+          <button
+            key={key}
+            onClick={() => handleWeightProfileChange(key)}
+            title={profile.description}
+            className={cn(
+              'px-2.5 py-1 rounded-md text-[11px] font-medium transition-all border',
+              weightProfile === key
+                ? 'bg-teal-500/15 text-teal-400 border-teal-500/30'
+                : 'bg-navy-800 text-slate-400 border-navy-700 hover:border-slate-500',
+            )}
+          >
+            {profile.label}
+          </button>
+        ))}
+      </div>
 
       {/* Apply filters button + search + export */}
       <div className="flex items-center gap-3 flex-wrap">

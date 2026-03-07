@@ -2518,6 +2518,410 @@ export const BIOMARKER_PREVALENCE: BiomarkerEntry[] = [
       'IL-17A is the dominant effector cytokine in psoriasis, elevated in ~90% of lesional skin. Anti-IL-17 biologics (secukinumab, ixekizumab, bimekizumab) achieve PASI 90/100 in >50% of patients. Tissue testing not required clinically — diagnosis is clinical.',
     trending: false,
   },
+  // ---------------------------------------------------------------------------
+  // PSYCHIATRY
+  // ---------------------------------------------------------------------------
+
+  // CYP2D6 poor metabolizer
+  {
+    biomarker: 'CYP2D6 poor metabolizer',
+    indications: ['depression', 'MDD', 'schizophrenia', 'bipolar disorder', 'ADHD'],
+    prevalence_pct: 7,
+    testing_rate_pct: 12,
+    test_type: 'pharmacogenomic panel',
+    cdx_drugs: [],
+    clinical_significance:
+      'CYP2D6 poor metabolizers (~7% Caucasian, ~2% Asian) have impaired metabolism of many antidepressants (fluoxetine, paroxetine) and antipsychotics (aripiprazole, risperidone). FDA labels recommend dose adjustments. GeneSight and similar PGx panels increasingly used.',
+    trending: true,
+  },
+
+  // CYP2C19 poor metabolizer
+  {
+    biomarker: 'CYP2C19 poor metabolizer',
+    indications: ['depression', 'MDD', 'anxiety disorders'],
+    prevalence_pct: 3,
+    testing_rate_pct: 10,
+    test_type: 'pharmacogenomic panel',
+    cdx_drugs: [],
+    clinical_significance:
+      'CYP2C19 poor metabolizers have altered metabolism of citalopram, escitalopram, sertraline. CPIC guidelines recommend dose reductions. ~3% Caucasian, ~15% Asian populations.',
+    trending: true,
+  },
+
+  // HPA axis dysregulation
+  {
+    biomarker: 'HPA axis dysregulation (cortisol)',
+    indications: ['depression', 'MDD', 'PTSD', 'treatment-resistant depression'],
+    prevalence_pct: 50,
+    testing_rate_pct: 5,
+    test_type: 'blood/saliva cortisol',
+    cdx_drugs: [],
+    clinical_significance:
+      'Elevated cortisol/flattened diurnal cortisol rhythm found in ~50% of MDD patients. Research biomarker for TRD stratification. Mifepristone (GR antagonist) and other HPA-targeting agents in development.',
+    trending: false,
+  },
+
+  // BDNF
+  {
+    biomarker: 'BDNF (brain-derived neurotrophic factor)',
+    indications: ['depression', 'MDD', 'bipolar disorder', 'schizophrenia'],
+    prevalence_pct: 60,
+    testing_rate_pct: 3,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'Reduced serum BDNF in ~60% of MDD patients. Correlates with treatment response to SSRIs and ketamine/esketamine. Emerging as a treatment-response predictor, not yet clinically validated for drug selection.',
+    trending: false,
+  },
+
+  // SLC6A4 (serotonin transporter)
+  {
+    biomarker: 'SLC6A4 5-HTTLPR polymorphism',
+    indications: ['depression', 'MDD', 'anxiety disorders', 'OCD'],
+    prevalence_pct: 42,
+    testing_rate_pct: 5,
+    test_type: 'pharmacogenomic panel',
+    cdx_drugs: [],
+    clinical_significance:
+      'Short allele variant (~42% prevalence) associated with reduced SSRI response and increased susceptibility to stress-related depression. Research-grade; not yet FDA-validated for prescribing decisions.',
+    trending: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // PAIN MANAGEMENT
+  // ---------------------------------------------------------------------------
+
+  // CGRP levels
+  {
+    biomarker: 'CGRP (calcitonin gene-related peptide) elevation',
+    indications: ['migraine', 'chronic migraine', 'cluster headache'],
+    prevalence_pct: 75,
+    testing_rate_pct: 5,
+    test_type: 'blood',
+    cdx_drugs: ['erenumab', 'fremanezumab', 'galcanezumab', 'eptinezumab'],
+    clinical_significance:
+      'Elevated ictal CGRP levels in ~75% of migraine patients during attacks. Anti-CGRP mAbs and gepants target this pathway. Testing not required for prescribing but correlates with treatment response.',
+    trending: true,
+  },
+
+  // Nav1.7 (SCN9A)
+  {
+    biomarker: 'SCN9A (Nav1.7) variants',
+    indications: ['neuropathic pain', 'erythromelalgia', 'chronic pain'],
+    prevalence_pct: 8,
+    testing_rate_pct: 2,
+    test_type: 'genetic',
+    cdx_drugs: [],
+    clinical_significance:
+      'Gain-of-function Nav1.7 mutations cause inherited pain disorders. Nav1.7 inhibitors in clinical development for neuropathic pain. Loss-of-function variants cause congenital insensitivity to pain — validates target.',
+    trending: true,
+  },
+
+  // TRPV1 expression
+  {
+    biomarker: 'TRPV1 receptor overexpression',
+    indications: ['neuropathic pain', 'chronic pain', 'fibromyalgia'],
+    prevalence_pct: 45,
+    testing_rate_pct: 2,
+    test_type: 'tissue biopsy',
+    cdx_drugs: ['capsaicin patch'],
+    clinical_significance:
+      'TRPV1 overexpression in dorsal root ganglia found in ~45% of chronic neuropathic pain patients. Capsaicin 8% patch targets TRPV1. Novel TRPV1 antagonists in development.',
+    trending: false,
+  },
+
+  // Substance P
+  {
+    biomarker: 'Substance P elevation',
+    indications: ['fibromyalgia', 'chronic pain', 'neuropathic pain'],
+    prevalence_pct: 65,
+    testing_rate_pct: 3,
+    test_type: 'CSF/blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'Elevated CSF substance P in ~65% of fibromyalgia patients (3x normal). NK1 receptor antagonists target this pathway. Research biomarker — not routinely tested clinically.',
+    trending: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // GASTROENTEROLOGY
+  // ---------------------------------------------------------------------------
+
+  // Anti-TNF trough levels
+  {
+    biomarker: 'Anti-TNF trough level (TDM)',
+    indications: ["Crohn's disease", 'ulcerative colitis', 'IBD'],
+    prevalence_pct: 100,
+    testing_rate_pct: 55,
+    test_type: 'blood',
+    cdx_drugs: ['infliximab', 'adalimumab'],
+    clinical_significance:
+      'Therapeutic drug monitoring for anti-TNF biologics. Trough levels <5 mcg/mL for infliximab predict loss of response. AGA guidelines recommend TDM for treatment optimization. Used to guide dose escalation vs switch.',
+    trending: true,
+  },
+
+  // Fecal calprotectin
+  {
+    biomarker: 'Fecal calprotectin',
+    indications: ["Crohn's disease", 'ulcerative colitis', 'IBD', 'IBS'],
+    prevalence_pct: 85,
+    testing_rate_pct: 65,
+    test_type: 'stool',
+    cdx_drugs: [],
+    clinical_significance:
+      'Elevated (>250 mcg/g) in ~85% of active IBD. Differentiates IBD from IBS (negative predictive value >95%). Used for treatment monitoring and mucosal healing assessment. Non-invasive alternative to endoscopy.',
+    trending: true,
+  },
+
+  // H. pylori
+  {
+    biomarker: 'Helicobacter pylori',
+    indications: ['gastric ulcer', 'duodenal ulcer', 'GERD', 'gastric cancer'],
+    prevalence_pct: 35,
+    testing_rate_pct: 80,
+    test_type: 'breath/stool/endoscopy',
+    cdx_drugs: [],
+    clinical_significance:
+      'H. pylori prevalence ~35% in US (>50% globally). Eradication reduces ulcer recurrence from 80% to <5%. WHO Group 1 carcinogen for gastric cancer. Test-and-treat strategy guideline-recommended.',
+    trending: false,
+  },
+
+  // Anti-integrin antibodies
+  {
+    biomarker: 'Alpha-4-beta-7 integrin expression',
+    indications: ['ulcerative colitis', "Crohn's disease", 'IBD'],
+    prevalence_pct: 70,
+    testing_rate_pct: 8,
+    test_type: 'blood/tissue',
+    cdx_drugs: ['vedolizumab'],
+    clinical_significance:
+      'Gut-homing integrin expressed on ~70% of circulating lymphocytes in active IBD. Vedolizumab blocks alpha-4-beta-7. Higher baseline expression may predict better vedolizumab response — research-grade, not yet clinical standard.',
+    trending: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // HEPATOLOGY
+  // ---------------------------------------------------------------------------
+
+  // HBsAg quantification
+  {
+    biomarker: 'HBsAg (hepatitis B surface antigen) quantitative',
+    indications: ['hepatitis B', 'HBV', 'chronic hepatitis B'],
+    prevalence_pct: 100,
+    testing_rate_pct: 90,
+    test_type: 'blood',
+    cdx_drugs: ['entecavir', 'tenofovir', 'peginterferon'],
+    clinical_significance:
+      'HBsAg levels correlate with cccDNA reservoir. Functional cure defined as sustained HBsAg loss. Declining HBsAg on treatment predicts seroconversion. Central biomarker for HBV cure research.',
+    trending: true,
+  },
+
+  // HCV genotype
+  {
+    biomarker: 'HCV genotype (GT1-6)',
+    indications: ['hepatitis C', 'HCV'],
+    prevalence_pct: 100,
+    testing_rate_pct: 95,
+    test_type: 'blood (RT-PCR)',
+    cdx_drugs: ['sofosbuvir', 'glecaprevir/pibrentasvir', 'ledipasvir', 'velpatasvir'],
+    clinical_significance:
+      'HCV genotyping guides DAA selection. GT1 most common (46% US). Pangenotypic DAAs (glecaprevir/pibrentasvir, sofosbuvir/velpatasvir) achieve >95% SVR12 across all genotypes. Testing standard of care before treatment.',
+    trending: false,
+  },
+
+  // FibroScan / liver stiffness
+  {
+    biomarker: 'Liver stiffness (FibroScan/VCTE)',
+    indications: ['NASH', 'MASH', 'NAFLD', 'cirrhosis', 'hepatitis B', 'hepatitis C'],
+    prevalence_pct: 100,
+    testing_rate_pct: 40,
+    test_type: 'transient elastography',
+    cdx_drugs: ['resmetirom'],
+    clinical_significance:
+      'Non-invasive fibrosis assessment. F2+ (>8 kPa) identifies clinically significant fibrosis. FDA accepted as endpoint surrogate for NASH trials (resmetirom approval). Replacing liver biopsy in clinical trials.',
+    trending: true,
+  },
+
+  // NAS score
+  {
+    biomarker: 'NAFLD Activity Score (NAS)',
+    indications: ['NASH', 'MASH', 'NAFLD'],
+    prevalence_pct: 100,
+    testing_rate_pct: 25,
+    test_type: 'liver biopsy',
+    cdx_drugs: ['resmetirom'],
+    clinical_significance:
+      'Composite histological score (0-8) assessing steatosis, lobular inflammation, ballooning. NAS reduction >= 2 points without fibrosis worsening is FDA-accepted clinical trial endpoint. NAS >= 4 defines at-risk NASH.',
+    trending: true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // ENDOCRINOLOGY
+  // ---------------------------------------------------------------------------
+
+  // TSH
+  {
+    biomarker: 'TSH (thyroid-stimulating hormone)',
+    indications: ['hypothyroidism', "Hashimoto's thyroiditis", "Graves' disease", 'thyroid cancer'],
+    prevalence_pct: 100,
+    testing_rate_pct: 95,
+    test_type: 'blood',
+    cdx_drugs: ['levothyroxine', 'methimazole'],
+    clinical_significance:
+      'Universal thyroid function biomarker. TSH >4.5 mIU/L diagnostic of hypothyroidism. TSH suppression (<0.1) diagnostic of hyperthyroidism. Used for dose titration and monitoring. Most ordered lab test worldwide.',
+    trending: false,
+  },
+
+  // Anti-TPO antibodies
+  {
+    biomarker: 'Anti-TPO antibodies',
+    indications: ['hypothyroidism', "Hashimoto's thyroiditis"],
+    prevalence_pct: 90,
+    testing_rate_pct: 60,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'Present in ~90% of Hashimoto thyroiditis. Confirms autoimmune etiology. Predicts progression from subclinical to overt hypothyroidism. Not required for levothyroxine prescribing but guides diagnosis.',
+    trending: false,
+  },
+
+  // IGF-1
+  {
+    biomarker: 'IGF-1 (insulin-like growth factor 1)',
+    indications: ['acromegaly', 'growth hormone deficiency', 'GH deficiency'],
+    prevalence_pct: 100,
+    testing_rate_pct: 95,
+    test_type: 'blood',
+    cdx_drugs: ['somatropin', 'pegvisomant', 'octreotide', 'lanreotide'],
+    clinical_significance:
+      'Primary biomarker for GH disorders. Elevated IGF-1 diagnoses acromegaly; low IGF-1 confirms GHD. Used for treatment monitoring and dose titration. Age/sex-adjusted reference ranges essential.',
+    trending: false,
+  },
+
+  // GLP-1R expression
+  {
+    biomarker: 'GLP-1 receptor expression',
+    indications: ['type 2 diabetes', 'T2D', 'obesity'],
+    prevalence_pct: 85,
+    testing_rate_pct: 2,
+    test_type: 'tissue (research)',
+    cdx_drugs: ['semaglutide', 'tirzepatide', 'liraglutide'],
+    clinical_significance:
+      'GLP-1R expressed on pancreatic beta cells (~85% T2D). Research biomarker for incretin response prediction. Not clinically tested — GLP-1 agonists prescribed empirically. Emerging interest in brain GLP-1R for weight loss mechanism.',
+    trending: true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // OPHTHALMOLOGY
+  // ---------------------------------------------------------------------------
+
+  // VEGF levels
+  {
+    biomarker: 'VEGF (vascular endothelial growth factor)',
+    indications: ['wet AMD', 'diabetic macular edema', 'DME', 'retinal vein occlusion'],
+    prevalence_pct: 95,
+    testing_rate_pct: 15,
+    test_type: 'aqueous humor',
+    cdx_drugs: ['ranibizumab', 'aflibercept', 'faricimab', 'brolucizumab'],
+    clinical_significance:
+      'Elevated intraocular VEGF drives neovascularization in wet AMD and DME. Anti-VEGF intravitreal injections are standard of care. VEGF testing not required for treatment — diagnosis is imaging-based (OCT/FA). Research correlations with treatment durability.',
+    trending: false,
+  },
+
+  // Complement factor
+  {
+    biomarker: 'Complement factor H/I variants',
+    indications: ['geographic atrophy', 'dry AMD', 'age-related macular degeneration'],
+    prevalence_pct: 50,
+    testing_rate_pct: 8,
+    test_type: 'genetic',
+    cdx_drugs: ['pegcetacoplan', 'avacincaptad pegol'],
+    clinical_significance:
+      'CFH Y402H variant in ~50% of AMD patients. Complement pathway overactivation drives geographic atrophy. Complement inhibitors (pegcetacoplan, avacincaptad pegol) FDA-approved for GA. Genetic testing may predict treatment response.',
+    trending: true,
+  },
+
+  // RPE65 mutation
+  {
+    biomarker: 'RPE65 biallelic mutation',
+    indications: ['Leber congenital amaurosis', 'retinitis pigmentosa', 'inherited retinal dystrophy'],
+    prevalence_pct: 100,
+    testing_rate_pct: 85,
+    test_type: 'genetic',
+    cdx_drugs: ['voretigene neparvovec (Luxturna)'],
+    clinical_significance:
+      'RPE65 mutations cause LCA type 2 and some RP. Voretigene neparvovec (Luxturna) is FDA-approved gene therapy requiring confirmed biallelic RPE65 mutations. Genetic testing mandatory before treatment.',
+    trending: false,
+  },
+
+  // Central retinal thickness
+  {
+    biomarker: 'Central retinal thickness (CRT) on OCT',
+    indications: ['diabetic macular edema', 'DME', 'wet AMD', 'retinal vein occlusion'],
+    prevalence_pct: 100,
+    testing_rate_pct: 98,
+    test_type: 'OCT imaging',
+    cdx_drugs: ['aflibercept', 'ranibizumab', 'faricimab'],
+    clinical_significance:
+      'CRT >300 microns defines clinically significant macular edema. Primary imaging biomarker for anti-VEGF treatment decisions and retreatment criteria. OCT is standard of care — universal clinical use.',
+    trending: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // MUSCULOSKELETAL
+  // ---------------------------------------------------------------------------
+
+  // Anti-CCP
+  {
+    biomarker: 'Anti-CCP (anti-citrullinated protein antibody)',
+    indications: ['rheumatoid arthritis', 'RA'],
+    prevalence_pct: 60,
+    testing_rate_pct: 85,
+    test_type: 'blood',
+    cdx_drugs: [],
+    clinical_significance:
+      'Anti-CCP+ in ~60-70% of RA patients. Highly specific (>95%) for RA vs other inflammatory arthropathies. Predicts more aggressive/erosive disease course. Part of ACR/EULAR 2010 classification criteria. Guides early aggressive treatment.',
+    trending: false,
+  },
+
+  // Uric acid
+  {
+    biomarker: 'Serum uric acid',
+    indications: ['gout', 'tophaceous gout', 'hyperuricemia'],
+    prevalence_pct: 100,
+    testing_rate_pct: 90,
+    test_type: 'blood',
+    cdx_drugs: ['allopurinol', 'febuxostat', 'pegloticase'],
+    clinical_significance:
+      'Serum urate >6.8 mg/dL supersaturation threshold. Treatment target <6 mg/dL (ACR guidelines). Pegloticase for treatment-refractory gout (urate >6 despite oral ULT). Universal monitoring biomarker.',
+    trending: false,
+  },
+
+  // RANKL/OPG ratio
+  {
+    biomarker: 'RANKL/OPG ratio',
+    indications: ['osteoporosis', 'bone metastases'],
+    prevalence_pct: 70,
+    testing_rate_pct: 5,
+    test_type: 'blood',
+    cdx_drugs: ['denosumab'],
+    clinical_significance:
+      'Elevated RANKL/OPG ratio in ~70% of osteoporosis patients indicates osteoclast overactivity. Denosumab (anti-RANKL mAb) targets this pathway. Not routinely tested — T-score and FRAX used clinically. Research correlations with fracture risk.',
+    trending: false,
+  },
+
+  // DAS28
+  {
+    biomarker: 'DAS28 (disease activity score, 28 joints)',
+    indications: ['rheumatoid arthritis', 'RA', 'psoriatic arthritis'],
+    prevalence_pct: 100,
+    testing_rate_pct: 75,
+    test_type: 'clinical composite + CRP/ESR',
+    cdx_drugs: [],
+    clinical_significance:
+      'Composite score (tender/swollen joints + ESR/CRP + patient VAS). DAS28 >5.1 = high disease activity; <2.6 = remission. ACR/EULAR treat-to-target standard. Primary outcome measure in RA clinical trials.',
+    trending: false,
+  },
 ];
 
 export function getBiomarkersForIndication(indication: string): BiomarkerEntry[] {

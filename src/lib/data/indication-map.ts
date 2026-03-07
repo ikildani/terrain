@@ -6325,6 +6325,500 @@ export const INDICATION_DATA: IndicationData[] = [
     data_confidence: 'medium',
     last_verified_year: 2024,
   },
+
+  // ──────────────────────────────────────────
+  // TIER 1 GAP-FILL — HIGH-REVENUE INDICATIONS
+  // ──────────────────────────────────────────
+
+  // ── Dry Eye Disease ─────────────────────────────────────
+  {
+    name: 'Dry Eye Disease',
+    synonyms: [
+      'DED',
+      'keratoconjunctivitis sicca',
+      'dry eye syndrome',
+      'evaporative dry eye',
+      'aqueous-deficient dry eye',
+    ],
+    icd10_codes: ['H04.121', 'H04.122', 'H04.123', 'H04.129'],
+    therapy_area: 'ophthalmology',
+    us_prevalence: 16_000_000,
+    us_incidence: 3_200_000,
+    prevalence_source:
+      'Tear Film & Ocular Surface Society (TFOS) DEWS II 2017; Stapleton et al. Ocul Surf 2017; Market Scope 2024',
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.45,
+    cagr_5yr: 8.6,
+    major_competitors: [
+      'Xiidra (lifitegrast, Bausch + Lomb)',
+      'Restasis (cyclosporine 0.05%, AbbVie)',
+      'Vevye (cyclosporine 0.1%, Novaliq/Harrow)',
+      'Cequa (cyclosporine 0.09%, Sun Pharma)',
+      'Eysuvis (loteprednol, Kala Pharmaceuticals)',
+      'Tyrvaya (varenicline nasal spray, Oyster Point/Viatris)',
+    ],
+    market_growth_driver:
+      'Increasing screen time and digital device use driving prevalence, aging population, growing awareness and diagnosis rates, new mechanisms (IL-1, LFA-1, nerve stimulation)',
+    therapy_area_pricing_context:
+      'Branded Rx drops $500-$700/month. Cyclosporine generics entering at $200-$400/month. OTC artificial tears $10-$30/month. Novel mechanisms can sustain $600+/month.',
+    severity_distribution: { mild: 0.45, moderate: 0.35, severe: 0.2 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+
+  // ── Endometriosis ─────────────────────────────────────
+  {
+    name: 'Endometriosis',
+    synonyms: ['endometriotic disease', 'pelvic endometriosis', 'deep infiltrating endometriosis', 'DIE'],
+    icd10_codes: ['N80.0', 'N80.1', 'N80.2', 'N80.3', 'N80.4', 'N80.5', 'N80.6', 'N80.8', 'N80.9'],
+    therapy_area: 'pain_management',
+    us_prevalence: 6_500_000,
+    us_incidence: 500_000,
+    prevalence_source: 'WHO 2023; Zondervan et al. NEJM 2020; Endometriosis Foundation of America',
+    diagnosis_rate: 0.35,
+    treatment_rate: 0.6,
+    cagr_5yr: 7.8,
+    major_competitors: [
+      'Orilissa (elagolix, AbbVie)',
+      'Myfembree (relugolix/E2/NETA, Myovant/Pfizer)',
+      'Lupron Depot (leuprolide, AbbVie)',
+      'Dienogest (Visanne, Bayer — non-US)',
+      'Norethindrone acetate (generic)',
+      'Zoladex (goserelin, AstraZeneca)',
+    ],
+    market_growth_driver:
+      'Diagnostic delay averaging 7-10 years driving new non-invasive diagnostic tools, GnRH antagonist oral formulations replacing depot injections, growing patient advocacy',
+    therapy_area_pricing_context:
+      'GnRH antagonists $900-$1,200/month (Orilissa), combination add-back therapy $1,500-$2,000/month (Myfembree). Generics $20-$50/month. Surgery $15K-$30K per procedure.',
+    severity_distribution: { minimal_mild: 0.35, moderate: 0.35, severe: 0.3 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+
+  // ── GERD / Gastroesophageal Reflux Disease ─────────────────────────────────────
+  {
+    name: 'Gastroesophageal Reflux Disease',
+    synonyms: ['GERD', 'acid reflux', 'gastro-oesophageal reflux disease', 'GORD', 'reflux esophagitis'],
+    icd10_codes: ['K21.0', 'K21.9'],
+    therapy_area: 'gastroenterology',
+    us_prevalence: 20_000_000,
+    us_incidence: 5_000_000,
+    prevalence_source: 'ACG Clinical Guideline 2022; El-Serag et al. Gut 2014; Delshad et al. Gastroenterology 2020',
+    diagnosis_rate: 0.65,
+    treatment_rate: 0.75,
+    cagr_5yr: 5.2,
+    major_competitors: [
+      'Voquezna (vonoprazan, Phathom Pharmaceuticals)',
+      'Dexlansoprazole (Dexilant, Takeda)',
+      'Esomeprazole (Nexium, generic)',
+      'Omeprazole (Prilosec, generic)',
+      'Pantoprazole (Protonix, generic)',
+      'Famotidine (Pepcid, generic H2RA)',
+    ],
+    market_growth_driver:
+      'Rising obesity prevalence, potassium-competitive acid blockers (P-CABs) challenging PPIs, refractory GERD population unmet need, anti-reflux device procedures',
+    therapy_area_pricing_context:
+      'PPI generics $10-$30/month. Branded PPIs $200-$400/month. Vonoprazan ~$400/month. Anti-reflux procedures (LINX, TIF) $15K-$25K one-time.',
+    severity_distribution: { mild: 0.4, moderate: 0.35, severe_erosive: 0.15, barretts: 0.1 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+
+  // ── Polycystic Ovary Syndrome (PCOS) ─────────────────────────────────────
+  {
+    name: 'Polycystic Ovary Syndrome',
+    synonyms: ['PCOS', 'polycystic ovarian syndrome', 'Stein-Leventhal syndrome', 'hyperandrogenic anovulation'],
+    icd10_codes: ['E28.2'],
+    therapy_area: 'endocrinology',
+    us_prevalence: 5_000_000,
+    us_incidence: 500_000,
+    prevalence_source:
+      'NIH/NICHD; Bozdag et al. Hum Reprod Update 2016; CDC Reproductive Health; PCOS Awareness Association',
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.55,
+    cagr_5yr: 6.5,
+    major_competitors: [
+      'Metformin (off-label, generic)',
+      'Spironolactone (off-label, generic)',
+      'Combined oral contraceptives (multiple)',
+      'Letrozole (off-label fertility, generic)',
+      'Clomiphene (Clomid, off-label fertility, generic)',
+      'Ovasitol (myo-inositol/D-chiro-inositol, supplement)',
+    ],
+    market_growth_driver:
+      'No FDA-approved PCOS-specific therapy — massive unmet need. Rising metabolic syndrome prevalence, GLP-1 agonists investigated for PCOS, growing patient diagnosis rates',
+    therapy_area_pricing_context:
+      'All current treatments off-label generics ($10-$50/month). First FDA-approved PCOS therapy could command $300-$800/month. Fertility treatments $5K-$15K per cycle.',
+    severity_distribution: { mild: 0.3, moderate: 0.4, severe: 0.3 },
+    data_confidence: 'medium',
+    last_verified_year: 2024,
+  },
+
+  // ── Autosomal Dominant Polycystic Kidney Disease (ADPKD) ─────────────────────────────────────
+  {
+    name: 'Autosomal Dominant Polycystic Kidney Disease',
+    synonyms: ['ADPKD', 'polycystic kidney disease', 'PKD', 'adult polycystic kidney disease'],
+    icd10_codes: ['Q61.2'],
+    therapy_area: 'nephrology',
+    us_prevalence: 140_000,
+    us_incidence: 7_000,
+    prevalence_source: 'PKD Foundation; Torres et al. Lancet 2007; Cornec-Le Gall et al. NEJM 2019; NIDDK',
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.35,
+    cagr_5yr: 12.5,
+    major_competitors: [
+      'Jynarque (tolvaptan, Otsuka)',
+      'ACE inhibitors / ARBs (generic, supportive)',
+      'Venglustat (Sanofi, Phase 2/3 for PKD)',
+      'Lixivaptan (Palladio Biosciences, Phase 3)',
+    ],
+    market_growth_driver:
+      'Only one FDA-approved disease-modifying therapy (Jynarque), need for better-tolerated alternatives (aquaresis side effects), genetic testing improving early diagnosis, novel targets (mTOR, CFTR)',
+    therapy_area_pricing_context:
+      'Jynarque WAC ~$80K-$100K/yr. Specialty renal pricing. Orphan-adjacent prevalence supports premium pricing. Dialysis/transplant costs $90K-$250K/yr avoided.',
+    severity_distribution: { early_stage: 0.4, moderate: 0.35, advanced_ckd: 0.25 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+
+  // ── Growth Hormone Deficiency ─────────────────────────────────────
+  {
+    name: 'Growth Hormone Deficiency',
+    synonyms: [
+      'GHD',
+      'pituitary dwarfism',
+      'somatotropin deficiency',
+      'adult growth hormone deficiency',
+      'AGHD',
+      'pediatric GHD',
+    ],
+    icd10_codes: ['E23.0', 'E34.3'],
+    therapy_area: 'endocrinology',
+    us_prevalence: 110_000,
+    us_incidence: 12_000,
+    prevalence_source:
+      'Endocrine Society 2024; Molitch et al. JCEM 2011; National Organization for Rare Disorders (NORD)',
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.7,
+    cagr_5yr: 8.2,
+    major_competitors: [
+      'Skytrofa (lonapegsomatropin, Ascendis Pharma)',
+      'Sogroya (somapacitan, Novo Nordisk)',
+      'Genotropin (somatropin, Pfizer)',
+      'Norditropin (somatropin, Novo Nordisk)',
+      'Humatrope (somatropin, Eli Lilly)',
+      'Ngenla (somatrogon, Pfizer)',
+    ],
+    market_growth_driver:
+      'Long-acting GH formulations replacing daily injections (weekly dosing), expanding adult GHD diagnosis, biosimilar competition in daily GH driving branded shift to long-acting',
+    therapy_area_pricing_context:
+      'Daily GH $20K-$40K/yr. Long-acting weekly GH $60K-$80K/yr (Skytrofa, Sogroya). Biosimilar somatropin $15K-$25K/yr. Pediatric treatment duration 5-10 years.',
+    severity_distribution: {
+      pediatric_isolated: 0.35,
+      pediatric_combined: 0.1,
+      adult_onset: 0.35,
+      adult_childhood_onset: 0.2,
+    },
+    pediatric_prevalence: 50_000,
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+
+  // ── Rosacea ─────────────────────────────────────────────────────
+  {
+    name: 'Rosacea',
+    synonyms: [
+      'acne rosacea',
+      'erythematotelangiectatic rosacea',
+      'papulopustular rosacea',
+      'phymatous rosacea',
+      'ocular rosacea',
+    ],
+    icd10_codes: ['L71.0', 'L71.1', 'L71.8', 'L71.9'],
+    therapy_area: 'dermatology',
+    us_prevalence: 16_000_000,
+    us_incidence: 2_000_000,
+    prevalence_source:
+      'National Rosacea Society; Gallo et al. JAAD 2018; Thiboutot et al. JAAD 2020; AAD prevalence estimates',
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.55,
+    cagr_5yr: 6.8,
+    major_competitors: [
+      'Soolantra (ivermectin 1% cream, Galderma)',
+      'Rhofade (oxymetazoline, EPI Health)',
+      'Zilxi (minocycline foam 1.5%, Journey Medical/Foamix)',
+      'Arazlo (tazarotene lotion, Bausch)',
+      'Metronidazole 0.75% (generic topical)',
+      'Doxycycline 40mg MR (Oracea, Galderma)',
+    ],
+    market_growth_driver:
+      'Under-diagnosed condition with growing awareness, new topical mechanisms (anti-inflammatory, vasoconstrictors), combination approaches, laser/IPL device market growth',
+    therapy_area_pricing_context:
+      'Branded topicals $400-$700/month. Generic metronidazole $20-$50/month. Oral antibiotics $30-$100/month. Laser treatments $200-$500 per session.',
+    severity_distribution: {
+      subtype_1_erythema: 0.4,
+      subtype_2_papulopustular: 0.35,
+      subtype_3_phymatous: 0.1,
+      subtype_4_ocular: 0.15,
+    },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+
+  // ── Diabetic Peripheral Neuropathy ─────────────────────────────────────
+  {
+    name: 'Diabetic Peripheral Neuropathy',
+    synonyms: ['DPN', 'diabetic neuropathy', 'painful diabetic neuropathy', 'pDPN', 'diabetic polyneuropathy'],
+    icd10_codes: ['G63.2', 'E11.40', 'E11.41', 'E11.42'],
+    therapy_area: 'neurology',
+    us_prevalence: 8_000_000,
+    us_incidence: 1_200_000,
+    prevalence_source:
+      'ADA Standards of Care 2024; Pop-Busui et al. Diabetes Care 2017; CDC National Diabetes Statistics Report 2024',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.5,
+    cagr_5yr: 7.1,
+    major_competitors: [
+      'Lyrica (pregabalin, Pfizer/generic)',
+      'Cymbalta (duloxetine, Eli Lilly/generic)',
+      'Gabapentin (generic)',
+      'Tapentadol (Nucynta, generic)',
+      'Capsaicin 8% patch (Qutenza, Averitas)',
+      'Amitriptyline (off-label, generic)',
+    ],
+    market_growth_driver:
+      'Diabetes prevalence growing globally, large inadequately treated painful DPN population, novel mechanisms (sodium channel blockers, CGRP, NGF), disease-modifying approaches emerging',
+    therapy_area_pricing_context:
+      'Generics (pregabalin, duloxetine) $20-$60/month. Branded novel mechanisms $500-$1,500/month. Capsaicin patch $1,800 per application. IV treatments $3K-$5K per infusion.',
+    severity_distribution: { mild_sensory: 0.35, moderate_painful: 0.35, severe_painful: 0.2, autonomic: 0.1 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+
+  // ── Community-Acquired Bacterial Pneumonia ─────────────────────────────────────
+  {
+    name: 'Community-Acquired Bacterial Pneumonia',
+    synonyms: ['CABP', 'community-acquired pneumonia', 'CAP', 'bacterial pneumonia', 'pneumococcal pneumonia'],
+    icd10_codes: ['J13', 'J14', 'J15.0', 'J15.1', 'J15.3', 'J15.4', 'J15.9', 'J18.1'],
+    therapy_area: 'infectious_disease',
+    us_prevalence: 3_000_000,
+    us_incidence: 1_500_000,
+    prevalence_source:
+      'CDC Pneumonia Data 2024; Jain et al. NEJM 2015; IDSA/ATS Guidelines 2019; Ramirez et al. Clin Infect Dis 2017',
+    diagnosis_rate: 0.8,
+    treatment_rate: 0.9,
+    cagr_5yr: 4.5,
+    major_competitors: [
+      'Xacduro (sulbactam-durlobactam, Entasis/Innoviva)',
+      'Augmentin (amoxicillin-clavulanate, generic)',
+      'Azithromycin (Z-pack, generic)',
+      'Levofloxacin (generic fluoroquinolone)',
+      'Ceftriaxone (generic IV)',
+      'Lefamulin (Xenleta, Nabriva)',
+    ],
+    market_growth_driver:
+      'Rising antimicrobial resistance, need for novel mechanisms active against MDR pathogens, outpatient IV-to-oral switch therapy, aging population increasing severe CAP',
+    therapy_area_pricing_context:
+      'Generic antibiotics $10-$50 per course. Branded novel antibiotics $1,500-$3,000 per course. Hospital IV antibiotics $500-$2,000/day. Pull incentive legislation (PASTEUR Act) could change economics.',
+    severity_distribution: { outpatient_mild: 0.45, hospitalized_moderate: 0.35, icu_severe: 0.15, ventilated: 0.05 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+
+  // ── Atypical Hemolytic Uremic Syndrome (aHUS) ─────────────────────────────────────
+  {
+    name: 'Atypical Hemolytic Uremic Syndrome',
+    synonyms: ['aHUS', 'complement-mediated HUS', 'atypical HUS', 'non-Stx HUS'],
+    icd10_codes: ['D59.3'],
+    therapy_area: 'hematology',
+    us_prevalence: 3_000,
+    us_incidence: 500,
+    prevalence_source:
+      'Noris & Remuzzi, NEJM 2009; aHUS Alliance; Loirat & Frémeaux-Bacchi, Orphanet J Rare Dis 2011; NORD',
+    diagnosis_rate: 0.65,
+    treatment_rate: 0.8,
+    cagr_5yr: 9.5,
+    major_competitors: [
+      'Soliris (eculizumab, Alexion/AstraZeneca)',
+      'Ultomiris (ravulizumab, Alexion/AstraZeneca)',
+      'Iptacopan (Fabhalta, Novartis — Factor B inhibitor)',
+      'Danicopan (Voydeya, Alexion — Factor D inhibitor)',
+    ],
+    market_growth_driver:
+      'Complement inhibitor class expanding with oral Factor B/D inhibitors, subcutaneous formulations improving convenience, earlier diagnosis through genetic testing, biosimilar eculizumab entering',
+    therapy_area_pricing_context:
+      'Ultra-orphan pricing: Soliris ~$500K/yr, Ultomiris ~$400K/yr. Oral complement inhibitors $100K-$200K/yr. Lifelong treatment required. Orphan Drug Act exclusivity.',
+    severity_distribution: { acute_episode: 0.3, chronic_maintenance: 0.5, renal_transplant: 0.2 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+
+  // ── Cold Agglutinin Disease ─────────────────────────────────────
+  {
+    name: 'Cold Agglutinin Disease',
+    synonyms: ['CAD', 'cold agglutinin hemolytic anemia', 'cold antibody autoimmune hemolytic anemia', 'cold AIHA'],
+    icd10_codes: ['D59.12'],
+    therapy_area: 'hematology',
+    us_prevalence: 5_000,
+    us_incidence: 1_000,
+    prevalence_source: 'Berentsen & Tjønnfjord, Haematologica 2012; Berentsen, Blood 2020; NORD; Orphanet epidemiology',
+    diagnosis_rate: 0.6,
+    treatment_rate: 0.65,
+    cagr_5yr: 15.0,
+    major_competitors: [
+      'Enjaymo (sutimlimab, Sanofi)',
+      'Rituximab (off-label, generic)',
+      'Rituximab + bendamustine (off-label)',
+      'Pegcetacoplan (Empaveli, Apellis — complement C3)',
+    ],
+    market_growth_driver:
+      'First FDA-approved therapy (Enjaymo 2022) establishing treatment paradigm, complement pathway novel targets, improved diagnosis through cold agglutinin titer testing, expanding from symptomatic to proactive treatment',
+    therapy_area_pricing_context:
+      'Enjaymo ~$350K/yr (ultra-orphan pricing). Rituximab off-label ~$20K-$40K per course. Complement inhibitors $200K-$500K/yr range. Blood transfusions $1K-$3K per unit.',
+    severity_distribution: { mild_chronic: 0.3, moderate: 0.4, severe_transfusion_dependent: 0.3 },
+    data_confidence: 'medium',
+    last_verified_year: 2024,
+  },
+
+  // ── Uveitis ─────────────────────────────────────────────────────
+  {
+    name: 'Uveitis',
+    synonyms: [
+      'non-infectious uveitis',
+      'autoimmune uveitis',
+      'posterior uveitis',
+      'intermediate uveitis',
+      'panuveitis',
+      'anterior uveitis',
+    ],
+    icd10_codes: ['H20.00', 'H20.01', 'H20.02', 'H20.03', 'H30.20', 'H30.90'],
+    therapy_area: 'ophthalmology',
+    us_prevalence: 350_000,
+    us_incidence: 52_000,
+    prevalence_source:
+      'Gritz & Wong, Can J Ophthalmol 2004; Suttorp-Schulten & Rothova, Br J Ophthalmol 1996; NEI prevalence data; Thorne et al. Ophthalmology 2016',
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.75,
+    cagr_5yr: 8.8,
+    major_competitors: [
+      'Humira (adalimumab, AbbVie)',
+      'Yutiq (fluocinolone acetonide intravitreal implant, EyePoint)',
+      'Ozurdex (dexamethasone intravitreal implant, AbbVie/Allergan)',
+      'Prednisolone acetate (generic topical)',
+      'Methotrexate (off-label systemic, generic)',
+      'Mycophenolate mofetil (off-label, generic)',
+    ],
+    market_growth_driver:
+      'Adalimumab biosimilars disrupting but new biologics (IL-6, JAK inhibitors) entering, sustained-release intravitreal implants reducing injection burden, biomarker-guided therapy emerging',
+    therapy_area_pricing_context:
+      'Humira ~$80K/yr (biosimilars ~$40K/yr). Yutiq implant ~$20K per insertion (3-year duration). Ozurdex ~$1,500 per injection. Generic immunosuppressants $50-$200/month.',
+    severity_distribution: { anterior: 0.5, intermediate: 0.15, posterior: 0.2, panuveitis: 0.15 },
+    data_confidence: 'medium',
+    last_verified_year: 2024,
+  },
+
+  // ── Gastroparesis ─────────────────────────────────────
+  {
+    name: 'Gastroparesis',
+    synonyms: [
+      'delayed gastric emptying',
+      'diabetic gastroparesis',
+      'idiopathic gastroparesis',
+      'post-surgical gastroparesis',
+    ],
+    icd10_codes: ['K31.84'],
+    therapy_area: 'gastroenterology',
+    us_prevalence: 5_000_000,
+    us_incidence: 600_000,
+    prevalence_source:
+      'Rey et al. Gut 2012; Soykan et al. Dig Dis Sci 1998; Ye et al. Gastroenterology 2022; ACG Clinical Guideline 2023',
+    diagnosis_rate: 0.3,
+    treatment_rate: 0.45,
+    cagr_5yr: 9.2,
+    major_competitors: [
+      'Metoclopramide (Reglan, generic)',
+      'Erythromycin (off-label prokinetic, generic)',
+      'Domperidone (not FDA-approved, compassionate use)',
+      'Gastric electrical stimulation (Enterra, Medtronic)',
+      'Gimoti (metoclopramide nasal spray, Euthymics)',
+    ],
+    market_growth_driver:
+      'Only one FDA-approved drug (metoclopramide) with black box warning, massive unmet need, GLP-1 agonist-induced gastroparesis creating new patient population, ghrelin agonists and novel prokinetics in development',
+    therapy_area_pricing_context:
+      'Metoclopramide generic $10-$30/month. Gimoti nasal spray ~$600/month. Gastric stimulator $25K-$30K device + implant. Novel prokinetics could target $500-$1,500/month.',
+    severity_distribution: { mild: 0.3, moderate: 0.35, severe: 0.25, very_severe_enteral_feeding: 0.1 },
+    data_confidence: 'medium',
+    last_verified_year: 2024,
+  },
+
+  // ── Hepatic Encephalopathy ─────────────────────────────────────
+  {
+    name: 'Hepatic Encephalopathy',
+    synonyms: [
+      'HE',
+      'portosystemic encephalopathy',
+      'hepatic coma',
+      'minimal hepatic encephalopathy',
+      'overt hepatic encephalopathy',
+    ],
+    icd10_codes: ['K72.10', 'K72.11', 'K72.90', 'K72.91'],
+    therapy_area: 'hepatology',
+    us_prevalence: 600_000,
+    us_incidence: 150_000,
+    prevalence_source:
+      'Vilstrup et al. Hepatology 2014 (AASLD/EASL Guidelines); Stepanova et al. Clin Gastroenterol Hepatol 2012; Bajaj, NEJM 2022',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.7,
+    cagr_5yr: 6.5,
+    major_competitors: [
+      'Xifaxan (rifaximin, Salix/Bausch Health)',
+      'Lactulose (generic)',
+      'L-ornithine L-aspartate (Hepa-Merz, non-US)',
+      'Rifaximin SSD (Salix, extended formulation)',
+      'Polyethylene glycol (PEG, off-label)',
+    ],
+    market_growth_driver:
+      'Growing cirrhosis prevalence from MASLD/MASH epidemic, Xifaxan patent cliff creating generic/biosimilar opportunity, fecal microbiota transplant (FMT) emerging, TIPS procedure volume growing',
+    therapy_area_pricing_context:
+      'Xifaxan WAC ~$2,000/month (dominant branded product). Lactulose generic $30-$80/month. Rifaximin generics pending patent expiry. Hospitalization for HE episode ~$30K-$50K.',
+    severity_distribution: { minimal_covert: 0.45, grade_1_2: 0.3, grade_3_4_overt: 0.2, recurrent: 0.05 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+
+  // ── Stiff Person Syndrome ─────────────────────────────────────
+  {
+    name: 'Stiff Person Syndrome',
+    synonyms: ['SPS', 'stiff-man syndrome', 'Moersch-Woltman syndrome', 'stiff person spectrum disorder', 'SPSD'],
+    icd10_codes: ['G25.82'],
+    therapy_area: 'neurology',
+    us_prevalence: 5_000,
+    us_incidence: 500,
+    prevalence_source:
+      'NORD; NIH/NINDS Stiff-Person Syndrome Information; Dalakas, NEJM 2024; Hadavi et al. J Neurol 2011',
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.7,
+    cagr_5yr: 14.0,
+    major_competitors: [
+      'Diazepam (generic benzodiazepine)',
+      'Baclofen (generic muscle relaxant)',
+      'IVIg (Gamunex, Privigen — multiple manufacturers)',
+      'Rituximab (off-label, Genentech/generic)',
+      'REZDIFFRA (not for SPS — no approved SPS-specific therapy)',
+    ],
+    market_growth_driver:
+      'Celebrity awareness (Celine Dion) dramatically increased disease recognition and diagnosis, no FDA-approved SPS-specific therapy, anti-GAD65 antibody testing improving diagnosis, B-cell depleting therapies showing promise',
+    therapy_area_pricing_context:
+      'IVIg ~$80K-$150K/yr. Rituximab ~$20K-$40K per course. Benzodiazepines/baclofen generic $10-$50/month. First SPS-specific therapy could command $100K-$300K/yr (ultra-orphan).',
+    severity_distribution: {
+      classic_sps: 0.6,
+      partial_sps: 0.25,
+      progressive_encephalomyelitis: 0.1,
+      paraneoplastic: 0.05,
+    },
+    data_confidence: 'medium',
+    last_verified_year: 2024,
+  },
 ];
 
 // Export helper for lookup

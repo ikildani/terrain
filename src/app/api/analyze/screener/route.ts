@@ -52,6 +52,7 @@ const ScreenerRequestSchema = z.object({
   sort_order: z.enum(['asc', 'desc']).default('desc'),
   limit: z.number().min(1).max(250).default(50),
   offset: z.number().min(0).default(0),
+  weight_profile: z.string().optional(),
 });
 
 // ────────────────────────────────────────────────────────────
@@ -130,7 +131,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { filters, sort_by, sort_order, limit, offset } = parsed.data;
+    const { filters, sort_by, sort_order, limit, offset, weight_profile } = parsed.data;
 
     logApiRequest({
       route: '/api/analyze/screener',
@@ -138,6 +139,7 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       filters: filters ?? {},
       sort_by,
+      weight_profile,
     });
 
     // ── Run screener engine ─────────────────────────────────
@@ -147,6 +149,7 @@ export async function POST(request: NextRequest) {
       sort_order,
       limit,
       offset,
+      weight_profile,
     );
 
     // ── Record usage ────────────────────────────────────────
