@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -16,6 +16,7 @@ import {
   SlidersHorizontal,
   DollarSign,
   Shield,
+  X,
 } from 'lucide-react';
 import { OpportunityFilterBar, type ScreenerFilters } from './OpportunityFilterBar';
 import { OpportunityTable } from './OpportunityTable';
@@ -24,6 +25,7 @@ import { SkeletonTable, SkeletonMetric } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/utils/cn';
 import type { OpportunityRow } from '@/lib/analytics/screener';
 import { WEIGHT_PROFILES, DEFAULT_WEIGHT_PROFILE } from '@/lib/analytics/screener';
+import { useProfile } from '@/hooks/useProfile';
 
 // ── Types ──────────────────────────────────────────────────
 
@@ -334,6 +336,7 @@ function exportCsv(data: OpportunityRow[]) {
 }
 
 export default function OpportunityScreener() {
+  const { role } = useProfile();
   const [filters, setFilters] = useState<ScreenerFilters>(DEFAULT_FILTERS);
   const [sortBy, setSortBy] = useState<string>('opportunity_score');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -344,6 +347,18 @@ export default function OpportunityScreener() {
   const [searchQuery, setSearchQuery] = useState('');
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);
   const [weightProfile, setWeightProfile] = useState<string>(DEFAULT_WEIGHT_PROFILE);
+  const [showInvestorCallout, setShowInvestorCallout] = useState(false);
+  const roleInitialized = useRef(false);
+
+  // Auto-select investor lens when user profile role is 'investor'
+  useEffect(() => {
+    if (roleInitialized.current) return;
+    if (role === 'investor') {
+      roleInitialized.current = true;
+      setWeightProfile('investor');
+      setShowInvestorCallout(true);
+    }
+  }, [role]);
 
   // Client-side text filtering on indication name
   const filteredRows = searchQuery.trim()
@@ -438,6 +453,9 @@ export default function OpportunityScreener() {
   function handleWeightProfileChange(profile: string) {
     setWeightProfile(profile);
     setOffset(0);
+    if (profile === 'investor') {
+      setShowInvestorCallout(true);
+    }
     mutation.mutate({ filters, sort_by: sortBy, sort_order: sortOrder, offset: 0, weight_profile: profile });
   }
 
@@ -455,25 +473,51 @@ export default function OpportunityScreener() {
       />
 
       {/* Strategic lens selector */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
-        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mr-1">Strategic Lens</span>
-        {Object.entries(WEIGHT_PROFILES).map(([key, profile]) => (
-          <button
-            key={key}
-            onClick={() => handleWeightProfileChange(key)}
-            title={profile.description}
-            className={cn(
-              'px-2.5 py-1 rounded-md text-[11px] font-medium transition-all border',
-              weightProfile === key
-                ? 'bg-teal-500/15 text-teal-400 border-teal-500/30'
-                : 'bg-navy-800 text-slate-400 border-navy-700 hover:border-slate-500',
-            )}
-          >
-            {profile.label}
-          </button>
-        ))}
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2 flex-wrap">
+          <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mr-1">Strategic Lens</span>
+          {Object.entries(WEIGHT_PROFILES).map(([key, profile]) => (
+            <button
+              key={key}
+              onClick={() => handleWeightProfileChange(key)}
+              title={profile.description}
+              className={cn(
+                'px-2.5 py-1 rounded-md text-[11px] font-medium transition-all border',
+                weightProfile === key
+                  ? 'bg-teal-500/15 text-teal-400 border-teal-500/30'
+                  : 'bg-navy-800 text-slate-400 border-navy-700 hover:border-slate-500',
+              )}
+            >
+              {profile.label}
+            </button>
+          ))}
+        </div>
+        {WEIGHT_PROFILES[weightProfile] && (
+          <p className="text-[10px] text-slate-500 pl-5 ml-0.5">{WEIGHT_PROFILES[weightProfile].description}</p>
+        )}
       </div>
+
+      {/* Investor callout (role-aware or first-time investor lens selection) */}
+      {showInvestorCallout && weightProfile === 'investor' && (
+        <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-teal-500/8 border border-teal-500/20">
+          <TrendingUp className="w-4 h-4 text-teal-400 flex-shrink-0" />
+          <p className="text-xs text-teal-300 flex-1">
+            <span className="font-medium">Viewing as Investor</span>
+            <span className="text-teal-400/70">
+              {' '}
+              &mdash; deal comps, catalyst signals, and investment thesis for every indication. Expand any row to see
+              the full Investor View.
+            </span>
+          </p>
+          <button
+            onClick={() => setShowInvestorCallout(false)}
+            className="text-teal-500/50 hover:text-teal-400 transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Apply filters button + search + export */}
       <div className="flex items-center gap-3 flex-wrap">
@@ -559,6 +603,7 @@ export default function OpportunityScreener() {
             sortOrder={sortOrder}
             onSort={handleSort}
             isLoading={isLoading}
+            weightProfile={weightProfile}
           />
           {!searchQuery.trim() && (
             <Pagination offset={offset} limit={PAGE_SIZE} total={totalCount} onPageChange={runScreener} />

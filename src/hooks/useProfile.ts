@@ -6,6 +6,7 @@ import { useUser } from './useUser';
 
 interface ProfileState {
   fullName: string | null;
+  role: string | null;
   initials: string;
   isLoading: boolean;
   refresh: () => void;
@@ -14,6 +15,7 @@ interface ProfileState {
 export function useProfile(): ProfileState {
   const { user, isLoading: userLoading } = useUser();
   const [fullName, setFullName] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [version, setVersion] = useState(0);
 
@@ -35,14 +37,13 @@ export function useProfile(): ProfileState {
     }
 
     async function fetchProfile() {
-      const { data } = await supabase!
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user!.id)
-        .single();
+      const { data } = await supabase!.from('profiles').select('full_name, role').eq('id', user!.id).single();
 
       if (data?.full_name) {
         setFullName(data.full_name as string);
+      }
+      if (data?.role) {
+        setRole(data.role as string);
       }
       setIsLoading(false);
     }
@@ -61,5 +62,5 @@ export function useProfile(): ProfileState {
       ? 'U'
       : 'T';
 
-  return { fullName, initials, isLoading: isLoading || userLoading, refresh };
+  return { fullName, role, initials, isLoading: isLoading || userLoading, refresh };
 }

@@ -36,6 +36,7 @@ interface OpportunityTableProps {
   sortOrder: 'asc' | 'desc';
   onSort: (field: string) => void;
   isLoading?: boolean;
+  weightProfile?: string;
 }
 
 // ── Phase distribution bar ─────────────────────────────────
@@ -116,7 +117,8 @@ function SortHeader({
 
 // ── Main Table ─────────────────────────────────────────────
 
-export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }: OpportunityTableProps) {
+export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading, weightProfile }: OpportunityTableProps) {
+  const isInvestorMode = weightProfile === 'investor';
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
   const toggleRow = useCallback((indication: string) => {
@@ -316,11 +318,18 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
                             Low data
                           </span>
                         )}
-                        {row.top_competitors.length > 0 && (
+                        {isInvestorMode && row.investment_thesis ? (
+                          <div
+                            className="text-[10px] text-teal-500/70 mt-0.5 truncate max-w-[280px]"
+                            title={row.investment_thesis}
+                          >
+                            {row.investment_thesis.split('.')[0]}.
+                          </div>
+                        ) : row.top_competitors.length > 0 ? (
                           <div className="text-[10px] text-slate-500 mt-0.5 truncate max-w-[200px]">
                             {row.top_competitors.slice(0, 2).join(', ')}
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     </td>
 
@@ -477,6 +486,7 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading }:
                     dealActivity={row.deal_activity}
                     catalystSignals={row.catalyst_signals}
                     investmentThesis={row.investment_thesis}
+                    defaultTab={isInvestorMode ? 'investor' : 'score'}
                   />
                 </Fragment>
               );

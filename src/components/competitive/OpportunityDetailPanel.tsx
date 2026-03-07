@@ -153,6 +153,7 @@ interface OpportunityDetailPanelProps {
   dealActivity?: DealActivity;
   catalystSignals?: CatalystSignal[];
   investmentThesis?: string;
+  defaultTab?: DetailTab;
 }
 
 type DetailTab =
@@ -196,15 +197,17 @@ export function OpportunityDetailPanel({
   dealActivity,
   catalystSignals,
   investmentThesis,
+  defaultTab = 'score',
 }: OpportunityDetailPanelProps) {
-  const [activeTab, setActiveTab] = useState<DetailTab>('score');
+  const [activeTab, setActiveTab] = useState<DetailTab>(defaultTab);
   const [detail, setDetail] = useState<DetailData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setDetail(null);
-  }, [indication]);
+    setActiveTab(defaultTab);
+  }, [indication, defaultTab]);
 
   useEffect(() => {
     if (!isOpen || detail) return;
