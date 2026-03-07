@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,19 +13,21 @@ import { FuzzyAutocomplete } from '@/components/ui/FuzzyAutocomplete';
 import { ProductTypeSelector } from '@/components/shared/ProductTypeSelector';
 import type { ProductCategory } from '@/types/devices-diagnostics';
 import {
-  MECHANISM_SUGGESTIONS,
   POPULAR_MECHANISMS,
   PATIENT_SEGMENT_SUGGESTIONS,
   POPULAR_SEGMENTS,
   PROCEDURE_SUGGESTIONS,
   POPULAR_PROCEDURES,
-  SPECIALTY_SUGGESTIONS,
-  BIOMARKER_SUGGESTIONS,
   POPULAR_BIOMARKERS,
-  SUBTYPE_SUGGESTIONS,
   POPULAR_SUBTYPES,
   BIOMARKER_PREVALENCE,
+  getSubtypesForIndication,
+  getMechanismsForIndication,
+  getSpecialtiesForProcedure,
+  getSettingForProcedure,
+  getBiomarkersForIndication,
 } from '@/lib/data/suggestion-lists';
+import type { FilteredSuggestions } from '@/lib/data/suggestion-lists';
 import {
   INGREDIENT_SUGGESTIONS,
   POPULAR_INGREDIENTS,
@@ -35,6 +37,7 @@ import {
   CLAIM_TYPE_OPTIONS,
   NUTRACEUTICAL_STAGES,
 } from '@/lib/data/nutraceutical-data';
+import type { SuggestionItem } from '@/components/ui/FuzzyAutocomplete';
 
 // ────────────────────────────────────────────────────────────
 // Constants
@@ -240,6 +243,12 @@ const nutraSchema = z.object({
 // ────────────────────────────────────────────────────────────
 // Helpers
 // ────────────────────────────────────────────────────────────
+
+// Build filterHint prop from FilteredSuggestions
+function toFilterHint(fs: FilteredSuggestions) {
+  if (!fs.isFiltered) return null;
+  return { filteredCount: fs.filteredCount, totalCount: fs.totalCount, source: fs.filterSource };
+}
 
 type FormMode = 'pharma' | 'device' | 'cdx' | 'nutra';
 
@@ -474,9 +483,24 @@ function PharmaForm({
     },
   });
 
+  const indication = watch('indication');
   const geography = watch('geography');
   const developmentStage = watch('development_stage');
   const pricingAssumption = watch('pricing_assumption');
+
+  // Indication-aware filtered suggestions
+  const filteredSubtypes = useMemo(() => getSubtypesForIndication(indication), [indication]);
+  const filteredMechanisms = useMemo(() => getMechanismsForIndication(indication), [indication]);
+
+  // Clear subtype & mechanism when indication changes (they may no longer be relevant)
+  const prevIndicationRef = useRef(indication);
+  useEffect(() => {
+    if (indication !== prevIndicationRef.current) {
+      prevIndicationRef.current = indication;
+      setValue('subtype', '');
+      setValue('mechanism', '');
+    }
+  }, [indication, setValue]);
 
   const toggleGeo = useCallback(
     (code: string) => {
@@ -511,10 +535,11 @@ function PharmaForm({
         label="Subtype / Specifics"
         value={watch('subtype') || ''}
         onChange={(v) => setValue('subtype', v)}
-        items={SUBTYPE_SUGGESTIONS}
-        popularItems={POPULAR_SUBTYPES}
+        items={filteredSubtypes.items}
+        popularItems={filteredSubtypes.isFiltered ? undefined : POPULAR_SUBTYPES}
         storageKey="terrain:recent-subtypes"
-        placeholder="e.g., EGFR+ Stage III/IV"
+        placeholder={indication ? `Subtypes for ${indication}` : 'Select indication first'}
+        filterHint={toFilterHint(filteredSubtypes)}
       />
 
       <SectionDivider />
@@ -534,10 +559,11 @@ function PharmaForm({
         label="Mechanism of Action"
         value={watch('mechanism') || ''}
         onChange={(v) => setValue('mechanism', v)}
-        items={MECHANISM_SUGGESTIONS}
-        popularItems={POPULAR_MECHANISMS}
+        items={filteredMechanisms.items}
+        popularItems={filteredMechanisms.isFiltered ? undefined : POPULAR_MECHANISMS}
         storageKey="terrain:recent-mechanisms"
-        placeholder="e.g., KRAS G12C inhibitor"
+        placeholder={indication ? `Mechanisms for ${indication}` : 'e.g., KRAS G12C inhibitor'}
+        filterHint={toFilterHint(filteredMechanisms)}
       />
 
       <FuzzyAutocomplete
@@ -603,18 +629,35 @@ function DeviceForm({
     },
   });
 
+  const procedureOrCondition = watch('procedure_or_condition');
   const geography = watch('geography');
   const targetSetting = watch('target_setting');
   const developmentStage = watch('development_stage');
+
+  // Procedure-aware filtered specialties
+  const filteredSpecialties = useMemo(() => getSpecialtiesForProcedure(procedureOrCondition), [procedureOrCondition]);
+
+  // Auto-set target setting when procedure changes
+  const prevProcedureRef = useRef(procedureOrCondition);
+  useEffect(() => {
+    if (procedureOrCondition !== prevProcedureRef.current) {
+      prevProcedureRef.current = procedureOrCondition;
+      // Auto-set target setting from procedure data
+      const defaultSetting = getSettingForProcedure(procedureOrCondition);
+      if (defaultSetting) {
+        setValue('target_setting', [defaultSetting], { shouldValidate: true });
+      }
+      // Clear specialty (may no longer be relevant)
+      setValue('physician_specialty', []);
+    }
+  }, [procedureOrCondition, setValue]);
 
   const toggleGeo = useCallback(
     (code: string) => {
       let next: string[];
       if (code === 'Global') {
-        // Toggle Global: if already selected, deselect; otherwise select only Global
         next = geography.includes('Global') ? [] : ['Global'];
       } else {
-        // Toggle individual territory: remove Global if present
         const withoutGlobal = geography.filter((g) => g !== 'Global');
         next = withoutGlobal.includes(code) ? withoutGlobal.filter((g) => g !== code) : [...withoutGlobal, code];
       }
@@ -639,7 +682,7 @@ function DeviceForm({
     <form onSubmit={doSubmit} className="space-y-5">
       <FuzzyAutocomplete
         label="Procedure or Condition"
-        value={watch('procedure_or_condition')}
+        value={procedureOrCondition}
         onChange={(v) => setValue('procedure_or_condition', v, { shouldValidate: true })}
         items={PROCEDURE_SUGGESTIONS}
         popularItems={POPULAR_PROCEDURES}
@@ -669,9 +712,10 @@ function DeviceForm({
         label="Physician Specialty"
         value={(watch('physician_specialty') as string[] | undefined)?.[0] || ''}
         onChange={(v) => setValue('physician_specialty', v ? [v] : [])}
-        items={SPECIALTY_SUGGESTIONS}
+        items={filteredSpecialties.items}
         storageKey="terrain:recent-specialties"
-        placeholder="e.g., Orthopedic surgeon"
+        placeholder={procedureOrCondition ? `Specialties for ${procedureOrCondition}` : 'e.g., Orthopedic surgeon'}
+        filterHint={toFilterHint(filteredSpecialties)}
       />
 
       <SectionDivider />
@@ -776,11 +820,25 @@ function CdxForm({
     },
   });
 
+  const drugIndication = watch('drug_indication');
   const geography = watch('geography');
   const testSetting = watch('test_setting');
   const drugStage = watch('drug_development_stage');
   const biomarker = watch('biomarker');
   const prevalence = watch('biomarker_prevalence_pct');
+
+  // Indication-aware filtered biomarkers
+  const filteredBiomarkers = useMemo(() => getBiomarkersForIndication(drugIndication), [drugIndication]);
+
+  // Clear biomarker when drug indication changes
+  const prevDrugIndicationRef = useRef(drugIndication);
+  useEffect(() => {
+    if (drugIndication !== prevDrugIndicationRef.current) {
+      prevDrugIndicationRef.current = drugIndication;
+      setValue('biomarker', '');
+      setValue('biomarker_prevalence_pct', undefined as unknown as number);
+    }
+  }, [drugIndication, setValue]);
 
   // Auto-fill biomarker prevalence when a known biomarker is selected
   const prevBiomarkerRef = useRef(biomarker);
@@ -838,11 +896,12 @@ function CdxForm({
         label="Biomarker"
         value={watch('biomarker')}
         onChange={(v) => setValue('biomarker', v, { shouldValidate: true })}
-        items={BIOMARKER_SUGGESTIONS}
-        popularItems={POPULAR_BIOMARKERS}
+        items={filteredBiomarkers.items}
+        popularItems={filteredBiomarkers.isFiltered ? undefined : POPULAR_BIOMARKERS}
         storageKey="terrain:recent-biomarkers"
-        placeholder="e.g., EGFR exon 19/21 deletion"
+        placeholder={drugIndication ? `Biomarkers for ${drugIndication}` : 'e.g., EGFR exon 19/21 deletion'}
         error={errors.biomarker?.message}
+        filterHint={toFilterHint(filteredBiomarkers)}
       />
 
       <div>
@@ -948,20 +1007,71 @@ function NutraForm({
     },
   });
 
+  const primaryIngredient = watch('primary_ingredient');
   const geography = watch('geography');
   const channels = watch('channels');
   const developmentStage = watch('development_stage');
   const hasClinicalData = watch('has_clinical_data');
   const patentProtected = watch('patent_protected');
 
+  // Ingredient-aware filtered health focus suggestions
+  const filteredHealthFocus = useMemo((): FilteredSuggestions => {
+    if (!primaryIngredient)
+      return {
+        items: HEALTH_FOCUS_SUGGESTIONS as SuggestionItem[],
+        isFiltered: false,
+        totalCount: HEALTH_FOCUS_SUGGESTIONS.length,
+        filteredCount: HEALTH_FOCUS_SUGGESTIONS.length,
+        filterSource: '',
+      };
+    // Find ingredient category
+    const ingredientMatch = (INGREDIENT_SUGGESTIONS as SuggestionItem[]).find(
+      (i) => i.name.toLowerCase() === primaryIngredient.toLowerCase(),
+    );
+    if (!ingredientMatch?.category)
+      return {
+        items: HEALTH_FOCUS_SUGGESTIONS as SuggestionItem[],
+        isFiltered: false,
+        totalCount: HEALTH_FOCUS_SUGGESTIONS.length,
+        filteredCount: HEALTH_FOCUS_SUGGESTIONS.length,
+        filterSource: '',
+      };
+    const cat = ingredientMatch.category.toLowerCase();
+    const result = (HEALTH_FOCUS_SUGGESTIONS as SuggestionItem[]).filter(
+      (h) => h.category && h.category.toLowerCase().includes(cat),
+    );
+    if (result.length === 0)
+      return {
+        items: HEALTH_FOCUS_SUGGESTIONS as SuggestionItem[],
+        isFiltered: false,
+        totalCount: HEALTH_FOCUS_SUGGESTIONS.length,
+        filteredCount: HEALTH_FOCUS_SUGGESTIONS.length,
+        filterSource: '',
+      };
+    return {
+      items: result,
+      isFiltered: true,
+      totalCount: HEALTH_FOCUS_SUGGESTIONS.length,
+      filteredCount: result.length,
+      filterSource: primaryIngredient,
+    };
+  }, [primaryIngredient]);
+
+  // Clear health focus when ingredient changes
+  const prevIngredientRef = useRef(primaryIngredient);
+  useEffect(() => {
+    if (primaryIngredient !== prevIngredientRef.current) {
+      prevIngredientRef.current = primaryIngredient;
+      setValue('health_focus', '');
+    }
+  }, [primaryIngredient, setValue]);
+
   const toggleGeo = useCallback(
     (code: string) => {
       let next: string[];
       if (code === 'Global') {
-        // Toggle Global: if already selected, deselect; otherwise select only Global
         next = geography.includes('Global') ? [] : ['Global'];
       } else {
-        // Toggle individual territory: remove Global if present
         const withoutGlobal = geography.filter((g) => g !== 'Global');
         next = withoutGlobal.includes(code) ? withoutGlobal.filter((g) => g !== code) : [...withoutGlobal, code];
       }
@@ -986,9 +1096,9 @@ function NutraForm({
     <form onSubmit={doSubmit} className="space-y-5">
       <FuzzyAutocomplete
         label="Primary Ingredient / Product"
-        value={watch('primary_ingredient')}
+        value={primaryIngredient}
         onChange={(v) => setValue('primary_ingredient', v, { shouldValidate: true })}
-        items={INGREDIENT_SUGGESTIONS}
+        items={INGREDIENT_SUGGESTIONS as SuggestionItem[]}
         popularItems={POPULAR_INGREDIENTS}
         storageKey="terrain:recent-ingredients"
         placeholder="e.g., NMN, Creatine, Probiotics"
@@ -999,10 +1109,11 @@ function NutraForm({
         label="Health Focus / Category"
         value={watch('health_focus')}
         onChange={(v) => setValue('health_focus', v, { shouldValidate: true })}
-        items={HEALTH_FOCUS_SUGGESTIONS}
+        items={filteredHealthFocus.items}
         storageKey="terrain:recent-health-focus"
-        placeholder="e.g., Longevity / NAD+ restoration"
+        placeholder={primaryIngredient ? `Health focus for ${primaryIngredient}` : 'e.g., Longevity / NAD+ restoration'}
         error={errors.health_focus?.message}
+        filterHint={toFilterHint(filteredHealthFocus)}
       />
 
       <Select label="Product Type" options={NUTRACEUTICAL_CATEGORY_OPTIONS} {...register('nutraceutical_category')} />

@@ -22,6 +22,8 @@ interface FuzzyAutocompleteProps {
   storageKey?: string;
   disabled?: boolean;
   error?: string;
+  /** Show active filter state: "12 of 142 · Filtered by NSCLC" */
+  filterHint?: { filteredCount: number; totalCount: number; source: string } | null;
 }
 
 // ── localStorage helpers ─────────────────────────────────────
@@ -61,8 +63,14 @@ function fuzzyScore(item: SuggestionItem, query: string): number {
   for (const qt of queryTokens) {
     if (qt.length < 2) continue;
     for (const tt of targetTokens) {
-      if (tt.startsWith(qt)) { tokenScore += 20; break; }
-      if (tt.includes(qt)) { tokenScore += 10; break; }
+      if (tt.startsWith(qt)) {
+        tokenScore += 20;
+        break;
+      }
+      if (tt.includes(qt)) {
+        tokenScore += 10;
+        break;
+      }
     }
   }
   if (tokenScore > 0) return Math.min(60, tokenScore);
@@ -72,7 +80,10 @@ function fuzzyScore(item: SuggestionItem, query: string): number {
     let lastIdx = -1;
     for (const ch of q) {
       const idx = name.indexOf(ch, lastIdx + 1);
-      if (idx > -1) { matches++; lastIdx = idx; }
+      if (idx > -1) {
+        matches++;
+        lastIdx = idx;
+      }
     }
     const ratio = matches / q.length;
     if (ratio >= 0.7) return Math.round(ratio * 40);
@@ -86,7 +97,10 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
   if (query.length < 2) return <>{text}</>;
 
   const lower = text.toLowerCase();
-  const tokens = query.toLowerCase().split(/\s+/).filter((t) => t.length >= 2);
+  const tokens = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((t) => t.length >= 2);
   const ranges: [number, number][] = [];
 
   const fullIdx = lower.indexOf(query.toLowerCase());
@@ -117,7 +131,9 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
   for (const [start, end] of merged) {
     if (cursor < start) parts.push(text.slice(cursor, start));
     parts.push(
-      <span key={start} className="text-teal-400 font-medium">{text.slice(start, end)}</span>
+      <span key={start} className="text-teal-400 font-medium">
+        {text.slice(start, end)}
+      </span>,
     );
     cursor = end;
   }
@@ -173,6 +189,7 @@ export function FuzzyAutocomplete({
   storageKey,
   disabled = false,
   error,
+  filterHint,
 }: FuzzyAutocompleteProps) {
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
@@ -182,7 +199,9 @@ export function FuzzyAutocomplete({
   const inputRef = useRef<HTMLInputElement>(null);
   const instanceId = useRef(`fuzzy-${++idCounter}`).current;
 
-  useEffect(() => { setQuery(value); }, [value]);
+  useEffect(() => {
+    setQuery(value);
+  }, [value]);
 
   // Search results
   const results = useMemo(() => {
@@ -207,17 +226,13 @@ export function FuzzyAutocomplete({
   const recentItems = useMemo(() => {
     if (!storageKey) return [];
     const names = getRecent(storageKey);
-    return names
-      .map((n) => items.find((it) => it.name === n))
-      .filter(Boolean) as SuggestionItem[];
+    return names.map((n) => items.find((it) => it.name === n)).filter(Boolean) as SuggestionItem[];
   }, [storageKey, items]);
 
   // Popular items
   const popular = useMemo(() => {
     if (!popularItems?.length) return [];
-    return popularItems
-      .map((n) => items.find((it) => it.name === n))
-      .filter(Boolean) as SuggestionItem[];
+    return popularItems.map((n) => items.find((it) => it.name === n)).filter(Boolean) as SuggestionItem[];
   }, [popularItems, items]);
 
   const showSuggestions = open && query.length < 2;
@@ -246,7 +261,7 @@ export function FuzzyAutocomplete({
       if (storageKey) saveRecent(storageKey, name);
       inputRef.current?.blur();
     },
-    [onChange, storageKey]
+    [onChange, storageKey],
   );
 
   const clear = useCallback(() => {
@@ -265,7 +280,10 @@ export function FuzzyAutocomplete({
     }
 
     if (!open || allItems.length === 0) {
-      if (e.key === 'ArrowDown' && !open) { setOpen(true); return; }
+      if (e.key === 'ArrowDown' && !open) {
+        setOpen(true);
+        return;
+      }
       return;
     }
 
@@ -317,7 +335,7 @@ export function FuzzyAutocomplete({
   // Check if item name matches the current committed value
   const isSelected = useCallback(
     (name: string) => value.length > 0 && name.toLowerCase() === value.toLowerCase(),
-    [value]
+    [value],
   );
 
   function renderItem(item: SuggestionItem, flatIdx: number, highlight: boolean) {
@@ -338,24 +356,18 @@ export function FuzzyAutocomplete({
             ? 'bg-teal-500/10 text-white'
             : selected
               ? 'bg-teal-500/5 text-white'
-              : 'text-slate-300 hover:bg-navy-700/70'
+              : 'text-slate-300 hover:bg-navy-700/70',
         )}
       >
         {/* Selected checkmark */}
-        {selected && (
-          <Check className="w-3 h-3 text-teal-500 shrink-0 mt-0.5" />
-        )}
+        {selected && <Check className="w-3 h-3 text-teal-500 shrink-0 mt-0.5" />}
         <div className="flex-1 min-w-0">
           <div className="text-sm truncate leading-snug">
             {highlight ? <HighlightMatch text={item.name} query={query} /> : item.name}
           </div>
           {/* Detail + inline category on search results */}
           <div className="flex items-center gap-2 mt-0.5">
-            {item.detail && (
-              <span className="text-2xs font-mono text-slate-500 truncate">
-                {item.detail}
-              </span>
-            )}
+            {item.detail && <span className="text-2xs font-mono text-slate-500 truncate">{item.detail}</span>}
             {item.category && highlight && groupedResults.length <= 1 && (
               <span className="text-2xs font-mono text-slate-600 shrink-0 uppercase tracking-wider">
                 {item.category}
@@ -379,12 +391,21 @@ export function FuzzyAutocomplete({
 
   return (
     <div ref={containerRef} className="relative">
-      <label htmlFor={`${instanceId}-input`} className="input-label">{label}</label>
+      <div className="flex items-baseline justify-between gap-2">
+        <label htmlFor={`${instanceId}-input`} className="input-label">
+          {label}
+        </label>
+        {filterHint && (
+          <span className="text-[10px] font-mono text-teal-500/70 shrink-0">
+            {filterHint.filteredCount} of {filterHint.totalCount}
+          </span>
+        )}
+      </div>
       <div className="relative mt-1">
         <Search
           className={cn(
             'absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none transition-colors duration-150',
-            open ? 'text-teal-500' : 'text-slate-500'
+            open ? 'text-teal-500' : 'text-slate-500',
           )}
           aria-hidden="true"
         />
@@ -432,7 +453,7 @@ export function FuzzyAutocomplete({
             hasValue && !disabled && 'pr-8',
             open && 'border-teal-500/40 ring-1 ring-teal-500/20',
             error && 'border-signal-red focus:ring-signal-red/30',
-            disabled && 'opacity-60 cursor-not-allowed'
+            disabled && 'opacity-60 cursor-not-allowed',
           )}
           autoComplete="off"
         />
@@ -442,7 +463,10 @@ export function FuzzyAutocomplete({
           <button
             type="button"
             tabIndex={-1}
-            onMouseDown={(e) => { e.preventDefault(); clear(); }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              clear();
+            }}
             className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-navy-700 text-slate-500 hover:text-slate-300 transition-colors"
             aria-label="Clear"
           >
@@ -470,6 +494,7 @@ export function FuzzyAutocomplete({
             <div className="px-3 py-1.5 flex items-center justify-between border-b border-navy-700/60 sticky top-0 bg-navy-800/95 backdrop-blur-sm z-10">
               <span className="text-2xs font-mono text-slate-500">
                 {results.length} of {items.length}
+                {filterHint && <span className="text-teal-500/50"> (filtered from {filterHint.totalCount})</span>}
               </span>
               <span className="text-2xs font-mono text-slate-600 flex items-center gap-1.5">
                 <ChevronsUpDown className="w-2.5 h-2.5" />
@@ -497,9 +522,7 @@ export function FuzzyAutocomplete({
                     </span>
                   </div>
                 )}
-                {group.items.map((item, iIdx) =>
-                  renderItem(item, getFlatIndex(gIdx, iIdx), true)
-                )}
+                {group.items.map((item, iIdx) => renderItem(item, getFlatIndex(gIdx, iIdx), true))}
               </div>
             ))}
           </motion.div>
@@ -517,8 +540,16 @@ export function FuzzyAutocomplete({
             transition={{ duration: 0.15, ease: [0.2, 0, 0, 1] }}
           >
             <div className="px-3 py-4 text-center">
-              <p className="text-xs text-slate-400">No suggestions for &ldquo;<span className="text-slate-300">{query}</span>&rdquo;</p>
-              <p className="text-2xs text-slate-500 mt-1.5">Press <span className="text-[9px] font-mono border border-slate-600 rounded px-1 py-px text-slate-400">enter</span> to use as custom value</p>
+              <p className="text-xs text-slate-400">
+                No suggestions for &ldquo;<span className="text-slate-300">{query}</span>&rdquo;
+              </p>
+              <p className="text-2xs text-slate-500 mt-1.5">
+                Press{' '}
+                <span className="text-[9px] font-mono border border-slate-600 rounded px-1 py-px text-slate-400">
+                  enter
+                </span>{' '}
+                to use as custom value
+              </p>
             </div>
           </motion.div>
         )}
@@ -577,9 +608,7 @@ export function FuzzyAutocomplete({
             )}
             {/* Footer hint */}
             <div className="px-3 py-1.5 border-t border-navy-700/60 flex items-center justify-between">
-              <span className="text-2xs font-mono text-slate-600">
-                {items.length} total suggestions
-              </span>
+              <span className="text-2xs font-mono text-slate-600">{items.length} total suggestions</span>
               <span className="text-2xs font-mono text-slate-600 flex items-center gap-1.5">
                 <ChevronsUpDown className="w-2.5 h-2.5" />
                 <span>navigate</span>
@@ -592,7 +621,11 @@ export function FuzzyAutocomplete({
         )}
       </AnimatePresence>
 
-      {error && <p id={`${instanceId}-error`} role="alert" className="text-xs text-signal-red mt-1">{error}</p>}
+      {error && (
+        <p id={`${instanceId}-error`} role="alert" className="text-xs text-signal-red mt-1">
+          {error}
+        </p>
+      )}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {showResults && `${results.length} suggestion${results.length === 1 ? '' : 's'} available`}
         {noResults && 'No suggestions found. You can use a custom value.'}

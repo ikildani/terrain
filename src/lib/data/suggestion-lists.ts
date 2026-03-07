@@ -20,9 +20,7 @@ function buildMechanismSuggestions(): SuggestionItem[] {
       existing.count++;
     } else {
       counts.set(key, {
-        category: rec.mechanism_category
-          .replace(/_/g, ' ')
-          .replace(/\b\w/g, (c) => c.toUpperCase()),
+        category: rec.mechanism_category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
         count: 1,
       });
     }
@@ -59,9 +57,7 @@ function buildTargetSuggestions(): SuggestionItem[] {
       existing.count++;
     } else {
       counts.set(target, {
-        area: rec.mechanism_category
-          .replace(/_/g, ' ')
-          .replace(/\b\w/g, (c) => c.toUpperCase()),
+        area: rec.mechanism_category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
         count: 1,
       });
     }
@@ -117,13 +113,12 @@ export const POPULAR_SUBTYPES = [
 export const PROCEDURE_SUGGESTIONS: SuggestionItem[] = PROCEDURE_VOLUME_DATA.map((p) => ({
   name: p.procedure_name,
   category: p.physician_specialty?.[0] || p.site_of_care?.[0] || '',
-  detail: p.annual_us_procedures
-    ? `${(p.annual_us_procedures / 1_000).toFixed(0)}K US/yr`
-    : undefined,
+  detail: p.annual_us_procedures ? `${(p.annual_us_procedures / 1_000).toFixed(0)}K US/yr` : undefined,
 }));
 
-export const POPULAR_PROCEDURES = PROCEDURE_VOLUME_DATA
-  .sort((a, b) => (b.annual_us_procedures || 0) - (a.annual_us_procedures || 0))
+export const POPULAR_PROCEDURES = PROCEDURE_VOLUME_DATA.sort(
+  (a, b) => (b.annual_us_procedures || 0) - (a.annual_us_procedures || 0),
+)
   .slice(0, 6)
   .map((p) => p.procedure_name);
 
@@ -373,10 +368,10 @@ export const BIOMARKER_PREVALENCE: Record<string, { prevalence_pct: number; cont
   'KEAP1 mutation': { prevalence_pct: 12, context: 'NSCLC (IO resistance)' },
   'HER2 mutation (NSCLC)': { prevalence_pct: 3, context: 'NSCLC' },
   // Neuroscience
-  'Amyloid PET positivity': { prevalence_pct: 35, context: 'MCI / early Alzheimer\'s' },
-  'Plasma p-tau217': { prevalence_pct: 35, context: 'Alzheimer\'s disease' },
+  'Amyloid PET positivity': { prevalence_pct: 35, context: "MCI / early Alzheimer's" },
+  'Plasma p-tau217': { prevalence_pct: 35, context: "Alzheimer's disease" },
   'NfL (neurofilament light)': { prevalence_pct: 100, context: 'MS / ALS monitoring' },
-  'CSF amyloid-beta 42/40 ratio': { prevalence_pct: 35, context: 'Alzheimer\'s disease' },
+  'CSF amyloid-beta 42/40 ratio': { prevalence_pct: 35, context: "Alzheimer's disease" },
   // Cardiology
   'Troponin I/T (high-sensitivity)': { prevalence_pct: 30, context: 'Chest pain presentations' },
   'NT-proBNP / BNP': { prevalence_pct: 50, context: 'Heart failure suspected' },
@@ -387,7 +382,7 @@ export const BIOMARKER_PREVALENCE: Record<string, { prevalence_pct: number; cont
   'HbA1c (Glycated hemoglobin)': { prevalence_pct: 100, context: 'Diabetes (universal screen)' },
   'Fasting insulin / HOMA-IR': { prevalence_pct: 40, context: 'Insulin resistance screening' },
   'GLP-1 receptor expression': { prevalence_pct: 60, context: 'T2D islet cells' },
-  'FGF21': { prevalence_pct: 100, context: 'NASH/metabolic dysfunction (research)' },
+  FGF21: { prevalence_pct: 100, context: 'NASH/metabolic dysfunction (research)' },
   'ELF Score': { prevalence_pct: 100, context: 'Liver fibrosis screening (universal test)' },
   // Autoimmune / Inflammatory
   'Anti-CCP (anti-citrullinated peptide)': { prevalence_pct: 70, context: 'Rheumatoid arthritis' },
@@ -405,7 +400,7 @@ export const BIOMARKER_PREVALENCE: Record<string, { prevalence_pct: number; cont
   'AMH (Anti-Müllerian Hormone)': { prevalence_pct: 100, context: 'Ovarian reserve assessment' },
   // Renal
   'Cystatin C': { prevalence_pct: 100, context: 'GFR estimation (CKD)' },
-  'NGAL': { prevalence_pct: 100, context: 'Acute kidney injury (early marker)' },
+  NGAL: { prevalence_pct: 100, context: 'Acute kidney injury (early marker)' },
   'KIM-1 (Kidney Injury Molecule-1)': { prevalence_pct: 100, context: 'Renal tubular injury' },
 };
 
@@ -419,13 +414,13 @@ export interface CDxDrugLinkage {
   drug_company: string;
   drug_wac_annual_usd: number;
   primary_indication: string;
-  eligible_patient_pct: number;       // % of indication patients with this biomarker
-  us_eligible_patients_yr: number;    // Annual US patients eligible for testing
+  eligible_patient_pct: number; // % of indication patients with this biomarker
+  us_eligible_patients_yr: number; // Annual US patients eligible for testing
   fda_cdx_approved: boolean;
   cdx_approval_year: number | null;
-  approved_cdx_test: string | null;   // e.g., "Guardant360 CDx", "FoundationOne CDx"
-  testing_rate_pct: number;           // Current % of eligible patients actually tested
-  test_reimbursement_usd: number;     // Per-test reimbursement (CMS/commercial blended)
+  approved_cdx_test: string | null; // e.g., "Guardant360 CDx", "FoundationOne CDx"
+  testing_rate_pct: number; // Current % of eligible patients actually tested
+  test_reimbursement_usd: number; // Per-test reimbursement (CMS/commercial blended)
   regulatory_co_submission: boolean;
 }
 
@@ -841,3 +836,121 @@ export const POPULAR_SEGMENTS = [
   'Metastatic',
   'Biomarker-selected population',
 ];
+
+// ── Indication-Aware Filtering ──────────────────────────────
+// Filter subtypes and mechanisms based on selected indication.
+// Uses substring matching (same approach as competitor lookups).
+
+// ── Filter result type ───────────────────────────────────────
+// Carries both filtered items and metadata for UI feedback.
+
+export interface FilteredSuggestions {
+  items: SuggestionItem[];
+  isFiltered: boolean;
+  totalCount: number; // Total items before filtering
+  filteredCount: number; // Items after filtering
+  filterSource: string; // What triggered the filter (for display)
+}
+
+function unfiltered(items: SuggestionItem[]): FilteredSuggestions {
+  return { items, isFiltered: false, totalCount: items.length, filteredCount: items.length, filterSource: '' };
+}
+
+function filtered(items: SuggestionItem[], total: number, source: string): FilteredSuggestions {
+  return { items, isFiltered: true, totalCount: total, filteredCount: items.length, filterSource: source };
+}
+
+/**
+ * Filter subtypes to those matching the selected indication.
+ * Falls back to full list if no indication or no matches found.
+ */
+export function getSubtypesForIndication(indication: string): FilteredSuggestions {
+  if (!indication) return unfiltered(SUBTYPE_SUGGESTIONS);
+  const lower = indication.toLowerCase();
+  const result = SUBTYPE_SUGGESTIONS.filter((s) => s.category && s.category.toLowerCase().includes(lower));
+  if (result.length === 0) return unfiltered(SUBTYPE_SUGGESTIONS);
+  return filtered(result, SUBTYPE_SUGGESTIONS.length, indication);
+}
+
+/**
+ * Filter mechanisms to those seen in the competitor database for the given indication.
+ * Falls back to full list if no indication or no matches found.
+ */
+export function getMechanismsForIndication(indication: string): FilteredSuggestions {
+  if (!indication) return unfiltered(MECHANISM_SUGGESTIONS);
+  const lower = indication.toLowerCase();
+  const relevantMechanisms = new Set<string>();
+  for (const rec of COMPETITOR_DATABASE) {
+    if (rec.indication.toLowerCase().includes(lower) || lower.includes(rec.indication.toLowerCase())) {
+      relevantMechanisms.add(rec.mechanism);
+    }
+  }
+  if (relevantMechanisms.size === 0) return unfiltered(MECHANISM_SUGGESTIONS);
+  const result = MECHANISM_SUGGESTIONS.filter((m) => relevantMechanisms.has(m.name));
+  return filtered(result, MECHANISM_SUGGESTIONS.length, indication);
+}
+
+/**
+ * Filter specialties to those relevant for the selected procedure.
+ * Falls back to full list if no procedure or no matches found.
+ */
+export function getSpecialtiesForProcedure(procedure: string): FilteredSuggestions {
+  if (!procedure) return unfiltered(SPECIALTY_SUGGESTIONS);
+  const lower = procedure.toLowerCase();
+  const match = PROCEDURE_VOLUME_DATA.find((p) => p.procedure_name.toLowerCase() === lower);
+  if (!match || !match.physician_specialty?.length) return unfiltered(SPECIALTY_SUGGESTIONS);
+  const specSet = new Set(match.physician_specialty.map((s) => s.toLowerCase()));
+  const result = SPECIALTY_SUGGESTIONS.filter((s) => specSet.has(s.name.toLowerCase()));
+  if (result.length === 0) return unfiltered(SPECIALTY_SUGGESTIONS);
+  return filtered(result, SPECIALTY_SUGGESTIONS.length, procedure);
+}
+
+/**
+ * Get the default site-of-care setting for a selected procedure.
+ * Returns null if no procedure match found.
+ */
+export function getSettingForProcedure(procedure: string): string | null {
+  if (!procedure) return null;
+  const lower = procedure.toLowerCase();
+  const match = PROCEDURE_VOLUME_DATA.find((p) => p.procedure_name.toLowerCase() === lower);
+  if (!match) return null;
+  // Map procedure site_of_care to device setting values
+  const siteMap: Record<string, string> = {
+    inpatient: 'hospital_inpatient',
+    outpatient: 'hospital_outpatient',
+    office: 'office',
+    home: 'home',
+    lab: 'lab',
+  };
+  return siteMap[match.site_of_care as string] || null;
+}
+
+/**
+ * Filter biomarkers to those relevant for the selected indication (CDx form).
+ * Uses BIOMARKER_PREVALENCE context field for matching.
+ * Falls back to full list if no indication or no matches found.
+ */
+export function getBiomarkersForIndication(indication: string): FilteredSuggestions {
+  if (!indication) return unfiltered(BIOMARKER_SUGGESTIONS);
+  const lower = indication.toLowerCase();
+  // Check biomarker prevalence context for indication relevance
+  const relevantBiomarkers = new Set<string>();
+  for (const [biomarker, data] of Object.entries(BIOMARKER_PREVALENCE)) {
+    if (data.context.toLowerCase().includes(lower) || lower.includes(data.context.toLowerCase())) {
+      relevantBiomarkers.add(biomarker);
+    }
+  }
+  // Also check CDx drug linkage for indication matches
+  for (const linkage of CDX_DRUG_LINKAGE) {
+    if (
+      linkage.primary_indication.toLowerCase().includes(lower) ||
+      lower.includes(linkage.primary_indication.toLowerCase())
+    ) {
+      relevantBiomarkers.add(linkage.biomarker);
+    }
+  }
+  if (relevantBiomarkers.size === 0) return unfiltered(BIOMARKER_SUGGESTIONS);
+  const result = BIOMARKER_SUGGESTIONS.filter((b) => relevantBiomarkers.has(b.name));
+  if (result.length === 0) return unfiltered(BIOMARKER_SUGGESTIONS);
+  return filtered(result, BIOMARKER_SUGGESTIONS.length, indication);
+}
