@@ -38,6 +38,7 @@ vi.mock('@/lib/logger', () => ({
   })),
   logApiRequest: vi.fn(),
   logApiResponse: vi.fn(),
+  logBusinessEvent: vi.fn(),
 }));
 
 vi.mock('@/lib/redis', () => ({ redis: null }));
@@ -87,8 +88,9 @@ describe('withAnalysisHandler', () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
     const chain: Record<string, unknown> = {};
     chain.select = vi.fn().mockReturnValue(chain);
+    chain.eq = vi.fn().mockReturnValue(chain);
     chain.insert = vi.fn().mockReturnValue(chain);
-    chain.single = vi.fn().mockResolvedValue({ data: { id: 'report-1' }, error: null });
+    chain.single = vi.fn().mockResolvedValue({ data: { id: 'report-1', plan: 'pro' }, error: null });
     mockFrom.mockReturnValue(chain);
     (checkUsage as ReturnType<typeof vi.fn>).mockResolvedValue({
       allowed: true,
@@ -147,7 +149,7 @@ describe('withAnalysisHandler', () => {
     const body = await res.json();
     expect(body.success).toBe(true);
     expect(body.data).toBeDefined();
-    expect(body.report_id).toBe('report-1');
+    // report_id only present when save: true is passed in request body
     expect(body.usage).toBeDefined();
   });
 
@@ -164,7 +166,7 @@ describe('withAnalysisHandler', () => {
     const res = await handler(makeRequest({ input: { indication: 'NSCLC' } }));
     expect(res.status).toBe(500);
     const body = await res.json();
-    expect(body.error).toBe('Engine failure');
+    expect(body.error).toBe('market_sizing analysis failed. Please try again.');
     expect(res.headers.get('X-Request-Id')).toBeTruthy();
   });
 });

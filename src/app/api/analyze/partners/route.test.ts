@@ -58,6 +58,7 @@ vi.mock('@/lib/logger', () => ({
   })),
   logApiRequest: vi.fn(),
   logApiResponse: vi.fn(),
+  logBusinessEvent: vi.fn(),
 }));
 
 vi.mock('@/lib/redis', () => ({
@@ -289,6 +290,6 @@ describe('POST /api/analyze/partners', () => {
 
     expect(res.status).toBe(500);
     expect(body.success).toBe(false);
-    expect(body.error).toBe('Partner DB unavailable');
+    expect(body.error).toBe('partners analysis failed. Please try again.');
   });
 });

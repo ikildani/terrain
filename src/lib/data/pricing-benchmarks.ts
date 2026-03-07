@@ -1118,7 +1118,7 @@ export const PRICING_BENCHMARKS: PricingBenchmark[] = [
     therapy_area: 'neurology',
     mechanism_class: 'ASO (SMN2 splicing modifier)',
     launch_year: 2016,
-    us_launch_wac_annual: 750000,
+    us_launch_wac_annual: 375000,
     current_list_price: 375000,
     orphan_drug: true,
     first_in_class: true,

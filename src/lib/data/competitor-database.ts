@@ -24,6 +24,7 @@ import { PAIN_HEPATO_ENDO_COMPETITORS } from './competitor-data-pain-hepato-endo
 import { MSK_GASTRO_DERM_COMPETITORS } from './competitor-data-msk-gastro-derm';
 import { GAP_FILL_COMPETITORS } from './competitor-data-gap-fill';
 import { BIO_COMPETITORS } from './competitor-data-bio';
+import { EARLY_STAGE_COMPETITORS } from './competitor-data-early-stage';
 
 // ────────────────────────────────────────────────────────────
 // COMPETITOR RECORD TYPE
@@ -512,6 +513,37 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     source: 'FDA label; KarMMa trials; BMS 2024',
     last_updated: '2025-01-15',
   },
+  {
+    asset_name: 'Talvey',
+    generic_name: 'talquetamab',
+    company: 'Johnson & Johnson',
+    indication: 'Multiple Myeloma',
+    indication_specifics: 'R/R MM after >= 4 prior lines including PI, IMiD, and anti-CD38 (triple-class exposed)',
+    mechanism:
+      'GPRC5DxCD3 bispecific antibody that redirects T cells to kill myeloma cells via a novel non-BCMA target (GPRC5D), enabling sequential use after BCMA-targeted therapies',
+    mechanism_category: 'bispecific_antibody',
+    molecular_target: 'GPRC5D × CD3',
+    phase: 'Approved',
+    primary_endpoint: 'ORR (overall response rate)',
+    key_data:
+      'MonumenTAL-1: ORR 74% (0.4mg/kg) and 73% (0.8mg/kg) in triple-class exposed R/R MM; median DOR 9.3 months; CRS 77% (mostly Grade 1-2)',
+    line_of_therapy: '4L+ (triple-class exposed)',
+    first_in_class: true,
+    orphan_drug: true,
+    has_biomarker_selection: false,
+    strengths: [
+      'First-in-class GPRC5D-targeted therapy — completely distinct from BCMA pathway',
+      'Enables sequential bispecific approach after BCMA-directed therapies fail',
+      'High ORR (73-74%) in heavily pretreated, triple-class exposed population',
+    ],
+    weaknesses: [
+      'Unique toxicity profile: dysgeusia (taste changes 48%), skin-related AEs (nail disorders, rash)',
+      'Weight loss and oral mucositis can affect quality of life',
+      'SC dosing requires step-up and in-clinic monitoring for CRS during initiation',
+    ],
+    source: 'FDA label; MonumenTAL-1 trial; J&J 2024',
+    last_updated: '2025-01-15',
+  },
 
   // ══════════════════════════════════════════════════════════
   // PANCREATIC DUCTAL ADENOCARCINOMA (PDAC)
@@ -964,6 +996,99 @@ const BASE_COMPETITORS: CompetitorRecord[] = [
     weaknesses: ['Crowded RA market', 'JAK inhibitor competition', 'Not clearly differentiated from Actemra'],
     source: 'CREDO trials; R-Pharm 2024',
     last_updated: '2024-10-01',
+  },
+  {
+    asset_name: 'Actemra',
+    generic_name: 'tocilizumab',
+    company: 'Roche/Genentech',
+    indication: 'Rheumatoid Arthritis',
+    indication_specifics: 'Moderate-to-severe RA after csDMARD inadequate response; also approved as monotherapy',
+    mechanism:
+      'Anti-IL-6 receptor antibody that blocks IL-6 signaling via membrane-bound and soluble IL-6R, reducing systemic inflammation and joint destruction',
+    mechanism_category: 'anti_il6',
+    molecular_target: 'IL-6R',
+    phase: 'Approved',
+    primary_endpoint: 'ACR20/50/70 response rates',
+    key_data:
+      'LITHE: Structural damage inhibition + ACR response; ADACTA monotherapy: Superior to adalimumab in DAS28 remission (39.9% vs 10.5%); First IL-6 inhibitor approved for RA',
+    line_of_therapy: '2L+ (after csDMARD failure)',
+    first_in_class: true,
+    orphan_drug: false,
+    has_biomarker_selection: false,
+    strengths: [
+      'Proven IL-6 pathway inhibition with long track record since 2010 approval',
+      'Only biologic with monotherapy superiority data vs adalimumab (ADACTA)',
+      'Available in both IV and SC formulations for flexibility',
+    ],
+    weaknesses: [
+      'Hepatotoxicity monitoring required (transaminase elevations)',
+      'Biosimilar competition emerging with multiple tocilizumab biosimilars in development',
+      'JAK inhibitor oral convenience reducing biologic market share',
+    ],
+    source: 'Roche/Genentech 2024; ADACTA, LITHE trials',
+    last_updated: '2025-01-15',
+  },
+  {
+    asset_name: 'Xeljanz',
+    generic_name: 'tofacitinib',
+    company: 'Pfizer',
+    indication: 'Rheumatoid Arthritis',
+    indication_specifics: 'Moderate-to-severe RA after csDMARD inadequate response',
+    mechanism:
+      'Pan-JAK inhibitor (JAK1/JAK3-preferential) that blocks intracellular cytokine signaling downstream of multiple pro-inflammatory pathways',
+    mechanism_category: 'jak_inhibitor',
+    molecular_target: 'JAK1/JAK3',
+    phase: 'Approved',
+    primary_endpoint: 'ACR20/50/70, DAS28-ESR remission',
+    key_data:
+      'ORAL Standard: ACR20 51.5% vs 28.3% placebo at 6 months; ORAL Surveillance post-marketing: increased MACE and malignancy risk vs TNF inhibitors led to FDA black box warning',
+    line_of_therapy: '2L+ (restricted to post-TNF failure per updated labeling)',
+    first_in_class: true,
+    orphan_drug: false,
+    has_biomarker_selection: false,
+    strengths: [
+      'First oral targeted synthetic DMARD approved for RA (2012), established mechanism',
+      'Rapid onset of action vs biologics',
+      'Convenient oral BID dosing eliminates injection burden',
+    ],
+    weaknesses: [
+      'FDA black box warning for MACE, VTE, malignancy, and serious infections based on ORAL Surveillance',
+      'Restricted to patients who have failed TNF inhibitors per updated labeling',
+      'Generic competition expected as key patents expire',
+    ],
+    source: 'Pfizer 2024; ORAL Surveillance, ORAL Standard trials',
+    last_updated: '2025-01-15',
+  },
+  {
+    asset_name: 'Olumiant',
+    generic_name: 'baricitinib',
+    company: 'Eli Lilly',
+    indication: 'Rheumatoid Arthritis',
+    indication_specifics: 'Moderate-to-severe RA after csDMARD inadequate response',
+    mechanism:
+      'Selective JAK1/JAK2 inhibitor that blocks intracellular signaling of key pro-inflammatory cytokines including IL-6, IFN-gamma, and IL-12/23',
+    mechanism_category: 'jak_inhibitor',
+    molecular_target: 'JAK1/JAK2',
+    phase: 'Approved',
+    primary_endpoint: 'ACR20, DAS28-CRP remission',
+    key_data:
+      'RA-BEAM: Superior to adalimumab in ACR20 at week 12 (70% vs 61%, p=0.014) with methotrexate background; first JAK inhibitor to show superiority vs adalimumab in head-to-head',
+    line_of_therapy: '2L+ (after csDMARD failure)',
+    first_in_class: false,
+    orphan_drug: false,
+    has_biomarker_selection: false,
+    strengths: [
+      'Head-to-head superiority vs adalimumab (RA-BEAM) — rare for JAK class',
+      'Once-daily oral dosing (simpler than tofacitinib BID)',
+      'Also approved for alopecia areata and COVID-19, expanding commercial reach',
+    ],
+    weaknesses: [
+      'FDA class-wide black box warning for JAK inhibitors (MACE, VTE, malignancy)',
+      'Restricted to patients who have failed TNF inhibitors in US labeling',
+      'Competition from upadacitinib (Rinvoq) with broader JAK1 selectivity claims',
+    ],
+    source: 'Eli Lilly 2024; RA-BEAM, RA-BEGIN trials',
+    last_updated: '2025-01-15',
   },
 
   // ══════════════════════════════════════════════════════════
@@ -3672,6 +3797,7 @@ export const COMPETITOR_DATABASE: CompetitorRecord[] = [
   ...MSK_GASTRO_DERM_COMPETITORS,
   ...GAP_FILL_COMPETITORS,
   ...BIO_COMPETITORS,
+  ...EARLY_STAGE_COMPETITORS,
 ];
 
 // ────────────────────────────────────────────────────────────

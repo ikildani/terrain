@@ -13,14 +13,18 @@
 import type { ProcedureData } from '@/types/devices-diagnostics';
 
 export const PROCEDURE_DATA: ProcedureData[] = [
-
   // ──────────────────────────────────────────────────────────
   // CARDIOVASCULAR DEVICES
   // ──────────────────────────────────────────────────────────
 
   {
     name: 'Transcatheter Aortic Valve Replacement',
-    synonyms: ['TAVR', 'TAVI', 'transcatheter aortic valve implantation', 'aortic valve replacement minimally invasive'],
+    synonyms: [
+      'TAVR',
+      'TAVI',
+      'transcatheter aortic valve implantation',
+      'aortic valve replacement minimally invasive',
+    ],
     cpt_codes: ['33361', '33362', '33363', '33364', '33365', '33366'],
     drg_codes: ['266', '267'],
     device_category: 'cardiovascular',
@@ -35,19 +39,34 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 32000,
       medicare_physician_rate: 1500,
-      private_payer_coverage: 'Commercial coverage established. Prior authorization common. Evidence-based criteria (STS/ACC appropriate use).',
+      private_payer_coverage:
+        'Commercial coverage established. Prior authorization common. Evidence-based criteria (STS/ACC appropriate use).',
     },
-    major_device_competitors: ['Edwards Sapien 3 (Edwards)', 'Evolut (Medtronic)', 'Acurate (Boston Scientific)', 'Myval (Meril Life)'],
+    major_device_competitors: [
+      'Edwards Sapien 3 (Edwards)',
+      'Evolut (Medtronic)',
+      'Acurate (Boston Scientific)',
+      'Myval (Meril Life)',
+    ],
     market_leader: 'Edwards Lifesciences (Sapien platform)',
     market_leader_share_pct: 48,
-    current_standard_of_care: 'SAVR (surgical AVR) for younger, low-risk patients; TAVR has become standard for most patients, including low-risk since 2019',
+    current_standard_of_care:
+      'SAVR (surgical AVR) for younger, low-risk patients; TAVR has become standard for most patients, including low-risk since 2019',
     cagr_5yr: 8.5,
-    growth_driver: 'Expanding to younger, lower-risk patients; borderline indication patients; aortic regurgitation indication',
+    growth_driver:
+      'Expanding to younger, lower-risk patients; borderline indication patients; aortic regurgitation indication',
   },
 
   {
     name: 'Cardiac Ablation for Atrial Fibrillation',
-    synonyms: ['AF ablation', 'AFib ablation', 'pulmonary vein isolation', 'PVI', 'catheter ablation afib', 'pulsed field ablation'],
+    synonyms: [
+      'AF ablation',
+      'AFib ablation',
+      'pulmonary vein isolation',
+      'PVI',
+      'catheter ablation afib',
+      'pulsed field ablation',
+    ],
     cpt_codes: ['93656', '93657', '93750'],
     drg_codes: ['247', '248'],
     device_category: 'cardiovascular',
@@ -72,14 +91,22 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Biosense Webster (J&J MedTech)',
     market_leader_share_pct: 42,
-    current_standard_of_care: 'Radiofrequency ablation (RF) dominant; cryoablation ~25% share; pulsed field ablation (PFA) rapidly gaining post-FDA clearance',
+    current_standard_of_care:
+      'Radiofrequency ablation (RF) dominant; cryoablation ~25% share; pulsed field ablation (PFA) rapidly gaining post-FDA clearance',
     cagr_5yr: 12.0,
-    growth_driver: 'PFA technology driving procedure growth, earlier treatment, less repeat procedures, expansion to persistent AFib',
+    growth_driver:
+      'PFA technology driving procedure growth, earlier treatment, less repeat procedures, expansion to persistent AFib',
   },
 
   {
     name: 'Coronary Stent Implantation',
-    synonyms: ['PCI', 'percutaneous coronary intervention', 'coronary stenting', 'drug-eluting stent', 'DES implantation'],
+    synonyms: [
+      'PCI',
+      'percutaneous coronary intervention',
+      'coronary stenting',
+      'drug-eluting stent',
+      'DES implantation',
+    ],
     cpt_codes: ['92928', '92929', '92933', '92934'],
     drg_codes: ['247', '248', '251', '252'],
     device_category: 'cardiovascular',
@@ -105,9 +132,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Abbott (Xience platform)',
     market_leader_share_pct: 35,
-    current_standard_of_care: 'Drug-eluting stents (DES) gold standard. Bioresorbable scaffolds had setbacks; thin-strut DES dominant.',
+    current_standard_of_care:
+      'Drug-eluting stents (DES) gold standard. Bioresorbable scaffolds had setbacks; thin-strut DES dominant.',
     cagr_5yr: 2.0,
-    growth_driver: 'Modest growth; mature market. Innovation in thin-strut design, polymer-free platforms, and chronic total occlusion (CTO) stenting',
+    growth_driver:
+      'Modest growth; mature market. Innovation in thin-strut design, polymer-free platforms, and chronic total occlusion (CTO) stenting',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -131,7 +160,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 12000,
       medicare_physician_rate: 1400,
-      private_payer_coverage: 'Universal commercial coverage. ASC-setting coverage expanding post-2020 CMS rule change.',
+      private_payer_coverage:
+        'Universal commercial coverage. ASC-setting coverage expanding post-2020 CMS rule change.',
     },
     major_device_competitors: [
       'Triathlon (Stryker)',
@@ -142,7 +172,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Zimmer Biomet + Stryker (~60% combined)',
     market_leader_share_pct: 30,
-    current_standard_of_care: 'Cemented TKA with fixed-bearing or mobile-bearing implants. Robotic-assisted growing rapidly (~25% of procedures).',
+    current_standard_of_care:
+      'Cemented TKA with fixed-bearing or mobile-bearing implants. Robotic-assisted growing rapidly (~25% of procedures).',
     cagr_5yr: 4.2,
     growth_driver: 'Aging population, obesity epidemic, ASC shift, robotic surgery adoption (Mako, Rosa, CORI)',
   },
@@ -174,7 +205,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Stryker',
     market_leader_share_pct: 28,
-    current_standard_of_care: 'Cementless fixation dominant. Highly cross-linked polyethylene liner. Ceramic femoral head growing.',
+    current_standard_of_care:
+      'Cementless fixation dominant. Highly cross-linked polyethylene liner. Ceramic femoral head growing.',
     cagr_5yr: 3.8,
     growth_driver: 'Aging demographics, obesity, ASC migration, improved implant longevity enabling younger patients',
   },
@@ -196,7 +228,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 18000,
       medicare_physician_rate: 1800,
-      private_payer_coverage: 'Coverage with clinical criteria; conservative treatment failure required. Vary by level and approach.',
+      private_payer_coverage:
+        'Coverage with clinical criteria; conservative treatment failure required. Vary by level and approach.',
     },
     major_device_competitors: [
       'Medtronic (largest share)',
@@ -208,9 +241,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Medtronic Spine',
     market_leader_share_pct: 25,
-    current_standard_of_care: 'Pedicle screw fixation + interbody cage. ACDF for cervical. LLIF/TLIF for lumbar. Robotic guidance growing.',
+    current_standard_of_care:
+      'Pedicle screw fixation + interbody cage. ACDF for cervical. LLIF/TLIF for lumbar. Robotic guidance growing.',
     cagr_5yr: 2.5,
-    growth_driver: 'Aging population, minimally invasive approaches (MIS), robotic-assisted spine surgery, expandable cages',
+    growth_driver:
+      'Aging population, minimally invasive approaches (MIS), robotic-assisted spine surgery, expandable cages',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -223,7 +258,7 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     cpt_codes: ['95250', '95251', '99453', '99454'],
     drg_codes: [],
     device_category: 'diabetes_metabolic',
-    us_annual_procedures: 4200000,  // Active CGM users (patient-years)
+    us_annual_procedures: 4200000, // Active CGM users (patient-years)
     us_procedure_growth_rate: 18.0,
     procedure_setting: ['home', 'office'],
     eligible_sites: { hospitals: 0, ascs: 0, clinics: 8000 },
@@ -232,8 +267,9 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     procedure_source: 'Dexcom / Abbott investor presentations; ADA 2024',
     reimbursement: {
       cms_coverage: 'covered',
-      medicare_physician_rate: 120,    // Monthly (supply cost covered by durable medical equipment benefit)
-      private_payer_coverage: 'Medicare covers for insulin-treated diabetes. Commercial coverage broad for T1D; expanding rapidly for T2D. 2023 ADA guidance supports T2D CGM.',
+      medicare_physician_rate: 120, // Monthly (supply cost covered by durable medical equipment benefit)
+      private_payer_coverage:
+        'Medicare covers for insulin-treated diabetes. Commercial coverage broad for T1D; expanding rapidly for T2D. 2023 ADA guidance supports T2D CGM.',
     },
     major_device_competitors: [
       'Dexcom G7',
@@ -243,18 +279,27 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Dexcom + Abbott (combined ~85% market)',
     market_leader_share_pct: 42,
-    current_standard_of_care: 'Real-time CGM replacing fingerstick testing for insulin-treated diabetes. Patch design (14-day wear) dominant.',
+    current_standard_of_care:
+      'Real-time CGM replacing fingerstick testing for insulin-treated diabetes. Patch design (14-day wear) dominant.',
     cagr_5yr: 18.0,
-    growth_driver: 'Type 2 diabetes expansion (massive untreated population), closed-loop insulin delivery systems, remote patient monitoring reimbursement',
+    growth_driver:
+      'Type 2 diabetes expansion (massive untreated population), closed-loop insulin delivery systems, remote patient monitoring reimbursement',
   },
 
   {
     name: 'Insulin Pump Therapy',
-    synonyms: ['insulin pump', 'CSII', 'continuous subcutaneous insulin infusion', 'AID system', 'automated insulin delivery', 'closed loop'],
+    synonyms: [
+      'insulin pump',
+      'CSII',
+      'continuous subcutaneous insulin infusion',
+      'AID system',
+      'automated insulin delivery',
+      'closed loop',
+    ],
     cpt_codes: ['E0784'],
     drg_codes: [],
     device_category: 'diabetes_metabolic',
-    us_annual_procedures: 600000,  // Active pump users
+    us_annual_procedures: 600000, // Active pump users
     us_procedure_growth_rate: 8.0,
     procedure_setting: ['home', 'office'],
     eligible_sites: { hospitals: 0, clinics: 3000 },
@@ -263,7 +308,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     procedure_source: 'Insulet / Tandem investor presentations; ATTD Conference 2024',
     reimbursement: {
       cms_coverage: 'covered',
-      private_payer_coverage: 'Commercial coverage for T1D broad. T2D coverage improving. AID systems (hybrid closed loop) gaining coverage.',
+      private_payer_coverage:
+        'Commercial coverage for T1D broad. T2D coverage improving. AID systems (hybrid closed loop) gaining coverage.',
     },
     major_device_competitors: [
       'Omnipod 5 (Insulet) — tubeless AID',
@@ -272,7 +318,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Insulet (Omnipod platform)',
     market_leader_share_pct: 38,
-    current_standard_of_care: 'Automated insulin delivery (AID/hybrid closed loop) becoming standard over traditional pump therapy',
+    current_standard_of_care:
+      'Automated insulin delivery (AID/hybrid closed loop) becoming standard over traditional pump therapy',
     cagr_5yr: 8.0,
     growth_driver: 'AID system adoption, tubeless design expansion, Type 2 indication expansion, pediatric use',
   },
@@ -310,7 +357,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     market_leader_share_pct: 82,
     current_standard_of_care: 'Robotic-assisted (RARP) is now standard; >85% of prostatectomies are robot-assisted',
     cagr_5yr: 3.5,
-    growth_driver: 'Expanded robotic systems, SP (single port) adoption, bladder and kidney procedures, competitive robotic entry',
+    growth_driver:
+      'Expanded robotic systems, SP (single port) adoption, bladder and kidney procedures, competitive robotic entry',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -319,7 +367,14 @@ export const PROCEDURE_DATA: ProcedureData[] = [
 
   {
     name: 'Next-Generation Sequencing Oncology Panel',
-    synonyms: ['NGS tumor profiling', 'comprehensive genomic profiling', 'CGP', 'tumor sequencing', 'solid tumor NGS', 'liquid biopsy NGS'],
+    synonyms: [
+      'NGS tumor profiling',
+      'comprehensive genomic profiling',
+      'CGP',
+      'tumor sequencing',
+      'solid tumor NGS',
+      'liquid biopsy NGS',
+    ],
     cpt_codes: ['81445', '81455', '81479', '0242U', '0244U'],
     drg_codes: [],
     device_category: 'ivd_oncology',
@@ -332,8 +387,9 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     procedure_source: 'NCCN Guidelines Biomarker Testing; Foundation Medicine data 2024',
     reimbursement: {
       cms_coverage: 'partial',
-      medicare_facility_rate: 600,     // Tissue NGS panel; liquid biopsy varies
-      private_payer_coverage: 'Highly variable. Foundation Medicine F1CDx covered by Medicare when ordered for FDA-approved CDx indication. Broader CGP coverage varies by payer. Most major commercial payers now cover for approved indications (NSCLC, breast, colorectal, ovarian).',
+      medicare_facility_rate: 600, // Tissue NGS panel; liquid biopsy varies
+      private_payer_coverage:
+        'Highly variable. Foundation Medicine F1CDx covered by Medicare when ordered for FDA-approved CDx indication. Broader CGP coverage varies by payer. Most major commercial payers now cover for approved indications (NSCLC, breast, colorectal, ovarian).',
     },
     major_device_competitors: [
       'FoundationOne CDx (Roche/Foundation Medicine)',
@@ -344,14 +400,23 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Roche / Foundation Medicine',
     market_leader_share_pct: 30,
-    current_standard_of_care: 'NCCN recommends broad molecular profiling for NSCLC, colorectal, ovarian, and other solid tumors. Liquid biopsy gaining traction for monitoring and when tissue unavailable.',
+    current_standard_of_care:
+      'NCCN recommends broad molecular profiling for NSCLC, colorectal, ovarian, and other solid tumors. Liquid biopsy gaining traction for monitoring and when tissue unavailable.',
     cagr_5yr: 22.0,
-    growth_driver: 'NCCN guideline expansion, CDx approvals requiring testing, liquid biopsy adoption, Medicare coverage expansion, MRD monitoring',
+    growth_driver:
+      'NCCN guideline expansion, CDx approvals requiring testing, liquid biopsy adoption, Medicare coverage expansion, MRD monitoring',
   },
 
   {
     name: 'Liquid Biopsy for Cancer Detection',
-    synonyms: ['ctDNA testing', 'circulating tumor DNA', 'cell-free DNA', 'cfDNA cancer test', 'Galleri', 'multi-cancer early detection'],
+    synonyms: [
+      'ctDNA testing',
+      'circulating tumor DNA',
+      'cell-free DNA',
+      'cfDNA cancer test',
+      'Galleri',
+      'multi-cancer early detection',
+    ],
     cpt_codes: ['0242U', '81479', '81503'],
     drg_codes: [],
     device_category: 'ivd_oncology',
@@ -360,11 +425,12 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     procedure_setting: ['lab', 'office'],
     eligible_sites: { hospitals: 0, labs: 100, clinics: 10000 },
     performing_specialty: ['Primary Care', 'Medical Oncology', 'Internal Medicine'],
-    adoption_barrier: 'high',   // Reimbursement still being established
+    adoption_barrier: 'high', // Reimbursement still being established
     procedure_source: 'Grail / Guardant investor data 2024; CMS Coverage Analysis',
     reimbursement: {
-      cms_coverage: 'unlisted',  // CMS has not yet established national coverage for MCED
-      private_payer_coverage: 'Mostly not covered. CMS proposed coverage determination for Galleri ongoing. Individual payer pilots. Self-pay at $950-$1,200. Critical regulatory/coverage milestone for market growth.',
+      cms_coverage: 'unlisted', // CMS has not yet established national coverage for MCED
+      private_payer_coverage:
+        'Mostly not covered. CMS proposed coverage determination for Galleri ongoing. Individual payer pilots. Self-pay at $950-$1,200. Critical regulatory/coverage milestone for market growth.',
     },
     major_device_competitors: [
       'Galleri (Grail/Illumina)',
@@ -375,9 +441,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Grail (Galleri) for MCED; Guardant for therapy monitoring',
     market_leader_share_pct: 35,
-    current_standard_of_care: 'Emerging — not yet standard of care for screening. MRD monitoring (post-treatment) gaining adoption. CRC blood test (Shield) first FDA-approved blood-based cancer screening test (2024).',
+    current_standard_of_care:
+      'Emerging — not yet standard of care for screening. MRD monitoring (post-treatment) gaining adoption. CRC blood test (Shield) first FDA-approved blood-based cancer screening test (2024).',
     cagr_5yr: 45.0,
-    growth_driver: 'CMS national coverage decision for MCED, CRC blood test expansion, MRD-guided treatment decisions, early cancer interception opportunity',
+    growth_driver:
+      'CMS national coverage decision for MCED, CRC blood test expansion, MRD-guided treatment decisions, early cancer interception opportunity',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -386,7 +454,7 @@ export const PROCEDURE_DATA: ProcedureData[] = [
 
   {
     name: 'Deep Brain Stimulation',
-    synonyms: ["DBS", "deep brain stimulation", "subthalamic nucleus stimulation", "DBS for Parkinson's"],
+    synonyms: ['DBS', 'deep brain stimulation', 'subthalamic nucleus stimulation', "DBS for Parkinson's"],
     cpt_codes: ['61863', '61864', '61885', '61886', '95970', '95971'],
     drg_codes: ['040', '041', '042'],
     device_category: 'neurology',
@@ -401,19 +469,22 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 28000,
       medicare_physician_rate: 3500,
-      private_payer_coverage: "Coverage for Parkinson's disease broad; expanding to Essential Tremor, OCD, epilepsy. Prior auth required.",
+      private_payer_coverage:
+        "Coverage for Parkinson's disease broad; expanding to Essential Tremor, OCD, epilepsy. Prior auth required.",
     },
     major_device_competitors: [
-      "Percept PC (Medtronic) — sensing + stimulation",
-      "Infinity DBS (Abbott)",
-      "Vercise (Boston Scientific)",
-      "Clarise (Nalu Medical) — emerging",
+      'Percept PC (Medtronic) — sensing + stimulation',
+      'Infinity DBS (Abbott)',
+      'Vercise (Boston Scientific)',
+      'Clarise (Nalu Medical) — emerging',
     ],
     market_leader: 'Medtronic',
     market_leader_share_pct: 55,
-    current_standard_of_care: "DBS for Parkinson's (STN or GPi targets). Closed-loop (sensing) systems emerging as next-gen.",
+    current_standard_of_care:
+      "DBS for Parkinson's (STN or GPi targets). Closed-loop (sensing) systems emerging as next-gen.",
     cagr_5yr: 6.0,
-    growth_driver: 'Expanded indications (depression, OCD, Alzheimer pilot, epilepsy), closed-loop adaptive DBS, directional leads, rechargeable IPG',
+    growth_driver:
+      'Expanded indications (depression, OCD, Alzheimer pilot, epilepsy), closed-loop adaptive DBS, directional leads, rechargeable IPG',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -437,7 +508,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 1200,
       medicare_physician_rate: 750,
-      private_payer_coverage: 'Universal coverage. Premium IOLs (multifocal, extended depth of focus) are patient out-of-pocket.',
+      private_payer_coverage:
+        'Universal coverage. Premium IOLs (multifocal, extended depth of focus) are patient out-of-pocket.',
     },
     major_device_competitors: [
       'Alcon (Centurion phaco + AcrySof IOL)',
@@ -447,14 +519,23 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Alcon',
     market_leader_share_pct: 42,
-    current_standard_of_care: 'Phacoemulsification with foldable hydrophilic or hydrophobic acrylic IOL. Premium IOLs (EDOF, toric) growing.',
+    current_standard_of_care:
+      'Phacoemulsification with foldable hydrophilic or hydrophobic acrylic IOL. Premium IOLs (EDOF, toric) growing.',
     cagr_5yr: 3.5,
-    growth_driver: 'Aging population, premium IOL adoption, femtosecond laser-assisted cataract surgery, light-adjustable lens',
+    growth_driver:
+      'Aging population, premium IOL adoption, femtosecond laser-assisted cataract surgery, light-adjustable lens',
   },
 
   {
     name: 'Anti-VEGF Intravitreal Injection',
-    synonyms: ['intravitreal injection', 'anti-VEGF injection', 'Eylea injection', 'Avastin injection', 'Lucentis injection', 'Vabysmo injection'],
+    synonyms: [
+      'intravitreal injection',
+      'anti-VEGF injection',
+      'Eylea injection',
+      'Avastin injection',
+      'Lucentis injection',
+      'Vabysmo injection',
+    ],
     cpt_codes: ['67028'],
     drg_codes: [],
     device_category: 'ophthalmology',
@@ -467,8 +548,9 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     procedure_source: 'Regeneron investor data; CMS Part B Drug Spending 2024',
     reimbursement: {
       cms_coverage: 'covered',
-      medicare_physician_rate: 80,     // Procedure fee; drug reimbursed separately (ASP + 6%)
-      private_payer_coverage: 'Universal coverage. Drug cost is primary cost driver (ASP-based Medicare reimbursement).',
+      medicare_physician_rate: 80, // Procedure fee; drug reimbursed separately (ASP + 6%)
+      private_payer_coverage:
+        'Universal coverage. Drug cost is primary cost driver (ASP-based Medicare reimbursement).',
     },
     major_device_competitors: [
       'Eylea 2mg (Regeneron) — market leader',
@@ -479,9 +561,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Regeneron (Eylea)',
     market_leader_share_pct: 50,
-    current_standard_of_care: 'Monthly to quarterly intravitreal injections for nAMD, DME, RVO. Extended dosing intervals (Eylea HD, Vabysmo) driving toward quarterly/biannual dosing.',
+    current_standard_of_care:
+      'Monthly to quarterly intravitreal injections for nAMD, DME, RVO. Extended dosing intervals (Eylea HD, Vabysmo) driving toward quarterly/biannual dosing.',
     cagr_5yr: 6.0,
-    growth_driver: 'Extended dosing intervals reducing injection burden, geographic atrophy new treatment market, port delivery system avoiding injections',
+    growth_driver:
+      'Extended dosing intervals reducing injection burden, geographic atrophy new treatment market, port delivery system avoiding injections',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -503,7 +587,7 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     procedure_source: 'CMS Wound Care Data 2024; 3M / KCI market data',
     reimbursement: {
       cms_coverage: 'covered',
-      medicare_facility_rate: 800,     // per week (rental model)
+      medicare_facility_rate: 800, // per week (rental model)
       private_payer_coverage: 'Broadly covered. Rental model; DME benefit for home use.',
     },
     major_device_competitors: [
@@ -514,9 +598,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: '3M (KCI)',
     market_leader_share_pct: 60,
-    current_standard_of_care: 'Standard of care for complex wounds, diabetic foot ulcers, post-surgical. Disposable single-use NPWT devices growing.',
+    current_standard_of_care:
+      'Standard of care for complex wounds, diabetic foot ulcers, post-surgical. Disposable single-use NPWT devices growing.',
     cagr_5yr: 5.0,
-    growth_driver: 'Diabetic population growth, single-use disposable NPWT, closed incision NPWT (surgical prophylaxis), home use expansion',
+    growth_driver:
+      'Diabetic population growth, single-use disposable NPWT, closed incision NPWT (surgical prophylaxis), home use expansion',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -540,7 +626,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 22000,
       medicare_physician_rate: 1200,
-      private_payer_coverage: 'Covered by major commercial payers. Leadless approach accepted as alternative to transvenous pacing.',
+      private_payer_coverage:
+        'Covered by major commercial payers. Leadless approach accepted as alternative to transvenous pacing.',
     },
     major_device_competitors: [
       'Micra AV / VR (Medtronic) — dominant',
@@ -548,14 +635,22 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Medtronic (Micra)',
     market_leader_share_pct: 85,
-    current_standard_of_care: 'Transvenous pacemakers remain majority of implants (~200K/yr total US pacemakers). Leadless growing rapidly, especially for single-chamber VVI pacing.',
+    current_standard_of_care:
+      'Transvenous pacemakers remain majority of implants (~200K/yr total US pacemakers). Leadless growing rapidly, especially for single-chamber VVI pacing.',
     cagr_5yr: 15.0,
-    growth_driver: 'Dual-chamber leadless systems (Aveir DR), elimination of lead-related complications, expanding to more pacing indications',
+    growth_driver:
+      'Dual-chamber leadless systems (Aveir DR), elimination of lead-related complications, expanding to more pacing indications',
   },
 
   {
     name: 'Subcutaneous ICD Implantation',
-    synonyms: ['S-ICD', 'subcutaneous implantable cardioverter defibrillator', 'EMBLEM S-ICD', 'extravascular ICD', 'EV-ICD'],
+    synonyms: [
+      'S-ICD',
+      'subcutaneous implantable cardioverter defibrillator',
+      'EMBLEM S-ICD',
+      'extravascular ICD',
+      'EV-ICD',
+    ],
     cpt_codes: ['33270', '33271', '33272', '33273'],
     drg_codes: ['245', '246'],
     device_category: 'cardiovascular',
@@ -570,7 +665,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 35000,
       medicare_physician_rate: 1800,
-      private_payer_coverage: 'Covered by most commercial payers. Criteria typically require SCD risk without pacing indication.',
+      private_payer_coverage:
+        'Covered by most commercial payers. Criteria typically require SCD risk without pacing indication.',
     },
     major_device_competitors: [
       'EMBLEM S-ICD (Boston Scientific) — dominant',
@@ -578,14 +674,23 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Boston Scientific (EMBLEM)',
     market_leader_share_pct: 90,
-    current_standard_of_care: 'Transvenous ICD remains standard (~70K US implants/yr total). S-ICD preferred when no pacing/ATP needed; avoids intravascular lead complications.',
+    current_standard_of_care:
+      'Transvenous ICD remains standard (~70K US implants/yr total). S-ICD preferred when no pacing/ATP needed; avoids intravascular lead complications.',
     cagr_5yr: 8.0,
-    growth_driver: 'EV-ICD with anti-tachycardia pacing capability, younger patient preference for lead-free systems, infection risk reduction',
+    growth_driver:
+      'EV-ICD with anti-tachycardia pacing capability, younger patient preference for lead-free systems, infection risk reduction',
   },
 
   {
     name: 'Transcatheter Mitral Valve Repair (TEER)',
-    synonyms: ['MitraClip', 'TEER', 'transcatheter edge-to-edge repair', 'mitral valve clip', 'PASCAL', 'mitral regurgitation repair'],
+    synonyms: [
+      'MitraClip',
+      'TEER',
+      'transcatheter edge-to-edge repair',
+      'mitral valve clip',
+      'PASCAL',
+      'mitral regurgitation repair',
+    ],
     cpt_codes: ['33418', '33419'],
     drg_codes: ['273', '274'],
     device_category: 'cardiovascular',
@@ -600,7 +705,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 38000,
       medicare_physician_rate: 2200,
-      private_payer_coverage: 'Commercial coverage established for primary and secondary MR meeting clinical criteria (COAPT-like population). Prior auth required.',
+      private_payer_coverage:
+        'Commercial coverage established for primary and secondary MR meeting clinical criteria (COAPT-like population). Prior auth required.',
     },
     major_device_competitors: [
       'MitraClip G4 (Abbott) — market leader',
@@ -609,9 +715,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Abbott (MitraClip)',
     market_leader_share_pct: 75,
-    current_standard_of_care: 'MitraClip dominant for transcatheter MR repair. Surgical mitral repair/replacement for operable patients. Large untreated MR population.',
+    current_standard_of_care:
+      'MitraClip dominant for transcatheter MR repair. Surgical mitral repair/replacement for operable patients. Large untreated MR population.',
     cagr_5yr: 18.0,
-    growth_driver: 'Massive undertreated MR population (>2M in US), expanded indication criteria, PASCAL competitive entry, transcatheter mitral replacement on horizon',
+    growth_driver:
+      'Massive undertreated MR population (>2M in US), expanded indication criteria, PASCAL competitive entry, transcatheter mitral replacement on horizon',
   },
 
   {
@@ -631,7 +739,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 28000,
       medicare_physician_rate: 1600,
-      private_payer_coverage: 'Covered for AFib patients with contraindication or intolerance to long-term anticoagulation. CMS NCD established.',
+      private_payer_coverage:
+        'Covered for AFib patients with contraindication or intolerance to long-term anticoagulation. CMS NCD established.',
     },
     major_device_competitors: [
       'Watchman FLX Pro (Boston Scientific) — dominant',
@@ -640,9 +749,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Boston Scientific (Watchman)',
     market_leader_share_pct: 80,
-    current_standard_of_care: 'Long-term oral anticoagulation (NOACs) for stroke prevention in AFib. LAAC alternative for patients who cannot tolerate anticoagulation.',
+    current_standard_of_care:
+      'Long-term oral anticoagulation (NOACs) for stroke prevention in AFib. LAAC alternative for patients who cannot tolerate anticoagulation.',
     cagr_5yr: 14.0,
-    growth_driver: 'Expanding eligible population, combined AFib ablation + LAAC in single procedure, Amulet competitive entry, potential first-line indication',
+    growth_driver:
+      'Expanding eligible population, combined AFib ablation + LAAC in single procedure, Amulet competitive entry, potential first-line indication',
   },
 
   {
@@ -673,14 +784,25 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Getinge/Medtronic (perfusion/stabilization)',
     market_leader_share_pct: 40,
-    current_standard_of_care: 'On-pump CABG with internal mammary artery graft. Off-pump (OPCAB) declining. Minimally invasive CABG (MIDCAB) niche.',
+    current_standard_of_care:
+      'On-pump CABG with internal mammary artery graft. Off-pump (OPCAB) declining. Minimally invasive CABG (MIDCAB) niche.',
     cagr_5yr: -1.5,
-    growth_driver: 'Declining volume as PCI expands to complex disease. Growth in hybrid revascularization (CABG + PCI). Robotic-assisted CABG niche.',
+    growth_driver:
+      'Declining volume as PCI expands to complex disease. Growth in hybrid revascularization (CABG + PCI). Robotic-assisted CABG niche.',
   },
 
   {
     name: 'Peripheral Vascular Stenting/Intervention',
-    synonyms: ['PVI', 'peripheral stenting', 'PAD intervention', 'superficial femoral artery stenting', 'SFA stenting', 'drug-coated balloon', 'DCB', 'atherectomy'],
+    synonyms: [
+      'PVI',
+      'peripheral stenting',
+      'PAD intervention',
+      'superficial femoral artery stenting',
+      'SFA stenting',
+      'drug-coated balloon',
+      'DCB',
+      'atherectomy',
+    ],
     cpt_codes: ['37226', '37227', '37228', '37229', '37230', '37231'],
     drg_codes: ['253', '254', '255'],
     device_category: 'cardiovascular',
@@ -695,7 +817,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 10000,
       medicare_physician_rate: 900,
-      private_payer_coverage: 'Broadly covered. Drug-coated balloons covered; paclitaxel safety concerns resolved. Atherectomy coverage requires clinical criteria.',
+      private_payer_coverage:
+        'Broadly covered. Drug-coated balloons covered; paclitaxel safety concerns resolved. Atherectomy coverage requires clinical criteria.',
     },
     major_device_competitors: [
       'Eluvia DES (Boston Scientific)',
@@ -706,14 +829,22 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Medtronic (IN.PACT platform)',
     market_leader_share_pct: 28,
-    current_standard_of_care: 'Drug-coated balloon angioplasty or drug-eluting stent for SFA lesions. Atherectomy for calcified disease. Plain balloon for infrapopliteal.',
+    current_standard_of_care:
+      'Drug-coated balloon angioplasty or drug-eluting stent for SFA lesions. Atherectomy for calcified disease. Plain balloon for infrapopliteal.',
     cagr_5yr: 5.0,
-    growth_driver: 'Aging population with PAD, increasing diagnosis rates, office-based lab (OBL) growth, CLI/CLTI limb salvage procedures',
+    growth_driver:
+      'Aging population with PAD, increasing diagnosis rates, office-based lab (OBL) growth, CLI/CLTI limb salvage procedures',
   },
 
   {
     name: 'Carotid Artery Stenting',
-    synonyms: ['CAS', 'carotid stenting', 'transfemoral carotid stenting', 'TCAR', 'transcarotid artery revascularization'],
+    synonyms: [
+      'CAS',
+      'carotid stenting',
+      'transfemoral carotid stenting',
+      'TCAR',
+      'transcarotid artery revascularization',
+    ],
     cpt_codes: ['37215', '37216', '37217', '37218'],
     drg_codes: ['034', '035'],
     device_category: 'cardiovascular',
@@ -728,7 +859,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 16000,
       medicare_physician_rate: 1400,
-      private_payer_coverage: 'Covered for high surgical risk patients. TCAR gaining broader coverage. CMS NCD requires physician credentials and hospital criteria.',
+      private_payer_coverage:
+        'Covered for high surgical risk patients. TCAR gaining broader coverage. CMS NCD requires physician credentials and hospital criteria.',
     },
     major_device_competitors: [
       'ENROUTE Transcarotid NPS + Stent (Silk Road Medical/Boston Scientific)',
@@ -738,9 +870,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Silk Road Medical / Boston Scientific (TCAR)',
     market_leader_share_pct: 45,
-    current_standard_of_care: 'Carotid endarterectomy (CEA) remains gold standard (~100K/yr). CAS/TCAR for high surgical risk. TCAR gaining share with lower stroke rates.',
+    current_standard_of_care:
+      'Carotid endarterectomy (CEA) remains gold standard (~100K/yr). CAS/TCAR for high surgical risk. TCAR gaining share with lower stroke rates.',
     cagr_5yr: 6.0,
-    growth_driver: 'TCAR technology adoption (lower stroke risk vs transfemoral CAS), expanding to standard risk patients, aging population',
+    growth_driver:
+      'TCAR technology adoption (lower stroke risk vs transfemoral CAS), expanding to standard risk patients, aging population',
   },
 
   {
@@ -759,7 +893,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     reimbursement: {
       cms_coverage: 'partial',
       medicare_facility_rate: 8000,
-      private_payer_coverage: 'Emerging coverage. FDA approved Symplicity Spyral (Nov 2023). CMS NTAP application pending. Early commercial cases largely self-pay or covered under individual payer decisions.',
+      private_payer_coverage:
+        'Emerging coverage. FDA approved Symplicity Spyral (Nov 2023). CMS NTAP application pending. Early commercial cases largely self-pay or covered under individual payer decisions.',
     },
     major_device_competitors: [
       'Symplicity Spyral (Medtronic) — FDA approved',
@@ -767,9 +902,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Medtronic (Symplicity Spyral)',
     market_leader_share_pct: 60,
-    current_standard_of_care: 'Multi-drug antihypertensive therapy. RDN is additive for resistant/uncontrolled hypertension. Very early market.',
+    current_standard_of_care:
+      'Multi-drug antihypertensive therapy. RDN is additive for resistant/uncontrolled hypertension. Very early market.',
     cagr_5yr: 50.0,
-    growth_driver: 'First FDA approvals in 2023-2024, massive uncontrolled hypertension population (>15M US), reimbursement establishment, real-world evidence generation',
+    growth_driver:
+      'First FDA approvals in 2023-2024, massive uncontrolled hypertension population (>15M US), reimbursement establishment, real-world evidence generation',
   },
 
   {
@@ -789,7 +926,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'partial',
       medicare_facility_rate: 35000,
       medicare_physician_rate: 2200,
-      private_payer_coverage: 'Emerging coverage. FDA approved TriClip (Jan 2024). NTAP granted for additional reimbursement. Prior auth required.',
+      private_payer_coverage:
+        'Emerging coverage. FDA approved TriClip (Jan 2024). NTAP granted for additional reimbursement. Prior auth required.',
     },
     major_device_competitors: [
       'TriClip G4 (Abbott) — FDA approved TEER',
@@ -799,14 +937,22 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Abbott (TriClip)',
     market_leader_share_pct: 70,
-    current_standard_of_care: 'Medical management (diuretics) for most TR patients. Surgical repair only done during concomitant left-sided surgery. Massive untreated population.',
+    current_standard_of_care:
+      'Medical management (diuretics) for most TR patients. Surgical repair only done during concomitant left-sided surgery. Massive untreated population.',
     cagr_5yr: 45.0,
-    growth_driver: 'First dedicated FDA-approved device (TriClip), >1.6M US patients with significant TR, historically untreated population, multiple competing devices in pipeline',
+    growth_driver:
+      'First dedicated FDA-approved device (TriClip), >1.6M US patients with significant TR, historically untreated population, multiple competing devices in pipeline',
   },
 
   {
     name: 'Cardiac CRT-D Implantation',
-    synonyms: ['CRT-D', 'cardiac resynchronization therapy defibrillator', 'biventricular ICD', 'CRT-P', 'biventricular pacing'],
+    synonyms: [
+      'CRT-D',
+      'cardiac resynchronization therapy defibrillator',
+      'biventricular ICD',
+      'CRT-P',
+      'biventricular pacing',
+    ],
     cpt_codes: ['33249', '33225', '33224'],
     drg_codes: ['245', '246'],
     device_category: 'cardiovascular',
@@ -821,18 +967,17 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 40000,
       medicare_physician_rate: 2000,
-      private_payer_coverage: 'Covered for guideline-indicated HF patients (LVEF <=35%, LBBB, QRS >=150ms). Prior auth typically required.',
+      private_payer_coverage:
+        'Covered for guideline-indicated HF patients (LVEF <=35%, LBBB, QRS >=150ms). Prior auth typically required.',
     },
-    major_device_competitors: [
-      'Viva/Claria (Medtronic)',
-      'Quadra Assura (Abbott)',
-      'Resonate (Boston Scientific)',
-    ],
+    major_device_competitors: ['Viva/Claria (Medtronic)', 'Quadra Assura (Abbott)', 'Resonate (Boston Scientific)'],
     market_leader: 'Medtronic',
     market_leader_share_pct: 40,
-    current_standard_of_care: 'CRT-D for HFrEF with LBBB and wide QRS. Conduction system pacing (His-bundle, LBBAP) emerging as alternative resynchronization strategy.',
+    current_standard_of_care:
+      'CRT-D for HFrEF with LBBB and wide QRS. Conduction system pacing (His-bundle, LBBAP) emerging as alternative resynchronization strategy.',
     cagr_5yr: 2.0,
-    growth_driver: 'Conduction system pacing as CRT alternative, left bundle branch area pacing adoption, stable HF population, guideline adherence improvement',
+    growth_driver:
+      'Conduction system pacing as CRT alternative, left bundle branch area pacing adoption, stable HF population, guideline adherence improvement',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -856,7 +1001,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 13000,
       medicare_physician_rate: 1500,
-      private_payer_coverage: 'Universal commercial coverage. ASC setting coverage expanding. Faster growth than anatomic TSA.',
+      private_payer_coverage:
+        'Universal commercial coverage. ASC setting coverage expanding. Faster growth than anatomic TSA.',
     },
     major_device_competitors: [
       'Comprehensive Reverse (Zimmer Biomet)',
@@ -867,9 +1013,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Zimmer Biomet',
     market_leader_share_pct: 28,
-    current_standard_of_care: 'RSA now represents >70% of all shoulder replacements (up from 30% in 2012). Expanded from rotator cuff arthropathy to proximal humerus fractures and OA.',
+    current_standard_of_care:
+      'RSA now represents >70% of all shoulder replacements (up from 30% in 2012). Expanded from rotator cuff arthropathy to proximal humerus fractures and OA.',
     cagr_5yr: 8.0,
-    growth_driver: 'Expanding indications (fractures, revision, younger patients), ASC migration, improved implant design, aging population',
+    growth_driver:
+      'Expanding indications (fractures, revision, younger patients), ASC migration, improved implant design, aging population',
   },
 
   {
@@ -889,7 +1037,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 13000,
       medicare_physician_rate: 1400,
-      private_payer_coverage: 'Covered by major commercial payers. Historically limited to post-arthrodesis failure; now accepted as primary treatment for end-stage ankle arthritis.',
+      private_payer_coverage:
+        'Covered by major commercial payers. Historically limited to post-arthrodesis failure; now accepted as primary treatment for end-stage ankle arthritis.',
     },
     major_device_competitors: [
       'STAR (Stryker)',
@@ -900,14 +1049,22 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Stryker (STAR + Wright platforms)',
     market_leader_share_pct: 45,
-    current_standard_of_care: 'Ankle arthrodesis (fusion) historically dominant. TAR gaining share as implant designs improve and outcomes data strengthens. Now ~40% of ankle arthritis surgical treatments.',
+    current_standard_of_care:
+      'Ankle arthrodesis (fusion) historically dominant. TAR gaining share as implant designs improve and outcomes data strengthens. Now ~40% of ankle arthritis surgical treatments.',
     cagr_5yr: 12.0,
-    growth_driver: 'Improved implant survivorship, surgeon training programs, patient preference for motion preservation, expansion beyond specialty centers',
+    growth_driver:
+      'Improved implant survivorship, surgeon training programs, patient preference for motion preservation, expansion beyond specialty centers',
   },
 
   {
     name: 'Rotator Cuff Repair (Arthroscopic)',
-    synonyms: ['rotator cuff repair', 'arthroscopic RCR', 'shoulder arthroscopy', 'supraspinatus repair', 'rotator cuff surgery'],
+    synonyms: [
+      'rotator cuff repair',
+      'arthroscopic RCR',
+      'shoulder arthroscopy',
+      'supraspinatus repair',
+      'rotator cuff surgery',
+    ],
     cpt_codes: ['29827', '23412', '23420'],
     drg_codes: ['483', '484'],
     device_category: 'orthopedic',
@@ -922,7 +1079,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 5500,
       medicare_physician_rate: 900,
-      private_payer_coverage: 'Universal coverage. Conservative treatment failure typically required. Imaging confirmation (MRI) standard.',
+      private_payer_coverage:
+        'Universal coverage. Conservative treatment failure typically required. Imaging confirmation (MRI) standard.',
     },
     major_device_competitors: [
       'Arthrex (SutureBridge, SpeedBridge) — dominant',
@@ -933,14 +1091,22 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Arthrex',
     market_leader_share_pct: 45,
-    current_standard_of_care: 'Arthroscopic repair with suture anchor fixation. Double-row repair preferred for large tears. Biologic augmentation (patches, PRP) emerging.',
+    current_standard_of_care:
+      'Arthroscopic repair with suture anchor fixation. Double-row repair preferred for large tears. Biologic augmentation (patches, PRP) emerging.',
     cagr_5yr: 3.0,
     growth_driver: 'Biologic augmentation products, active aging population, improved anchor technology, ASC migration',
   },
 
   {
     name: 'Vertebral Compression Fracture Treatment (Kyphoplasty/Vertebroplasty)',
-    synonyms: ['kyphoplasty', 'vertebroplasty', 'balloon kyphoplasty', 'VCF treatment', 'vertebral augmentation', 'SpineJack'],
+    synonyms: [
+      'kyphoplasty',
+      'vertebroplasty',
+      'balloon kyphoplasty',
+      'VCF treatment',
+      'vertebral augmentation',
+      'SpineJack',
+    ],
     cpt_codes: ['22513', '22514', '22510', '22511'],
     drg_codes: ['459', '460'],
     device_category: 'orthopedic',
@@ -955,7 +1121,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 4500,
       medicare_physician_rate: 600,
-      private_payer_coverage: 'Covered for symptomatic VCFs failing conservative management. Some payers require 4-6 weeks conservative treatment first.',
+      private_payer_coverage:
+        'Covered for symptomatic VCFs failing conservative management. Some payers require 4-6 weeks conservative treatment first.',
     },
     major_device_competitors: [
       'Kyphon (Medtronic) — balloon kyphoplasty',
@@ -966,14 +1133,22 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Medtronic (Kyphon)',
     market_leader_share_pct: 50,
-    current_standard_of_care: 'Balloon kyphoplasty most common surgical option. PMMA cement injection. Growing use of implantable devices (SpineJack) for height restoration.',
+    current_standard_of_care:
+      'Balloon kyphoplasty most common surgical option. PMMA cement injection. Growing use of implantable devices (SpineJack) for height restoration.',
     cagr_5yr: 3.0,
-    growth_driver: 'Aging osteoporotic population, ambulatory setting shift, implantable augmentation devices, interventional radiology adoption',
+    growth_driver:
+      'Aging osteoporotic population, ambulatory setting shift, implantable augmentation devices, interventional radiology adoption',
   },
 
   {
     name: 'ACL Reconstruction',
-    synonyms: ['anterior cruciate ligament reconstruction', 'ACL repair', 'ACL surgery', 'ACLR', 'knee ligament reconstruction'],
+    synonyms: [
+      'anterior cruciate ligament reconstruction',
+      'ACL repair',
+      'ACL surgery',
+      'ACLR',
+      'knee ligament reconstruction',
+    ],
     cpt_codes: ['29888'],
     drg_codes: ['483', '484'],
     device_category: 'orthopedic',
@@ -988,7 +1163,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 6000,
       medicare_physician_rate: 1100,
-      private_payer_coverage: 'Universal commercial coverage. No prior auth typically needed for acute ACL tears with instability.',
+      private_payer_coverage:
+        'Universal commercial coverage. No prior auth typically needed for acute ACL tears with instability.',
     },
     major_device_competitors: [
       'Arthrex (TightRope, ACL repair kits)',
@@ -999,9 +1175,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Arthrex',
     market_leader_share_pct: 40,
-    current_standard_of_care: 'Arthroscopic reconstruction with autograft (BTB or hamstring) or allograft. Suspensory fixation growing. ACL repair (InternalBrace) emerging for proximal tears.',
+    current_standard_of_care:
+      'Arthroscopic reconstruction with autograft (BTB or hamstring) or allograft. Suspensory fixation growing. ACL repair (InternalBrace) emerging for proximal tears.',
     cagr_5yr: 2.5,
-    growth_driver: 'Growing sports participation, ACL repair vs reconstruction debate, biologic augmentation, improved graft fixation technology',
+    growth_driver:
+      'Growing sports participation, ACL repair vs reconstruction debate, biologic augmentation, improved graft fixation technology',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -1025,7 +1203,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 18000,
       medicare_physician_rate: 1200,
-      private_payer_coverage: 'Covered for drug-resistant epilepsy (DRE) after 2+ AED failures. Treatment-resistant depression coverage variable and often denied.',
+      private_payer_coverage:
+        'Covered for drug-resistant epilepsy (DRE) after 2+ AED failures. Treatment-resistant depression coverage variable and often denied.',
     },
     major_device_competitors: [
       'VNS Therapy SenTiva (LivaNova) — dominant',
@@ -1033,14 +1212,23 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'LivaNova',
     market_leader_share_pct: 95,
-    current_standard_of_care: 'Adjunctive therapy for drug-resistant epilepsy. Also FDA-approved for treatment-resistant depression. Implanted generator with vagus nerve electrode.',
+    current_standard_of_care:
+      'Adjunctive therapy for drug-resistant epilepsy. Also FDA-approved for treatment-resistant depression. Implanted generator with vagus nerve electrode.',
     cagr_5yr: 4.0,
-    growth_driver: 'Improved patient selection, new autodetection/responsive stimulation, expanded depression indications, pediatric epilepsy use',
+    growth_driver:
+      'Improved patient selection, new autodetection/responsive stimulation, expanded depression indications, pediatric epilepsy use',
   },
 
   {
     name: 'Spinal Cord Stimulation',
-    synonyms: ['SCS', 'spinal cord stimulator', 'dorsal column stimulation', 'HF10', 'burst stimulation', 'closed-loop SCS'],
+    synonyms: [
+      'SCS',
+      'spinal cord stimulator',
+      'dorsal column stimulation',
+      'HF10',
+      'burst stimulation',
+      'closed-loop SCS',
+    ],
     cpt_codes: ['63650', '63655', '63685', '63688', '95972'],
     drg_codes: ['040', '041', '042'],
     device_category: 'neurology',
@@ -1055,7 +1243,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 22000,
       medicare_physician_rate: 1500,
-      private_payer_coverage: 'Covered for failed back surgery syndrome, CRPS, and chronic intractable pain. Trial stimulation required before permanent implant. Prior auth standard.',
+      private_payer_coverage:
+        'Covered for failed back surgery syndrome, CRPS, and chronic intractable pain. Trial stimulation required before permanent implant. Prior auth standard.',
     },
     major_device_competitors: [
       'Intellis/Vanta (Medtronic) — closed-loop',
@@ -1066,9 +1255,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Medtronic',
     market_leader_share_pct: 30,
-    current_standard_of_care: 'Trial stimulation followed by permanent IPG implant. High-frequency (10kHz), burst, and closed-loop waveforms gaining share over traditional tonic stimulation.',
+    current_standard_of_care:
+      'Trial stimulation followed by permanent IPG implant. High-frequency (10kHz), burst, and closed-loop waveforms gaining share over traditional tonic stimulation.',
     cagr_5yr: 3.0,
-    growth_driver: 'Closed-loop (ECAP-controlled) stimulation, non-surgical DRG stimulation, expanded pain indications, opioid alternative positioning',
+    growth_driver:
+      'Closed-loop (ECAP-controlled) stimulation, non-surgical DRG stimulation, expanded pain indications, opioid alternative positioning',
   },
 
   {
@@ -1086,8 +1277,9 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     procedure_source: 'Neuronetics/BrainsWay investor presentations 2024; APA Treatment Guidelines',
     reimbursement: {
       cms_coverage: 'covered',
-      medicare_physician_rate: 165,    // Per session; full course = ~36 sessions
-      private_payer_coverage: 'Coverage improving. Most major commercial payers cover for treatment-resistant MDD after 2+ antidepressant failures. OCD coverage expanding. Accelerated (theta burst) protocols gaining coverage.',
+      medicare_physician_rate: 165, // Per session; full course = ~36 sessions
+      private_payer_coverage:
+        'Coverage improving. Most major commercial payers cover for treatment-resistant MDD after 2+ antidepressant failures. OCD coverage expanding. Accelerated (theta burst) protocols gaining coverage.',
     },
     major_device_competitors: [
       'NeuroStar (Neuronetics) — largest installed base',
@@ -1098,14 +1290,22 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Neuronetics (NeuroStar)',
     market_leader_share_pct: 40,
-    current_standard_of_care: 'FDA-cleared for MDD, OCD, anxious depression, smoking cessation. Typical course: 36 sessions over 9 weeks. Theta burst (3-minute sessions) disrupting standard protocols.',
+    current_standard_of_care:
+      'FDA-cleared for MDD, OCD, anxious depression, smoking cessation. Typical course: 36 sessions over 9 weeks. Theta burst (3-minute sessions) disrupting standard protocols.',
     cagr_5yr: 15.0,
-    growth_driver: 'Theta burst protocol efficiency (3 min vs 37 min), expanded indications (PTSD, substance use, bipolar), growing mental health demand, practice model economics',
+    growth_driver:
+      'Theta burst protocol efficiency (3 min vs 37 min), expanded indications (PTSD, substance use, bipolar), growing mental health demand, practice model economics',
   },
 
   {
     name: 'Responsive Neurostimulation',
-    synonyms: ['RNS', 'responsive neurostimulation system', 'NeuroPace', 'closed-loop brain stimulation', 'direct brain stimulation epilepsy'],
+    synonyms: [
+      'RNS',
+      'responsive neurostimulation system',
+      'NeuroPace',
+      'closed-loop brain stimulation',
+      'direct brain stimulation epilepsy',
+    ],
     cpt_codes: ['61850', '61860', '61863', '95836'],
     drg_codes: ['040', '041', '042'],
     device_category: 'neurology',
@@ -1120,21 +1320,29 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 42000,
       medicare_physician_rate: 3800,
-      private_payer_coverage: 'Covered for drug-resistant focal epilepsy with identifiable seizure foci. Requires comprehensive epilepsy center evaluation. Prior auth required.',
+      private_payer_coverage:
+        'Covered for drug-resistant focal epilepsy with identifiable seizure foci. Requires comprehensive epilepsy center evaluation. Prior auth required.',
     },
-    major_device_competitors: [
-      'RNS System (NeuroPace) — only FDA-approved device',
-    ],
+    major_device_competitors: ['RNS System (NeuroPace) — only FDA-approved device'],
     market_leader: 'NeuroPace',
     market_leader_share_pct: 100,
-    current_standard_of_care: 'Only closed-loop brain-responsive neurostimulation system. For patients with drug-resistant focal epilepsy who are not candidates for resective surgery.',
+    current_standard_of_care:
+      'Only closed-loop brain-responsive neurostimulation system. For patients with drug-resistant focal epilepsy who are not candidates for resective surgery.',
     cagr_5yr: 10.0,
-    growth_driver: 'Expanding epilepsy center adoption, long-term efficacy data showing progressive seizure reduction, potential expansion to bilateral temporal lobe epilepsy',
+    growth_driver:
+      'Expanding epilepsy center adoption, long-term efficacy data showing progressive seizure reduction, potential expansion to bilateral temporal lobe epilepsy',
   },
 
   {
     name: 'Focused Ultrasound Thalamotomy',
-    synonyms: ['FUS', 'MRgFUS', 'MRI-guided focused ultrasound', 'Exablate Neuro', 'focused ultrasound essential tremor', 'incisionless thalamotomy'],
+    synonyms: [
+      'FUS',
+      'MRgFUS',
+      'MRI-guided focused ultrasound',
+      'Exablate Neuro',
+      'focused ultrasound essential tremor',
+      'incisionless thalamotomy',
+    ],
     cpt_codes: ['0398T'],
     drg_codes: ['040', '041'],
     device_category: 'neurology',
@@ -1149,16 +1357,17 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'partial',
       medicare_facility_rate: 30000,
       medicare_physician_rate: 2500,
-      private_payer_coverage: 'Coverage improving. CMS covers for essential tremor. Commercial payer coverage variable; many require prior auth and failure of medication. Category III CPT code limits coverage.',
+      private_payer_coverage:
+        'Coverage improving. CMS covers for essential tremor. Commercial payer coverage variable; many require prior auth and failure of medication. Category III CPT code limits coverage.',
     },
-    major_device_competitors: [
-      'Exablate Neuro (Insightec) — only FDA-approved system',
-    ],
+    major_device_competitors: ['Exablate Neuro (Insightec) — only FDA-approved system'],
     market_leader: 'Insightec',
     market_leader_share_pct: 100,
-    current_standard_of_care: 'FDA-approved for essential tremor and tremor-dominant Parkinson disease. Incisionless, no implant. Requires MRI-compatible skull. DBS alternative for tremor.',
+    current_standard_of_care:
+      'FDA-approved for essential tremor and tremor-dominant Parkinson disease. Incisionless, no implant. Requires MRI-compatible skull. DBS alternative for tremor.',
     cagr_5yr: 20.0,
-    growth_driver: 'Additional indications (Parkinson tremor, neuropathic pain, epilepsy trials), capital installation expansion, patient preference for incisionless approach',
+    growth_driver:
+      'Additional indications (Parkinson tremor, neuropathic pain, epilepsy trials), capital installation expansion, patient preference for incisionless approach',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -1167,7 +1376,13 @@ export const PROCEDURE_DATA: ProcedureData[] = [
 
   {
     name: 'Laparoscopic Cholecystectomy',
-    synonyms: ['lap chole', 'laparoscopic gallbladder removal', 'cholecystectomy', 'gallbladder surgery', 'robotic cholecystectomy'],
+    synonyms: [
+      'lap chole',
+      'laparoscopic gallbladder removal',
+      'cholecystectomy',
+      'gallbladder surgery',
+      'robotic cholecystectomy',
+    ],
     cpt_codes: ['47562', '47563', '47564'],
     drg_codes: ['416', '417', '418'],
     device_category: 'general_surgery',
@@ -1193,14 +1408,25 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Ethicon (J&J)',
     market_leader_share_pct: 35,
-    current_standard_of_care: 'Four-port laparoscopic cholecystectomy standard. Single-incision (SILS) niche. Robotic approach growing (~10% of cases). Fluorescence (ICG) cholangiography expanding.',
+    current_standard_of_care:
+      'Four-port laparoscopic cholecystectomy standard. Single-incision (SILS) niche. Robotic approach growing (~10% of cases). Fluorescence (ICG) cholangiography expanding.',
     cagr_5yr: 1.5,
-    growth_driver: 'Mature market with modest growth. Innovation in single-port access, ICG fluorescence imaging, and ambulatory surgery shift',
+    growth_driver:
+      'Mature market with modest growth. Innovation in single-port access, ICG fluorescence imaging, and ambulatory surgery shift',
   },
 
   {
     name: 'Bariatric Surgery (Sleeve Gastrectomy/Gastric Bypass)',
-    synonyms: ['sleeve gastrectomy', 'gastric bypass', 'RYGB', 'Roux-en-Y', 'bariatric surgery', 'weight loss surgery', 'metabolic surgery', 'lap band'],
+    synonyms: [
+      'sleeve gastrectomy',
+      'gastric bypass',
+      'RYGB',
+      'Roux-en-Y',
+      'bariatric surgery',
+      'weight loss surgery',
+      'metabolic surgery',
+      'lap band',
+    ],
     cpt_codes: ['43775', '43644', '43645', '43659', '43842'],
     drg_codes: ['619', '620', '621'],
     device_category: 'general_surgery',
@@ -1215,7 +1441,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 14000,
       medicare_physician_rate: 1200,
-      private_payer_coverage: 'Most commercial payers cover with BMI criteria (>=40, or >=35 with comorbidities). 6-12 month supervised diet often required. GLP-1 impact being monitored.',
+      private_payer_coverage:
+        'Most commercial payers cover with BMI criteria (>=40, or >=35 with comorbidities). 6-12 month supervised diet often required. GLP-1 impact being monitored.',
     },
     major_device_competitors: [
       'Ethicon (J&J) — staplers, energy devices',
@@ -1226,9 +1453,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Ethicon (J&J)',
     market_leader_share_pct: 40,
-    current_standard_of_care: 'Laparoscopic sleeve gastrectomy (~60% of cases) and RYGB (~30%). Endoscopic sleeve gastroplasty emerging. GLP-1 agonists may reduce or supplement surgical volume.',
+    current_standard_of_care:
+      'Laparoscopic sleeve gastrectomy (~60% of cases) and RYGB (~30%). Endoscopic sleeve gastroplasty emerging. GLP-1 agonists may reduce or supplement surgical volume.',
     cagr_5yr: 5.0,
-    growth_driver: 'Obesity epidemic, expanded BMI criteria (2022 ASMBS guidelines), metabolic surgery for T2D, GLP-1 interaction (complementary not replacement)',
+    growth_driver:
+      'Obesity epidemic, expanded BMI criteria (2022 ASMBS guidelines), metabolic surgery for T2D, GLP-1 interaction (complementary not replacement)',
   },
 
   {
@@ -1248,7 +1477,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 2500,
       medicare_physician_rate: 450,
-      private_payer_coverage: 'Universal coverage as part of endoscopic resection. Reimbursed alongside diagnostic endoscopy codes.',
+      private_payer_coverage:
+        'Universal coverage as part of endoscopic resection. Reimbursed alongside diagnostic endoscopy codes.',
     },
     major_device_competitors: [
       'Olympus — dominant endoscope platform',
@@ -1259,9 +1489,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Olympus',
     market_leader_share_pct: 60,
-    current_standard_of_care: 'Standard for sessile polyps >20mm, flat colorectal lesions, and superficial GI neoplasia. Band ligation EMR for esophageal lesions.',
+    current_standard_of_care:
+      'Standard for sessile polyps >20mm, flat colorectal lesions, and superficial GI neoplasia. Band ligation EMR for esophageal lesions.',
     cagr_5yr: 6.0,
-    growth_driver: 'Colorectal cancer screening expansion, AI-assisted polyp detection, shift from surgery to endoscopic resection for early GI cancers',
+    growth_driver:
+      'Colorectal cancer screening expansion, AI-assisted polyp detection, shift from surgery to endoscopic resection for early GI cancers',
   },
 
   {
@@ -1281,7 +1513,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 4000,
       medicare_physician_rate: 700,
-      private_payer_coverage: 'Covered when medically necessary. Reimbursement improving with dedicated CPT codes (2024). Prior auth may be required.',
+      private_payer_coverage:
+        'Covered when medically necessary. Reimbursement improving with dedicated CPT codes (2024). Prior auth may be required.',
     },
     major_device_competitors: [
       'Olympus — ESD knives and scopes',
@@ -1292,9 +1525,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Olympus',
     market_leader_share_pct: 55,
-    current_standard_of_care: 'Gold standard for en bloc resection of large superficial GI neoplasms in Japan/Asia. US adoption growing rapidly but limited by training and expertise.',
+    current_standard_of_care:
+      'Gold standard for en bloc resection of large superficial GI neoplasms in Japan/Asia. US adoption growing rapidly but limited by training and expertise.',
     cagr_5yr: 20.0,
-    growth_driver: 'US fellowship training expansion, dedicated CPT codes, organ-sparing approach for early GI cancers, robotic ESD platforms emerging',
+    growth_driver:
+      'US fellowship training expansion, dedicated CPT codes, organ-sparing approach for early GI cancers, robotic ESD platforms emerging',
   },
 
   {
@@ -1314,7 +1549,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 3000,
       medicare_physician_rate: 500,
-      private_payer_coverage: 'Covered for dysplastic Barrett esophagus. Non-dysplastic Barrett ablation coverage limited.',
+      private_payer_coverage:
+        'Covered for dysplastic Barrett esophagus. Non-dysplastic Barrett ablation coverage limited.',
     },
     major_device_competitors: [
       'BARRX RFA (Medtronic) — dominant',
@@ -1323,14 +1559,22 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Medtronic (BARRX)',
     market_leader_share_pct: 70,
-    current_standard_of_care: "Radiofrequency ablation with BARRX is standard for dysplastic Barrett's. Cryotherapy emerging as alternative. EMR for visible lesions followed by ablation of flat Barrett's.",
+    current_standard_of_care:
+      "Radiofrequency ablation with BARRX is standard for dysplastic Barrett's. Cryotherapy emerging as alternative. EMR for visible lesions followed by ablation of flat Barrett's.",
     cagr_5yr: 7.0,
-    growth_driver: "Increased Barrett's surveillance and detection, cryotherapy as alternative modality, expanded guidelines for non-dysplastic ablation",
+    growth_driver:
+      "Increased Barrett's surveillance and detection, cryotherapy as alternative modality, expanded guidelines for non-dysplastic ablation",
   },
 
   {
     name: 'ERCP with Stenting',
-    synonyms: ['ERCP', 'endoscopic retrograde cholangiopancreatography', 'biliary stenting', 'pancreatic stenting', 'bile duct stenting'],
+    synonyms: [
+      'ERCP',
+      'endoscopic retrograde cholangiopancreatography',
+      'biliary stenting',
+      'pancreatic stenting',
+      'bile duct stenting',
+    ],
     cpt_codes: ['43260', '43262', '43274', '43275', '43276'],
     drg_codes: ['411', '412', '413'],
     device_category: 'endoscopy_gi',
@@ -1356,14 +1600,23 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Boston Scientific',
     market_leader_share_pct: 40,
-    current_standard_of_care: 'Therapeutic ERCP for choledocholithiasis, biliary strictures, and pancreaticobiliary malignancies. Self-expanding metal stents for malignant obstruction.',
+    current_standard_of_care:
+      'Therapeutic ERCP for choledocholithiasis, biliary strictures, and pancreaticobiliary malignancies. Self-expanding metal stents for malignant obstruction.',
     cagr_5yr: 3.0,
-    growth_driver: 'Aging population, increasing biliary disease, improved duodenoscope design (disposable tips), single-operator cholangioscopy (SpyGlass)',
+    growth_driver:
+      'Aging population, increasing biliary disease, improved duodenoscope design (disposable tips), single-operator cholangioscopy (SpyGlass)',
   },
 
   {
     name: 'Hernia Repair (Mesh)',
-    synonyms: ['inguinal hernia repair', 'ventral hernia repair', 'hernioplasty', 'laparoscopic hernia repair', 'robotic hernia repair', 'mesh herniorrhaphy'],
+    synonyms: [
+      'inguinal hernia repair',
+      'ventral hernia repair',
+      'hernioplasty',
+      'laparoscopic hernia repair',
+      'robotic hernia repair',
+      'mesh herniorrhaphy',
+    ],
     cpt_codes: ['49505', '49507', '49560', '49561', '49652', '49653'],
     drg_codes: ['350', '351', '352', '353', '354', '355'],
     device_category: 'general_surgery',
@@ -1378,7 +1631,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 4000,
       medicare_physician_rate: 600,
-      private_payer_coverage: 'Universal coverage. Open, laparoscopic, and robotic approaches all covered. Mesh cost bundled into facility payment.',
+      private_payer_coverage:
+        'Universal coverage. Open, laparoscopic, and robotic approaches all covered. Mesh cost bundled into facility payment.',
     },
     major_device_competitors: [
       'Ethicon (J&J) — Prolene, Proceed, Physiomesh',
@@ -1389,9 +1643,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Ethicon (J&J)',
     market_leader_share_pct: 30,
-    current_standard_of_care: 'Tension-free mesh repair standard for inguinal and ventral hernias. Laparoscopic/robotic approaches growing for ventral hernias. Biologic and resorbable meshes for contaminated fields.',
+    current_standard_of_care:
+      'Tension-free mesh repair standard for inguinal and ventral hernias. Laparoscopic/robotic approaches growing for ventral hernias. Biologic and resorbable meshes for contaminated fields.',
     cagr_5yr: 2.0,
-    growth_driver: 'Robotic hernia repair adoption, biologic/resorbable mesh innovation, obesity-related ventral hernias, AWR (abdominal wall reconstruction) subspecialty growth',
+    growth_driver:
+      'Robotic hernia repair adoption, biologic/resorbable mesh innovation, obesity-related ventral hernias, AWR (abdominal wall reconstruction) subspecialty growth',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -1414,7 +1670,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     reimbursement: {
       cms_coverage: 'partial',
       medicare_facility_rate: 450,
-      private_payer_coverage: 'Emerging coverage. Medicare LCD for Signatera in CRC (MolDx). Commercial payer coverage variable. NCCN endorsement strengthening coverage arguments.',
+      private_payer_coverage:
+        'Emerging coverage. Medicare LCD for Signatera in CRC (MolDx). Commercial payer coverage variable. NCCN endorsement strengthening coverage arguments.',
     },
     major_device_competitors: [
       'Signatera (Natera) — tumor-informed, market leader',
@@ -1425,9 +1682,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Natera (Signatera)',
     market_leader_share_pct: 45,
-    current_standard_of_care: 'Post-treatment surveillance via imaging and CEA/CA markers. ctDNA MRD testing enabling earlier recurrence detection (lead time 6-12 months vs imaging).',
+    current_standard_of_care:
+      'Post-treatment surveillance via imaging and CEA/CA markers. ctDNA MRD testing enabling earlier recurrence detection (lead time 6-12 months vs imaging).',
     cagr_5yr: 40.0,
-    growth_driver: 'NCCN guideline inclusion for CRC, expanding to breast/bladder/lung, MRD-guided adjuvant therapy decisions, clinical trial integration',
+    growth_driver:
+      'NCCN guideline inclusion for CRC, expanding to breast/bladder/lung, MRD-guided adjuvant therapy decisions, clinical trial integration',
   },
 
   {
@@ -1446,7 +1705,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     reimbursement: {
       cms_coverage: 'covered',
       medicare_facility_rate: 125,
-      private_payer_coverage: 'Universal coverage for breast cancer. Expanding to gastric, CRC, NSCLC with new HER2-directed therapies (T-DXd). HER2-low identification driving retesting.',
+      private_payer_coverage:
+        'Universal coverage for breast cancer. Expanding to gastric, CRC, NSCLC with new HER2-directed therapies (T-DXd). HER2-low identification driving retesting.',
     },
     major_device_competitors: [
       'PATHWAY (Roche/Ventana) — IHC, market leader',
@@ -1457,14 +1717,23 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Roche/Ventana',
     market_leader_share_pct: 50,
-    current_standard_of_care: 'IHC initial screening, FISH/ISH reflex for equivocal (2+) results. HER2-low (IHC 1+ or 2+/ISH-) now clinically actionable with T-DXd approval.',
+    current_standard_of_care:
+      'IHC initial screening, FISH/ISH reflex for equivocal (2+) results. HER2-low (IHC 1+ or 2+/ISH-) now clinically actionable with T-DXd approval.',
     cagr_5yr: 8.0,
-    growth_driver: 'HER2-low category driving expanded testing, T-DXd indication expansion, gastric/CRC/NSCLC HER2 testing, retesting at progression',
+    growth_driver:
+      'HER2-low category driving expanded testing, T-DXd indication expansion, gastric/CRC/NSCLC HER2 testing, retesting at progression',
   },
 
   {
     name: 'PD-L1 IHC Testing',
-    synonyms: ['PD-L1 testing', 'PD-L1 IHC', 'programmed death-ligand 1', 'TPS scoring', 'CPS scoring', 'PD-L1 companion diagnostic'],
+    synonyms: [
+      'PD-L1 testing',
+      'PD-L1 IHC',
+      'programmed death-ligand 1',
+      'TPS scoring',
+      'CPS scoring',
+      'PD-L1 companion diagnostic',
+    ],
     cpt_codes: ['88342', '88360'],
     drg_codes: [],
     device_category: 'ivd_oncology',
@@ -1478,7 +1747,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     reimbursement: {
       cms_coverage: 'covered',
       medicare_facility_rate: 110,
-      private_payer_coverage: 'Universal coverage when used for FDA-approved checkpoint inhibitor selection. Multiple CDx assays approved with different antibodies and scoring systems.',
+      private_payer_coverage:
+        'Universal coverage when used for FDA-approved checkpoint inhibitor selection. Multiple CDx assays approved with different antibodies and scoring systems.',
     },
     major_device_competitors: [
       'PD-L1 IHC 22C3 pharmDx (Agilent/Dako) — CDx for Keytruda',
@@ -1488,14 +1758,23 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Agilent/Dako (22C3 for Keytruda)',
     market_leader_share_pct: 55,
-    current_standard_of_care: 'Standard biomarker testing for IO therapy selection in NSCLC, head and neck, gastric, urothelial, cervical, and other solid tumors. TPS and CPS scoring methods.',
+    current_standard_of_care:
+      'Standard biomarker testing for IO therapy selection in NSCLC, head and neck, gastric, urothelial, cervical, and other solid tumors. TPS and CPS scoring methods.',
     cagr_5yr: 6.0,
-    growth_driver: 'Expanding IO indications, IO combinations in earlier lines, harmonization of PD-L1 assays, TMB and other IO biomarkers as complement',
+    growth_driver:
+      'Expanding IO indications, IO combinations in earlier lines, harmonization of PD-L1 assays, TMB and other IO biomarkers as complement',
   },
 
   {
     name: 'BRCA1/2 Germline Testing',
-    synonyms: ['BRCA testing', 'BRCA1/2', 'hereditary breast cancer testing', 'germline testing', 'BRACAnalysis', 'BRCA genetic testing'],
+    synonyms: [
+      'BRCA testing',
+      'BRCA1/2',
+      'hereditary breast cancer testing',
+      'germline testing',
+      'BRACAnalysis',
+      'BRCA genetic testing',
+    ],
     cpt_codes: ['81162', '81163', '81164', '81165', '81166', '81167'],
     drg_codes: [],
     device_category: 'ivd_genetics',
@@ -1509,7 +1788,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     reimbursement: {
       cms_coverage: 'covered',
       medicare_facility_rate: 600,
-      private_payer_coverage: 'Covered for patients meeting NCCN criteria (family history, personal cancer history, Ashkenazi Jewish ancestry). Preventive Services mandate covers for some populations.',
+      private_payer_coverage:
+        'Covered for patients meeting NCCN criteria (family history, personal cancer history, Ashkenazi Jewish ancestry). Preventive Services mandate covers for some populations.',
     },
     major_device_competitors: [
       'BRACAnalysis CDx (Myriad Genetics) — FDA-approved CDx',
@@ -1520,14 +1800,23 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Myriad Genetics',
     market_leader_share_pct: 40,
-    current_standard_of_care: 'Germline BRCA testing standard for breast, ovarian, prostate, and pancreatic cancer. CDx for PARP inhibitor selection (olaparib, talazoparib, rucaparib).',
+    current_standard_of_care:
+      'Germline BRCA testing standard for breast, ovarian, prostate, and pancreatic cancer. CDx for PARP inhibitor selection (olaparib, talazoparib, rucaparib).',
     cagr_5yr: 10.0,
-    growth_driver: 'PARP inhibitor expansion, prostate cancer BRCA testing, pancreatic cancer guidelines, population-level screening advocacy, multigene panel adoption',
+    growth_driver:
+      'PARP inhibitor expansion, prostate cancer BRCA testing, pancreatic cancer guidelines, population-level screening advocacy, multigene panel adoption',
   },
 
   {
     name: 'Cardiac Troponin Point-of-Care Testing',
-    synonyms: ['troponin POC', 'high-sensitivity troponin', 'hs-cTnI', 'hs-cTnT', 'cardiac troponin rapid test', 'i-STAT troponin'],
+    synonyms: [
+      'troponin POC',
+      'high-sensitivity troponin',
+      'hs-cTnI',
+      'hs-cTnT',
+      'cardiac troponin rapid test',
+      'i-STAT troponin',
+    ],
     cpt_codes: ['84484', '84485', '84512'],
     drg_codes: [],
     device_category: 'ivd_cardiology',
@@ -1541,7 +1830,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     reimbursement: {
       cms_coverage: 'covered',
       medicare_facility_rate: 18,
-      private_payer_coverage: 'Universal coverage. Essential emergency diagnostic. Central lab hs-cTn and POC both covered.',
+      private_payer_coverage:
+        'Universal coverage. Essential emergency diagnostic. Central lab hs-cTn and POC both covered.',
     },
     major_device_competitors: [
       'ARCHITECT hs-cTnI (Abbott) — central lab, dominant',
@@ -1552,9 +1842,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Abbott (ARCHITECT + i-STAT platforms)',
     market_leader_share_pct: 35,
-    current_standard_of_care: 'High-sensitivity cardiac troponin (hs-cTn) is guideline-mandated for MI diagnosis. Rapid rule-out protocols (0/1h or 0/3h) standard in EDs.',
+    current_standard_of_care:
+      'High-sensitivity cardiac troponin (hs-cTn) is guideline-mandated for MI diagnosis. Rapid rule-out protocols (0/1h or 0/3h) standard in EDs.',
     cagr_5yr: 5.0,
-    growth_driver: 'POC hs-troponin adoption, rapid rule-out protocol expansion, decentralized testing in urgent care, combined cardiac biomarker panels',
+    growth_driver:
+      'POC hs-troponin adoption, rapid rule-out protocol expansion, decentralized testing in urgent care, combined cardiac biomarker panels',
   },
 
   {
@@ -1573,7 +1865,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     reimbursement: {
       cms_coverage: 'covered',
       medicare_facility_rate: 12,
-      private_payer_coverage: 'Universal coverage. ADA recommends at least 2x/year for controlled diabetes, quarterly for uncontrolled. CLIA-waived POC testing in physician offices.',
+      private_payer_coverage:
+        'Universal coverage. ADA recommends at least 2x/year for controlled diabetes, quarterly for uncontrolled. CLIA-waived POC testing in physician offices.',
     },
     major_device_competitors: [
       'DCA Vantage (Siemens) — dominant POC',
@@ -1584,14 +1877,24 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Siemens (DCA Vantage)',
     market_leader_share_pct: 45,
-    current_standard_of_care: 'HbA1c gold standard for diabetes management and diagnosis. POC testing enables same-visit clinical decisions. NGSP certification required.',
+    current_standard_of_care:
+      'HbA1c gold standard for diabetes management and diagnosis. POC testing enables same-visit clinical decisions. NGSP certification required.',
     cagr_5yr: 4.0,
-    growth_driver: 'Growing diabetes population (38M+ US), POC adoption in primary care, same-visit decision-making value, prediabetes screening expansion',
+    growth_driver:
+      'Growing diabetes population (38M+ US), POC adoption in primary care, same-visit decision-making value, prediabetes screening expansion',
   },
 
   {
     name: 'Sepsis Rapid Identification Panel',
-    synonyms: ['sepsis rapid ID', 'blood culture ID', 'BCID', 'rapid pathogen identification', 'BioFire', 'Accelerate Pheno', 'T2Biosystems'],
+    synonyms: [
+      'sepsis rapid ID',
+      'blood culture ID',
+      'BCID',
+      'rapid pathogen identification',
+      'BioFire',
+      'Accelerate Pheno',
+      'T2Biosystems',
+    ],
     cpt_codes: ['87150', '87153', '87468', '87480', '87640', '87641'],
     drg_codes: [],
     device_category: 'ivd_infectious',
@@ -1605,7 +1908,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     reimbursement: {
       cms_coverage: 'covered',
       medicare_facility_rate: 250,
-      private_payer_coverage: 'Covered for FDA-cleared panels. CMS reimburses multiplex panels. Value proposition supported by antibiotic stewardship and sepsis bundle compliance.',
+      private_payer_coverage:
+        'Covered for FDA-cleared panels. CMS reimburses multiplex panels. Value proposition supported by antibiotic stewardship and sepsis bundle compliance.',
     },
     major_device_competitors: [
       'BioFire FilmArray BCID2 (bioMerieux) — dominant panel',
@@ -1616,14 +1920,23 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'bioMerieux (BioFire)',
     market_leader_share_pct: 55,
-    current_standard_of_care: 'Blood culture with automated detection (BACTEC/BacT/ALERT) followed by rapid ID panel. Turnaround: 1-2 hours post-positive vs 24-48 hours for conventional ID.',
+    current_standard_of_care:
+      'Blood culture with automated detection (BACTEC/BacT/ALERT) followed by rapid ID panel. Turnaround: 1-2 hours post-positive vs 24-48 hours for conventional ID.',
     cagr_5yr: 12.0,
-    growth_driver: 'Sepsis mortality reduction initiatives, antimicrobial stewardship mandates, direct-from-blood testing, CMS SEP-1 bundle compliance, AST rapid phenotypic results',
+    growth_driver:
+      'Sepsis mortality reduction initiatives, antimicrobial stewardship mandates, direct-from-blood testing, CMS SEP-1 bundle compliance, AST rapid phenotypic results',
   },
 
   {
     name: 'Digital Pathology AI-Assisted Reading',
-    synonyms: ['digital pathology', 'AI pathology', 'computational pathology', 'whole slide imaging', 'WSI', 'AI-assisted diagnosis'],
+    synonyms: [
+      'digital pathology',
+      'AI pathology',
+      'computational pathology',
+      'whole slide imaging',
+      'WSI',
+      'AI-assisted diagnosis',
+    ],
     cpt_codes: ['88360', '88361', '0621T', '0622T'],
     drg_codes: [],
     device_category: 'imaging_radiology',
@@ -1637,7 +1950,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     reimbursement: {
       cms_coverage: 'partial',
       medicare_facility_rate: 50,
-      private_payer_coverage: 'Emerging. No separate reimbursement for AI-assisted reads in most cases; bundled into existing pathology CPT codes. Category III CPT codes (0621T, 0622T) for AI quantification.',
+      private_payer_coverage:
+        'Emerging. No separate reimbursement for AI-assisted reads in most cases; bundled into existing pathology CPT codes. Category III CPT codes (0621T, 0622T) for AI quantification.',
     },
     major_device_competitors: [
       'Paige AI (Paige) — first FDA-approved AI pathology',
@@ -1649,9 +1963,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Paige AI (for AI algorithms); Leica/Philips (for scanners)',
     market_leader_share_pct: 25,
-    current_standard_of_care: 'Manual microscopy still dominant. Whole slide imaging (WSI) for primary diagnosis FDA-cleared since 2017. AI algorithms for prostate cancer detection, breast cancer HER2 scoring, and IHC quantification.',
+    current_standard_of_care:
+      'Manual microscopy still dominant. Whole slide imaging (WSI) for primary diagnosis FDA-cleared since 2017. AI algorithms for prostate cancer detection, breast cancer HER2 scoring, and IHC quantification.',
     cagr_5yr: 35.0,
-    growth_driver: 'Pathologist shortage, FDA clearances for AI algorithms, remote pathology demand, improved diagnostic accuracy, biomarker quantification automation',
+    growth_driver:
+      'Pathologist shortage, FDA clearances for AI algorithms, remote pathology demand, improved diagnostic accuracy, biomarker quantification automation',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -1675,7 +1991,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 6000,
       medicare_physician_rate: 800,
-      private_payer_coverage: 'Universal coverage for ESRD patients. AV fistula preferred over graft per KDOQI guidelines. CMS Fistula First initiative.',
+      private_payer_coverage:
+        'Universal coverage for ESRD patients. AV fistula preferred over graft per KDOQI guidelines. CMS Fistula First initiative.',
     },
     major_device_competitors: [
       'Ellipsys (Medtronic) — percutaneous AV fistula creation',
@@ -1686,14 +2003,23 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Gore (AV grafts); Medtronic (percutaneous AVF)',
     market_leader_share_pct: 35,
-    current_standard_of_care: 'Surgical AV fistula creation remains standard. Percutaneous/endovascular AVF creation (Ellipsys, WavelinQ) emerging as less invasive alternative.',
+    current_standard_of_care:
+      'Surgical AV fistula creation remains standard. Percutaneous/endovascular AVF creation (Ellipsys, WavelinQ) emerging as less invasive alternative.',
     cagr_5yr: 3.0,
-    growth_driver: 'Growing ESRD population, percutaneous AVF technology, home hemodialysis growth, AV fistula maintenance procedures',
+    growth_driver:
+      'Growing ESRD population, percutaneous AVF technology, home hemodialysis growth, AV fistula maintenance procedures',
   },
 
   {
     name: 'Endovascular Aneurysm Repair',
-    synonyms: ['EVAR', 'endovascular aortic repair', 'aortic stent graft', 'TEVAR', 'thoracic endovascular repair', 'abdominal aortic aneurysm repair'],
+    synonyms: [
+      'EVAR',
+      'endovascular aortic repair',
+      'aortic stent graft',
+      'TEVAR',
+      'thoracic endovascular repair',
+      'abdominal aortic aneurysm repair',
+    ],
     cpt_codes: ['34800', '34802', '34803', '34804', '34805', '34841', '34842'],
     drg_codes: ['237', '238', '239'],
     device_category: 'vascular',
@@ -1708,7 +2034,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 32000,
       medicare_physician_rate: 2500,
-      private_payer_coverage: 'Universal coverage. EVAR accepted as standard for anatomically suitable AAA. TEVAR for thoracic indications.',
+      private_payer_coverage:
+        'Universal coverage. EVAR accepted as standard for anatomically suitable AAA. TEVAR for thoracic indications.',
     },
     major_device_competitors: [
       'Endurant II/IIs (Medtronic)',
@@ -1719,14 +2046,25 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Medtronic (Endurant platform)',
     market_leader_share_pct: 35,
-    current_standard_of_care: 'EVAR for infrarenal AAA with suitable anatomy (~75% of AAA repairs). Open surgical repair for complex anatomy. FEVAR/BEVAR for juxtarenal/thoracoabdominal.',
+    current_standard_of_care:
+      'EVAR for infrarenal AAA with suitable anatomy (~75% of AAA repairs). Open surgical repair for complex anatomy. FEVAR/BEVAR for juxtarenal/thoracoabdominal.',
     cagr_5yr: 2.0,
-    growth_driver: 'Fenestrated/branched EVAR for complex anatomy, TEVAR expansion for type B dissection, improved endograft durability, screening program growth',
+    growth_driver:
+      'Fenestrated/branched EVAR for complex anatomy, TEVAR expansion for type B dissection, improved endograft durability, screening program growth',
   },
 
   {
     name: 'Venous Insufficiency Ablation',
-    synonyms: ['varicose vein ablation', 'venous ablation', 'GSV ablation', 'endovenous laser ablation', 'EVLA', 'ClosureFast', 'radiofrequency ablation vein', 'VenaSeal'],
+    synonyms: [
+      'varicose vein ablation',
+      'venous ablation',
+      'GSV ablation',
+      'endovenous laser ablation',
+      'EVLA',
+      'ClosureFast',
+      'radiofrequency ablation vein',
+      'VenaSeal',
+    ],
     cpt_codes: ['36475', '36476', '36478', '36479', '36482', '36483'],
     drg_codes: [],
     device_category: 'vascular',
@@ -1741,7 +2079,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 2200,
       medicare_physician_rate: 400,
-      private_payer_coverage: 'Covered for symptomatic venous insufficiency with documented reflux on duplex ultrasound. Conservative treatment trial (compression) typically required. Cosmetic varicose vein treatment not covered.',
+      private_payer_coverage:
+        'Covered for symptomatic venous insufficiency with documented reflux on duplex ultrasound. Conservative treatment trial (compression) typically required. Cosmetic varicose vein treatment not covered.',
     },
     major_device_competitors: [
       'ClosureFast (Medtronic) — radiofrequency, dominant',
@@ -1752,9 +2091,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Medtronic (ClosureFast + VenaSeal)',
     market_leader_share_pct: 55,
-    current_standard_of_care: 'Endovenous thermal ablation (RF or laser) standard for GSV insufficiency. Non-thermal (VenaSeal, ClariVein) growing — no tumescent anesthesia needed. Ambulatory office-based procedures.',
+    current_standard_of_care:
+      'Endovenous thermal ablation (RF or laser) standard for GSV insufficiency. Non-thermal (VenaSeal, ClariVein) growing — no tumescent anesthesia needed. Ambulatory office-based procedures.',
     cagr_5yr: 5.0,
-    growth_driver: 'Non-thermal ablation adoption (VenaSeal), office-based lab growth, aging population, improved diagnosis rates',
+    growth_driver:
+      'Non-thermal ablation adoption (VenaSeal), office-based lab growth, aging population, improved diagnosis rates',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -1778,21 +2119,29 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 8000,
       medicare_physician_rate: 900,
-      private_payer_coverage: 'Variable coverage. Many commercial payers cover for severe persistent asthma uncontrolled on ICS/LABA. Prior auth required. Some payers still consider investigational.',
+      private_payer_coverage:
+        'Variable coverage. Many commercial payers cover for severe persistent asthma uncontrolled on ICS/LABA. Prior auth required. Some payers still consider investigational.',
     },
-    major_device_competitors: [
-      'Alair (Boston Scientific) — only FDA-approved system',
-    ],
+    major_device_competitors: ['Alair (Boston Scientific) — only FDA-approved system'],
     market_leader: 'Boston Scientific',
     market_leader_share_pct: 100,
-    current_standard_of_care: 'Adjunct therapy for severe persistent asthma poorly controlled with ICS/LABA. Three bronchoscopy sessions required. Reduces smooth muscle mass in airways.',
+    current_standard_of_care:
+      'Adjunct therapy for severe persistent asthma poorly controlled with ICS/LABA. Three bronchoscopy sessions required. Reduces smooth muscle mass in airways.',
     cagr_5yr: 5.0,
-    growth_driver: 'Growing severe asthma population, improved patient selection criteria, biologic therapy non-responders, long-term durability data',
+    growth_driver:
+      'Growing severe asthma population, improved patient selection criteria, biologic therapy non-responders, long-term durability data',
   },
 
   {
     name: 'Endobronchial Valve Placement (Zephyr)',
-    synonyms: ['EBV', 'endobronchial valve', 'Zephyr valve', 'bronchoscopic lung volume reduction', 'BLVR', 'one-way valve emphysema'],
+    synonyms: [
+      'EBV',
+      'endobronchial valve',
+      'Zephyr valve',
+      'bronchoscopic lung volume reduction',
+      'BLVR',
+      'one-way valve emphysema',
+    ],
     cpt_codes: ['31647', '31651'],
     drg_codes: ['190', '191'],
     device_category: 'respiratory',
@@ -1807,21 +2156,29 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 25000,
       medicare_physician_rate: 1500,
-      private_payer_coverage: 'Improving coverage. CMS NCD established. Commercial payers increasingly covering with clinical criteria (severe emphysema, heterogeneous disease, no collateral ventilation).',
+      private_payer_coverage:
+        'Improving coverage. CMS NCD established. Commercial payers increasingly covering with clinical criteria (severe emphysema, heterogeneous disease, no collateral ventilation).',
     },
-    major_device_competitors: [
-      'Zephyr Valve (Pulmonx) — only FDA-approved EBV',
-    ],
+    major_device_competitors: ['Zephyr Valve (Pulmonx) — only FDA-approved EBV'],
     market_leader: 'Pulmonx',
     market_leader_share_pct: 100,
-    current_standard_of_care: 'Bronchoscopic lung volume reduction for severe heterogeneous emphysema without collateral ventilation. Alternative to lung volume reduction surgery (LVRS).',
+    current_standard_of_care:
+      'Bronchoscopic lung volume reduction for severe heterogeneous emphysema without collateral ventilation. Alternative to lung volume reduction surgery (LVRS).',
     cagr_5yr: 15.0,
-    growth_driver: 'Growing physician training, CMS coverage establishment, Chartis assessment for patient selection, center of excellence expansion',
+    growth_driver:
+      'Growing physician training, CMS coverage establishment, Chartis assessment for patient selection, center of excellence expansion',
   },
 
   {
     name: 'Pulmonary Thrombectomy',
-    synonyms: ['PE thrombectomy', 'pulmonary embolism thrombectomy', 'catheter-directed therapy PE', 'FlowTriever', 'EKOS', 'mechanical thrombectomy PE'],
+    synonyms: [
+      'PE thrombectomy',
+      'pulmonary embolism thrombectomy',
+      'catheter-directed therapy PE',
+      'FlowTriever',
+      'EKOS',
+      'mechanical thrombectomy PE',
+    ],
     cpt_codes: ['37184', '37186', '37187', '37188'],
     drg_codes: ['175', '176', '177'],
     device_category: 'respiratory',
@@ -1829,14 +2186,20 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     us_procedure_growth_rate: 25.0,
     procedure_setting: ['hospital_inpatient'],
     eligible_sites: { hospitals: 600 },
-    performing_specialty: ['Interventional Radiology', 'Interventional Cardiology', 'Vascular Surgery', 'Pulmonary/Critical Care'],
+    performing_specialty: [
+      'Interventional Radiology',
+      'Interventional Cardiology',
+      'Vascular Surgery',
+      'Pulmonary/Critical Care',
+    ],
     adoption_barrier: 'moderate',
     procedure_source: 'Inari Medical/Boston Scientific investor data 2024; PERT Consortium data',
     reimbursement: {
       cms_coverage: 'covered',
       medicare_facility_rate: 20000,
       medicare_physician_rate: 1800,
-      private_payer_coverage: 'Covered for massive and submassive PE. Growing acceptance as alternative to systemic thrombolysis. PERT (Pulmonary Embolism Response Team) programs driving utilization.',
+      private_payer_coverage:
+        'Covered for massive and submassive PE. Growing acceptance as alternative to systemic thrombolysis. PERT (Pulmonary Embolism Response Team) programs driving utilization.',
     },
     major_device_competitors: [
       'FlowTriever (Inari Medical) — large bore aspiration, dominant',
@@ -1847,9 +2210,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Inari Medical (FlowTriever)',
     market_leader_share_pct: 50,
-    current_standard_of_care: 'Systemic anticoagulation for most PE. Catheter-directed intervention for massive/high-risk submassive PE. Large bore aspiration thrombectomy (FlowTriever) growing rapidly.',
+    current_standard_of_care:
+      'Systemic anticoagulation for most PE. Catheter-directed intervention for massive/high-risk submassive PE. Large bore aspiration thrombectomy (FlowTriever) growing rapidly.',
     cagr_5yr: 25.0,
-    growth_driver: 'PERT team proliferation, FlowTriever clinical data, avoiding systemic thrombolysis bleeding risk, expanded submassive PE intervention criteria',
+    growth_driver:
+      'PERT team proliferation, FlowTriever clinical data, avoiding systemic thrombolysis bleeding risk, expanded submassive PE intervention criteria',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -1858,7 +2223,16 @@ export const PROCEDURE_DATA: ProcedureData[] = [
 
   {
     name: 'Benign Prostatic Hyperplasia Treatment (Minimally Invasive)',
-    synonyms: ['BPH treatment', 'UroLift', 'Rezum', 'Aquablation', 'TURP', 'prostate artery embolization', 'iTind', 'prostatic urethral lift'],
+    synonyms: [
+      'BPH treatment',
+      'UroLift',
+      'Rezum',
+      'Aquablation',
+      'TURP',
+      'prostate artery embolization',
+      'iTind',
+      'prostatic urethral lift',
+    ],
     cpt_codes: ['52441', '52442', '53854', '0421T', '55880'],
     drg_codes: ['665', '666', '667'],
     device_category: 'urology',
@@ -1873,7 +2247,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 4500,
       medicare_physician_rate: 600,
-      private_payer_coverage: 'UroLift and Rezum broadly covered by commercial payers. Aquablation coverage growing. Office-based UroLift reimbursement established.',
+      private_payer_coverage:
+        'UroLift and Rezum broadly covered by commercial payers. Aquablation coverage growing. Office-based UroLift reimbursement established.',
     },
     major_device_competitors: [
       'UroLift (Teleflex) — prostatic urethral lift',
@@ -1884,14 +2259,23 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Teleflex (UroLift) for MIST; Boston Scientific for surgical',
     market_leader_share_pct: 30,
-    current_standard_of_care: 'Medical therapy (alpha-blockers, 5-ARIs) first line. TURP declining. Minimally invasive surgical therapies (MIST) — UroLift, Rezum — growing rapidly. Aquablation for larger prostates.',
+    current_standard_of_care:
+      'Medical therapy (alpha-blockers, 5-ARIs) first line. TURP declining. Minimally invasive surgical therapies (MIST) — UroLift, Rezum — growing rapidly. Aquablation for larger prostates.',
     cagr_5yr: 8.0,
-    growth_driver: 'MIST adoption over TURP, office-based procedures, Aquablation for large prostates, aging male population, sexual function preservation preference',
+    growth_driver:
+      'MIST adoption over TURP, office-based procedures, Aquablation for large prostates, aging male population, sexual function preservation preference',
   },
 
   {
     name: 'Extracorporeal Shockwave Lithotripsy',
-    synonyms: ['ESWL', 'lithotripsy', 'shockwave lithotripsy', 'kidney stone treatment', 'SWL', 'extracorporeal lithotripsy'],
+    synonyms: [
+      'ESWL',
+      'lithotripsy',
+      'shockwave lithotripsy',
+      'kidney stone treatment',
+      'SWL',
+      'extracorporeal lithotripsy',
+    ],
     cpt_codes: ['50590'],
     drg_codes: ['693', '694'],
     device_category: 'urology',
@@ -1906,7 +2290,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 3500,
       medicare_physician_rate: 500,
-      private_payer_coverage: 'Universal coverage for symptomatic renal stones. Declining use as ureteroscopy (URS) has gained preference for many stone types/locations.',
+      private_payer_coverage:
+        'Universal coverage for symptomatic renal stones. Declining use as ureteroscopy (URS) has gained preference for many stone types/locations.',
     },
     major_device_competitors: [
       'Dornier (lithotripsy systems)',
@@ -1917,14 +2302,22 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Dornier',
     market_leader_share_pct: 35,
-    current_standard_of_care: 'ESWL declining as ureteroscopy (URS) with laser lithotripsy gains share. ESWL remains option for smaller (<2cm) renal stones. URS now ~300K procedures/yr in US.',
+    current_standard_of_care:
+      'ESWL declining as ureteroscopy (URS) with laser lithotripsy gains share. ESWL remains option for smaller (<2cm) renal stones. URS now ~300K procedures/yr in US.',
     cagr_5yr: -3.0,
-    growth_driver: 'Declining procedure — being replaced by ureteroscopy with holmium/thulium laser. Remaining niche for small proximal ureteral and renal stones in selected patients',
+    growth_driver:
+      'Declining procedure — being replaced by ureteroscopy with holmium/thulium laser. Remaining niche for small proximal ureteral and renal stones in selected patients',
   },
 
   {
     name: 'Robotic Cystectomy',
-    synonyms: ['robotic radical cystectomy', 'RARC', 'robot-assisted cystectomy', 'bladder removal robotic', 'da Vinci cystectomy'],
+    synonyms: [
+      'robotic radical cystectomy',
+      'RARC',
+      'robot-assisted cystectomy',
+      'bladder removal robotic',
+      'da Vinci cystectomy',
+    ],
     cpt_codes: ['51595', '51596', '51597'],
     drg_codes: ['653', '654', '655'],
     device_category: 'urology',
@@ -1939,7 +2332,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 18000,
       medicare_physician_rate: 2200,
-      private_payer_coverage: 'Universal coverage. Robotic approach not separately reimbursed but accepted as standard surgical approach.',
+      private_payer_coverage:
+        'Universal coverage. Robotic approach not separately reimbursed but accepted as standard surgical approach.',
     },
     major_device_competitors: [
       'da Vinci Xi (Intuitive Surgical) — dominant',
@@ -1948,9 +2342,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Intuitive Surgical',
     market_leader_share_pct: 85,
-    current_standard_of_care: 'Radical cystectomy with urinary diversion for muscle-invasive bladder cancer. Robotic approach now >60% of cases at academic centers. Intracorporeal urinary diversion gaining adoption.',
+    current_standard_of_care:
+      'Radical cystectomy with urinary diversion for muscle-invasive bladder cancer. Robotic approach now >60% of cases at academic centers. Intracorporeal urinary diversion gaining adoption.',
     cagr_5yr: 5.0,
-    growth_driver: 'Intracorporeal urinary diversion adoption, ERAS protocols reducing LOS, competitive robotic platforms, bladder cancer incidence stable',
+    growth_driver:
+      'Intracorporeal urinary diversion adoption, ERAS protocols reducing LOS, competitive robotic platforms, bladder cancer incidence stable',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -1959,11 +2355,18 @@ export const PROCEDURE_DATA: ProcedureData[] = [
 
   {
     name: 'Cochlear Implant',
-    synonyms: ['CI', 'cochlear implantation', 'cochlear implant surgery', 'hearing implant', 'Cochlear Nucleus', 'AB implant'],
+    synonyms: [
+      'CI',
+      'cochlear implantation',
+      'cochlear implant surgery',
+      'hearing implant',
+      'Cochlear Nucleus',
+      'AB implant',
+    ],
     cpt_codes: ['69930'],
     drg_codes: ['129', '130'],
     device_category: 'ent',
-    us_annual_procedures: 15000,
+    us_annual_procedures: 38000,
     us_procedure_growth_rate: 8.0,
     procedure_setting: ['hospital_outpatient', 'hospital_inpatient'],
     eligible_sites: { hospitals: 400 },
@@ -1974,7 +2377,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 30000,
       medicare_physician_rate: 2000,
-      private_payer_coverage: 'Covered for severe-to-profound sensorineural hearing loss. Bilateral implantation coverage improving. Expanded audiometric criteria (2023 FDA guidance) driving growth.',
+      private_payer_coverage:
+        'Covered for severe-to-profound sensorineural hearing loss. Bilateral implantation coverage improving. Expanded audiometric criteria (2023 FDA guidance) driving growth.',
     },
     major_device_competitors: [
       'Nucleus 8 (Cochlear Limited) — market leader',
@@ -1983,9 +2387,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Cochlear Limited',
     market_leader_share_pct: 60,
-    current_standard_of_care: 'Cochlear implant for severe-to-profound SNHL. FDA expanded criteria in 2023 (single-sided deafness, expanded audiometric criteria). Bilateral CI standard for children.',
+    current_standard_of_care:
+      'Cochlear implant for severe-to-profound SNHL. FDA expanded criteria in 2023 (single-sided deafness, expanded audiometric criteria). Bilateral CI standard for children.',
     cagr_5yr: 8.0,
-    growth_driver: 'Expanded FDA criteria (2023), single-sided deafness indication, adult bilateral implantation, aging population hearing loss, massive underutilization (only ~5% of eligible adults implanted)',
+    growth_driver:
+      'Expanded FDA criteria (2023), single-sided deafness indication, adult bilateral implantation, aging population hearing loss, massive underutilization (only ~5% of eligible adults implanted)',
   },
 
   {
@@ -2005,7 +2411,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
       cms_coverage: 'covered',
       medicare_facility_rate: 2500,
       medicare_physician_rate: 400,
-      private_payer_coverage: 'Broadly covered for chronic rhinosinusitis failing medical therapy. In-office balloon sinuplasty reimbursed. Some payers require CT scan confirmation and medical therapy failure.',
+      private_payer_coverage:
+        'Broadly covered for chronic rhinosinusitis failing medical therapy. In-office balloon sinuplasty reimbursed. Some payers require CT scan confirmation and medical therapy failure.',
     },
     major_device_competitors: [
       'NuVent (Stryker) — balloon dilation',
@@ -2016,9 +2423,11 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Stryker (NuVent + XprESS)',
     market_leader_share_pct: 45,
-    current_standard_of_care: 'In-office or ASC balloon sinus dilation for chronic sinusitis. Less invasive than functional endoscopic sinus surgery (FESS). Often combined with steroid-eluting implants.',
+    current_standard_of_care:
+      'In-office or ASC balloon sinus dilation for chronic sinusitis. Less invasive than functional endoscopic sinus surgery (FESS). Often combined with steroid-eluting implants.',
     cagr_5yr: 7.0,
-    growth_driver: 'In-office procedure shift, steroid-eluting implant combination, patient preference for minimally invasive approach, ENT practice economics',
+    growth_driver:
+      'In-office procedure shift, steroid-eluting implant combination, patient preference for minimally invasive approach, ENT practice economics',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -2040,8 +2449,9 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     procedure_source: 'ACMS (American College of Mohs Surgery) 2024; CMS claims data',
     reimbursement: {
       cms_coverage: 'covered',
-      medicare_physician_rate: 350,     // per stage (typically 1-3 stages)
-      private_payer_coverage: 'Universal coverage for appropriate-use criteria (AUC) indications. Office-based procedure. Reimbursement per stage plus reconstruction/closure codes.',
+      medicare_physician_rate: 350, // per stage (typically 1-3 stages)
+      private_payer_coverage:
+        'Universal coverage for appropriate-use criteria (AUC) indications. Office-based procedure. Reimbursement per stage plus reconstruction/closure codes.',
     },
     major_device_competitors: [
       'Cryostat microtome systems (Leica, Thermo Fisher)',
@@ -2051,14 +2461,25 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Leica Biosystems (cryostat systems)',
     market_leader_share_pct: 50,
-    current_standard_of_care: 'Gold standard for high-risk BCC and SCC on face/cosmetically sensitive areas. Same-day margin analysis with >99% cure rate. Expanding to melanoma in situ.',
+    current_standard_of_care:
+      'Gold standard for high-risk BCC and SCC on face/cosmetically sensitive areas. Same-day margin analysis with >99% cure rate. Expanding to melanoma in situ.',
     cagr_5yr: 4.0,
-    growth_driver: 'Rising skin cancer incidence, aging population, expanding AUC indications, digital pathology integration for frozen section reading',
+    growth_driver:
+      'Rising skin cancer incidence, aging population, expanding AUC indications, digital pathology integration for frozen section reading',
   },
 
   {
     name: 'Laser Treatment for Vascular/Pigmented Lesions',
-    synonyms: ['laser dermatology', 'pulsed dye laser', 'PDL', 'IPL', 'Nd:YAG laser', 'alexandrite laser', 'laser skin treatment', 'vascular laser'],
+    synonyms: [
+      'laser dermatology',
+      'pulsed dye laser',
+      'PDL',
+      'IPL',
+      'Nd:YAG laser',
+      'alexandrite laser',
+      'laser skin treatment',
+      'vascular laser',
+    ],
     cpt_codes: ['17110', '17111', '96920', '96921', '96922'],
     drg_codes: [],
     device_category: 'dermatology',
@@ -2072,7 +2493,8 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     reimbursement: {
       cms_coverage: 'partial',
       medicare_physician_rate: 200,
-      private_payer_coverage: 'Medical indications covered (port wine stains, hemangiomas, rosacea, surgical scars). Cosmetic uses (age spots, tattoo removal, facial rejuvenation) not covered — patient self-pay.',
+      private_payer_coverage:
+        'Medical indications covered (port wine stains, hemangiomas, rosacea, surgical scars). Cosmetic uses (age spots, tattoo removal, facial rejuvenation) not covered — patient self-pay.',
     },
     major_device_competitors: [
       'Vbeam (Candela/Syneron) — pulsed dye laser',
@@ -2083,11 +2505,12 @@ export const PROCEDURE_DATA: ProcedureData[] = [
     ],
     market_leader: 'Candela (Vbeam + Nordlys)',
     market_leader_share_pct: 30,
-    current_standard_of_care: 'Pulsed dye laser (595nm) gold standard for vascular lesions. Q-switched/picosecond lasers for pigmented lesions and tattoo removal. IPL for diffuse photodamage.',
+    current_standard_of_care:
+      'Pulsed dye laser (595nm) gold standard for vascular lesions. Q-switched/picosecond lasers for pigmented lesions and tattoo removal. IPL for diffuse photodamage.',
     cagr_5yr: 5.0,
-    growth_driver: 'Growing medical aesthetics market, picosecond technology for faster clearance, combination treatments, telemedicine consults driving referrals',
+    growth_driver:
+      'Growing medical aesthetics market, picosecond technology for faster clearance, combination treatments, telemedicine consults driving referrals',
   },
-
 ];
 
 // ────────────────────────────────────────────────────────────
@@ -2096,22 +2519,24 @@ export const PROCEDURE_DATA: ProcedureData[] = [
 
 export function findProcedureByName(name: string): ProcedureData | undefined {
   const q = name.toLowerCase().trim();
-  return PROCEDURE_DATA.find(p =>
-    p.name.toLowerCase() === q ||
-    p.synonyms.some(s => s.toLowerCase() === q || s.toLowerCase().includes(q) || q.includes(s.toLowerCase()))
+  return PROCEDURE_DATA.find(
+    (p) =>
+      p.name.toLowerCase() === q ||
+      p.synonyms.some((s) => s.toLowerCase() === q || s.toLowerCase().includes(q) || q.includes(s.toLowerCase())),
   );
 }
 
 export function getProcedureSuggestions(query: string): ProcedureData[] {
   if (!query || query.length < 2) return PROCEDURE_DATA.slice(0, 10);
   const q = query.toLowerCase();
-  return PROCEDURE_DATA.filter(p =>
-    p.name.toLowerCase().includes(q) ||
-    p.synonyms.some(s => s.toLowerCase().includes(q)) ||
-    p.device_category.includes(q)
+  return PROCEDURE_DATA.filter(
+    (p) =>
+      p.name.toLowerCase().includes(q) ||
+      p.synonyms.some((s) => s.toLowerCase().includes(q)) ||
+      p.device_category.includes(q),
   ).slice(0, 10);
 }
 
 export function getProceduresByCategory(category: ProcedureData['device_category']): ProcedureData[] {
-  return PROCEDURE_DATA.filter(p => p.device_category === category);
+  return PROCEDURE_DATA.filter((p) => p.device_category === category);
 }

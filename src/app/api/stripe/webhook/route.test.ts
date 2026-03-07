@@ -17,15 +17,31 @@ const mockEq = vi.fn();
 const mockFrom = vi.fn();
 const mockSelect = vi.fn();
 const mockSingle = vi.fn();
+const mockInsert = vi.fn();
+
+const mockDelete = vi.fn();
+const mockUpsert = vi.fn();
 
 function resetSupabaseMocks() {
+  // .update({}).eq() chain — returns Promise with error: null
   mockEq.mockReturnValue(Promise.resolve({ error: null }));
   mockUpdate.mockReturnValue({ eq: mockEq });
-  mockSingle.mockResolvedValue({ data: null, error: null });
+  mockDelete.mockReturnValue({ eq: mockEq });
+  mockUpsert.mockReturnValue(Promise.resolve({ error: null }));
+  // .insert() for dedup table — returns { error: null } (no duplicate)
+  mockInsert.mockResolvedValue({ error: null });
+  // .select().eq().single() for profile lookups — returns user data
+  mockSingle.mockResolvedValue({
+    data: { id: 'user-uuid-123', email: 'test@test.com', full_name: 'Test User' },
+    error: null,
+  });
   mockSelect.mockReturnValue({ eq: vi.fn().mockReturnValue({ single: mockSingle }) });
   mockFrom.mockReturnValue({
     update: mockUpdate,
     select: mockSelect,
+    delete: mockDelete,
+    upsert: mockUpsert,
+    insert: mockInsert,
   });
 }
 
@@ -38,6 +54,7 @@ vi.mock('@supabase/ssr', () => ({
 // ── Mock Logger ───────────────────────────────────────────────
 vi.mock('@/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+  logBusinessEvent: vi.fn(),
 }));
 
 // ── Mock Sentry ───────────────────────────────────────────────
@@ -156,6 +173,9 @@ describe('POST /api/stripe/webhook', () => {
     expect(body1.received).toBe(true);
     expect(body1.duplicate).toBeUndefined();
 
+    // Second insert of same event_id returns unique constraint violation
+    mockInsert.mockResolvedValueOnce({ error: { code: '23505', message: 'duplicate key' } });
+
     const req2 = createMockRequest('body', 'sig_valid');
     const res2 = await POST(req2);
     const body2 = await res2.json();
@@ -176,15 +196,16 @@ describe('POST /api/stripe/webhook', () => {
 
     expect(body.received).toBe(true);
     expect(mockFrom).toHaveBeenCalledWith('subscriptions');
-    expect(mockUpdate).toHaveBeenCalledWith(
+    expect(mockUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
         stripe_subscription_id: 'sub_test123',
         stripe_customer_id: 'cus_test456',
         plan: 'pro',
         status: 'active',
+        user_id: 'user-uuid-123',
       }),
+      expect.objectContaining({ onConflict: 'user_id' }),
     );
-    expect(mockEq).toHaveBeenCalledWith('user_id', 'user-uuid-123');
   });
 
   // ── subscription.updated (team plan) ─────────────────────
@@ -199,7 +220,10 @@ describe('POST /api/stripe/webhook', () => {
     const req = createMockRequest('body', 'sig_valid');
     await POST(req);
 
-    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ plan: 'team' }));
+    expect(mockUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({ plan: 'team' }),
+      expect.objectContaining({ onConflict: 'user_id' }),
+    );
   });
 
   // ── subscription.deleted ─────────────────────────────────
@@ -263,7 +287,8 @@ describe('POST /api/stripe/webhook', () => {
     const event = createStripeEvent('evt_db_error', 'customer.subscription.created', sub);
     mockConstructEvent.mockReturnValue(event);
 
-    mockEq.mockReturnValue(Promise.resolve({ error: { message: 'DB connection timeout' } }));
+    // Make the upsert return an error
+    mockUpsert.mockReturnValueOnce(Promise.resolve({ error: { message: 'DB connection timeout' } }));
 
     const req = createMockRequest('body', 'sig_valid');
     const res = await POST(req);
@@ -277,8 +302,8 @@ describe('POST /api/stripe/webhook', () => {
     const event = createStripeEvent('evt_retry', 'customer.subscription.created', sub);
     mockConstructEvent.mockReturnValue(event);
 
-    // First attempt fails
-    mockEq.mockReturnValueOnce(Promise.resolve({ error: { message: 'DB error' } }));
+    // First attempt fails — upsert returns error
+    mockUpsert.mockReturnValueOnce(Promise.resolve({ error: { message: 'DB error' } }));
 
     const req1 = createMockRequest('body', 'sig_valid');
     const res1 = await POST(req1);

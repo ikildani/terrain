@@ -10,7 +10,8 @@
 //
 // Outputs globally-adjusted prevalence/incidence using territory
 // population multipliers, phase distribution, crowding analysis,
-// white-space hints, and paginated/filterable results.
+// white-space hints, early-stage asset discovery, and
+// paginated/filterable results.
 //
 // Used by: /dashboard/screener, opportunity-ranking API routes
 // ============================================================
@@ -19,11 +20,16 @@ import { INDICATION_DATA } from '@/lib/data/indication-map';
 import type { IndicationData } from '@/lib/data/indication-map';
 import { getCompetitorsForIndication } from '@/lib/data/competitor-database';
 import type { CompetitorRecord } from '@/lib/data/competitor-database';
-import { LOA_BY_PHASE_AND_AREA } from '@/lib/data/loa-tables';
+import { LOA_BY_PHASE_AND_AREA, INDICATION_SPECIFIC_LOA } from '@/lib/data/loa-tables';
 import { PHARMA_PARTNER_DATABASE } from '@/lib/data/partner-database';
 import { TERRITORY_MULTIPLIERS } from '@/lib/data/territory-multipliers';
 import { getRegionalFactors } from '@/lib/data/regional-prevalence-factors';
 import { getCommunityDataForIndication } from '@/lib/data/community-prevalence';
+import { INDICATION_SUBTYPES, getSubtypesForIndication } from '@/lib/data/indication-subtypes';
+import type { IndicationSubtype } from '@/lib/data/indication-subtypes';
+import { BIOMARKER_DATA, getBiomarkersForIndication } from '@/lib/data/biomarker-prevalence';
+import type { BiomarkerEntry } from '@/lib/data/biomarker-prevalence';
+import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
 import type { DevelopmentStage } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -35,7 +41,7 @@ const US_POP_M = 336;
 /** Key territory codes used for global prevalence extrapolation. */
 const GLOBAL_TERRITORY_CODES = ['US', 'EU5', 'Japan', 'China', 'RoW'] as const;
 
-/** Phase weights for crowding score computation. */
+/** Phase weights for crowding score computation. Withdrawn/Discontinued reduce crowding. */
 const PHASE_WEIGHTS: Record<string, number> = {
   Approved: 1.0,
   'Phase 3': 0.9,
@@ -44,6 +50,8 @@ const PHASE_WEIGHTS: Record<string, number> = {
   'Phase 1/2': 0.3,
   'Phase 1': 0.2,
   Preclinical: 0.1,
+  Withdrawn: -0.3,
+  Discontinued: -0.2,
 };
 
 /** Maximum log-scaled prevalence reference (~50M patients). */
@@ -59,12 +67,26 @@ const MAX_AVG_LOA_REFERENCE = 0.4;
 const MAX_ACTIVE_PARTNERS = 20;
 
 // ────────────────────────────────────────────────────────────
+// HELPERS
+// ────────────────────────────────────────────────────────────
+
+/**
+ * Formats a large number into a compact human-readable string.
+ * Used for score explanations and labels.
+ */
+function formatLargeNum(n: number): string {
+  if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+  return n.toString();
+}
+
+// ────────────────────────────────────────────────────────────
 // EXPORTED TYPES
 // ────────────────────────────────────────────────────────────
 
 export interface OpportunityFilters {
   therapy_areas?: string[];
-  product_category?: string;
   min_prevalence?: number;
   max_crowding?: number;
   phases?: string[];
@@ -126,6 +148,37 @@ export interface OpportunityRow {
   community_disparities: CommunityDisparity[];
   emerging_asset_count: number;
   data_confidence: DataConfidence;
+
+  // Enriched fields
+  revenue_potential_label: string;
+  median_wac: number;
+  severity_profile: Record<string, number> | null;
+  biomarker_count: number;
+  key_biomarkers: string[];
+  subtype_count: number;
+  unpartnered_fic_count: number;
+  novel_mechanism_count: number;
+  indication_loa: Record<string, number> | null;
+  has_indication_loa: boolean;
+  score_explanations: Record<string, string>;
+}
+
+export interface EarlyStageAsset {
+  asset_name: string;
+  company: string;
+  indication: string;
+  therapy_area: string;
+  phase: string;
+  mechanism: string;
+  mechanism_category: string;
+  molecular_target?: string;
+  is_first_in_class: boolean;
+  is_unpartnered: boolean;
+  is_orphan: boolean;
+  has_biomarker: boolean;
+  strengths: string[];
+  scouting_score: number;
+  scouting_signals: string[];
 }
 
 export interface ScreenerResult {
@@ -145,15 +198,19 @@ interface CrowdingResult {
 /**
  * Computes a 0-10 crowding score for an indication based on its
  * competitive pipeline. Accounts for phase-weighted asset count
- * and mechanism concentration (penalty if many assets share the
+ * (including negative weights for Withdrawn/Discontinued) and
+ * mechanism concentration (penalty if many assets share the
  * same mechanism category).
+ *
+ * Normalization cap raised to 20 to better differentiate
+ * heavily crowded oncology indications from moderate ones.
  */
 function computeCrowdingScore(competitors: CompetitorRecord[]): CrowdingResult {
   if (competitors.length === 0) {
     return { score: 0, label: 'no_data' };
   }
 
-  // Phase-weighted count
+  // Phase-weighted count (Withdrawn/Discontinued reduce the total)
   let weightedCount = 0;
   for (const c of competitors) {
     weightedCount += PHASE_WEIGHTS[c.phase] ?? 0.1;
@@ -163,8 +220,8 @@ function computeCrowdingScore(competitors: CompetitorRecord[]): CrowdingResult {
   const mechs = new Set(competitors.map((c) => c.mechanism_category));
   const mechConcentration = 1 - mechs.size / Math.max(competitors.length, 1);
 
-  // Raw score: weighted count normalized, with mechanism adjustment
-  const raw = Math.min(weightedCount / 8, 1) * 8 + mechConcentration * 2;
+  // Raw score: weighted count normalized to 20 cap, with mechanism adjustment
+  const raw = Math.min(weightedCount / 20, 1) * 8 + mechConcentration * 2;
   const score = Math.min(Math.max(Math.round(raw * 10) / 10, 0), 10);
 
   let label: string;
@@ -297,13 +354,15 @@ const PHASE_SORT_ORDER: Record<string, number> = {
   'Phase 1/2': 4,
   'Phase 1': 5,
   Preclinical: 6,
+  Withdrawn: 7,
+  Discontinued: 8,
 };
 
 /**
  * Returns the top N unique company names, ordered by most advanced phase.
  */
 function getTopCompanies(competitors: CompetitorRecord[], n: number): string[] {
-  const sorted = [...competitors].sort((a, b) => (PHASE_SORT_ORDER[a.phase] ?? 7) - (PHASE_SORT_ORDER[b.phase] ?? 7));
+  const sorted = [...competitors].sort((a, b) => (PHASE_SORT_ORDER[a.phase] ?? 9) - (PHASE_SORT_ORDER[b.phase] ?? 9));
   const seen = new Set<string>();
   const result: string[] = [];
   for (const c of sorted) {
@@ -321,7 +380,7 @@ function getTopCompanies(competitors: CompetitorRecord[], n: number): string[] {
  * Returns the top N assets, ordered by most advanced phase.
  */
 function getTopAssets(competitors: CompetitorRecord[], n: number): TopAsset[] {
-  const sorted = [...competitors].sort((a, b) => (PHASE_SORT_ORDER[a.phase] ?? 7) - (PHASE_SORT_ORDER[b.phase] ?? 7));
+  const sorted = [...competitors].sort((a, b) => (PHASE_SORT_ORDER[a.phase] ?? 9) - (PHASE_SORT_ORDER[b.phase] ?? 9));
   return sorted.slice(0, n).map((c) => ({
     company: c.company,
     asset: c.asset_name,
@@ -357,7 +416,7 @@ const TERRITORY_POP: Record<string, number> = Object.fromEntries(
  * WHO GBD / GLOBOCAN / published literature.
  *
  * For each territory:
- *   territory_cases = (US_rate_per_million) × (territory_pop_M) × (regional_factor)
+ *   territory_cases = (US_rate_per_million) x (territory_pop_M) x (regional_factor)
  *
  * Global total = US + EU5 + Japan + China + RoW (sum of adjusted territories).
  */
@@ -403,13 +462,33 @@ function computeGlobalEpidemiology(indication: IndicationData): GlobalEpidemiolo
 
 /**
  * Market Attractiveness (0-30):
- * Log-scaled global prevalence (0-20) + CAGR bonus (0-10).
+ * Log-scaled global prevalence (0-15) + CAGR bonus (0-7) +
+ * revenue potential component (0-8) using WAC benchmarks.
  */
-function scoreMarketAttractiveness(globalPrevalence: number, cagrPct: number): number {
+function scoreMarketAttractiveness(
+  globalPrevalence: number,
+  cagrPct: number,
+  therapyArea: string,
+  indicationName: string,
+  treatmentRate: number,
+): number {
+  // Prevalence component (0-15)
   const logPrev = Math.log10(Math.max(globalPrevalence, 1));
-  const prevScore = Math.min(logPrev / MAX_LOG_PREVALENCE, 1) * 20;
-  const cagrScore = Math.min(cagrPct / MAX_CAGR_REFERENCE, 1) * 10;
-  return Math.round((prevScore + cagrScore) * 10) / 10;
+  const prevScore = Math.min(logPrev / MAX_LOG_PREVALENCE, 1) * 15;
+
+  // CAGR component (0-7)
+  const cagrScore = Math.min(cagrPct / MAX_CAGR_REFERENCE, 1) * 7;
+
+  // Revenue potential component (0-8): WAC x addressable patients
+  const benchmarks = PRICING_BENCHMARKS.filter((b) => b.therapy_area === therapyArea);
+  const medianWac =
+    benchmarks.length > 0
+      ? benchmarks.map((b) => b.us_launch_wac_annual).sort((a, b) => a - b)[Math.floor(benchmarks.length / 2)]
+      : 50000;
+  const revenueSignal = Math.log10(Math.max(globalPrevalence * treatmentRate * (medianWac / 100000), 1));
+  const revenueScore = Math.min(revenueSignal / 5, 1) * 8;
+
+  return Math.round((prevScore + cagrScore + revenueScore) * 10) / 10;
 }
 
 /**
@@ -427,33 +506,77 @@ function scoreCompetitiveOpenness(crowdingScore: number, competitorCount: number
 
 /**
  * Unmet Need (0-20):
- * Weighted combination of treatment gap (60%) and diagnosis gap (40%).
- * Low treatment + low diagnosis = high unmet need = high score.
+ * Weighted combination of treatment gap (50%), diagnosis gap (30%),
+ * and severity bonus (20%). High severity + low treatment = high score.
  */
-function scoreUnmetNeed(treatmentRate: number, diagnosisRate: number): number {
+function scoreUnmetNeed(
+  treatmentRate: number,
+  diagnosisRate: number,
+  severityDistribution?: Record<string, number>,
+): number {
   const treatmentGap = 1 - treatmentRate;
   const diagnosisGap = 1 - diagnosisRate;
-  return Math.round(20 * (treatmentGap * 0.6 + diagnosisGap * 0.4) * 10) / 10;
+
+  let severityBonus = 0;
+  if (severityDistribution) {
+    const severePct =
+      (severityDistribution['severe'] ?? 0) +
+      (severityDistribution['very_severe'] ?? 0) +
+      (severityDistribution['critical'] ?? 0);
+    severityBonus = Math.min(severePct / 0.5, 1); // 50%+ severe = max bonus
+  }
+
+  return Math.round(20 * (treatmentGap * 0.5 + diagnosisGap * 0.3 + severityBonus * 0.2) * 10) / 10;
 }
 
 /**
  * Development Feasibility (0-15):
- * Average LOA across Phase 1/2/3 for the therapy area, normalized to
- * a 0.4 ceiling (40% average LOA across phases = max score).
+ * Prioritizes indication-specific LoA when available, falls back to
+ * therapy-area LoA, then hardcoded defaults. Adds a biomarker
+ * availability bonus (+1) if strong biomarker testing exists.
+ *
+ * Returns the score plus metadata for explanations.
  */
-function scoreDevelopmentFeasibility(therapyArea: string): number {
-  const loaData: Record<DevelopmentStage, number> = LOA_BY_PHASE_AND_AREA[therapyArea] ||
-    LOA_BY_PHASE_AND_AREA['other'] || {
+function scoreDevelopmentFeasibility(
+  therapyArea: string,
+  indicationName: string,
+  biomarkers: BiomarkerEntry[],
+): { score: number; avgLoa: number; hasIndicationLoa: boolean; biomarkerBonus: number } {
+  // Try indication-specific LoA first
+  const indicationKey = indicationName.toLowerCase();
+  const indicationLoa = INDICATION_SPECIFIC_LOA[indicationKey];
+
+  let loaData: Record<DevelopmentStage, number>;
+  let hasIndicationLoa = false;
+
+  if (indicationLoa) {
+    loaData = indicationLoa;
+    hasIndicationLoa = true;
+  } else if (LOA_BY_PHASE_AND_AREA[therapyArea]) {
+    loaData = LOA_BY_PHASE_AND_AREA[therapyArea];
+  } else {
+    // Hardcoded defaults — never use 'other' key
+    loaData = {
       preclinical: 0.05,
       phase1: 0.08,
       phase2: 0.15,
       phase3: 0.5,
       approved: 1.0,
     };
+  }
 
   const avgLoa = (loaData.phase1 + loaData.phase2 + loaData.phase3) / 3;
-  const raw = 15 * (avgLoa / MAX_AVG_LOA_REFERENCE);
-  return Math.round(Math.min(raw, 15) * 10) / 10;
+  let raw = 15 * (avgLoa / MAX_AVG_LOA_REFERENCE);
+
+  // Biomarker availability bonus: if any biomarker has testing_rate > 50%, +1
+  let biomarkerBonus = 0;
+  if (biomarkers.some((b) => b.testing_rate_pct > 50)) {
+    biomarkerBonus = 1;
+    raw += 1;
+  }
+
+  const score = Math.round(Math.min(raw, 15) * 10) / 10;
+  return { score, avgLoa, hasIndicationLoa, biomarkerBonus };
 }
 
 /**
@@ -508,18 +631,41 @@ function matchesTherapyArea(partnerArea: string, indicationArea: string): boolea
 /**
  * Partner Landscape (0-10):
  * Count of active or very-active BD partners whose therapeutic_areas
- * overlap with the indication's therapy area, normalized to a 20-partner
- * ceiling (20+ active partners = max score).
+ * overlap with the indication's therapy area (0-7), plus an
+ * indication-specific deal bonus (0-3) for partners with recent
+ * deals mentioning the indication.
  */
-function scorePartnerLandscape(therapyArea: string): { score: number; activeCount: number } {
+function scorePartnerLandscape(
+  therapyArea: string,
+  indicationName: string,
+  competitors: CompetitorRecord[],
+): { score: number; activeCount: number; indicationDealBonus: number } {
+  // Therapy-area partner count (0-7)
   const activePartners = PHARMA_PARTNER_DATABASE.filter(
     (p) =>
       p.therapeutic_areas.some((ta) => matchesTherapyArea(ta, therapyArea)) &&
       (p.bd_activity === 'active' || p.bd_activity === 'very_active'),
   );
   const count = activePartners.length;
-  const score = Math.round(Math.min(count / MAX_ACTIVE_PARTNERS, 1) * 10 * 10) / 10;
-  return { score, activeCount: count };
+  const taScore = Math.min(count / MAX_ACTIVE_PARTNERS, 1) * 7;
+
+  // Indication-specific deal bonus (0-3): partners with recent_deals mentioning the indication
+  const indicationLower = indicationName.toLowerCase();
+  let indicationDealBonus = 0;
+  for (const partner of PHARMA_PARTNER_DATABASE) {
+    if (indicationDealBonus >= 3) break;
+    const hasIndicationDeal = partner.recent_deals.some(
+      (d) =>
+        d.indication.toLowerCase().includes(indicationLower) || indicationLower.includes(d.indication.toLowerCase()),
+    );
+    if (hasIndicationDeal) {
+      indicationDealBonus++;
+    }
+  }
+
+  const rawScore = taScore + indicationDealBonus;
+  const score = Math.round(Math.min(rawScore, 10) * 10) / 10;
+  return { score, activeCount: count, indicationDealBonus };
 }
 
 // ────────────────────────────────────────────────────────────
@@ -548,26 +694,87 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
   // Global epidemiology
   const { globalPrevalence, globalIncidence } = computeGlobalEpidemiology(indication);
 
-  // 5-dimension scoring
-  const marketAttractiveness = scoreMarketAttractiveness(globalPrevalence, indication.cagr_5yr);
+  // ── Biomarkers ──
+  const biomarkers = getBiomarkersForIndication(indication.name);
+  const biomarkerCount = biomarkers.length;
+  const keyBiomarkers = biomarkers.slice(0, 3).map((b) => b.biomarker);
+
+  // ── Subtypes ──
+  const subtypeData = getSubtypesForIndication(indication.name);
+  const subtypeCount = subtypeData?.subtypes?.length ?? 0;
+
+  // ── Pricing / Revenue potential ──
+  const taBenchmarks = PRICING_BENCHMARKS.filter((b) => b.therapy_area === indication.therapy_area);
+  const medianWac =
+    taBenchmarks.length > 0
+      ? taBenchmarks.map((b) => b.us_launch_wac_annual).sort((a, b) => a - b)[Math.floor(taBenchmarks.length / 2)]
+      : 50000;
+  const estRevenue = globalPrevalence * indication.treatment_rate * medianWac;
+  const revLabel =
+    estRevenue >= 5e9 ? 'blockbuster' : estRevenue >= 1e9 ? 'large' : estRevenue >= 200e6 ? 'mid' : 'niche';
+
+  // ── Early-stage / first-in-class / unpartnered / novel mechanisms ──
+  const earlyPhases = new Set(['Preclinical', 'Phase 1', 'Phase 1/2']);
+  const approvedMechs = new Set(competitors.filter((c) => c.phase === 'Approved').map((c) => c.mechanism_category));
+  const unpartneredFic = competitors.filter((c) => earlyPhases.has(c.phase) && !c.partner && c.first_in_class).length;
+  const novelMechs = competitors.filter((c) => !approvedMechs.has(c.mechanism_category)).length;
+
+  // ── Indication-specific LoA ──
+  const indicationKey = indication.name.toLowerCase();
+  const indicationLoaData = INDICATION_SPECIFIC_LOA[indicationKey] ?? null;
+  const hasIndicationLoa = indicationLoaData !== null;
+
+  // ── 5-dimension scoring ──
+  const marketAttractiveness = scoreMarketAttractiveness(
+    globalPrevalence,
+    indication.cagr_5yr,
+    indication.therapy_area,
+    indication.name,
+    indication.treatment_rate,
+  );
   const competitiveOpenness = scoreCompetitiveOpenness(crowdingScore, competitorCount);
-  const unmetNeed = scoreUnmetNeed(indication.treatment_rate, indication.diagnosis_rate);
-  const developmentFeasibility = scoreDevelopmentFeasibility(indication.therapy_area);
-  const { score: partnerLandscapeScore, activeCount } = scorePartnerLandscape(indication.therapy_area);
+  const unmetNeed = scoreUnmetNeed(
+    indication.treatment_rate,
+    indication.diagnosis_rate,
+    indication.severity_distribution,
+  );
+  const devFeasibility = scoreDevelopmentFeasibility(indication.therapy_area, indication.name, biomarkers);
+  const partnerResult = scorePartnerLandscape(indication.therapy_area, indication.name, competitors);
 
   const opportunityScore =
     Math.round(
-      (marketAttractiveness + competitiveOpenness + unmetNeed + developmentFeasibility + partnerLandscapeScore) * 10,
+      (marketAttractiveness + competitiveOpenness + unmetNeed + devFeasibility.score + partnerResult.score) * 10,
     ) / 10;
 
-  // Top competitors & assets
+  // ── Score explanations ──
+  const severityNote = indication.severity_distribution
+    ? `, severity (severe+critical) ${(
+        ((indication.severity_distribution['severe'] ?? 0) +
+          (indication.severity_distribution['very_severe'] ?? 0) +
+          (indication.severity_distribution['critical'] ?? 0)) *
+        100
+      ).toFixed(0)}%`
+    : '';
+
+  const scoreExplanations: Record<string, string> = {
+    market_attractiveness: `Global prevalence ${formatLargeNum(globalPrevalence)}, ${indication.cagr_5yr.toFixed(1)}% CAGR, median WAC $${formatLargeNum(medianWac)}`,
+    competitive_openness:
+      competitorCount === 0
+        ? 'No tracked competitors (capped at 15/25 due to data uncertainty)'
+        : `${competitorCount} competitors, crowding ${crowdingScore.toFixed(1)}/10 (${crowdingLabel})`,
+    unmet_need: `Treatment rate ${(indication.treatment_rate * 100).toFixed(0)}%, diagnosis rate ${(indication.diagnosis_rate * 100).toFixed(0)}%${severityNote}`,
+    development_feasibility: `${devFeasibility.hasIndicationLoa ? 'Indication-specific' : 'Therapy-area'} LoA avg ${(devFeasibility.avgLoa * 100).toFixed(0)}%${devFeasibility.biomarkerBonus > 0 ? ', biomarker bonus +1' : ''}`,
+    partner_landscape: `${partnerResult.activeCount} active partners in ${indication.therapy_area}${partnerResult.indicationDealBonus > 0 ? `, ${partnerResult.indicationDealBonus} with indication deals` : ''}`,
+  };
+
+  // ── Top competitors & assets ──
   const topCompanies = getTopCompanies(competitors, 3);
   const topAssets = getTopAssets(competitors, 5);
 
-  // White space hints
+  // ── White space hints ──
   const whiteSpaceHints = computeWhiteSpaceHints(competitors, indication.diagnosis_rate, indication.treatment_rate);
 
-  // Community disparities
+  // ── Community disparities ──
   const communityData = getCommunityDataForIndication(indication.name);
   const communityDisparities: CommunityDisparity[] = communityData
     .sort((a, b) => b.prevalence_multiplier - a.prevalence_multiplier)
@@ -590,16 +797,19 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
   const highModalityGaps = communityData.filter((c) => c.modality_gaps.length >= 3);
   if (highModalityGaps.length > 0 && whiteSpaceHints.length < 7) {
     whiteSpaceHints.push(
-      `${highModalityGaps.length} communit${highModalityGaps.length > 1 ? 'ies' : 'y'} with ≥3 modality gaps — novel modality targeting opportunity`,
+      `${highModalityGaps.length} communit${highModalityGaps.length > 1 ? 'ies' : 'y'} with >=3 modality gaps — novel modality targeting opportunity`,
     );
   }
 
-  // Emerging asset count (early-stage, unpartnered)
-  const earlyPhases = new Set(['Preclinical', 'Phase 1', 'Phase 1/2']);
+  // ── Emerging asset count ──
   const emergingAssetCount = competitors.filter((c) => earlyPhases.has(c.phase) && !c.partner).length;
 
-  // Data confidence based on competitor coverage
-  const dataConfidence: DataConfidence = competitorCount >= 5 ? 'high' : competitorCount >= 1 ? 'medium' : 'low';
+  // ── Data confidence — prefer authoritative source from indication data ──
+  const dataConfidence: DataConfidence =
+    indication.data_confidence ?? (competitorCount >= 5 ? 'high' : competitorCount >= 1 ? 'medium' : 'low');
+
+  // ── Severity profile ──
+  const severityProfile = indication.severity_distribution ?? null;
 
   const row: OpportunityRow = {
     indication: indication.name,
@@ -609,8 +819,8 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
       market_attractiveness: marketAttractiveness,
       competitive_openness: competitiveOpenness,
       unmet_need: unmetNeed,
-      development_feasibility: developmentFeasibility,
-      partner_landscape: partnerLandscapeScore,
+      development_feasibility: devFeasibility.score,
+      partner_landscape: partnerResult.score,
     },
     global_prevalence: globalPrevalence,
     global_incidence: globalIncidence,
@@ -626,10 +836,25 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
     top_competitors: topCompanies,
     top_assets: topAssets,
     white_space_hints: whiteSpaceHints,
-    active_partner_count: activeCount,
+    active_partner_count: partnerResult.activeCount,
     community_disparities: communityDisparities,
     emerging_asset_count: emergingAssetCount,
     data_confidence: dataConfidence,
+
+    // Enriched fields
+    revenue_potential_label: revLabel,
+    median_wac: medianWac,
+    severity_profile: severityProfile,
+    biomarker_count: biomarkerCount,
+    key_biomarkers: keyBiomarkers,
+    subtype_count: subtypeCount,
+    unpartnered_fic_count: unpartneredFic,
+    novel_mechanism_count: novelMechs,
+    indication_loa: indicationLoaData
+      ? (Object.fromEntries(Object.entries(indicationLoaData).map(([k, v]) => [k, v])) as Record<string, number>)
+      : null,
+    has_indication_loa: hasIndicationLoa,
+    score_explanations: scoreExplanations,
   };
 
   return { row };
@@ -696,7 +921,23 @@ type SortableField =
   | 'therapy_area'
   | 'unmet_need'
   | 'community_count'
-  | 'emerging_asset_count';
+  | 'emerging_asset_count'
+  | 'median_wac'
+  | 'biomarker_count'
+  | 'subtype_count'
+  | 'unpartnered_fic_count'
+  | 'novel_mechanism_count'
+  | 'revenue_potential_label';
+
+/**
+ * Revenue potential label sort order for consistent sorting.
+ */
+const REVENUE_LABEL_ORDER: Record<string, number> = {
+  blockbuster: 0,
+  large: 1,
+  mid: 2,
+  niche: 3,
+};
 
 /**
  * Returns a numeric comparison value for sorting. String fields
@@ -754,6 +995,25 @@ function compareRows(a: OpportunityRow, b: OpportunityRow, sortBy: string, sortO
       break;
     case 'emerging_asset_count':
       comparison = a.emerging_asset_count - b.emerging_asset_count;
+      break;
+    case 'median_wac':
+      comparison = a.median_wac - b.median_wac;
+      break;
+    case 'biomarker_count':
+      comparison = a.biomarker_count - b.biomarker_count;
+      break;
+    case 'subtype_count':
+      comparison = a.subtype_count - b.subtype_count;
+      break;
+    case 'unpartnered_fic_count':
+      comparison = a.unpartnered_fic_count - b.unpartnered_fic_count;
+      break;
+    case 'novel_mechanism_count':
+      comparison = a.novel_mechanism_count - b.novel_mechanism_count;
+      break;
+    case 'revenue_potential_label':
+      comparison =
+        (REVENUE_LABEL_ORDER[a.revenue_potential_label] ?? 4) - (REVENUE_LABEL_ORDER[b.revenue_potential_label] ?? 4);
       break;
     default:
       comparison = a.opportunity_score - b.opportunity_score;
@@ -885,4 +1145,125 @@ export function getScreenerSummary(): {
       count,
     })),
   };
+}
+
+// ────────────────────────────────────────────────────────────
+// EARLY-STAGE ASSET DISCOVERY
+// ────────────────────────────────────────────────────────────
+
+/**
+ * Discovers and scores early-stage (Preclinical, Phase 1, Phase 1/2)
+ * unpartnered assets across the entire indication universe or filtered
+ * by indication/therapy area. Returns assets ranked by a composite
+ * scouting score (0-100) that weights first-in-class status, partnering
+ * status, mechanism novelty, orphan designation, biomarker availability,
+ * phase advancement, and competitive openness.
+ *
+ * Designed for BD teams scanning for in-licensing or acquisition targets.
+ */
+export function getEarlyStageAssets(
+  indicationName?: string,
+  therapyArea?: string,
+  limit: number = 50,
+): { assets: EarlyStageAsset[]; total: number } {
+  const earlyPhaseSet = new Set(['Preclinical', 'Phase 1', 'Phase 1/2']);
+  const phaseBonus: Record<string, number> = {
+    Preclinical: 0,
+    'Phase 1': 10,
+    'Phase 1/2': 15,
+    'Phase 2': 5,
+  };
+
+  const allAssets: EarlyStageAsset[] = [];
+
+  // Filter indications if specified
+  let targetIndications = INDICATION_DATA;
+  if (indicationName) {
+    const norm = indicationName.toLowerCase().trim();
+    targetIndications = INDICATION_DATA.filter((ind) => ind.name.toLowerCase().trim() === norm);
+  }
+  if (therapyArea) {
+    const taLower = therapyArea.toLowerCase().trim();
+    targetIndications = targetIndications.filter((ind) => ind.therapy_area.toLowerCase().trim() === taLower);
+  }
+
+  for (const indication of targetIndications) {
+    const competitors = getCompetitorsForIndication(indication.name);
+    const { score: crowdingScore } = computeCrowdingScore(competitors);
+
+    // Determine approved mechanisms for novelty check
+    const approvedMechs = new Set(competitors.filter((c) => c.phase === 'Approved').map((c) => c.mechanism_category));
+
+    // Biomarkers for this indication
+    const biomarkers = getBiomarkersForIndication(indication.name);
+    const biomarkerNames = new Set(biomarkers.map((b) => b.biomarker.toLowerCase()));
+
+    // Filter to early-stage assets only
+    const earlyAssets = competitors.filter((c) => earlyPhaseSet.has(c.phase));
+
+    for (const asset of earlyAssets) {
+      const isNovelMechanism = !approvedMechs.has(asset.mechanism_category);
+      const hasBiomarker =
+        asset.has_biomarker_selection || biomarkerNames.has((asset.molecular_target ?? '').toLowerCase());
+
+      // Compute scouting score (0-100)
+      let score = 0;
+      const signals: string[] = [];
+
+      if (asset.first_in_class) {
+        score += 25;
+        signals.push('First-in-class');
+      }
+      if (!asset.partner) {
+        score += 20;
+        signals.push('Unpartnered');
+      }
+      if (isNovelMechanism) {
+        score += 15;
+        signals.push('Novel target');
+      }
+      if (asset.orphan_drug) {
+        score += 10;
+        signals.push('Orphan drug');
+      }
+      if (hasBiomarker) {
+        score += 10;
+        signals.push('Biomarker selection');
+      }
+      score += phaseBonus[asset.phase] ?? 0;
+      if (asset.phase !== 'Preclinical') {
+        signals.push(`${asset.phase} data`);
+      }
+      if (crowdingScore < 4) {
+        score += 5;
+        signals.push('Low crowding indication');
+      }
+
+      allAssets.push({
+        asset_name: asset.asset_name,
+        company: asset.company,
+        indication: indication.name,
+        therapy_area: indication.therapy_area,
+        phase: asset.phase,
+        mechanism: asset.mechanism,
+        mechanism_category: asset.mechanism_category,
+        molecular_target: asset.molecular_target,
+        is_first_in_class: asset.first_in_class,
+        is_unpartnered: !asset.partner,
+        is_orphan: asset.orphan_drug,
+        has_biomarker: hasBiomarker,
+        strengths: asset.strengths,
+        scouting_score: Math.min(score, 100),
+        scouting_signals: signals,
+      });
+    }
+  }
+
+  // Sort by scouting_score descending
+  allAssets.sort((a, b) => b.scouting_score - a.scouting_score);
+
+  const total = allAssets.length;
+  const sliced = allAssets.slice(0, limit);
+
+  return { assets: sliced, total };
 }

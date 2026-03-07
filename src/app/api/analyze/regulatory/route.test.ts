@@ -58,6 +58,7 @@ vi.mock('@/lib/logger', () => ({
   })),
   logApiRequest: vi.fn(),
   logApiResponse: vi.fn(),
+  logBusinessEvent: vi.fn(),
 }));
 
 vi.mock('@/lib/redis', () => ({
@@ -331,6 +332,6 @@ describe('POST /api/analyze/regulatory', () => {
 
     expect(res.status).toBe(500);
     expect(body.success).toBe(false);
-    expect(body.error).toBe('Regulatory DB offline');
+    expect(body.error).toBe('regulatory analysis failed. Please try again.');
   });
 });

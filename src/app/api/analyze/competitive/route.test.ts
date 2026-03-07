@@ -58,6 +58,7 @@ vi.mock('@/lib/logger', () => ({
   })),
   logApiRequest: vi.fn(),
   logApiResponse: vi.fn(),
+  logBusinessEvent: vi.fn(),
 }));
 
 vi.mock('@/lib/analytics/competitive', () => ({
@@ -299,6 +300,6 @@ describe('POST /api/analyze/competitive', () => {
 
     expect(res.status).toBe(500);
     expect(body.success).toBe(false);
-    expect(body.error).toBe('DB timeout');
+    expect(body.error).toBe('Competitive analysis failed. Please try again.');
   });
 });

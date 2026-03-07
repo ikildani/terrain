@@ -58,6 +58,7 @@ vi.mock('@/lib/logger', () => ({
   })),
   logApiRequest: vi.fn(),
   logApiResponse: vi.fn(),
+  logBusinessEvent: vi.fn(),
 }));
 
 vi.mock('@/lib/analytics/market-sizing', () => ({
@@ -280,6 +281,6 @@ describe('POST /api/analyze/market', () => {
 
     expect(res.status).toBe(500);
     expect(body.success).toBe(false);
-    expect(body.error).toBe('Engine failure');
+    expect(body.error).toBe('Market analysis failed. Please try again.');
   });
 });

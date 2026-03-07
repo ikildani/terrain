@@ -423,8 +423,9 @@ export const INDICATION_DATA: IndicationData[] = [
     icd10_codes: ['C61'],
     therapy_area: 'oncology',
     us_prevalence: 160000,
-    us_incidence: 288300,
-    prevalence_source: 'American Cancer Society 2024; SEER Database; Prostate Cancer Foundation',
+    us_incidence: 40000,
+    prevalence_source:
+      'ACS 2024; SEER; Prostate Cancer Foundation — mCRPC-specific (~10-15% of 288K total prostate cancer diagnoses progress to mCRPC)',
     diagnosis_rate: 0.9,
     treatment_rate: 0.82,
     cagr_5yr: 8.8,

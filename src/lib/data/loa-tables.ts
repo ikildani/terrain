@@ -48,7 +48,7 @@ export const LOA_BY_PHASE_AND_AREA: Record<string, Record<DevelopmentStage, numb
   // Musculoskeletal: moderate; pain endpoints subjective but biologics for RA/OA improving rates
   musculoskeletal: { preclinical: 0.05, phase1: 0.08, phase2: 0.17, phase3: 0.5, approved: 1.0 },
   // Pain management: historically poor due to subjective endpoints, abuse liability concerns, high placebo response
-  pain_management: { preclinical: 0.03, phase1: 0.06, phase2: 0.11, phase3: 0.4, approved: 1.0 },
+  pain_management: { preclinical: 0.02, phase1: 0.04, phase2: 0.09, phase3: 0.32, approved: 1.0 },
   // New: gene/cell therapy (distinct risk profile)
   gene_cell_therapy: { preclinical: 0.04, phase1: 0.08, phase2: 0.18, phase3: 0.55, approved: 1.0 },
   // New: psychiatry (historically low success)

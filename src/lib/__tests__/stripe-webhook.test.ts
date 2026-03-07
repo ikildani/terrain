@@ -31,15 +31,40 @@ vi.mock('@/lib/stripe', () => ({
 
 // ── Mock Supabase ───────────────────────────────────────────
 const mockUpdate = vi.fn();
-const mockEq = vi.fn();
+const mockEq = vi.fn(); // Used by update().eq() and delete().eq()
 const mockFrom = vi.fn();
 
-// Chain: supabase.from('table').update({...}).eq('col', val)
-// We set up a fluent mock chain.
+const mockDelete = vi.fn();
+const mockUpsert = vi.fn();
+
+const mockSelect = vi.fn();
+const mockSingle = vi.fn();
+const mockSelectEq = vi.fn(); // Separate eq for select chains (profile lookups)
+const mockInsert = vi.fn();
+
 function resetSupabaseMocks() {
+  // select().eq().single() chain — for profile lookups
+  mockSingle.mockResolvedValue({
+    data: { id: 'user-uuid-123', email: 'test@test.com', full_name: 'Test User' },
+    error: null,
+  });
+  mockSelectEq.mockReturnValue({ single: mockSingle });
+  mockSelect.mockReturnValue({ eq: mockSelectEq });
+  // update().eq() chain — returns Promise with error: null
   mockEq.mockReturnValue(Promise.resolve({ error: null }));
   mockUpdate.mockReturnValue({ eq: mockEq });
-  mockFrom.mockReturnValue({ update: mockUpdate });
+  mockDelete.mockReturnValue({ eq: mockEq });
+  // insert for dedup table
+  mockInsert.mockResolvedValue({ error: null });
+  // upsert for subscription upsert
+  mockUpsert.mockReturnValue(Promise.resolve({ error: null }));
+  mockFrom.mockReturnValue({
+    update: mockUpdate,
+    delete: mockDelete,
+    upsert: mockUpsert,
+    select: mockSelect,
+    insert: mockInsert,
+  });
 }
 
 vi.mock('@supabase/ssr', () => ({
@@ -55,11 +80,29 @@ vi.mock('@/lib/logger', () => ({
     warn: vi.fn(),
     error: vi.fn(),
   },
+  logBusinessEvent: vi.fn(),
 }));
 
 // ── Mock Sentry ─────────────────────────────────────────────
 vi.mock('@/lib/utils/sentry', () => ({
   captureApiError: vi.fn(),
+}));
+
+// ── Mock email module (dynamic import in webhook) ────────────
+vi.mock('@/lib/email', () => ({
+  sendEmail: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('@/emails/SubscriptionConfirmationEmail', () => ({
+  SubscriptionConfirmationEmail: vi.fn().mockReturnValue(null),
+}));
+
+vi.mock('@/emails/CancellationConfirmationEmail', () => ({
+  CancellationConfirmationEmail: vi.fn().mockReturnValue(null),
+}));
+
+vi.mock('@/emails/PaymentFailedEmail', () => ({
+  PaymentFailedEmail: vi.fn().mockReturnValue(null),
 }));
 
 // ── Helper: create a mock NextRequest ───────────────────────
@@ -76,11 +119,7 @@ function createMockRequest(body: string, signature: string | null) {
 }
 
 // ── Helper: create a Stripe event object ────────────────────
-function createStripeEvent(
-  id: string,
-  type: string,
-  data: Record<string, unknown>
-) {
+function createStripeEvent(id: string, type: string, data: Record<string, unknown>) {
   return { id, type, data: { object: data } };
 }
 
@@ -164,7 +203,9 @@ describe('POST /api/stripe/webhook', () => {
       const body1 = await res1.json();
       expect(body1.received).toBe(true);
 
-      // Second call with same event id
+      // Second insert of same event_id returns unique constraint violation
+      mockInsert.mockResolvedValueOnce({ error: { code: '23505', message: 'duplicate key' } });
+
       const req2 = createMockRequest('body', 'sig_valid');
       const res2 = await POST(req2);
       const body2 = await res2.json();
@@ -187,15 +228,16 @@ describe('POST /api/stripe/webhook', () => {
 
       expect(body.received).toBe(true);
       expect(mockFrom).toHaveBeenCalledWith('subscriptions');
-      expect(mockUpdate).toHaveBeenCalledWith(
+      expect(mockUpsert).toHaveBeenCalledWith(
         expect.objectContaining({
           stripe_subscription_id: 'sub_test123',
           stripe_customer_id: 'cus_test456',
           plan: 'pro',
           status: 'active',
-        })
+          user_id: 'user-uuid-123',
+        }),
+        expect.objectContaining({ onConflict: 'user_id' }),
       );
-      expect(mockEq).toHaveBeenCalledWith('user_id', 'user-uuid-123');
     });
 
     it('should upsert subscription with team plan when price matches STRIPE_TEAM_PRICE_ID', async () => {
@@ -208,8 +250,9 @@ describe('POST /api/stripe/webhook', () => {
       const req = createMockRequest('body', 'sig_valid');
       await POST(req);
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        expect.objectContaining({ plan: 'team' })
+      expect(mockUpsert).toHaveBeenCalledWith(
+        expect.objectContaining({ plan: 'team' }),
+        expect.objectContaining({ onConflict: 'user_id' }),
       );
     });
 
@@ -223,8 +266,9 @@ describe('POST /api/stripe/webhook', () => {
       const req = createMockRequest('body', 'sig_valid');
       await POST(req);
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        expect.objectContaining({ plan: 'free' })
+      expect(mockUpsert).toHaveBeenCalledWith(
+        expect.objectContaining({ plan: 'free' }),
+        expect.objectContaining({ onConflict: 'user_id' }),
       );
     });
 
@@ -263,7 +307,7 @@ describe('POST /api/stripe/webhook', () => {
           status: 'canceled',
           stripe_subscription_id: null,
           cancel_at_period_end: false,
-        })
+        }),
       );
       expect(mockEq).toHaveBeenCalledWith('user_id', 'user-uuid-123');
     });
@@ -299,7 +343,7 @@ describe('POST /api/stripe/webhook', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
           status: 'past_due',
-        })
+        }),
       );
       expect(mockEq).toHaveBeenCalledWith('stripe_customer_id', 'cus_test456');
     });
@@ -328,10 +372,8 @@ describe('POST /api/stripe/webhook', () => {
       const event = createStripeEvent('evt_error_1', 'customer.subscription.created', sub);
       mockConstructEvent.mockReturnValue(event);
 
-      // Simulate Supabase error
-      mockEq.mockReturnValue(
-        Promise.resolve({ error: { message: 'DB connection timeout' } })
-      );
+      // Simulate Supabase upsert error (subscription.created uses upsert)
+      mockUpsert.mockReturnValueOnce(Promise.resolve({ error: { message: 'DB connection timeout' } }));
 
       const req = createMockRequest('body', 'sig_valid');
       const res = await POST(req);
@@ -346,9 +388,8 @@ describe('POST /api/stripe/webhook', () => {
       const event = createStripeEvent('evt_error_2', 'customer.subscription.deleted', sub);
       mockConstructEvent.mockReturnValue(event);
 
-      mockEq.mockReturnValue(
-        Promise.resolve({ error: { message: 'Connection refused' } })
-      );
+      // subscription.deleted uses update().eq() — mockEq returns the Promise
+      mockEq.mockReturnValue(Promise.resolve({ error: { message: 'Connection refused' } }));
 
       const req = createMockRequest('body', 'sig_valid');
       const res = await POST(req);
@@ -362,9 +403,8 @@ describe('POST /api/stripe/webhook', () => {
       const event = createStripeEvent('evt_error_3', 'invoice.payment_failed', invoice);
       mockConstructEvent.mockReturnValue(event);
 
-      mockEq.mockReturnValue(
-        Promise.resolve({ error: { message: 'Timeout' } })
-      );
+      // invoice.payment_failed uses update().eq() — mockEq returns the Promise
+      mockEq.mockReturnValue(Promise.resolve({ error: { message: 'Timeout' } }));
 
       const req = createMockRequest('body', 'sig_valid');
       const res = await POST(req);
@@ -374,14 +414,12 @@ describe('POST /api/stripe/webhook', () => {
     });
 
     it('should allow retry of a previously failed event (removed from dedup set)', async () => {
-      // First attempt: fails due to DB error
+      // First attempt: fails due to upsert error
       const sub = createSubscription();
       const event = createStripeEvent('evt_retry_test', 'customer.subscription.created', sub);
       mockConstructEvent.mockReturnValue(event);
 
-      mockEq.mockReturnValueOnce(
-        Promise.resolve({ error: { message: 'DB error' } })
-      );
+      mockUpsert.mockReturnValueOnce(Promise.resolve({ error: { message: 'DB error' } }));
 
       const req1 = createMockRequest('body', 'sig_valid');
       const res1 = await POST(req1);
