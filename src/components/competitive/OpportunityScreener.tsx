@@ -17,6 +17,7 @@ import {
   DollarSign,
   Shield,
   X,
+  UserCog,
 } from 'lucide-react';
 import { OpportunityFilterBar, type ScreenerFilters } from './OpportunityFilterBar';
 import { OpportunityTable } from './OpportunityTable';
@@ -63,15 +64,15 @@ function SummaryStats({
   const totalUnpartneredFic = allRows.reduce((sum, r) => sum + (r.unpartnered_fic_count ?? 0), 0);
   const totalNovelMoa = allRows.reduce((sum, r) => sum + (r.novel_mechanism_count ?? 0), 0);
 
-  // Investor-specific stats
-  const isInvestor = weightProfile === 'investor';
+  // Lens-specific computed stats
   const totalDeals = allRows.reduce((sum, r) => sum + (r.deal_activity?.recent_deal_count ?? 0), 0);
   const withCatalysts = allRows.filter((r) => (r.catalyst_signals?.length ?? 0) > 0).length;
   const withHighCatalysts = allRows.filter((r) => r.catalyst_signals?.some((c) => c.impact === 'high') ?? false).length;
   const withPatentCliffs = allRows.filter((r) => r.nearest_patent_cliff_year !== null).length;
 
-  return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+  // Common first 3 cards (Screened, Avg Score, High Opportunity)
+  const commonCards = (
+    <>
       <div className="stat-card">
         <div className="flex items-center gap-1.5 mb-2">
           <Radar className="w-3.5 h-3.5 text-slate-500" />
@@ -100,8 +101,13 @@ function SummaryStats({
         <div className="font-mono text-xl text-emerald-400 font-medium">{highOpp}</div>
         <p className="text-[10px] text-slate-500 mt-1">scoring 60+</p>
       </div>
+    </>
+  );
 
-      {isInvestor ? (
+  // Lens-specific last 3 cards
+  function lensCards() {
+    if (weightProfile === 'investor') {
+      return (
         <>
           <div className="stat-card">
             <div className="flex items-center gap-1.5 mb-2">
@@ -111,7 +117,6 @@ function SummaryStats({
             <div className="font-mono text-xl text-emerald-400 font-medium">{totalDeals}</div>
             <p className="text-[10px] text-slate-500 mt-1">transactions tracked</p>
           </div>
-
           <div className="stat-card">
             <div className="flex items-center gap-1.5 mb-2">
               <Rocket className="w-3.5 h-3.5 text-slate-500" />
@@ -120,7 +125,6 @@ function SummaryStats({
             <div className="font-mono text-xl text-amber-400 font-medium">{withHighCatalysts}</div>
             <p className="text-[10px] text-slate-500 mt-1">of {withCatalysts} with signals</p>
           </div>
-
           <div className="stat-card">
             <div className="flex items-center gap-1.5 mb-2">
               <Shield className="w-3.5 h-3.5 text-slate-500" />
@@ -130,7 +134,11 @@ function SummaryStats({
             <p className="text-[10px] text-slate-500 mt-1">with LOE exposure</p>
           </div>
         </>
-      ) : (
+      );
+    }
+
+    if (weightProfile === 'competitive_entry') {
+      return (
         <>
           <div className="stat-card">
             <div className="flex items-center gap-1.5 mb-2">
@@ -140,7 +148,6 @@ function SummaryStats({
             <div className="font-mono text-xl text-teal-400 font-medium">{openMarkets}</div>
             <p className="text-[10px] text-slate-500 mt-1">crowding &lt; 4</p>
           </div>
-
           <div className="stat-card">
             <div className="flex items-center gap-1.5 mb-2">
               <Rocket className="w-3.5 h-3.5 text-slate-500" />
@@ -149,7 +156,6 @@ function SummaryStats({
             <div className="font-mono text-xl text-teal-400 font-medium">{totalUnpartneredFic}</div>
             <p className="text-[10px] text-slate-500 mt-1">scouting targets</p>
           </div>
-
           <div className="stat-card">
             <div className="flex items-center gap-1.5 mb-2">
               <Dna className="w-3.5 h-3.5 text-slate-500" />
@@ -159,7 +165,138 @@ function SummaryStats({
             <p className="text-[10px] text-slate-500 mt-1">differentiated assets</p>
           </div>
         </>
-      )}
+      );
+    }
+
+    if (weightProfile === 'big_pharma_bd') {
+      return (
+        <>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <DollarSign className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Deal Flow</span>
+            </div>
+            <div className="font-mono text-xl text-emerald-400 font-medium">{totalDeals}</div>
+            <p className="text-[10px] text-slate-500 mt-1">recent transactions</p>
+          </div>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Rocket className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Unpartnered FIC</span>
+            </div>
+            <div className="font-mono text-xl text-teal-400 font-medium">{totalUnpartneredFic}</div>
+            <p className="text-[10px] text-slate-500 mt-1">in-licensing targets</p>
+          </div>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Shield className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Patent Cliffs</span>
+            </div>
+            <div className="font-mono text-xl text-teal-400 font-medium">{withPatentCliffs}</div>
+            <p className="text-[10px] text-slate-500 mt-1">replacement opportunity</p>
+          </div>
+        </>
+      );
+    }
+
+    if (weightProfile === 'corp_dev') {
+      return (
+        <>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Shield className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Patent Cliffs</span>
+            </div>
+            <div className="font-mono text-xl text-amber-400 font-medium">{withPatentCliffs}</div>
+            <p className="text-[10px] text-slate-500 mt-1">acquisition windows</p>
+          </div>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <DollarSign className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">M&A Activity</span>
+            </div>
+            <div className="font-mono text-xl text-emerald-400 font-medium">{totalDeals}</div>
+            <p className="text-[10px] text-slate-500 mt-1">transactions tracked</p>
+          </div>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Rocket className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">High Catalysts</span>
+            </div>
+            <div className="font-mono text-xl text-amber-400 font-medium">{withHighCatalysts}</div>
+            <p className="text-[10px] text-slate-500 mt-1">timing signals</p>
+          </div>
+        </>
+      );
+    }
+
+    if (weightProfile === 'analyst') {
+      const highConfidence = allRows.filter((r) => r.data_confidence === 'high').length;
+      return (
+        <>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Users className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Open Markets</span>
+            </div>
+            <div className="font-mono text-xl text-teal-400 font-medium">{openMarkets}</div>
+            <p className="text-[10px] text-slate-500 mt-1">crowding &lt; 4</p>
+          </div>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <DollarSign className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Deal Flow</span>
+            </div>
+            <div className="font-mono text-xl text-emerald-400 font-medium">{totalDeals}</div>
+            <p className="text-[10px] text-slate-500 mt-1">transactions tracked</p>
+          </div>
+          <div className="stat-card">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Shield className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">High Confidence</span>
+            </div>
+            <div className="font-mono text-xl text-teal-400 font-medium">{highConfidence}</div>
+            <p className="text-[10px] text-slate-500 mt-1">robust data</p>
+          </div>
+        </>
+      );
+    }
+
+    // Default (balanced, rare_disease, etc.)
+    return (
+      <>
+        <div className="stat-card">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Users className="w-3.5 h-3.5 text-slate-500" />
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Open Markets</span>
+          </div>
+          <div className="font-mono text-xl text-teal-400 font-medium">{openMarkets}</div>
+          <p className="text-[10px] text-slate-500 mt-1">crowding &lt; 4</p>
+        </div>
+        <div className="stat-card">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Rocket className="w-3.5 h-3.5 text-slate-500" />
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Unpartnered FIC</span>
+          </div>
+          <div className="font-mono text-xl text-teal-400 font-medium">{totalUnpartneredFic}</div>
+          <p className="text-[10px] text-slate-500 mt-1">scouting targets</p>
+        </div>
+        <div className="stat-card">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Dna className="w-3.5 h-3.5 text-slate-500" />
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Novel MoA</span>
+          </div>
+          <div className="font-mono text-xl text-violet-400 font-medium">{totalNovelMoa}</div>
+          <p className="text-[10px] text-slate-500 mt-1">differentiated assets</p>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+      {commonCards}
+      {lensCards()}
     </div>
   );
 }
@@ -347,16 +484,26 @@ export default function OpportunityScreener() {
   const [searchQuery, setSearchQuery] = useState('');
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);
   const [weightProfile, setWeightProfile] = useState<string>(DEFAULT_WEIGHT_PROFILE);
-  const [showInvestorCallout, setShowInvestorCallout] = useState(false);
+  const [showRoleCallout, setShowRoleCallout] = useState(false);
   const roleInitialized = useRef(false);
 
-  // Auto-select investor lens when user profile role is 'investor'
+  // Auto-select lens based on user's profile role
   useEffect(() => {
     if (roleInitialized.current) return;
-    if (role === 'investor') {
+    if (!role) return;
+    const ROLE_TO_LENS: Record<string, string> = {
+      investor: 'investor',
+      founder: 'competitive_entry',
+      bd_executive: 'big_pharma_bd',
+      corp_dev: 'corp_dev',
+      analyst: 'analyst',
+      consultant: 'analyst',
+    };
+    const lens = ROLE_TO_LENS[role];
+    if (lens) {
       roleInitialized.current = true;
-      setWeightProfile('investor');
-      setShowInvestorCallout(true);
+      setWeightProfile(lens);
+      setShowRoleCallout(true);
     }
   }, [role]);
 
@@ -453,9 +600,7 @@ export default function OpportunityScreener() {
   function handleWeightProfileChange(profile: string) {
     setWeightProfile(profile);
     setOffset(0);
-    if (profile === 'investor') {
-      setShowInvestorCallout(true);
-    }
+    setShowRoleCallout(true);
     mutation.mutate({ filters, sort_by: sortBy, sort_order: sortOrder, offset: 0, weight_profile: profile });
   }
 
@@ -498,26 +643,84 @@ export default function OpportunityScreener() {
         )}
       </div>
 
-      {/* Investor callout (role-aware or first-time investor lens selection) */}
-      {showInvestorCallout && weightProfile === 'investor' && (
-        <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-teal-500/8 border border-teal-500/20">
-          <TrendingUp className="w-4 h-4 text-teal-400 flex-shrink-0" />
-          <p className="text-xs text-teal-300 flex-1">
-            <span className="font-medium">Viewing as Investor</span>
-            <span className="text-teal-400/70">
+      {/* Role nudge — shown when user has no role set (never completed onboarding) */}
+      {role === null && hasSearched && !isLoading && (
+        <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-navy-800/60 border border-navy-700/40">
+          <UserCog className="w-4 h-4 text-slate-500 flex-shrink-0" />
+          <p className="text-xs text-slate-400 flex-1">
+            <span className="font-medium text-slate-300">Personalize your view</span>
+            <span className="text-slate-500">
               {' '}
-              &mdash; deal comps, catalyst signals, and investment thesis for every indication. Expand any row to see
-              the full Investor View.
+              &mdash; set your role in{' '}
+              <a href="/onboarding" className="text-teal-400 hover:text-teal-300 underline underline-offset-2">
+                onboarding
+              </a>{' '}
+              to auto-select the right lens and see role-specific insights.
             </span>
           </p>
-          <button
-            onClick={() => setShowInvestorCallout(false)}
-            className="text-teal-500/50 hover:text-teal-400 transition-colors"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
         </div>
       )}
+
+      {/* Role-aware callout (auto-selected or manual lens switch) */}
+      {showRoleCallout &&
+        (() => {
+          const LENS_CALLOUTS: Record<string, { title: string; description: string; icon: typeof TrendingUp }> = {
+            investor: {
+              title: 'Viewing as Investor',
+              description:
+                'deal comps, catalyst signals, and investment thesis for every indication. Expand any row to see the full Investor View.',
+              icon: TrendingUp,
+            },
+            competitive_entry: {
+              title: 'Viewing as Founder',
+              description:
+                'competitive white space, unpartnered first-in-class assets, and market entry windows. Scores emphasize open markets over sheer size.',
+              icon: Target,
+            },
+            big_pharma_bd: {
+              title: 'Viewing as BD',
+              description:
+                'large addressable markets, active partner landscape, and in-licensing targets. Scores emphasize market attractiveness and deal flow.',
+              icon: Users,
+            },
+            corp_dev: {
+              title: 'Viewing as Corp Dev / M&A',
+              description:
+                'acquisition targets, patent cliff exposure, and pipeline gaps. Scores emphasize development feasibility and market consolidation opportunities.',
+              icon: Shield,
+            },
+            analyst: {
+              title: 'Viewing as Analyst',
+              description:
+                'comprehensive, research-grade coverage with balanced weighting across all dimensions. Maximum data density for diligence workflows.',
+              icon: Radar,
+            },
+            rare_disease: {
+              title: 'Rare Disease Focus',
+              description:
+                'orphan drug opportunities with high unmet need and regulatory tailwinds. Scores prioritize clinical need and feasibility over market size.',
+              icon: Dna,
+            },
+          };
+          const callout = LENS_CALLOUTS[weightProfile];
+          if (!callout) return null;
+          const Icon = callout.icon;
+          return (
+            <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-teal-500/8 border border-teal-500/20">
+              <Icon className="w-4 h-4 text-teal-400 flex-shrink-0" />
+              <p className="text-xs text-teal-300 flex-1">
+                <span className="font-medium">{callout.title}</span>
+                <span className="text-teal-400/70"> &mdash; {callout.description}</span>
+              </p>
+              <button
+                onClick={() => setShowRoleCallout(false)}
+                className="text-teal-500/50 hover:text-teal-400 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          );
+        })()}
 
       {/* Apply filters button + search + export */}
       <div className="flex items-center gap-3 flex-wrap">

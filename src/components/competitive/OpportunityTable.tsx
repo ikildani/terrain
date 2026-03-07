@@ -119,6 +119,10 @@ function SortHeader({
 
 export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading, weightProfile }: OpportunityTableProps) {
   const isInvestorMode = weightProfile === 'investor';
+  const isBdMode = weightProfile === 'big_pharma_bd';
+  const isFounderMode = weightProfile === 'competitive_entry';
+  const isCorpDevMode = weightProfile === 'corp_dev';
+  const isAnalystMode = weightProfile === 'analyst';
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
   const toggleRow = useCallback((indication: string) => {
@@ -325,6 +329,31 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading, w
                           >
                             {row.investment_thesis.split('.')[0]}.
                           </div>
+                        ) : isFounderMode && row.white_space_hints.length > 0 ? (
+                          <div className="text-[10px] text-teal-500/70 mt-0.5 truncate max-w-[280px]">
+                            White space: {row.white_space_hints[0]}
+                          </div>
+                        ) : isBdMode && row.deal_activity && row.deal_activity.recent_deal_count > 0 ? (
+                          <div className="text-[10px] text-teal-500/70 mt-0.5 truncate max-w-[280px]">
+                            {row.deal_activity.recent_deal_count} deals &middot; avg $
+                            {row.deal_activity.avg_deal_total_m}M total value
+                          </div>
+                        ) : isCorpDevMode ? (
+                          <div className="text-[10px] text-teal-500/70 mt-0.5 truncate max-w-[280px]">
+                            {row.nearest_patent_cliff_year
+                              ? `LOE ${row.nearest_patent_cliff_year}`
+                              : 'No near-term LOE'}
+                            {row.deal_activity && row.deal_activity.largest_deal_total_m > 0
+                              ? ` · largest deal $${row.deal_activity.largest_deal_total_m >= 1000 ? `${(row.deal_activity.largest_deal_total_m / 1000).toFixed(1)}B` : `${row.deal_activity.largest_deal_total_m}M`}`
+                              : ''}
+                          </div>
+                        ) : isAnalystMode ? (
+                          <div className="text-[10px] text-slate-500 mt-0.5 truncate max-w-[280px]">
+                            {row.competitor_count} competitors · {row.data_confidence} confidence
+                            {row.catalyst_signals && row.catalyst_signals.length > 0
+                              ? ` · ${row.catalyst_signals.length} catalysts`
+                              : ''}
+                          </div>
                         ) : row.top_competitors.length > 0 ? (
                           <div className="text-[10px] text-slate-500 mt-0.5 truncate max-w-[200px]">
                             {row.top_competitors.slice(0, 2).join(', ')}
@@ -486,7 +515,27 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading, w
                     dealActivity={row.deal_activity}
                     catalystSignals={row.catalyst_signals}
                     investmentThesis={row.investment_thesis}
-                    defaultTab={isInvestorMode ? 'investor' : 'score'}
+                    whiteSpaceHints={row.white_space_hints}
+                    topCompetitors={row.top_competitors}
+                    crowdingScore={row.crowding_score}
+                    crowdingLabel={row.crowding_label}
+                    competitorCount={row.competitor_count}
+                    unpartneredFicCount={row.unpartnered_fic_count ?? 0}
+                    novelMechanismCount={row.novel_mechanism_count ?? 0}
+                    emergingAssetCount={row.emerging_asset_count}
+                    nearestPatentCliffYear={row.nearest_patent_cliff_year ?? null}
+                    defaultTab={
+                      isInvestorMode
+                        ? 'investor'
+                        : isBdMode
+                          ? 'investor'
+                          : isCorpDevMode
+                            ? 'investor'
+                            : isFounderMode
+                              ? 'competitive_entry'
+                              : 'score'
+                    }
+                    weightProfile={weightProfile}
                   />
                 </Fragment>
               );

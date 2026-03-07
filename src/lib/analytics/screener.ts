@@ -128,7 +128,7 @@ export const WEIGHT_PROFILES: Record<string, { label: string; description: strin
   },
   big_pharma_bd: {
     label: 'Big Pharma BD',
-    description: 'Prioritizes large markets and partner activity — in-licensing focus',
+    description: 'Prioritizes large markets and partner activity — in-licensing and co-development targets',
     weights: {
       market_attractiveness: 35,
       competitive_openness: 20,
@@ -137,9 +137,20 @@ export const WEIGHT_PROFILES: Record<string, { label: string; description: strin
       partner_landscape: 15,
     },
   },
+  corp_dev: {
+    label: 'Corp Dev / M&A',
+    description: 'Prioritizes acquisition targets — patent cliffs, pipeline gaps, and market consolidation',
+    weights: {
+      market_attractiveness: 30,
+      competitive_openness: 15,
+      unmet_need: 15,
+      development_feasibility: 25,
+      partner_landscape: 15,
+    },
+  },
   competitive_entry: {
     label: 'Competitive Entry',
-    description: 'Prioritizes open markets and competitive dynamics — white space hunting',
+    description: 'Prioritizes open markets and competitive dynamics — white space hunting for founders',
     weights: {
       market_attractiveness: 20,
       competitive_openness: 35,
@@ -150,13 +161,24 @@ export const WEIGHT_PROFILES: Record<string, { label: string; description: strin
   },
   investor: {
     label: 'Investor',
-    description: 'Prioritizes market attractiveness and feasibility — ROI-oriented',
+    description: 'Prioritizes market attractiveness and feasibility — ROI-oriented for portfolio decisions',
     weights: {
       market_attractiveness: 35,
       competitive_openness: 20,
       unmet_need: 10,
       development_feasibility: 25,
       partner_landscape: 10,
+    },
+  },
+  analyst: {
+    label: 'Analyst',
+    description: 'Comprehensive coverage across all dimensions — research-grade data density',
+    weights: {
+      market_attractiveness: 25,
+      competitive_openness: 20,
+      unmet_need: 20,
+      development_feasibility: 20,
+      partner_landscape: 15,
     },
   },
 };

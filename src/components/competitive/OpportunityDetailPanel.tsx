@@ -16,6 +16,8 @@ import {
   DollarSign,
   Layers,
   TrendingUp,
+  Target,
+  Crosshair,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { ScoreBreakdownBar } from './OpportunityScoreBar';
@@ -153,12 +155,23 @@ interface OpportunityDetailPanelProps {
   dealActivity?: DealActivity;
   catalystSignals?: CatalystSignal[];
   investmentThesis?: string;
+  whiteSpaceHints?: string[];
+  topCompetitors?: string[];
+  crowdingScore?: number;
+  crowdingLabel?: string;
+  competitorCount?: number;
+  unpartneredFicCount?: number;
+  novelMechanismCount?: number;
+  emergingAssetCount?: number;
+  nearestPatentCliffYear?: number | null;
   defaultTab?: DetailTab;
+  weightProfile?: string;
 }
 
 type DetailTab =
   | 'score'
   | 'investor'
+  | 'competitive_entry'
   | 'subtypes'
   | 'biomarkers'
   | 'pricing'
@@ -172,6 +185,7 @@ type DetailTab =
 const TABS: { id: DetailTab; label: string; icon: typeof Beaker }[] = [
   { id: 'score', label: 'Score Breakdown', icon: Lightbulb },
   { id: 'investor', label: 'Investor View', icon: TrendingUp },
+  { id: 'competitive_entry', label: 'Entry Analysis', icon: Target },
   { id: 'subtypes', label: 'Subtypes & Segments', icon: Layers },
   { id: 'biomarkers', label: 'Biomarkers', icon: Dna },
   { id: 'pricing', label: 'Pricing & Revenue', icon: DollarSign },
@@ -197,7 +211,17 @@ export function OpportunityDetailPanel({
   dealActivity,
   catalystSignals,
   investmentThesis,
+  whiteSpaceHints = [],
+  topCompetitors = [],
+  crowdingScore = 0,
+  crowdingLabel = 'unknown',
+  competitorCount = 0,
+  unpartneredFicCount = 0,
+  novelMechanismCount = 0,
+  emergingAssetCount = 0,
+  nearestPatentCliffYear = null,
   defaultTab = 'score',
+  weightProfile,
 }: OpportunityDetailPanelProps) {
   const [activeTab, setActiveTab] = useState<DetailTab>(defaultTab);
   const [detail, setDetail] = useState<DetailData | null>(null);
@@ -544,6 +568,139 @@ export function OpportunityDetailPanel({
                     </div>
                   ) : (
                     <p className="text-xs text-slate-500">No notable catalysts identified.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══════════ Competitive Entry Analysis (Founder View) ═══════════ */}
+          {activeTab === 'competitive_entry' && (
+            <div className="space-y-6">
+              {/* Competitive positioning summary */}
+              <div className="p-4 rounded-lg bg-navy-800/40 border border-navy-700/40">
+                <h4 className="text-xs font-medium text-teal-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5" />
+                  Competitive Entry Assessment
+                </h4>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  {crowdingScore < 3
+                    ? `This is an open market with a crowding score of ${crowdingScore.toFixed(1)}/10. Low competitive density creates favorable conditions for new entrants with differentiated assets.`
+                    : crowdingScore < 6
+                      ? `Moderate competition with a crowding score of ${crowdingScore.toFixed(1)}/10. Entry is viable for assets with clear differentiation — focus on unaddressed patient segments and novel mechanisms.`
+                      : `Highly competitive market (${crowdingScore.toFixed(1)}/10). New entrants need substantial differentiation to justify development investment. Consider underserved subtypes or combination strategies.`}
+                  {nearestPatentCliffYear
+                    ? ` Patent cliff in ${nearestPatentCliffYear} may create a market entry window.`
+                    : ''}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Market positioning */}
+                <div>
+                  <h4 className="text-xs font-medium text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <Crosshair className="w-3.5 h-3.5 text-teal-400" />
+                    Market Position
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="p-2 rounded bg-navy-800/30 border border-navy-700/30">
+                        <div className="text-[10px] text-slate-500 font-mono uppercase">Crowding</div>
+                        <div
+                          className={cn(
+                            'text-lg font-mono',
+                            crowdingScore < 4
+                              ? 'text-emerald-400'
+                              : crowdingScore < 7
+                                ? 'text-amber-400'
+                                : 'text-red-400',
+                          )}
+                        >
+                          {crowdingScore.toFixed(1)}
+                          <span className="text-xs text-slate-500">/10</span>
+                        </div>
+                      </div>
+                      <div className="p-2 rounded bg-navy-800/30 border border-navy-700/30">
+                        <div className="text-[10px] text-slate-500 font-mono uppercase">Competitors</div>
+                        <div className="text-lg font-mono text-white">{competitorCount}</div>
+                      </div>
+                      <div className="p-2 rounded bg-navy-800/30 border border-navy-700/30">
+                        <div className="text-[10px] text-slate-500 font-mono uppercase">Unpartnered FIC</div>
+                        <div className="text-lg font-mono text-teal-400">{unpartneredFicCount}</div>
+                      </div>
+                      <div className="p-2 rounded bg-navy-800/30 border border-navy-700/30">
+                        <div className="text-[10px] text-slate-500 font-mono uppercase">Novel MoA</div>
+                        <div className="text-lg font-mono text-violet-400">{novelMechanismCount}</div>
+                      </div>
+                    </div>
+
+                    {/* Top incumbents */}
+                    {topCompetitors.length > 0 && (
+                      <div>
+                        <div className="text-[10px] text-slate-500 font-mono uppercase mb-1.5">Key Incumbents</div>
+                        <div className="space-y-1">
+                          {topCompetitors.slice(0, 5).map((comp, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center gap-2 p-1.5 rounded bg-navy-800/20 border border-navy-700/20"
+                            >
+                              <span className="text-[10px] font-mono text-slate-600 w-4">{i + 1}.</span>
+                              <span className="text-xs text-slate-300">{comp}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {nearestPatentCliffYear && (
+                      <div className="p-2 rounded bg-amber-500/8 border border-amber-500/15">
+                        <div className="text-[10px] text-amber-400 font-mono uppercase">Patent Cliff Window</div>
+                        <div className="text-sm text-amber-300 font-medium mt-0.5">
+                          LOE in {nearestPatentCliffYear} —{' '}
+                          {nearestPatentCliffYear - new Date().getFullYear() <= 2
+                            ? 'imminent opportunity'
+                            : `${nearestPatentCliffYear - new Date().getFullYear()} years out`}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* White space & entry opportunities */}
+                <div>
+                  <h4 className="text-xs font-medium text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <Target className="w-3.5 h-3.5 text-emerald-400" />
+                    White Space & Entry Points
+                  </h4>
+                  {whiteSpaceHints.length > 0 ? (
+                    <div className="space-y-2">
+                      {whiteSpaceHints.map((hint, i) => (
+                        <div key={i} className="p-2.5 rounded-md bg-navy-800/30 border border-navy-700/30">
+                          <div className="flex items-start gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0 mt-1.5" />
+                            <p className="text-xs text-slate-300 leading-relaxed">{hint}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500">
+                      No clear white space opportunities identified. Consider adjacent indications or novel combination
+                      strategies.
+                    </p>
+                  )}
+
+                  {emergingAssetCount > 0 && (
+                    <div className="mt-3 p-2 rounded bg-navy-800/30 border border-navy-700/30">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-slate-500 font-mono uppercase">Emerging Pipeline</span>
+                        <span className="text-sm font-mono text-amber-400">{emergingAssetCount} assets</span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-1">
+                        Early-stage assets signal growing interest. Move fast to establish position before late-stage
+                        readouts shift the landscape.
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
