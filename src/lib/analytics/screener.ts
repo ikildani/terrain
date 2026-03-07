@@ -248,6 +248,8 @@ export interface OpportunityRow {
   novel_mechanism_count: number;
   indication_loa: Record<string, number> | null;
   has_indication_loa: boolean;
+  nearest_patent_cliff_year: number | null;
+  loe_revenue_at_risk: number;
   score_explanations: Record<string, string>;
 }
 
@@ -842,7 +844,13 @@ function scoreIndication(
     indication.name,
     indication.treatment_rate,
   );
-  const competitiveOpenness = scoreCompetitiveOpenness(crowdingScore, competitorCount);
+  const baseCompetitiveOpenness = scoreCompetitiveOpenness(crowdingScore, competitorCount);
+  // LOE impact bonus: when major drugs in the indication are approaching LOE,
+  // competitive openness increases — the market is about to open up.
+  // Up to +3 bonus points when LOE impact score is high.
+  const loeImpact = computeLoeImpactScore(indication.name);
+  const loeBonus = Math.round(loeImpact.score * 3 * 10) / 10; // 0-3 bonus
+  const competitiveOpenness = Math.min(baseCompetitiveOpenness + loeBonus, 25); // Cap at dimension max
   const unmetNeed = scoreUnmetNeed(
     indication.treatment_rate,
     indication.diagnosis_rate,
@@ -889,7 +897,12 @@ function scoreIndication(
     competitive_openness:
       competitorCount === 0
         ? 'No tracked competitors (capped at 15/25 due to data uncertainty)'
-        : `${competitorCount} competitors, crowding ${crowdingScore.toFixed(1)}/10 (${crowdingLabel})`,
+        : `${competitorCount} competitors, crowding ${crowdingScore.toFixed(1)}/10 (${crowdingLabel})${loeBonus > 0 ? `, LOE bonus +${loeBonus.toFixed(1)}` : ''}`,
+    ...(loeImpact.cliffCount > 0
+      ? {
+          loe_impact: `${loeImpact.cliffCount} patent cliff(s), $${loeImpact.totalRevenueAtRisk.toFixed(1)}B revenue at risk${loeImpact.nearestCliffYear ? `, nearest cliff ${loeImpact.nearestCliffYear}` : ''}, LOE score ${loeImpact.score.toFixed(2)}`,
+        }
+      : {}),
     unmet_need: `Treatment rate ${(indication.treatment_rate * 100).toFixed(0)}%, diagnosis rate ${(indication.diagnosis_rate * 100).toFixed(0)}%${severityNote}`,
     development_feasibility: `${devFeasibility.hasIndicationLoa ? 'Indication-specific' : 'Therapy-area'} LoA avg ${(devFeasibility.avgLoa * 100).toFixed(0)}%${devFeasibility.biomarkerBonus > 0 ? ', biomarker bonus +1' : ''}${devFeasibility.orphanBonus > 0 ? ', orphan drug advantage +1.5' : ''}`,
     partner_landscape: `${partnerResult.activeCount} active partners in ${indication.therapy_area}${partnerResult.indicationDealBonus > 0 ? `, ${partnerResult.indicationDealBonus} with indication deals` : ''}`,
@@ -986,6 +999,8 @@ function scoreIndication(
       ? (Object.fromEntries(Object.entries(indicationLoaData).map(([k, v]) => [k, v])) as Record<string, number>)
       : null,
     has_indication_loa: hasIndicationLoa,
+    nearest_patent_cliff_year: loeImpact.nearestCliffYear,
+    loe_revenue_at_risk: loeImpact.totalRevenueAtRisk,
     score_explanations: scoreExplanations,
   };
 

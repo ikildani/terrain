@@ -2,12 +2,12 @@
 // TERRAIN — Indication Data Map
 // lib/data/indication-map.ts
 //
-// Static database of 223 indications with epidemiology data.
-// Covers: oncology (49), rare disease (29), neurology (24), immunology (17),
-// cardiovascular (14), psychiatry (11), infectious disease (11), metabolic (9),
-// pain management (6), pulmonology (8), musculoskeletal (5), nephrology (7),
-// hematology (5), ophthalmology (5), dermatology (4), gastroenterology (5),
-// hepatology (5), endocrinology (9).
+// Static database of 238 indications with epidemiology data.
+// Covers: oncology (49), rare disease (29), neurology (26), immunology (17),
+// cardiovascular (14), psychiatry (11), infectious disease (12), metabolic (9),
+// pain management (7), pulmonology (8), musculoskeletal (5), nephrology (8),
+// hematology (7), ophthalmology (7), dermatology (5), gastroenterology (7),
+// hepatology (6), endocrinology (11).
 // Sources: SEER, ACS, WHO GBD, CDC, NIMH, SAMHSA, disease foundations, published literature.
 // ============================================================
 
