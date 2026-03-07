@@ -3,27 +3,27 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LabelList } from 'recharts';
 // Pre-computed therapy area counts to avoid importing the full indication-map.ts
 // (5000+ lines) into the client bundle.
-const TOTAL_INDICATIONS = 213;
+const TOTAL_INDICATIONS = 236;
 
 const THERAPY_AREA_COUNTS: { area: string; count: number }[] = [
   { area: 'oncology', count: 50 },
   { area: 'rare_disease', count: 29 },
-  { area: 'neurology', count: 24 },
-  { area: 'immunology', count: 16 },
-  { area: 'cardiovascular', count: 13 },
-  { area: 'infectious_disease', count: 11 },
-  { area: 'psychiatry', count: 10 },
+  { area: 'neurology', count: 26 },
+  { area: 'immunology', count: 17 },
+  { area: 'cardiovascular', count: 15 },
+  { area: 'infectious_disease', count: 12 },
+  { area: 'psychiatry', count: 11 },
+  { area: 'endocrinology', count: 11 },
   { area: 'metabolic', count: 9 },
-  { area: 'pulmonology', count: 7 },
-  { area: 'nephrology', count: 6 },
-  { area: 'hematology', count: 5 },
-  { area: 'ophthalmology', count: 5 },
-  { area: 'pain_management', count: 5 },
-  { area: 'gastroenterology', count: 5 },
-  { area: 'endocrinology', count: 5 },
+  { area: 'pulmonology', count: 8 },
+  { area: 'ophthalmology', count: 7 },
+  { area: 'nephrology', count: 7 },
+  { area: 'hematology', count: 7 },
+  { area: 'pain_management', count: 6 },
+  { area: 'hepatology', count: 6 },
+  { area: 'gastroenterology', count: 6 },
   { area: 'musculoskeletal', count: 5 },
   { area: 'dermatology', count: 4 },
-  { area: 'hepatology', count: 4 },
 ];
 
 const COLORS = {

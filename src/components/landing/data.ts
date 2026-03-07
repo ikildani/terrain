@@ -6,7 +6,7 @@ export const MODULES = [
     icon: BarChart3,
     description:
       'Patient-funnel TAM/SAM/SOM with biomarker-specific subtypes, 10-year revenue projections, and geography breakdown. Pharma, devices, diagnostics, and nutraceuticals.',
-    metric: '150+ indications \u00b7 4 product categories',
+    metric: '236 indications \u00b7 4 product categories',
     href: '/market-sizing',
   },
   {
@@ -89,7 +89,7 @@ export const BEFORE_AFTER = [
   {
     label: 'Patient population specificity',
     before: 'All-comers (broad indication)',
-    after: 'Biomarker-specific subtypes (160+ biomarkers)',
+    after: 'Biomarker-specific subtypes (204 biomarkers)',
   },
   {
     label: 'Competitive landscape data',
@@ -201,7 +201,7 @@ export const FAQ = [
   },
   {
     q: 'Does Terrain support biomarker-specific analysis?',
-    a: 'Yes. Terrain tracks 160+ biomarkers across oncology, neurology, immunology, and other therapeutic areas. You can size markets for specific subtypes \u2014 for example, EGFR-mutant NSCLC or HER2-low breast cancer \u2014 with prevalence-adjusted patient funnels and subtype-specific competitive landscapes.',
+    a: 'Yes. Terrain tracks 204 biomarkers across oncology, neurology, immunology, and other therapeutic areas. You can size markets for specific subtypes \u2014 for example, EGFR-mutant NSCLC or HER2-low breast cancer \u2014 with prevalence-adjusted patient funnels and subtype-specific competitive landscapes.',
   },
   {
     q: 'Does Terrain cover medical devices and diagnostics, or just pharma?',
@@ -213,7 +213,7 @@ export const FAQ = [
   },
   {
     q: 'How many indications and therapeutic areas do you support?',
-    a: '150+ indications across 15+ therapeutic areas including oncology, neurology, immunology, rare disease, cardio-metabolic, GI, rheumatology, endocrinology, and more. Each indication includes detailed subtypes, biomarker profiles, standard-of-care data, and competitive intelligence.',
+    a: '236 indications across 18 therapeutic areas including oncology, neurology, immunology, rare disease, cardio-metabolic, GI, rheumatology, endocrinology, and more. Each indication includes detailed subtypes, biomarker profiles, standard-of-care data, and competitive intelligence.',
   },
   {
     q: 'Is my data secure?',
@@ -222,8 +222,8 @@ export const FAQ = [
 ];
 
 export const STATS = [
-  { value: 150, suffix: '+', label: 'Indications' },
-  { value: 300, suffix: '+', label: 'Partners Mapped' },
+  { value: 236, suffix: '', label: 'Indications' },
+  { value: 307, suffix: '', label: 'Partners Mapped' },
   { value: 10, suffix: 'K+', label: 'Deals Analyzed' },
   { value: 30, suffix: 's', prefix: '<', label: 'Time to Insight' },
 ];

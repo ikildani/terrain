@@ -25,9 +25,9 @@ import { useReports } from '@/hooks/useReports';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { PLAN_LIMITS } from '@/lib/subscription';
 // Pre-computed counts to avoid importing heavy data files into the client bundle.
-// INDICATION_DATA has 213 entries; PRICING_BENCHMARKS has 181 entries.
-const INDICATION_COUNT = 213;
-const PRICING_BENCHMARK_COUNT = 181;
+// INDICATION_DATA has 236 entries; PRICING_BENCHMARKS has 276 entries.
+const INDICATION_COUNT = 236;
+const PRICING_BENCHMARK_COUNT = 276;
 import { formatDistanceToNow } from 'date-fns';
 import ActivityTrendChart from '@/components/dashboard/ActivityTrendChart';
 import ModuleBreakdownChart from '@/components/dashboard/ModuleBreakdownChart';

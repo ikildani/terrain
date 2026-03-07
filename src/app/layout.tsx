@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Terrain — Know the market before the deal',
     description:
-      'TAM analysis, competitive landscapes, and partner matching for biotech professionals — in seconds, not weeks. 150+ indications covered.',
+      'TAM analysis, competitive landscapes, and partner matching for biotech professionals — in seconds, not weeks. 236 indications covered.',
     siteName: 'Terrain by Ambrosia Ventures',
     type: 'website',
     locale: 'en_US',

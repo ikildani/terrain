@@ -10,25 +10,17 @@ interface WelcomeEmailProps {
 export function WelcomeEmail({ userName }: WelcomeEmailProps) {
   return (
     <EmailLayout preview="Welcome to Terrain — your market intelligence is ready">
-      <Text style={headingStyle}>
-        Welcome to Terrain{userName ? `, ${userName}` : ''}.
-      </Text>
+      <Text style={headingStyle}>Welcome to Terrain{userName ? `, ${userName}` : ''}.</Text>
       <Text style={bodyTextStyle}>
-        You now have access to institutional-grade market intelligence for life
-        sciences. Run your first analysis in under 90 seconds.
+        You now have access to institutional-grade market intelligence for life sciences. Run your first analysis in
+        under 90 seconds.
       </Text>
 
       <Section style={{ margin: '24px 0' }}>
         <Text style={featureHeaderStyle}>What you can do today:</Text>
-        <Text style={listItemStyle}>
-          TAM/SAM/SOM analysis across 150+ indications
-        </Text>
-        <Text style={listItemStyle}>
-          Competitive landscape mapping with pipeline data
-        </Text>
-        <Text style={listItemStyle}>
-          Save and compare reports over time
-        </Text>
+        <Text style={listItemStyle}>TAM/SAM/SOM analysis across 236 indications</Text>
+        <Text style={listItemStyle}>Competitive landscape mapping with pipeline data</Text>
+        <Text style={listItemStyle}>Save and compare reports over time</Text>
       </Section>
 
       <Section style={{ textAlign: 'center' as const, margin: '32px 0' }}>
@@ -38,8 +30,8 @@ export function WelcomeEmail({ userName }: WelcomeEmailProps) {
       </Section>
 
       <Text style={mutedTextStyle}>
-        Free plan includes 3 market sizing reports per month. Upgrade to Pro
-        for unlimited access, partner discovery, and PDF exports.
+        Free plan includes 3 market sizing reports per month. Upgrade to Pro for unlimited access, partner discovery,
+        and PDF exports.
       </Text>
     </EmailLayout>
   );

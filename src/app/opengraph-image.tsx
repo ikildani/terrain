@@ -309,7 +309,7 @@ export default async function Image() {
               border: '1px solid #102236',
             }}
           >
-            <span style={{ fontSize: '14px', fontWeight: 600, color: '#00C9A7' }}>150+</span>
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#00C9A7' }}>236</span>
             <span style={{ fontSize: '10px', color: '#64748B' }}>INDICATIONS</span>
           </div>
           <div

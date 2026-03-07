@@ -9,12 +9,12 @@ export function CredibilityStrip() {
             <div className="text-2xs text-slate-600 mt-1">Ambrosia Ventures deal library</div>
           </div>
           <div>
-            <div className="font-mono text-2xl text-teal-400 font-medium mb-1">15+</div>
+            <div className="font-mono text-2xl text-teal-400 font-medium mb-1">18</div>
             <div className="text-xs text-slate-500 uppercase tracking-wider">Therapeutic areas</div>
             <div className="text-2xs text-slate-600 mt-1">Oncology to rare disease</div>
           </div>
           <div>
-            <div className="font-mono text-2xl text-teal-400 font-medium mb-1">210+</div>
+            <div className="font-mono text-2xl text-teal-400 font-medium mb-1">236</div>
             <div className="text-xs text-slate-500 uppercase tracking-wider">Indications covered</div>
             <div className="text-2xs text-slate-600 mt-1">With epidemiology &amp; pricing data</div>
           </div>

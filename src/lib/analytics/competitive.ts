@@ -2459,7 +2459,7 @@ export async function analyzeCompetitiveLandscape(
     throw new Error(
       `Indication not found: "${input.indication}". ` +
         `Check spelling or try a more common name. ` +
-        `Terrain covers 150+ indications across oncology, neurology, immunology, rare disease, and more.`,
+        `Terrain covers 236 indications across oncology, neurology, immunology, rare disease, and more.`,
     );
   }
 
