@@ -56,7 +56,7 @@ const FDA_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
       'The drug is a novel small-molecule entity with no approved reference product, and no expedited pathway designation applies.',
     advantages: [
       'Well-established regulatory framework with clear FDA guidance',
-      'No reliance on another product\'s data — full ownership of the safety/efficacy package',
+      "No reliance on another product's data — full ownership of the safety/efficacy package",
       'Broadest possible labeling scope based on submitted trials',
       'No post-marketing confirmatory study requirement (unlike Accelerated Approval)',
       'Standard 12-month review timeline is predictable for planning',
@@ -112,16 +112,16 @@ const FDA_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
     agency: 'FDA',
     product_type: 'pharma',
     description:
-      'A hybrid NDA pathway under Section 505(b)(2) that allows the applicant to rely partly on FDA\'s previous findings of safety and/or efficacy for an approved drug (the Reference Listed Drug). Commonly used for new formulations, new routes of administration, new combinations, or new indications of existing drugs.',
+      "A hybrid NDA pathway under Section 505(b)(2) that allows the applicant to rely partly on FDA's previous findings of safety and/or efficacy for an approved drug (the Reference Listed Drug). Commonly used for new formulations, new routes of administration, new combinations, or new indications of existing drugs.",
     typical_review_months: 10,
     total_timeline_months: 12,
-    success_rate: 0.90,
+    success_rate: 0.9,
     requires_clinical_data: 'usually',
     key_requirements: [
       'Identification of a Reference Listed Drug (RLD) and right of reference or published literature',
       'Bridging studies to demonstrate bioequivalence or clinical comparability to the RLD',
       'CMC package for the new formulation or combination',
-      'Clinical studies sufficient to bridge to the RLD\'s safety/efficacy data',
+      "Clinical studies sufficient to bridge to the RLD's safety/efficacy data",
       'Suitability petition not required (unlike ANDA), but RLD must be identified',
       'Patent certifications (Paragraph I-IV) for RLD patents listed in the Orange Book',
       'May require full nonclinical studies if formulation changes create new safety questions',
@@ -150,7 +150,7 @@ const FDA_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
     agency: 'FDA',
     product_type: 'pharma',
     description:
-      'Abbreviated New Drug Application for generic drugs. Requires demonstration of bioequivalence to a Reference Listed Drug (RLD) without conducting independent clinical trials. The applicant relies entirely on FDA\'s prior finding that the RLD is safe and effective.',
+      "Abbreviated New Drug Application for generic drugs. Requires demonstration of bioequivalence to a Reference Listed Drug (RLD) without conducting independent clinical trials. The applicant relies entirely on FDA's prior finding that the RLD is safe and effective.",
     typical_review_months: 10,
     total_timeline_months: 12,
     success_rate: 0.92,
@@ -347,7 +347,7 @@ const EMA_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
       'Marketing Authorisation Application evaluated by the Committee for Medicinal Products for Human Use (CHMP). The centralised procedure is mandatory for biotech products, orphan medicinal products, ATMPs, and products for HIV/AIDS, cancer, diabetes, neurodegenerative diseases, and rare diseases. Results in a single marketing authorisation valid in all EU/EEA member states.',
     typical_review_months: 15,
     total_timeline_months: 18,
-    success_rate: 0.80,
+    success_rate: 0.8,
     requires_clinical_data: 'always',
     key_requirements: [
       'Complete quality (Module 3), nonclinical (Module 4), and clinical (Module 5) dossier in CTD format',
@@ -475,7 +475,7 @@ const EMA_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
       'Reduction of assessment time from 210 to 150 active review days (approximately 2 months faster)',
       'Can be combined with conditional MA for even faster initial market access',
       'PRIME-designated products are pre-qualified for accelerated assessment',
-      'Demonstrates regulatory recognition of the product\'s public health value',
+      "Demonstrates regulatory recognition of the product's public health value",
       'Earlier CHMP opinion translates to earlier national pricing/reimbursement applications',
     ],
     disadvantages: [
@@ -502,7 +502,7 @@ const PMDA_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
       'Standard new drug application submitted to the Pharmaceuticals and Medical Devices Agency (PMDA) in Japan. Involves pre-application consultation, PMDA review, followed by MHLW approval. Japan requires ethnic sensitivity data and often requires Japanese bridging studies or inclusion of Japanese patients in global trials.',
     typical_review_months: 12,
     total_timeline_months: 14,
-    success_rate: 0.80,
+    success_rate: 0.8,
     requires_clinical_data: 'always',
     key_requirements: [
       'CTD-format application in Japanese (Common Technical Document)',
@@ -575,7 +575,7 @@ const PMDA_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
     agency: 'PMDA',
     product_type: 'pharma',
     description:
-      'Japan\'s equivalent of conditional approval, introduced in 2017. Allows approval based on exploratory or early-phase clinical trial results when the disease is serious, there is no adequate alternative, and real-world evidence or additional studies can confirm efficacy post-approval. Common for orphan drugs and regenerative medicines in Japan.',
+      "Japan's equivalent of conditional approval, introduced in 2017. Allows approval based on exploratory or early-phase clinical trial results when the disease is serious, there is no adequate alternative, and real-world evidence or additional studies can confirm efficacy post-approval. Common for orphan drugs and regenerative medicines in Japan.",
     typical_review_months: 9,
     total_timeline_months: 12,
     success_rate: 0.75,
@@ -596,7 +596,7 @@ const PMDA_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
       'Enables Japan market access for drugs that may not have Phase 3 data yet',
       'Particularly useful for rare diseases and regenerative medicines',
       'NHI listing follows approval — revenue begins even with conditional status',
-      'Aligns with Japan\'s strategic goal of reducing drug lag',
+      "Aligns with Japan's strategic goal of reducing drug lag",
       'Real-world evidence generation supports broader clinical understanding',
     ],
     disadvantages: [
@@ -700,7 +700,7 @@ const FDA_DEVICE_PATHWAYS: RegulatoryPathwayDefinition[] = [
     agency: 'FDA',
     product_type: 'device',
     description:
-      'Premarket Approval is the FDA\'s most stringent pathway for medical devices. Required for Class III (high-risk) devices. The applicant must provide valid scientific evidence demonstrating reasonable assurance of safety and effectiveness, typically including data from well-controlled clinical trials. Annual PMA supplements are required for most manufacturing and design changes.',
+      "Premarket Approval is the FDA's most stringent pathway for medical devices. Required for Class III (high-risk) devices. The applicant must provide valid scientific evidence demonstrating reasonable assurance of safety and effectiveness, typically including data from well-controlled clinical trials. Annual PMA supplements are required for most manufacturing and design changes.",
     typical_review_months: 12,
     total_timeline_months: 30,
     success_rate: 0.68,
@@ -950,17 +950,17 @@ const FDA_DIAGNOSTICS_PATHWAYS: RegulatoryPathwayDefinition[] = [
     agency: 'FDA',
     product_type: 'cdx',
     description:
-      'Premarket Approval pathway specifically for companion diagnostics — in vitro diagnostic tests that are essential for the safe and effective use of a corresponding therapeutic product. CDx PMAs are typically reviewed in coordination with the therapeutic product\'s NDA/BLA by CDRH (devices) in collaboration with CDER/CBER (drugs/biologics). Co-development and co-approval with the linked drug is the gold standard.',
+      "Premarket Approval pathway specifically for companion diagnostics — in vitro diagnostic tests that are essential for the safe and effective use of a corresponding therapeutic product. CDx PMAs are typically reviewed in coordination with the therapeutic product's NDA/BLA by CDRH (devices) in collaboration with CDER/CBER (drugs/biologics). Co-development and co-approval with the linked drug is the gold standard.",
     typical_review_months: 12,
     total_timeline_months: 30,
-    success_rate: 0.70,
+    success_rate: 0.7,
     requires_clinical_data: 'always',
     key_requirements: [
       'Analytical validation: sensitivity, specificity, accuracy, precision, LOD/LOQ for the biomarker assay',
       'Clinical validation: demonstration that the test correctly identifies patients who will benefit from the linked drug (using clinical trial specimens)',
       'Bridging study to the clinical trial assay (if different from the commercial CDx kit)',
       'Co-development agreement with the drug sponsor',
-      'Coordinated review timeline with the drug\'s NDA/BLA (co-review by CDRH and CDER/CBER)',
+      "Coordinated review timeline with the drug's NDA/BLA (co-review by CDRH and CDER/CBER)",
       'Labeling that cross-references the linked drug and specifies the intended use population',
       'Manufacturing validation including GMP compliance for IVD manufacturing',
       'Post-market surveillance and real-world performance monitoring',
@@ -1031,7 +1031,7 @@ const FDA_DIAGNOSTICS_PATHWAYS: RegulatoryPathwayDefinition[] = [
       '510(k) premarket notification for in vitro diagnostic devices. Requires demonstration of substantial equivalence to a predicate IVD. Most commonly used for Class II IVDs including chemistry analyzers, hematology instruments, immunoassay platforms, and moderate-risk molecular diagnostics. The pathway and requirements are similar to device 510(k) but with IVD-specific performance standards.',
     typical_review_months: 7,
     total_timeline_months: 10,
-    success_rate: 0.80,
+    success_rate: 0.8,
     requires_clinical_data: 'usually',
     key_requirements: [
       'Identification of a predicate IVD device with the same intended use',
@@ -1081,7 +1081,7 @@ const SPECIAL_DESIGNATIONS: RegulatoryPathwayDefinition[] = [
     requires_clinical_data: 'rarely',
     key_requirements: [
       'Disease or condition affects fewer than 200,000 persons in the US annually (or cost-recovery exception)',
-      'Scientific rationale for the drug\'s potential to treat the condition (nonclinical or clinical data)',
+      "Scientific rationale for the drug's potential to treat the condition (nonclinical or clinical data)",
       'Orphan Drug Designation application to OOPD (Office of Orphan Products Development)',
       'FDA review and decision within 90 days of complete application',
       'Medically plausible hypothesis that the drug will be effective for the rare disease',
@@ -1115,7 +1115,7 @@ const SPECIAL_DESIGNATIONS: RegulatoryPathwayDefinition[] = [
       'Designation for drugs intended to prevent or treat a rare pediatric disease (serious or life-threatening disease primarily affecting individuals aged birth to 18 years, with fewer than 200,000 affected in the US). Upon approval, the sponsor receives a Priority Review Voucher (PRV) that can be used or sold to another company.',
     typical_review_months: 0,
     total_timeline_months: 3,
-    success_rate: 0.70,
+    success_rate: 0.7,
     requires_clinical_data: 'rarely',
     key_requirements: [
       'Disease must primarily affect individuals aged 0-18 years',
@@ -1185,17 +1185,491 @@ const SPECIAL_DESIGNATIONS: RegulatoryPathwayDefinition[] = [
 ];
 
 // ────────────────────────────────────────────────────────────
-// COMBINED EXPORT
+// PHARMA — NMPA (China)
 // ────────────────────────────────────────────────────────────
+
+const NMPA_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
+  {
+    pathway: 'Standard NDA (China)',
+    agency: 'NMPA',
+    product_type: 'pharma',
+    description:
+      "Standard new drug application to China's National Medical Products Administration (NMPA), reviewed by the Center for Drug Evaluation (CDE). China requires ethnic bridging data and often mandates China-specific clinical trials or inclusion of Chinese patients in multi-regional clinical trials (MRCTs).",
+    typical_review_months: 10,
+    total_timeline_months: 16,
+    success_rate: 0.78,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'CTD-format dossier with Chinese translations',
+      'China-specific clinical data or MRCT with Chinese sites',
+      'Ethnic sensitivity assessment per ICH E5',
+      'GMP compliance (NMPA inspection of overseas manufacturing)',
+      'Import Drug License application',
+      'Chinese labeling and prescribing information',
+    ],
+    applicable_when: 'All new drugs seeking market authorization in China without eligibility for expedited pathways.',
+    advantages: [
+      "Access to world's second-largest pharma market (~$170B)",
+      'NRDL (National Reimbursement Drug List) provides broad coverage',
+      'Growing clinical trial infrastructure',
+      'Patent linkage system strengthening IP protection',
+    ],
+    disadvantages: [
+      'China-specific clinical data often required',
+      'NRDL price negotiations can reduce pricing 40-60%',
+      'Complex import and distribution requirements',
+      'IP enforcement challenges remain',
+      'Annual NRDL reviews create pricing pressure',
+    ],
+  },
+  {
+    pathway: 'NMPA Priority Review',
+    agency: 'NMPA',
+    product_type: 'pharma',
+    description:
+      'Expedited review pathway for innovative drugs with clear clinical value. CDE reduces review timeline from 200 to 130 working days. Available for drugs addressing unmet need or urgently needed in clinical practice.',
+    typical_review_months: 7,
+    total_timeline_months: 12,
+    success_rate: 0.82,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'Innovative drug classification by CDE',
+      'Clinical urgency or unmet need justification',
+      'Complete NDA-quality dossier',
+      'Priority Review request with supporting evidence',
+    ],
+    applicable_when:
+      'Innovative drugs with clear clinical value, urgently needed medicines, or drugs with no available alternative treatment in China.',
+    advantages: [
+      '130-day review target (vs 200 standard)',
+      'Priority inspection scheduling',
+      'Accelerated NRDL negotiation eligibility',
+      'Strong signal of regulatory support',
+    ],
+    disadvantages: [
+      'Eligibility criteria strictly enforced',
+      'NRDL pricing pressure remains',
+      'Must still meet full data package requirements',
+      'Limited number of priority slots',
+    ],
+  },
+  {
+    pathway: 'NMPA Breakthrough Therapy Designation',
+    agency: 'NMPA',
+    product_type: 'pharma',
+    description:
+      "China's breakthrough therapy program modeled after FDA's. Provides enhanced CDE interaction, rolling submission, expedited review, and potential for conditional approval based on Phase 2 data. Introduced in 2020 reforms.",
+    typical_review_months: 6,
+    total_timeline_months: 10,
+    success_rate: 0.8,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'Drug for serious or life-threatening condition',
+      'Preliminary clinical evidence of clear advantage',
+      'Breakthrough designation application to CDE',
+      'Communication plan with CDE throughout development',
+    ],
+    applicable_when:
+      'Drugs demonstrating substantial clinical improvement over existing therapies for serious conditions. Strong signal of innovation required.',
+    advantages: [
+      'Rolling submission accepted',
+      'Enhanced CDE communication',
+      'May allow Phase 2 data for conditional approval',
+      'Priority NRDL listing consideration',
+      'Fastest path to China market for innovative drugs',
+    ],
+    disadvantages: [
+      'Competitive designation — limited grants per year',
+      'Post-marketing commitments may be extensive',
+      'Conditional approval requires confirmatory studies',
+      'NRDL negotiation still required for reimbursement',
+    ],
+  },
+  {
+    pathway: 'Conditional Approval (China)',
+    agency: 'NMPA',
+    product_type: 'pharma',
+    description:
+      'Allows market authorization based on early or intermediate clinical data for drugs treating serious conditions with unmet need. Conditional approval is time-limited and requires confirmatory studies. Modeled after similar programs globally.',
+    typical_review_months: 8,
+    total_timeline_months: 12,
+    success_rate: 0.75,
+    requires_clinical_data: 'usually',
+    key_requirements: [
+      'Serious or life-threatening condition with no adequate treatment',
+      'Phase 2 or early Phase 3 data showing promise',
+      'Sponsor commitment to confirmatory studies',
+      'Post-marketing risk management plan',
+      'Annual renewal required until full approval',
+    ],
+    applicable_when:
+      'Promising drugs for serious conditions where early patient access provides meaningful benefit over waiting for full clinical data.',
+    advantages: [
+      'Earlier market access by 2-3 years',
+      'Can be converted to full approval',
+      'NRDL eligibility during conditional period',
+      'Addresses critical unmet need in Chinese patient population',
+    ],
+    disadvantages: [
+      'Time-limited — must submit confirmatory data',
+      'NMPA can withdraw if conditions not met',
+      'NRDL pricing may be provisional',
+      'Post-marketing obligations extensive',
+    ],
+  },
+];
+
+// ────────────────────────────────────────────────────────────
+// PHARMA — MHRA (UK)
+// ────────────────────────────────────────────────────────────
+
+const MHRA_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
+  {
+    pathway: 'Standard Marketing Authorisation (MHRA)',
+    agency: 'MHRA',
+    product_type: 'pharma',
+    description:
+      'Full marketing authorisation application to MHRA. Post-Brexit independent regulatory pathway. MHRA maintains high standards aligned with ICH guidelines.',
+    typical_review_months: 12,
+    total_timeline_months: 18,
+    success_rate: 0.85,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'Full quality/CMC dossier (Module 3)',
+      'Non-clinical data (Module 4)',
+      'Clinical trial data (Module 5)',
+      'Risk Management Plan',
+      'Pediatric Investigation Plan or waiver',
+    ],
+    applicable_when: 'Standard pathway for new active substances with complete clinical dossier.',
+    advantages: [
+      'Established regulatory framework',
+      'Access to UK market (~$36B pharma)',
+      'NHS coverage pathway via NICE',
+    ],
+    disadvantages: [
+      'Separate from EMA post-Brexit',
+      'NICE HTA adds 6-12 months for NHS access',
+      'Smaller market than EU5 combined',
+    ],
+  },
+  {
+    pathway: 'ILAP (Innovative Licensing and Access Pathway)',
+    agency: 'MHRA',
+    product_type: 'pharma',
+    description:
+      'UK-specific expedited pathway combining regulatory review with HTA and NHS access planning. Single coordinated application involving MHRA, NICE, SMC (Scotland), and NHS England.',
+    typical_review_months: 8,
+    total_timeline_months: 14,
+    success_rate: 0.8,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'Innovation Passport designation',
+      'Target Development Profile agreement',
+      'Concurrent NICE appraisal',
+      'NHS commercial framework engagement',
+    ],
+    applicable_when:
+      'Innovative medicines addressing significant unmet medical need in the UK, where coordinated regulatory and HTA review provides meaningful benefit.',
+    advantages: [
+      'Accelerated review (150-day target)',
+      'Coordinated regulatory + HTA + NHS access',
+      'Rolling review supported',
+      'Early commercial discussion with NHS',
+    ],
+    disadvantages: [
+      'Resource-intensive for sponsor',
+      'UK-specific investment required',
+      'Innovation Passport designation competitive',
+    ],
+  },
+  {
+    pathway: 'International Recognition Procedure',
+    agency: 'MHRA',
+    product_type: 'pharma',
+    description:
+      'Expedited route leveraging prior approval by a trusted international regulator (FDA, EMA, PMDA, TGA, Health Canada, Swissmedic). MHRA review focuses on UK-specific considerations.',
+    typical_review_months: 5,
+    total_timeline_months: 8,
+    success_rate: 0.92,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'Prior approval from recognized regulator',
+      'Complete regulatory dossier',
+      'UK-specific labeling',
+      'GMP certificates for UK supply chain',
+    ],
+    applicable_when:
+      'Medicines already approved by FDA, EMA, or other trusted regulators seeking rapid UK marketing authorisation.',
+    advantages: [
+      'Fastest UK approval route (67-day target for reliance)',
+      'Leverages existing regulatory assessment',
+      'Minimal additional data requirements',
+    ],
+    disadvantages: [
+      'Requires prior foreign approval',
+      'NICE HTA still required for NHS listing',
+      'UK labeling adaptation needed',
+    ],
+  },
+];
+
+// ────────────────────────────────────────────────────────────
+// PHARMA — TGA (Australia)
+// ────────────────────────────────────────────────────────────
+
+const TGA_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
+  {
+    pathway: 'Standard Registration (TGA)',
+    agency: 'TGA',
+    product_type: 'pharma',
+    description:
+      'Full evaluation of a new prescription medicine by TGA. Australia applies Category 1 (new chemical entity) evaluation with independent scientific assessment.',
+    typical_review_months: 11,
+    total_timeline_months: 16,
+    success_rate: 0.82,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'Australian-specific dossier (CTD format)',
+      'Clinical data including Australian/global study sites',
+      'Risk Management Plan',
+      'Product Information (PI) and Consumer Medicine Information (CMI)',
+    ],
+    applicable_when: 'New medicines without prior approval by a Comparable Overseas Regulator.',
+    advantages: [
+      'Established regulatory framework',
+      'PBAC evaluation can run in parallel',
+      'Post-market monitoring via TGA',
+    ],
+    disadvantages: [
+      'Relatively small market (~$15B)',
+      'PBAC cost-effectiveness threshold strict',
+      'PBS listing required for reimbursement',
+    ],
+  },
+  {
+    pathway: 'Comparable Overseas Regulator Pathway',
+    agency: 'TGA',
+    product_type: 'pharma',
+    description:
+      'Abbreviated evaluation leveraging prior approval by FDA, EMA, Health Canada, or other comparable regulators. TGA assessment focuses on Australian-specific considerations.',
+    typical_review_months: 6,
+    total_timeline_months: 10,
+    success_rate: 0.9,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'Approval by comparable overseas regulator',
+      'Assessment report from reference agency',
+      'Australian-specific labeling',
+      'GMP clearance for Australian supply',
+    ],
+    applicable_when: 'Medicines approved by FDA, EMA, Health Canada, or other TGA-recognized regulators.',
+    advantages: [
+      'Faster review (6 months vs 11)',
+      'Leverages foreign regulatory work',
+      'Can file immediately post-reference approval',
+    ],
+    disadvantages: [
+      'Requires prior foreign approval',
+      'PBAC still independent assessment',
+      'Limited for first-in-world applications',
+    ],
+  },
+  {
+    pathway: 'Priority Review (TGA)',
+    agency: 'TGA',
+    product_type: 'pharma',
+    description:
+      'Expedited review for medicines treating serious or life-threatening conditions with significant clinical benefit over existing treatments.',
+    typical_review_months: 6,
+    total_timeline_months: 10,
+    success_rate: 0.85,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'Demonstrated significant clinical benefit',
+      'Serious or life-threatening condition',
+      'Priority Review request with justification',
+    ],
+    applicable_when: 'Medicines addressing serious conditions where existing treatments are inadequate.',
+    advantages: [
+      '50% reduction in review timeline',
+      'Can combine with Provisional Approval',
+      'PBAC parallel assessment encouraged',
+    ],
+    disadvantages: [
+      'Must meet eligibility criteria',
+      'Higher scrutiny on benefit-risk',
+      'Provisional approval may have conditions',
+    ],
+  },
+  {
+    pathway: 'Provisional Approval',
+    agency: 'TGA',
+    product_type: 'pharma',
+    description:
+      'Time-limited approval for promising medicines where definitive clinical data is still being generated. Analogous to FDA Accelerated Approval.',
+    typical_review_months: 6,
+    total_timeline_months: 10,
+    success_rate: 0.78,
+    requires_clinical_data: 'usually',
+    key_requirements: [
+      'Preliminary clinical data showing promise',
+      'Commitment to provide confirmatory data',
+      'Serious or life-threatening condition',
+      'Sponsor agrees to provisional conditions',
+    ],
+    applicable_when:
+      'Promising medicines where early access provides significant patient benefit before confirmatory trials complete.',
+    advantages: [
+      'Early market access (up to 6 years provisional)',
+      'Can be converted to full registration',
+      'Addresses urgent unmet need',
+    ],
+    disadvantages: [
+      'Time-limited (must convert to full registration)',
+      'Confirmatory data required',
+      'PBAC may restrict reimbursement pending confirmatory data',
+    ],
+  },
+];
+
+// ────────────────────────────────────────────────────────────
+// PHARMA — Health Canada
+// ────────────────────────────────────────────────────────────
+
+const HC_PHARMA_PATHWAYS: RegulatoryPathwayDefinition[] = [
+  {
+    pathway: 'New Drug Submission (NDS)',
+    agency: 'Health_Canada',
+    product_type: 'pharma',
+    description:
+      'Standard regulatory review pathway for new drugs in Canada. Health Canada conducts independent scientific assessment including quality, safety, and efficacy evaluation.',
+    typical_review_months: 12,
+    total_timeline_months: 18,
+    success_rate: 0.83,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'Complete CTD format dossier',
+      'Clinical study reports',
+      'Canadian Product Monograph',
+      'Drug Establishment Licence',
+      'Risk Management Plan',
+    ],
+    applicable_when: 'All new active substances and significant line extensions not eligible for abbreviated pathways.',
+    advantages: [
+      'Established regulatory framework',
+      'CADTH parallel review possible',
+      'Pan-Canadian pricing framework',
+    ],
+    disadvantages: [
+      '12-month standard review',
+      'PMPRB pricing controls limit pricing flexibility',
+      'Provincial formulary listing adds 6-18 months',
+    ],
+  },
+  {
+    pathway: 'Priority Review (HC)',
+    agency: 'Health_Canada',
+    product_type: 'pharma',
+    description:
+      'Expedited 180-day review for drugs treating serious or life-threatening conditions where evidence of significant clinical benefit exists.',
+    typical_review_months: 6,
+    total_timeline_months: 10,
+    success_rate: 0.85,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'Serious or life-threatening condition',
+      'Evidence of significant clinical benefit',
+      'Priority Review request submission',
+      'Complete NDS-quality dossier',
+    ],
+    applicable_when:
+      'Medicines for serious conditions with substantial evidence of clinical benefit over existing therapies.',
+    advantages: [
+      '180-day target (vs 300 standard)',
+      'Can combine with Project Orbis for oncology',
+      'Aligned with CADTH expedited review',
+    ],
+    disadvantages: [
+      'Must meet strict eligibility criteria',
+      'PMPRB still applies',
+      'Not all Priority Reviews meet 180-day target',
+    ],
+  },
+  {
+    pathway: 'NOC/c (Notice of Compliance with Conditions)',
+    agency: 'Health_Canada',
+    product_type: 'pharma',
+    description:
+      'Conditional approval pathway allowing market access based on promising evidence, with requirement for confirmatory studies post-approval. Analogous to FDA Accelerated Approval.',
+    typical_review_months: 8,
+    total_timeline_months: 12,
+    success_rate: 0.8,
+    requires_clinical_data: 'usually',
+    key_requirements: [
+      'Serious or life-threatening condition',
+      'Promising clinical evidence (may use surrogate endpoints)',
+      'Commitment to confirmatory studies',
+      'Qualifying Notice with study protocol',
+    ],
+    applicable_when:
+      'Medicines showing promising evidence where early access provides significant benefit to patients with serious conditions.',
+    advantages: [
+      'Earlier market access vs full NDS',
+      'Surrogate endpoints accepted',
+      'Can be converted to standard NOC',
+    ],
+    disadvantages: [
+      'Conditions on approval (confirmatory studies required)',
+      'CADTH may restrict recommendation pending confirmatory data',
+      'Health Canada can withdraw if conditions not met',
+    ],
+  },
+  {
+    pathway: 'Project Orbis',
+    agency: 'Health_Canada',
+    product_type: 'pharma',
+    description:
+      'FDA-led concurrent review framework for oncology drugs. Health Canada participates alongside FDA, TGA, Swissmedic, and other partners for simultaneous review and near-simultaneous approval.',
+    typical_review_months: 6,
+    total_timeline_months: 8,
+    success_rate: 0.88,
+    requires_clinical_data: 'always',
+    key_requirements: [
+      'Oncology indication',
+      'FDA submission as anchor',
+      'Simultaneous submissions to participating agencies',
+      'Agreed assessment timeline',
+    ],
+    applicable_when:
+      'Oncology drugs where FDA is the anchor regulatory agency and sponsor seeks multi-country concurrent approval.',
+    advantages: [
+      'Near-simultaneous global approval',
+      'Coordinated scientific assessment',
+      'Reduced regulatory burden vs sequential filings',
+      'Aligned labeling across agencies',
+    ],
+    disadvantages: [
+      'Oncology only',
+      'Requires FDA anchor submission',
+      'Local labeling adaptations still needed',
+      'Reimbursement timelines vary by country',
+    ],
+  },
+];
 
 export const REGULATORY_PATHWAYS: RegulatoryPathwayDefinition[] = [
   ...FDA_PHARMA_PATHWAYS,
   ...EMA_PHARMA_PATHWAYS,
   ...PMDA_PHARMA_PATHWAYS,
+  ...NMPA_PHARMA_PATHWAYS,
   ...FDA_DEVICE_PATHWAYS,
   ...EU_DEVICE_PATHWAYS,
   ...FDA_DIAGNOSTICS_PATHWAYS,
   ...SPECIAL_DESIGNATIONS,
+  ...MHRA_PHARMA_PATHWAYS,
+  ...TGA_PHARMA_PATHWAYS,
+  ...HC_PHARMA_PATHWAYS,
 ];
 
 // ────────────────────────────────────────────────────────────
@@ -1213,22 +1687,27 @@ export function getPathwaysByProductType(
 }
 
 export function getPathwayByName(name: string): RegulatoryPathwayDefinition | undefined {
-  return REGULATORY_PATHWAYS.find(
-    (p) => p.pathway.toLowerCase() === name.toLowerCase(),
-  );
+  return REGULATORY_PATHWAYS.find((p) => p.pathway.toLowerCase() === name.toLowerCase());
 }
 
 export function getExpeditedPathways(agency: RegulatoryAgency): RegulatoryPathwayDefinition[] {
   const expeditedNames: Record<RegulatoryAgency, string[]> = {
-    FDA: ['Accelerated Approval', 'Priority Review', 'Fast Track', 'Breakthrough Therapy Designation', 'Breakthrough Device Designation'],
+    FDA: [
+      'Accelerated Approval',
+      'Priority Review',
+      'Fast Track',
+      'Breakthrough Therapy Designation',
+      'Breakthrough Device Designation',
+    ],
     EMA: ['PRIME (Priority Medicines)', 'Conditional Marketing Authorisation', 'Accelerated Assessment'],
     PMDA: ['SAKIGAKE Designation', 'Conditional Early Approval (Japan)'],
     NMPA: [],
+    MHRA: ['ILAP (Innovative Licensing and Access Pathway)', 'Rolling Review', 'International Recognition Procedure'],
+    TGA: ['Priority Review (TGA)', 'Provisional Approval', 'Comparable Overseas Regulator Pathway'],
+    Health_Canada: ['Priority Review (HC)', 'NOC/c (Notice of Compliance with Conditions)', 'Project Orbis'],
   };
   const names = expeditedNames[agency] ?? [];
-  return REGULATORY_PATHWAYS.filter(
-    (p) => p.agency === agency && names.includes(p.pathway),
-  );
+  return REGULATORY_PATHWAYS.filter((p) => p.agency === agency && names.includes(p.pathway));
 }
 
 // ────────────────────────────────────────────────────────────
@@ -1251,8 +1730,10 @@ export const DESIGNATION_DEFINITIONS: DesignationDefinition[] = [
     id: 'breakthrough_therapy',
     name: 'Breakthrough Therapy',
     agency: 'FDA',
-    benefit: 'Intensive FDA guidance on trial design, rolling review, senior management involvement. Reduces development timeline by 1-4 years.',
-    eligibility_criteria: 'Preliminary clinical evidence of substantial improvement over available therapy on clinically significant endpoint.',
+    benefit:
+      'Intensive FDA guidance on trial design, rolling review, senior management involvement. Reduces development timeline by 1-4 years.',
+    eligibility_criteria:
+      'Preliminary clinical evidence of substantial improvement over available therapy on clinically significant endpoint.',
     typical_timeline_reduction_months: 24,
     success_rate_if_applied: 0.89,
     application_timing: 'After Phase 1 or early Phase 2 clinical data showing substantial improvement.',
@@ -1261,18 +1742,23 @@ export const DESIGNATION_DEFINITIONS: DesignationDefinition[] = [
     id: 'fast_track',
     name: 'Fast Track',
     agency: 'FDA',
-    benefit: 'Early and frequent FDA meetings, rolling review capability, eligibility for Accelerated Approval and Priority Review.',
-    eligibility_criteria: 'Drug intended to treat serious condition and demonstrates potential to address unmet medical need.',
+    benefit:
+      'Early and frequent FDA meetings, rolling review capability, eligibility for Accelerated Approval and Priority Review.',
+    eligibility_criteria:
+      'Drug intended to treat serious condition and demonstrates potential to address unmet medical need.',
     typical_timeline_reduction_months: 6,
     success_rate_if_applied: 0.82,
-    application_timing: 'Can be requested at any time during development, typically after IND filing. Earlier is better.',
+    application_timing:
+      'Can be requested at any time during development, typically after IND filing. Earlier is better.',
   },
   {
     id: 'priority_review',
     name: 'Priority Review',
     agency: 'FDA',
-    benefit: 'Shortens review clock from 12 to 8 months (6 months from filing). Earlier market access and revenue generation.',
-    eligibility_criteria: 'Drug treats serious condition and provides significant improvement in safety or effectiveness over available therapy.',
+    benefit:
+      'Shortens review clock from 12 to 8 months (6 months from filing). Earlier market access and revenue generation.',
+    eligibility_criteria:
+      'Drug treats serious condition and provides significant improvement in safety or effectiveness over available therapy.',
     typical_timeline_reduction_months: 4,
     success_rate_if_applied: 0.88,
     application_timing: 'Requested at time of NDA/BLA submission. FDA decision within 60 days of receipt.',
@@ -1281,51 +1767,234 @@ export const DESIGNATION_DEFINITIONS: DesignationDefinition[] = [
     id: 'accelerated_approval',
     name: 'Accelerated Approval',
     agency: 'FDA',
-    benefit: 'Approval based on surrogate endpoint years before full clinical benefit is demonstrated. Earlier patient access.',
-    eligibility_criteria: 'Drug treats serious condition with unmet need, and surrogate endpoint is reasonably likely to predict clinical benefit.',
+    benefit:
+      'Approval based on surrogate endpoint years before full clinical benefit is demonstrated. Earlier patient access.',
+    eligibility_criteria:
+      'Drug treats serious condition with unmet need, and surrogate endpoint is reasonably likely to predict clinical benefit.',
     typical_timeline_reduction_months: 36,
     success_rate_if_applied: 0.76,
-    application_timing: 'Determined during development based on availability of validated or reasonably likely surrogate endpoint.',
+    application_timing:
+      'Determined during development based on availability of validated or reasonably likely surrogate endpoint.',
   },
   {
     id: 'orphan_drug',
     name: 'Orphan Drug',
     agency: 'FDA',
-    benefit: '7-year market exclusivity, tax credits for clinical trial costs (25%), PDUFA user fee waiver (~$4.0M), FDA grant eligibility.',
+    benefit:
+      '7-year market exclusivity, tax credits for clinical trial costs (25%), PDUFA user fee waiver (~$4.0M), FDA grant eligibility.',
     eligibility_criteria: 'Disease or condition affects fewer than 200,000 persons in the US annually.',
     typical_timeline_reduction_months: 0,
     success_rate_if_applied: 0.75,
-    application_timing: 'Can be requested at any development stage, from preclinical onward. Earlier maximizes benefits.',
+    application_timing:
+      'Can be requested at any development stage, from preclinical onward. Earlier maximizes benefits.',
   },
   {
     id: 'rmat',
     name: 'Regenerative Medicine Advanced Therapy (RMAT)',
     agency: 'FDA',
-    benefit: 'All Breakthrough Therapy features plus eligibility for accelerated approval based on surrogate/intermediate endpoints for regenerative medicine.',
-    eligibility_criteria: 'Regenerative medicine therapy (cell therapy, gene therapy, tissue engineering) for serious condition with preliminary clinical evidence.',
+    benefit:
+      'All Breakthrough Therapy features plus eligibility for accelerated approval based on surrogate/intermediate endpoints for regenerative medicine.',
+    eligibility_criteria:
+      'Regenerative medicine therapy (cell therapy, gene therapy, tissue engineering) for serious condition with preliminary clinical evidence.',
     typical_timeline_reduction_months: 18,
-    success_rate_if_applied: 0.80,
+    success_rate_if_applied: 0.8,
     application_timing: 'After IND filing with preliminary clinical evidence. Typically Phase 1/2 data.',
   },
   {
     id: 'prime',
     name: 'PRIME (Priority Medicines)',
     agency: 'EMA',
-    benefit: 'Early CHMP rapporteur appointment, enhanced scientific advice, eligibility for accelerated assessment at MAA filing.',
-    eligibility_criteria: 'Product targeting unmet medical need in EU with preliminary clinical evidence of major therapeutic advantage.',
+    benefit:
+      'Early CHMP rapporteur appointment, enhanced scientific advice, eligibility for accelerated assessment at MAA filing.',
+    eligibility_criteria:
+      'Product targeting unmet medical need in EU with preliminary clinical evidence of major therapeutic advantage.',
     typical_timeline_reduction_months: 6,
     success_rate_if_applied: 0.85,
-    application_timing: 'After Phase 1/2 data showing major therapeutic advantage. SMEs can apply with nonclinical data.',
+    application_timing:
+      'After Phase 1/2 data showing major therapeutic advantage. SMEs can apply with nonclinical data.',
   },
   {
     id: 'sakigake',
     name: 'SAKIGAKE Designation',
     agency: 'PMDA',
     benefit: '6-month target review (vs. 12 months standard), dedicated PMDA consultation team, priority NHI pricing.',
-    eligibility_criteria: 'Novel mechanism, serious condition with high unmet need in Japan, and Japan-first or simultaneous global development.',
+    eligibility_criteria:
+      'Novel mechanism, serious condition with high unmet need in Japan, and Japan-first or simultaneous global development.',
     typical_timeline_reduction_months: 6,
     success_rate_if_applied: 0.87,
     application_timing: 'Early development stage, before pivotal trial. Must commit to Japan-first launch strategy.',
+  },
+  // EMA — additional designations
+  {
+    id: 'ema_orphan',
+    name: 'Orphan Medicinal Product (EMA)',
+    agency: 'EMA',
+    benefit:
+      '10-year market exclusivity in EU, protocol assistance fee reductions, access to centralised procedure. Orphan designation is a key commercial moat in EU.',
+    eligibility_criteria:
+      'Condition affecting fewer than 5 in 10,000 persons in the EU, and no satisfactory authorized treatment or significant benefit over existing therapy.',
+    typical_timeline_reduction_months: 0,
+    success_rate_if_applied: 0.78,
+    application_timing:
+      'Can be requested at any stage. COMP assessment takes ~90 days. Apply before MAA submission for fee reductions.',
+  },
+  {
+    id: 'ema_conditional_ma',
+    name: 'Conditional Marketing Authorisation (CMA)',
+    agency: 'EMA',
+    benefit:
+      'EU approval based on less comprehensive clinical data than standard MAA. Enables earlier patient access for serious unmet need. Annual renewal until full data submitted.',
+    eligibility_criteria:
+      'Unmet medical need, serious condition, positive benefit-risk based on available data, comprehensive data expected post-approval, and public health benefit of immediate availability.',
+    typical_timeline_reduction_months: 18,
+    success_rate_if_applied: 0.76,
+    application_timing:
+      'At time of MAA filing, when full clinical dataset is not yet available but promising evidence exists.',
+  },
+  {
+    id: 'ema_accelerated_assessment',
+    name: 'Accelerated Assessment (EMA)',
+    agency: 'EMA',
+    benefit:
+      'Reduces CHMP evaluation from 210 to 150 days. Faster EU market access for products of major public health interest.',
+    eligibility_criteria:
+      'Product of major interest for public health, particularly from a therapeutic innovation standpoint. Must justify significant clinical benefit.',
+    typical_timeline_reduction_months: 2,
+    success_rate_if_applied: 0.84,
+    application_timing: 'Requested at least 2-3 months before planned MAA submission. CHMP decides within 1 month.',
+  },
+  // NMPA (China)
+  {
+    id: 'nmpa_priority_review',
+    name: 'NMPA Priority Review',
+    agency: 'NMPA',
+    benefit: 'Reduced review timeline (130 vs 200 working days), priority inspection. Accelerates China market access.',
+    eligibility_criteria:
+      'Innovative drug with clear clinical value for unmet medical need, or drug urgently needed in clinical practice.',
+    typical_timeline_reduction_months: 4,
+    success_rate_if_applied: 0.82,
+    application_timing: 'Requested at NDA filing. Must demonstrate clinical urgency or innovation.',
+  },
+  {
+    id: 'nmpa_breakthrough',
+    name: 'NMPA Breakthrough Therapy',
+    agency: 'NMPA',
+    benefit:
+      'Enhanced NMPA communication, rolling submission, expedited review. May allow Phase 2 data for conditional approval.',
+    eligibility_criteria:
+      'Drug for serious or life-threatening condition with clear clinical advantage over existing therapies; preliminary clinical evidence required.',
+    typical_timeline_reduction_months: 12,
+    success_rate_if_applied: 0.78,
+    application_timing: 'After Phase 1/2 data demonstrating clinical advantage. Earlier application preferred.',
+  },
+  // MHRA (UK)
+  {
+    id: 'ilap',
+    name: 'Innovative Licensing and Access Pathway (ILAP)',
+    agency: 'MHRA',
+    benefit:
+      'Dedicated MHRA innovation passport, enhanced scientific advice, rolling review, alignment with NICE HTA for rapid access.',
+    eligibility_criteria:
+      'Product targeting significant unmet need, novel mechanism, or addressing a public health priority. Must be first-in-class or offer substantial benefit.',
+    typical_timeline_reduction_months: 6,
+    success_rate_if_applied: 0.83,
+    application_timing:
+      'Can be requested from early development (preclinical) onward. Earlier engagement maximizes benefit.',
+  },
+  {
+    id: 'mhra_priority_review',
+    name: 'MHRA Priority Review',
+    agency: 'MHRA',
+    benefit: 'Reduced review time from 210 to 150 days. Dedicated review team.',
+    eligibility_criteria:
+      'Product for serious condition with major public health interest or significant therapeutic innovation.',
+    typical_timeline_reduction_months: 2,
+    success_rate_if_applied: 0.85,
+    application_timing: 'Requested at MAA filing with justification for priority status.',
+  },
+  {
+    id: 'mhra_orphan',
+    name: 'MHRA Orphan Designation (Great Britain)',
+    agency: 'MHRA',
+    benefit: '10-year market exclusivity in Great Britain, protocol assistance, fee reductions.',
+    eligibility_criteria:
+      'Condition affecting fewer than 1 in 2,000 persons in Great Britain and no satisfactory treatment available.',
+    typical_timeline_reduction_months: 0,
+    success_rate_if_applied: 0.78,
+    application_timing: 'Can be requested at any stage of development. UK-specific orphan criteria apply post-Brexit.',
+  },
+  // TGA (Australia)
+  {
+    id: 'tga_priority_review',
+    name: 'TGA Priority Review',
+    agency: 'TGA',
+    benefit: 'Reduced evaluation from 255 to 150 working days. Prioritized TGA resource allocation.',
+    eligibility_criteria:
+      'Medicine for serious condition where no alternative therapy exists or significant advancement over existing treatments.',
+    typical_timeline_reduction_months: 3,
+    success_rate_if_applied: 0.84,
+    application_timing: 'Requested with submission of dossier. Must provide clinical justification.',
+  },
+  {
+    id: 'tga_provisional',
+    name: 'TGA Provisional Approval',
+    agency: 'TGA',
+    benefit:
+      'Up to 2 years provisional registration based on preliminary clinical data. Enables early patient access while confirmatory data is generated.',
+    eligibility_criteria:
+      'Serious condition, promising preliminary clinical data, and no alternative therapy. Sponsor must commit to confirmatory studies.',
+    typical_timeline_reduction_months: 12,
+    success_rate_if_applied: 0.75,
+    application_timing: 'After Phase 2 or interim Phase 3 data. Requires confirmatory trial commitment.',
+  },
+  {
+    id: 'tga_orphan',
+    name: 'TGA Orphan Designation',
+    agency: 'TGA',
+    benefit:
+      'Fee waivers, regulatory assistance, 5-year data protection. Recognized pathway for rare diseases in Australia.',
+    eligibility_criteria:
+      'Condition affecting fewer than 2,000 patients in Australia, or no viable commercial alternative.',
+    typical_timeline_reduction_months: 0,
+    success_rate_if_applied: 0.8,
+    application_timing: 'Can apply at any stage. TGA recognizes FDA/EMA orphan designations for expedited assessment.',
+  },
+  // Health Canada
+  {
+    id: 'hc_priority_review',
+    name: 'Health Canada Priority Review',
+    agency: 'Health_Canada',
+    benefit: 'Reduced review from 300 to 180 days. Target issuance of NOC within 180 days.',
+    eligibility_criteria:
+      'Drug for serious, life-threatening, or severely debilitating condition with substantial evidence of clinical effectiveness and no marketed alternative.',
+    typical_timeline_reduction_months: 4,
+    success_rate_if_applied: 0.86,
+    application_timing: 'Requested at NDS filing with supporting clinical evidence.',
+  },
+  {
+    id: 'nocc',
+    name: 'Notice of Compliance with Conditions (NOC/c)',
+    agency: 'Health_Canada',
+    benefit:
+      'Market authorization based on promising evidence while confirmatory studies continue. Similar to Accelerated Approval.',
+    eligibility_criteria:
+      'Serious condition with unmet need; qualifying surrogate or clinical endpoint with promising but incomplete evidence of benefit.',
+    typical_timeline_reduction_months: 18,
+    success_rate_if_applied: 0.78,
+    application_timing:
+      'Determined during pre-submission discussions with Health Canada. Typically after Phase 2 or interim Phase 3.',
+  },
+  {
+    id: 'hc_orphan',
+    name: 'Health Canada Orphan Drug Framework',
+    agency: 'Health_Canada',
+    benefit:
+      "Priority review status, reduced regulatory fees, potential data protection. Part of Canada's Rare Disease Drug Strategy.",
+    eligibility_criteria:
+      'Drug intended for rare disease (prevalence <1 in 2,500 in Canada). Aligns with Drugs for Rare Diseases Fund.',
+    typical_timeline_reduction_months: 2,
+    success_rate_if_applied: 0.8,
+    application_timing: 'Can apply at any stage. Health Canada cross-references FDA/EMA orphan designations.',
   },
 ];
 
@@ -1499,7 +2168,7 @@ export const COMPARABLE_APPROVALS: ComparableApprovalRecord[] = [
   {
     drug: 'Leqembi (lecanemab)',
     company: 'Eisai / Biogen',
-    indication: 'Alzheimer\'s Disease (Early)',
+    indication: "Alzheimer's Disease (Early)",
     therapy_area: 'neurology',
     pathway: 'Accelerated Approval',
     designations: ['Breakthrough Therapy', 'Priority Review', 'Fast Track'],
@@ -1511,7 +2180,7 @@ export const COMPARABLE_APPROVALS: ComparableApprovalRecord[] = [
   {
     drug: 'Kisunla (donanemab)',
     company: 'Eli Lilly',
-    indication: 'Alzheimer\'s Disease (Early Symptomatic)',
+    indication: "Alzheimer's Disease (Early Symptomatic)",
     therapy_area: 'neurology',
     pathway: 'Standard NDA',
     designations: ['Breakthrough Therapy', 'Priority Review'],
@@ -1638,7 +2307,12 @@ export const COMPARABLE_APPROVALS: ComparableApprovalRecord[] = [
     indication: 'Sickle Cell Disease',
     therapy_area: 'rare_disease',
     pathway: 'BLA',
-    designations: ['Priority Review', 'Orphan Drug', 'Breakthrough Therapy', 'Regenerative Medicine Advanced Therapy (RMAT)'],
+    designations: [
+      'Priority Review',
+      'Orphan Drug',
+      'Breakthrough Therapy',
+      'Regenerative Medicine Advanced Therapy (RMAT)',
+    ],
     approval_year: 2023,
     review_months: 10,
     total_development_months: 96,
@@ -1648,14 +2322,10 @@ export const COMPARABLE_APPROVALS: ComparableApprovalRecord[] = [
 
 export function getComparableApprovalsByTherapyArea(therapyArea: string): ComparableApprovalRecord[] {
   const normalized = therapyArea.toLowerCase().replace(/[\s-_]+/g, '_');
-  return COMPARABLE_APPROVALS.filter(
-    (a) => a.therapy_area.toLowerCase().replace(/[\s-_]+/g, '_') === normalized,
-  );
+  return COMPARABLE_APPROVALS.filter((a) => a.therapy_area.toLowerCase().replace(/[\s-_]+/g, '_') === normalized);
 }
 
 export function getComparableApprovalsByDesignation(designation: string): ComparableApprovalRecord[] {
   const normalized = designation.toLowerCase();
-  return COMPARABLE_APPROVALS.filter(
-    (a) => a.designations.some((d) => d.toLowerCase().includes(normalized)),
-  );
+  return COMPARABLE_APPROVALS.filter((a) => a.designations.some((d) => d.toLowerCase().includes(normalized)));
 }

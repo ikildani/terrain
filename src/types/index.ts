@@ -1018,7 +1018,7 @@ export interface PartnerDiscoveryOutput {
 // REGULATORY INTELLIGENCE
 // ────────────────────────────────────────────────────────────
 
-export type RegulatoryAgency = 'FDA' | 'EMA' | 'PMDA' | 'NMPA';
+export type RegulatoryAgency = 'FDA' | 'EMA' | 'PMDA' | 'NMPA' | 'MHRA' | 'TGA' | 'Health_Canada';
 
 export type DesignationName =
   | 'Breakthrough Therapy'

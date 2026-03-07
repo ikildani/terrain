@@ -67,7 +67,25 @@ const RequestSchema = z.object({
     patent_protected: z.boolean().optional(),
 
     // Shared fields
-    geography: z.array(z.string().trim().max(100)).min(1, 'At least one geography is required.'),
+    geography: z
+      .array(
+        z.enum([
+          'US',
+          'EU5',
+          'Germany',
+          'France',
+          'Italy',
+          'Spain',
+          'UK',
+          'Japan',
+          'China',
+          'Canada',
+          'Australia',
+          'RoW',
+          'Global',
+        ]),
+      )
+      .min(1, 'At least one geography is required.'),
     launch_year: z
       .number()
       .int()

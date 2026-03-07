@@ -609,11 +609,40 @@ const PHASE_CROWDING_WEIGHT: Record<ClinicalPhase, number> = {
   Preclinical: 0.1,
 };
 
+// Therapy-area-specific crowding baselines
+// Reflects natural competitor density: oncology has 100+ assets per indication,
+// while rare disease may have 5-10. Thresholds are calibrated so a "normal"
+// competitive density for the therapy area scores ~5 (Moderate).
+const TA_CROWDING_THRESHOLDS: Record<string, number[]> = {
+  //                              score:  2    4    5    6    7    8    9+
+  oncology: [8, 16, 25, 40, 60, 80], // Very crowded field is normal
+  immunology: [5, 10, 18, 28, 40, 55],
+  neurology: [4, 8, 14, 22, 32, 45],
+  cardiovascular: [5, 10, 16, 25, 35, 50],
+  metabolic: [4, 8, 14, 22, 30, 42],
+  rare_disease: [2, 4, 6, 9, 12, 16], // Even 10 competitors is crowded
+  hematology: [2, 5, 8, 12, 18, 25],
+  infectious_disease: [4, 8, 14, 20, 28, 40],
+  dermatology: [3, 6, 10, 16, 24, 35],
+  pulmonology: [3, 7, 12, 18, 26, 38],
+  gastroenterology: [3, 7, 12, 18, 26, 36],
+  ophthalmology: [2, 5, 8, 13, 18, 25],
+  nephrology: [2, 4, 7, 11, 16, 22],
+  hepatology: [2, 4, 7, 10, 14, 20],
+  psychiatry: [3, 6, 10, 16, 24, 35],
+  endocrinology: [3, 6, 10, 15, 22, 30],
+  musculoskeletal: [3, 6, 10, 16, 22, 32],
+  pain_management: [3, 6, 10, 16, 24, 35],
+};
+
+const DEFAULT_CROWDING_THRESHOLDS = [3, 6, 10, 15, 20, 30];
+
 function calculateCrowdingScore(
   competitors: CompetitorRecord[],
-  _indicationData: { therapy_area: string },
+  indicationData: { therapy_area: string },
 ): { score: number; label: LandscapeSummary['crowding_label'] } {
   const total = competitors.length;
+  const ta = indicationData.therapy_area.toLowerCase();
 
   // Step 1: Phase-weighted competitor count
   // Late-stage and approved products contribute more to crowding than early-stage
@@ -621,13 +650,16 @@ function calculateCrowdingScore(
     return sum + (PHASE_CROWDING_WEIGHT[c.phase] ?? 0.5);
   }, 0);
 
+  // Use therapy-area-calibrated thresholds
+  const thresholds = TA_CROWDING_THRESHOLDS[ta] ?? DEFAULT_CROWDING_THRESHOLDS;
+
   let score: number;
-  if (weightedTotal <= 3) score = 2;
-  else if (weightedTotal <= 6) score = 4;
-  else if (weightedTotal <= 10) score = 5;
-  else if (weightedTotal <= 15) score = 6;
-  else if (weightedTotal <= 20) score = 7;
-  else if (weightedTotal <= 30) score = 8;
+  if (weightedTotal <= thresholds[0]) score = 2;
+  else if (weightedTotal <= thresholds[1]) score = 4;
+  else if (weightedTotal <= thresholds[2]) score = 5;
+  else if (weightedTotal <= thresholds[3]) score = 6;
+  else if (weightedTotal <= thresholds[4]) score = 7;
+  else if (weightedTotal <= thresholds[5]) score = 8;
   else score = 9;
 
   // Step 2: Mechanism concentration adjustment
@@ -2357,9 +2389,7 @@ function buildPatentCliffTimeline(
 // crowded than 3L+. Breaks down competitor counts per LOT.
 // ────────────────────────────────────────────────────────────
 
-function buildLOTCrowding(
-  competitorRecords: CompetitorRecord[],
-): {
+function buildLOTCrowding(competitorRecords: CompetitorRecord[]): {
   line: string;
   competitor_count: number;
   approved_count: number;

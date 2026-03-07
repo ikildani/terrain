@@ -300,7 +300,7 @@ describe('screener output integrity', () => {
     }
   });
 
-  it('should have score_breakdown components that sum to opportunity_score', () => {
+  it('should have score_breakdown components that sum to opportunity_score (with confidence discount)', () => {
     const { opportunities } = scoreAllIndications(undefined, 'opportunity_score', 'desc', 300, 0);
 
     for (const row of opportunities) {
@@ -311,8 +311,11 @@ describe('screener output integrity', () => {
         row.score_breakdown.development_feasibility +
         row.score_breakdown.partner_landscape;
 
-      // Allow for floating point rounding
-      expect(Math.abs(sum - row.opportunity_score)).toBeLessThan(0.2);
+      // Confidence discount: low=0.85x, medium=0.95x, high=1.0x
+      // So opportunity_score = sum * multiplier. Verify it's within expected range.
+      const multiplier = row.data_confidence === 'low' ? 0.85 : row.data_confidence === 'medium' ? 0.95 : 1.0;
+      const expected = sum * multiplier;
+      expect(Math.abs(expected - row.opportunity_score)).toBeLessThan(0.2);
     }
   });
 

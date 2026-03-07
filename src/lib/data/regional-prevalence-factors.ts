@@ -17,8 +17,15 @@
 export interface RegionalPrevalenceFactor {
   therapy_area: string;
   eu5: number;
+  germany?: number;
+  france?: number;
+  italy?: number;
+  spain?: number;
+  uk?: number;
   japan: number;
   china: number;
+  canada?: number;
+  australia?: number;
   row: number; // Rest of World weighted average
   notes: string;
 }
@@ -27,8 +34,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'oncology',
     eu5: 1.05,
+    germany: 1.05,
+    france: 1.05,
+    italy: 1.0,
+    spain: 0.95,
+    uk: 1.1,
     japan: 1.15,
     china: 1.1,
+    canada: 1.0,
+    australia: 1.0,
     row: 0.75,
     notes:
       'Overall cancer burden similar in developed nations; China elevated (gastric, liver, lung); RoW lower due to younger demographics and competing mortality',
@@ -36,8 +50,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'neurology',
     eu5: 1.1,
+    germany: 1.15,
+    france: 1.1,
+    italy: 1.05,
+    spain: 1.0,
+    uk: 1.1,
     japan: 1.2,
     china: 0.8,
+    canada: 1.05,
+    australia: 1.0,
     row: 0.6,
     notes:
       'EU5/Japan higher due to aging populations; dementia especially elevated in Japan; China/RoW lower due to younger populations and under-diagnosis',
@@ -45,8 +66,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'immunology',
     eu5: 1.05,
+    germany: 1.15,
+    france: 1.0,
+    italy: 0.9,
+    spain: 0.85,
+    uk: 1.15,
     japan: 0.7,
     china: 0.65,
+    canada: 1.1,
+    australia: 1.05,
     row: 0.55,
     notes:
       'Autoimmune conditions higher in Northern European/US populations; lower prevalence in East Asia; significant under-diagnosis in developing nations',
@@ -54,8 +82,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'cardiovascular',
     eu5: 0.85,
+    germany: 0.95,
+    france: 0.8,
+    italy: 0.85,
+    spain: 0.8,
+    uk: 0.9,
     japan: 0.65,
     china: 1.3,
+    canada: 0.9,
+    australia: 0.85,
     row: 1.15,
     notes:
       'EU5 lower than US (less obesity, better prevention); Japan low (diet); China/RoW elevated (hypertension, stroke burden, limited prevention)',
@@ -63,16 +98,30 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'metabolic',
     eu5: 0.8,
+    germany: 0.85,
+    france: 0.75,
+    italy: 0.8,
+    spain: 0.8,
+    uk: 0.75,
     japan: 0.6,
     china: 1.4,
+    canada: 0.9,
+    australia: 0.85,
     row: 1.1,
     notes: 'Type 2 diabetes epidemic in China/South Asia; NAFLD rising globally; Japan lower; EU5 moderate',
   },
   {
     therapy_area: 'rare_disease',
     eu5: 1.0,
+    germany: 1.0,
+    france: 1.0,
+    italy: 1.0,
+    spain: 1.0,
+    uk: 1.0,
     japan: 0.95,
     china: 0.9,
+    canada: 1.0,
+    australia: 1.0,
     row: 0.7,
     notes:
       'Genetic rare diseases have similar per-capita rates globally but diagnosis rates vary enormously; RoW significantly under-diagnosed',
@@ -80,8 +129,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'infectious_disease',
     eu5: 0.6,
+    germany: 0.5,
+    france: 0.6,
+    italy: 0.6,
+    spain: 0.6,
+    uk: 0.5,
     japan: 0.4,
     china: 0.8,
+    canada: 0.5,
+    australia: 0.4,
     row: 3.5,
     notes:
       'HIV, TB, malaria, hepatitis heavily concentrated in Sub-Saharan Africa and South/Southeast Asia; minimal in EU5/Japan',
@@ -89,8 +145,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'hematology',
     eu5: 0.95,
+    germany: 0.9,
+    france: 1.0,
+    italy: 1.1,
+    spain: 0.9,
+    uk: 0.95,
     japan: 0.9,
     china: 0.85,
+    canada: 0.95,
+    australia: 0.95,
     row: 1.2,
     notes:
       'Sickle cell high in Sub-Saharan ancestry; thalassemia high in Mediterranean/Asia; leukemia/lymphoma similar across developed nations',
@@ -98,8 +161,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'ophthalmology',
     eu5: 0.95,
+    germany: 1.0,
+    france: 0.95,
+    italy: 0.95,
+    spain: 0.9,
+    uk: 0.95,
     japan: 1.15,
     china: 1.05,
+    canada: 0.95,
+    australia: 1.0,
     row: 0.8,
     notes:
       'Myopia epidemic in East Asia; AMD similar in aging populations; glaucoma under-diagnosed in developing nations',
@@ -107,8 +177,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'dermatology',
     eu5: 1.1,
+    germany: 1.2,
+    france: 1.1,
+    italy: 0.95,
+    spain: 0.9,
+    uk: 1.15,
     japan: 0.75,
     china: 0.7,
+    canada: 1.1,
+    australia: 1.1,
     row: 0.65,
     notes:
       'Psoriasis and atopic dermatitis higher in Northern European populations; lower in East Asia; skin cancer patterns vary with UV exposure and skin type',
@@ -116,8 +193,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'gastroenterology',
     eu5: 1.0,
+    germany: 1.1,
+    france: 1.0,
+    italy: 0.9,
+    spain: 0.9,
+    uk: 1.1,
     japan: 1.3,
     china: 1.15,
+    canada: 1.1,
+    australia: 1.0,
     row: 0.7,
     notes:
       'H. pylori and gastric disease higher in Japan/China; IBD higher in Western nations; IBS similar globally but under-diagnosed in developing world',
@@ -125,8 +209,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'psychiatry',
     eu5: 1.0,
+    germany: 1.0,
+    france: 1.0,
+    italy: 0.9,
+    spain: 0.9,
+    uk: 1.0,
     japan: 0.7,
     china: 0.55,
+    canada: 1.0,
+    australia: 1.0,
     row: 0.5,
     notes:
       'Depression/anxiety diagnosis rates much higher in Western nations; significant cultural and diagnostic variation; true prevalence may be similar but treated prevalence is not',
@@ -134,8 +225,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'pulmonology',
     eu5: 0.9,
+    germany: 0.95,
+    france: 0.9,
+    italy: 0.85,
+    spain: 0.85,
+    uk: 1.0,
     japan: 0.85,
     china: 1.4,
+    canada: 0.9,
+    australia: 0.95,
     row: 1.2,
     notes:
       'COPD/asthma elevated in China (smoking + pollution); IPF similar in developed nations; TB-related pulmonary disease high in RoW',
@@ -143,8 +241,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'nephrology',
     eu5: 0.9,
+    germany: 0.95,
+    france: 0.9,
+    italy: 0.85,
+    spain: 0.85,
+    uk: 0.9,
     japan: 1.1,
     china: 1.05,
+    canada: 0.9,
+    australia: 0.9,
     row: 0.8,
     notes:
       'CKD/ESRD elevated in Japan (aging); IgA nephropathy more common in East Asia; lupus nephritis varies by ethnicity',
@@ -152,8 +257,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'endocrinology',
     eu5: 0.85,
+    germany: 0.9,
+    france: 0.85,
+    italy: 0.85,
+    spain: 0.85,
+    uk: 0.85,
     japan: 0.75,
     china: 0.9,
+    canada: 0.85,
+    australia: 0.85,
     row: 0.7,
     notes:
       'Thyroid disorders higher at northern latitudes; growth disorders similar globally; adrenal conditions equally distributed',
@@ -161,8 +273,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'hepatology',
     eu5: 0.8,
+    germany: 0.7,
+    france: 0.8,
+    italy: 0.9,
+    spain: 0.75,
+    uk: 0.7,
     japan: 1.3,
     china: 3.0,
+    canada: 0.7,
+    australia: 0.6,
     row: 2.0,
     notes:
       'Hepatitis B endemic in China/SE Asia (300M carriers); liver cancer 4-5x higher per capita in China vs US; NAFLD/NASH rising globally; Japan elevated (HCV legacy)',
@@ -170,8 +289,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'musculoskeletal',
     eu5: 1.05,
+    germany: 1.1,
+    france: 1.0,
+    italy: 1.0,
+    spain: 0.95,
+    uk: 1.05,
     japan: 1.15,
     china: 0.9,
+    canada: 1.0,
+    australia: 1.0,
     row: 0.7,
     notes:
       'Osteoarthritis and osteoporosis higher in aging EU5/Japan populations; rheumatoid arthritis similar globally; sports injuries higher in developed nations',
@@ -179,8 +305,15 @@ export const REGIONAL_PREVALENCE_FACTORS: RegionalPrevalenceFactor[] = [
   {
     therapy_area: 'pain_management',
     eu5: 0.85,
+    germany: 0.9,
+    france: 0.85,
+    italy: 0.8,
+    spain: 0.8,
+    uk: 0.85,
     japan: 0.7,
     china: 0.6,
+    canada: 0.9,
+    australia: 0.85,
     row: 0.5,
     notes:
       'Chronic pain diagnosis/treatment rates much higher in US; opioid prescribing patterns unique to US; neuropathic pain similar but treatment rates vary enormously',

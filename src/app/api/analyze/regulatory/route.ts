@@ -16,7 +16,9 @@ const RequestSchema = z.object({
       required_error: 'Development stage is required.',
     }),
     mechanism: z.string().trim().max(500).optional(),
-    geography: z.array(z.enum(['FDA', 'EMA', 'PMDA', 'NMPA'])).min(1, 'At least one regulatory agency is required.'),
+    geography: z
+      .array(z.enum(['FDA', 'EMA', 'PMDA', 'NMPA', 'MHRA', 'TGA', 'Health_Canada']))
+      .min(1, 'At least one regulatory agency is required.'),
     unmet_need: z.enum(['high', 'medium', 'low'], {
       required_error: 'Unmet need level is required.',
     }),

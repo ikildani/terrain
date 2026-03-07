@@ -2,12 +2,12 @@
 // TERRAIN — Indication Data Map
 // lib/data/indication-map.ts
 //
-// Static database of 214 indications with epidemiology data.
-// Covers: oncology (49), rare disease (29), neurology (24), immunology (16),
-// cardiovascular (13), psychiatry (10), infectious disease (11), metabolic (9),
-// pain management (6), pulmonology (7), musculoskeletal (5), nephrology (6),
+// Static database of 223 indications with epidemiology data.
+// Covers: oncology (49), rare disease (29), neurology (24), immunology (17),
+// cardiovascular (14), psychiatry (11), infectious disease (11), metabolic (9),
+// pain management (6), pulmonology (8), musculoskeletal (5), nephrology (7),
 // hematology (5), ophthalmology (5), dermatology (4), gastroenterology (5),
-// hepatology (4), endocrinology (5).
+// hepatology (5), endocrinology (9).
 // Sources: SEER, ACS, WHO GBD, CDC, NIMH, SAMHSA, disease foundations, published literature.
 // ============================================================
 
@@ -6089,6 +6089,239 @@ export const INDICATION_DATA: IndicationData[] = [
       recurrent_flares_on_max_therapy: 0.35,
       intolerant_to_all_ult: 0.25,
     },
+    data_confidence: 'medium',
+    last_verified_year: 2024,
+  },
+
+  // ──────────────────────────────────────────
+  // HIGH-REVENUE ADDITIONS (March 2026)
+  // ──────────────────────────────────────────
+  {
+    name: 'Benign Prostatic Hyperplasia',
+    synonyms: ['BPH', 'enlarged prostate', 'lower urinary tract symptoms', 'LUTS'],
+    icd10_codes: ['N40.0', 'N40.1'],
+    therapy_area: 'endocrinology',
+    us_prevalence: 14_000_000,
+    us_incidence: 1_500_000,
+    prevalence_source: 'AUA Guidelines 2024; NIDDK',
+    diagnosis_rate: 0.65,
+    treatment_rate: 0.55,
+    cagr_5yr: 5.8,
+    major_competitors: [
+      'Finasteride (generic)',
+      'Dutasteride (Avodart, GSK)',
+      'Tamsulosin (generic)',
+      'Rezum (Boston Scientific)',
+      'UroLift (Teleflex)',
+    ],
+    market_growth_driver:
+      'Minimally invasive surgical therapies (MISTs) replacing chronic medication, aging population, aquablation and other novel procedures',
+    therapy_area_pricing_context:
+      'Alpha-blockers/5-ARIs generic at $100-$500/yr. MISTs at $3K-$8K per procedure. Novel oral agents targeting $2K-$5K/yr.',
+    severity_distribution: { mild: 0.35, moderate: 0.45, severe: 0.2 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+  {
+    name: 'Overactive Bladder',
+    synonyms: ['OAB', 'urge incontinence', 'urgency urinary incontinence'],
+    icd10_codes: ['N32.81', 'R32', 'N39.41'],
+    therapy_area: 'endocrinology',
+    us_prevalence: 33_000_000,
+    us_incidence: 3_000_000,
+    prevalence_source: 'AUA/SUFU Guidelines 2024; ICS epidemiological studies',
+    diagnosis_rate: 0.4,
+    treatment_rate: 0.35,
+    cagr_5yr: 7.2,
+    major_competitors: [
+      'Vibegron (Gemtesa, Sumitomo)',
+      'Mirabegron (Myrbetriq, Astellas)',
+      'Oxybutynin (generic)',
+      'Botox (onabotulinumtoxinA, AbbVie)',
+      'Solifenacin (Vesicare, generic)',
+    ],
+    market_growth_driver:
+      'Beta-3 agonists replacing antimuscarinics, dementia risk concerns with anticholinergics driving switch, gene therapy approaches',
+    therapy_area_pricing_context:
+      'Antimuscarinics generic at $100-$300/yr. Beta-3 agonists $4K-$6K/yr. Novel mechanisms targeting $5K-$8K/yr.',
+    severity_distribution: { mild_urgency: 0.3, moderate: 0.4, severe_incontinence: 0.3 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+  {
+    name: 'Postpartum Depression',
+    synonyms: ['PPD', 'perinatal depression', 'peripartum depression'],
+    icd10_codes: ['F53.0', 'O99.340', 'O99.345'],
+    therapy_area: 'psychiatry',
+    us_prevalence: 600_000,
+    us_incidence: 600_000,
+    prevalence_source: 'ACOG 2024; CDC MMWR; Postpartum Support International',
+    diagnosis_rate: 0.5,
+    treatment_rate: 0.3,
+    cagr_5yr: 15.5,
+    major_competitors: [
+      'Zurzuvae (zuranolone, Sage/Biogen)',
+      'Zulresso (brexanolone, Sage/Biogen)',
+      'SSRIs (off-label, generic)',
+    ],
+    market_growth_driver:
+      'First oral rapid-acting therapy (zuranolone) expanding market, reduced stigma, universal screening mandates, neuroactive steroid pipeline',
+    therapy_area_pricing_context:
+      'Zurzuvae at $15.9K per course. Zulresso at $34K (IV, hospital). Novel oral neuroactive steroids targeting $10K-$20K per episode.',
+    severity_distribution: { mild: 0.35, moderate: 0.4, severe: 0.2, with_psychosis: 0.05 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+  {
+    name: 'Vasomotor Symptoms of Menopause',
+    synonyms: ['VMS', 'hot flashes', 'hot flushes', 'menopausal symptoms'],
+    icd10_codes: ['N95.1', 'R61'],
+    therapy_area: 'endocrinology',
+    us_prevalence: 15_000_000,
+    us_incidence: 2_000_000,
+    prevalence_source: 'NAMS 2024; Swan Study; WHI follow-up data',
+    diagnosis_rate: 0.7,
+    treatment_rate: 0.25,
+    cagr_5yr: 12.8,
+    major_competitors: [
+      'Veozah (fezolinetant, Astellas)',
+      'Hormone therapy (multiple, generic)',
+      'Brisdelle (paroxetine, Sebela)',
+      'Duavee (bazedoxifene/CE, Pfizer)',
+    ],
+    market_growth_driver:
+      'NK3 receptor antagonists (non-hormonal), WHI aftermath driving demand for hormone-free options, 50% of menopausal women have moderate-severe VMS',
+    therapy_area_pricing_context:
+      'Veozah at $5.5K/yr. HRT generic at $200-$1K/yr. Novel non-hormonal agents targeting $4K-$7K/yr.',
+    severity_distribution: { mild: 0.25, moderate: 0.4, severe: 0.35 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+  {
+    name: 'Obstructive Sleep Apnea',
+    synonyms: ['OSA', 'sleep apnea', 'sleep-disordered breathing'],
+    icd10_codes: ['G47.33'],
+    therapy_area: 'pulmonology',
+    us_prevalence: 30_000_000,
+    us_incidence: 3_500_000,
+    prevalence_source: 'AASM 2024; Wisconsin Sleep Cohort; Lancet Resp Med epidemiology',
+    diagnosis_rate: 0.2,
+    treatment_rate: 0.5,
+    cagr_5yr: 8.5,
+    major_competitors: [
+      'CPAP devices (ResMed, Philips)',
+      'Inspire (hypoglossal nerve stimulation)',
+      'Tirzepatide (off-label, Eli Lilly)',
+      'Oral appliances (multiple)',
+    ],
+    market_growth_driver:
+      'GLP-1 RA weight loss reducing OSA severity, pharmacologic approaches emerging, massive undiagnosed population, home sleep testing expansion',
+    therapy_area_pricing_context:
+      'CPAP at $500-$3K device + supplies. Inspire implant at $30K-$40K. First pharma therapy expected at $5K-$10K/yr.',
+    severity_distribution: { mild: 0.35, moderate: 0.35, severe: 0.3 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+  {
+    name: 'Allergic Rhinitis',
+    synonyms: ['hay fever', 'seasonal allergies', 'perennial allergic rhinitis'],
+    icd10_codes: ['J30.1', 'J30.2', 'J30.5', 'J30.9'],
+    therapy_area: 'immunology',
+    us_prevalence: 58_000_000,
+    us_incidence: 5_000_000,
+    prevalence_source: 'AAFA 2024; NHIS data; ARIA guidelines',
+    diagnosis_rate: 0.55,
+    treatment_rate: 0.6,
+    cagr_5yr: 4.2,
+    major_competitors: [
+      'Dupixent (dupilumab, Sanofi/Regeneron)',
+      'Intranasal corticosteroids (generic)',
+      'Cetirizine/Loratadine (OTC generic)',
+      'Xolair (omalizumab, Genentech)',
+      'Sublingual immunotherapy (Stallergenes Greer)',
+    ],
+    market_growth_driver:
+      'Biologic expansion into severe AR, climate change increasing pollen seasons, allergy immunotherapy innovation, combination nasal sprays',
+    therapy_area_pricing_context:
+      'OTC antihistamines at $50-$200/yr. INS at $100-$400/yr. Biologics for severe: Dupixent at $36K/yr. Novel targeted therapies at $5K-$15K/yr.',
+    severity_distribution: { mild_intermittent: 0.3, moderate_persistent: 0.45, severe_persistent: 0.25 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+  {
+    name: 'Acute Coronary Syndrome',
+    synonyms: ['ACS', 'myocardial infarction', 'heart attack', 'STEMI', 'NSTEMI', 'unstable angina'],
+    icd10_codes: ['I21.0', 'I21.1', 'I21.2', 'I21.3', 'I21.4', 'I20.0', 'I24.9'],
+    therapy_area: 'cardiovascular',
+    us_prevalence: 3_500_000,
+    us_incidence: 805_000,
+    prevalence_source: 'AHA Heart Disease & Stroke Statistics 2024; NRMI database',
+    diagnosis_rate: 0.92,
+    treatment_rate: 0.88,
+    cagr_5yr: 4.5,
+    major_competitors: [
+      'Dual antiplatelet therapy (aspirin + clopidogrel/ticagrelor, generic)',
+      'Brilinta (ticagrelor, AstraZeneca)',
+      'PCSK9 inhibitors (Repatha, Praluent)',
+      'Inclisiran (Leqvio, Novartis)',
+      'PCI/stent devices (Abbott, Medtronic)',
+    ],
+    market_growth_driver:
+      'Residual inflammatory risk targeting (colchicine), PCSK9 siRNA expansion, anti-inflammatory biologics, secondary prevention intensification',
+    therapy_area_pricing_context:
+      'DAPT generic at $200-$500/yr. PCSK9i at $5K-$6K/yr. Novel anti-inflammatory agents for residual risk at $3K-$8K/yr.',
+    severity_distribution: { stemi: 0.3, nstemi: 0.5, unstable_angina: 0.2 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+  {
+    name: 'Erectile Dysfunction',
+    synonyms: ['ED', 'impotence', 'male sexual dysfunction'],
+    icd10_codes: ['N52.01', 'N52.02', 'N52.03', 'N52.1', 'N52.9'],
+    therapy_area: 'endocrinology',
+    us_prevalence: 30_000_000,
+    us_incidence: 2_000_000,
+    prevalence_source: 'MMAS (Massachusetts Male Aging Study) update; NHANES; AUA Guidelines 2024',
+    diagnosis_rate: 0.35,
+    treatment_rate: 0.45,
+    cagr_5yr: 6.3,
+    major_competitors: [
+      'Sildenafil (Viagra, generic)',
+      'Tadalafil (Cialis, generic)',
+      'Stendra (avanafil, Vivus)',
+      'Penile prostheses (Coloplast, Boston Scientific)',
+      'Shockwave therapy (GAINSWave, multiple)',
+    ],
+    market_growth_driver:
+      'Gene therapy for cavernosal nerve regeneration, topical formulations, on-demand vs daily PDE5i, melanocortin agonists, growing younger demographics',
+    therapy_area_pricing_context:
+      'PDE5i generic at $50-$300/yr. Novel mechanisms targeting $2K-$5K/yr. Gene therapy one-time at $50K-$100K.',
+    severity_distribution: { mild: 0.35, moderate: 0.4, severe: 0.25 },
+    data_confidence: 'high',
+    last_verified_year: 2024,
+  },
+  {
+    name: 'Alcohol-Related Liver Disease',
+    synonyms: ['ALD', 'alcoholic liver disease', 'alcoholic hepatitis', 'alcoholic cirrhosis'],
+    icd10_codes: ['K70.0', 'K70.10', 'K70.11', 'K70.30', 'K70.31', 'K70.40', 'K70.41'],
+    therapy_area: 'hepatology',
+    us_prevalence: 4_500_000,
+    us_incidence: 500_000,
+    prevalence_source: 'AASLD 2024; NIAAA; GBD Liver Disease estimates',
+    diagnosis_rate: 0.35,
+    treatment_rate: 0.2,
+    cagr_5yr: 9.8,
+    major_competitors: [
+      'Corticosteroids (prednisolone, generic)',
+      'Selonsertib (Gilead, discontinued Phase 3)',
+      'DUR-928 (Durect)',
+      'Granulocyte colony-stimulating factor (off-label)',
+    ],
+    market_growth_driver:
+      'Rising alcohol consumption post-COVID, no FDA-approved therapies for alcoholic hepatitis, anti-inflammatory and anti-fibrotic pipeline',
+    therapy_area_pricing_context:
+      'No approved therapy — massive unmet need. First approved agent could command $30K-$80K/yr. Liver transplant cost >$800K.',
+    severity_distribution: { steatosis: 0.4, steatohepatitis: 0.3, cirrhosis: 0.2, acute_hepatitis: 0.1 },
     data_confidence: 'medium',
     last_verified_year: 2024,
   },

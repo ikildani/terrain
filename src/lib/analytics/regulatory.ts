@@ -1208,6 +1208,39 @@ function recommendFilingSequence(input: RegulatoryAnalysisInput): FilingSequence
     });
   }
 
+  // MHRA (UK — post-Brexit independent regulator)
+  if (input.geography.includes('MHRA')) {
+    const offset = input.unmet_need === 'high' ? 0 : 3;
+    sequence.push({
+      agency: 'MHRA',
+      recommended_offset_months: offset,
+      rationale:
+        offset === 0
+          ? 'MHRA filing simultaneous with FDA/EMA: ILAP (Innovative Licensing and Access Pathway) enables expedited review for high-unmet-need medicines. UK reliance pathway accepts FDA/EMA decisions.'
+          : 'MHRA filing 3 months post-FDA: MHRA now accepts rolling submissions. International Recognition Procedure allows reliance on prior FDA/EMA approval for expedited UK marketing authorization.',
+    });
+  }
+
+  // TGA (Australia)
+  if (input.geography.includes('TGA')) {
+    sequence.push({
+      agency: 'TGA',
+      recommended_offset_months: 6,
+      rationale:
+        'TGA filing 6 months post-FDA: TGA accepts foreign regulatory decisions via Comparable Overseas Regulator (COR) pathway for expedited evaluation. Priority Review available for serious conditions. PBAC submission for PBS listing should begin in parallel with TGA review.',
+    });
+  }
+
+  // Health Canada
+  if (input.geography.includes('Health_Canada')) {
+    sequence.push({
+      agency: 'Health_Canada',
+      recommended_offset_months: 3,
+      rationale:
+        'Health Canada filing 3 months post-FDA: Project Orbis participation enables concurrent review with FDA for oncology. Priority Review available for serious conditions. NOC/c (Notice of Compliance with conditions) pathway for drugs with promising evidence. CADTH HTA submission should begin pre-approval for timely formulary listing.',
+    });
+  }
+
   return sequence;
 }
 
@@ -2193,7 +2226,11 @@ function scorePathway(pathway: RegulatoryPathwayDefinition, input: RegulatoryAna
     (pathway.pathway.includes('Accelerated') ||
       pathway.pathway.includes('Breakthrough') ||
       pathway.pathway.includes('SAKIGAKE') ||
-      pathway.pathway.includes('Conditional'))
+      pathway.pathway.includes('Conditional') ||
+      pathway.pathway.includes('ILAP') ||
+      pathway.pathway.includes('Provisional') ||
+      pathway.pathway.includes('NOC/c') ||
+      pathway.pathway.includes('Priority Review'))
   ) {
     score += 25;
   }
@@ -2655,6 +2692,62 @@ function assessEligibility(
       break;
     }
 
+    case 'ema_orphan': {
+      if (isRare) {
+        criteriaMet.push('Disease prevalence likely meets EU orphan threshold (<5 in 10,000)');
+        score += 55;
+      } else {
+        criteriaUnmet.push('Disease prevalence may exceed EU orphan threshold (5 in 10,000)');
+      }
+      if (input.has_orphan_potential) {
+        criteriaMet.push('Sponsor has identified orphan drug potential');
+        score += 15;
+      }
+      criteriaMet.push('EMA orphan designation available at any development stage');
+      score += 5;
+      break;
+    }
+
+    case 'ema_conditional_ma': {
+      if (isSeriousCondition) {
+        criteriaMet.push('Addresses unmet medical need for serious condition in EU');
+        score += 25;
+      } else {
+        criteriaUnmet.push('Must address serious condition with unmet medical need');
+      }
+      if (input.unmet_need === 'high') {
+        criteriaMet.push('High unmet need — immediate availability benefits public health');
+        score += 25;
+      } else {
+        criteriaUnmet.push('Strong unmet need required for Conditional MA');
+      }
+      if (input.development_stage === 'phase2' || input.development_stage === 'phase3') {
+        criteriaMet.push('Clinical data available for benefit-risk assessment');
+        score += 15;
+      } else if (input.development_stage === 'preclinical' || input.development_stage === 'phase1') {
+        criteriaUnmet.push('Sufficient clinical data required for positive benefit-risk assessment');
+      }
+      break;
+    }
+
+    case 'ema_accelerated_assessment': {
+      if (isSeriousCondition) {
+        criteriaMet.push('Product addresses major public health interest');
+        score += 30;
+      } else {
+        criteriaUnmet.push('Must demonstrate major public health interest');
+      }
+      if (input.unmet_need === 'high') {
+        criteriaMet.push('Significant therapeutic innovation for unmet need');
+        score += 35;
+      } else if (input.unmet_need === 'medium') {
+        score += 15;
+      } else {
+        criteriaUnmet.push('Must represent significant therapeutic innovation');
+      }
+      break;
+    }
+
     case 'sakigake': {
       if (input.unmet_need === 'high') {
         criteriaMet.push('Serious condition with high unmet need in Japan');
@@ -2668,6 +2761,224 @@ function assessEligibility(
       }
       criteriaUnmet.push('Requires Japan-first or simultaneous global development commitment');
       score -= 10; // Often difficult to commit to Japan-first
+      break;
+    }
+
+    // NMPA designations
+    case 'nmpa_priority_review': {
+      if (isSeriousCondition) {
+        criteriaMet.push('Drug addresses serious condition with clinical urgency in China');
+        score += 30;
+      } else {
+        criteriaUnmet.push('Must demonstrate clinical urgency or innovation');
+      }
+      if (input.unmet_need === 'high') {
+        criteriaMet.push('High unmet need in China supports priority review');
+        score += 30;
+      } else if (input.unmet_need === 'medium') {
+        score += 15;
+      }
+      if (input.mechanism) {
+        criteriaMet.push('Novel mechanism may qualify as innovative drug');
+        score += 15;
+      }
+      break;
+    }
+
+    case 'nmpa_breakthrough': {
+      if (isSeriousCondition) {
+        criteriaMet.push('Treats serious or life-threatening condition');
+        score += 25;
+      } else {
+        criteriaUnmet.push('Must treat serious or life-threatening condition');
+      }
+      if (input.unmet_need === 'high') {
+        criteriaMet.push('Clear clinical advantage over existing therapies');
+        score += 30;
+      } else if (input.unmet_need === 'medium') {
+        criteriaMet.push('Some clinical advantage over existing therapies');
+        score += 15;
+      } else {
+        criteriaUnmet.push('Must demonstrate clear clinical advantage');
+      }
+      if (input.development_stage === 'phase1' || input.development_stage === 'phase2') {
+        criteriaMet.push('Preliminary clinical evidence available');
+        score += 20;
+      } else if (input.development_stage === 'preclinical') {
+        criteriaUnmet.push('Preliminary clinical evidence required');
+      }
+      break;
+    }
+
+    // MHRA designations
+    case 'ilap': {
+      if (isSeriousCondition) {
+        criteriaMet.push('Product targets condition with significant unmet need in the UK');
+        score += 30;
+      } else {
+        criteriaUnmet.push('Must target significant unmet need');
+      }
+      if (input.unmet_need === 'high') {
+        criteriaMet.push('High unmet need supports ILAP Innovation Passport');
+        score += 25;
+      } else if (input.unmet_need === 'medium') {
+        score += 12;
+      }
+      if (input.mechanism) {
+        criteriaMet.push('Novel mechanism supports first-in-class or best-in-class assessment');
+        score += 15;
+      }
+      // ILAP available at any stage
+      criteriaMet.push('ILAP can be applied from early development onward');
+      score += 10;
+      break;
+    }
+
+    case 'mhra_priority_review': {
+      if (isSeriousCondition) {
+        criteriaMet.push('Product for serious condition with major public health interest');
+        score += 35;
+      } else {
+        criteriaUnmet.push('Must target serious condition with public health significance');
+      }
+      if (input.unmet_need === 'high') {
+        criteriaMet.push('Significant therapeutic innovation for unmet need');
+        score += 35;
+      } else if (input.unmet_need === 'medium') {
+        score += 15;
+      }
+      break;
+    }
+
+    case 'mhra_orphan': {
+      if (isRare) {
+        criteriaMet.push('Disease prevalence likely meets UK orphan threshold (<1 in 2,000)');
+        score += 55;
+      } else {
+        criteriaUnmet.push('Disease prevalence may exceed UK orphan threshold');
+      }
+      if (input.has_orphan_potential) {
+        criteriaMet.push('Sponsor has identified orphan drug potential');
+        score += 15;
+      }
+      criteriaMet.push('Designation available at any development stage');
+      score += 5;
+      break;
+    }
+
+    // TGA designations
+    case 'tga_priority_review': {
+      if (isSeriousCondition) {
+        criteriaMet.push('Medicine for serious condition with limited alternatives in Australia');
+        score += 35;
+      } else {
+        criteriaUnmet.push('Must address serious condition with no satisfactory alternative');
+      }
+      if (input.unmet_need === 'high') {
+        criteriaMet.push('Significant advancement over existing treatments');
+        score += 35;
+      } else if (input.unmet_need === 'medium') {
+        score += 15;
+      }
+      break;
+    }
+
+    case 'tga_provisional': {
+      if (isSeriousCondition) {
+        criteriaMet.push('Serious condition with no alternative therapy in Australia');
+        score += 25;
+      } else {
+        criteriaUnmet.push('Provisional approval requires serious condition with no alternative');
+      }
+      if (input.unmet_need === 'high') {
+        criteriaMet.push('High unmet need supports provisional registration');
+        score += 25;
+      } else {
+        criteriaUnmet.push('Strong unmet need required for provisional pathway');
+      }
+      if (input.development_stage === 'phase2' || input.development_stage === 'phase3') {
+        criteriaMet.push('Phase 2/3 data available for preliminary clinical assessment');
+        score += 20;
+      } else if (input.development_stage === 'preclinical' || input.development_stage === 'phase1') {
+        criteriaUnmet.push('Preliminary clinical data required — at least Phase 2');
+      }
+      break;
+    }
+
+    case 'tga_orphan': {
+      if (isRare) {
+        criteriaMet.push('Disease likely affects fewer than 2,000 patients in Australia');
+        score += 55;
+      } else {
+        criteriaUnmet.push('Disease prevalence may exceed Australian orphan threshold');
+      }
+      if (input.has_orphan_potential) {
+        criteriaMet.push('Sponsor has identified orphan drug potential');
+        score += 15;
+      }
+      criteriaMet.push('TGA recognizes FDA/EMA orphan designations for expedited assessment');
+      score += 5;
+      break;
+    }
+
+    // Health Canada designations
+    case 'hc_priority_review': {
+      if (isSeriousCondition) {
+        criteriaMet.push('Drug for serious, life-threatening, or severely debilitating condition');
+        score += 30;
+      } else {
+        criteriaUnmet.push('Must treat serious, life-threatening, or severely debilitating condition');
+      }
+      if (input.unmet_need === 'high') {
+        criteriaMet.push('Substantial evidence of clinical effectiveness with no marketed alternative');
+        score += 35;
+      } else if (input.unmet_need === 'medium') {
+        criteriaMet.push('Some evidence of clinical effectiveness');
+        score += 15;
+      } else {
+        criteriaUnmet.push('Must demonstrate substantial clinical effectiveness over alternatives');
+      }
+      break;
+    }
+
+    case 'nocc': {
+      if (isSeriousCondition) {
+        criteriaMet.push('Serious condition with unmet need — eligible for NOC/c pathway');
+        score += 25;
+      } else {
+        criteriaUnmet.push('Must address serious condition with unmet need');
+      }
+      if (input.unmet_need === 'high') {
+        criteriaMet.push('High unmet need supports conditional approval');
+        score += 25;
+      } else {
+        criteriaUnmet.push('Strong unmet need required for conditional approval');
+      }
+      // Check for surrogate endpoint availability (similar to Accelerated Approval)
+      const taForNOCc = indicationData?.therapy_area?.toLowerCase() ?? '';
+      const surrogatesForNOCc = VALIDATED_SURROGATES[taForNOCc] ?? [];
+      if (surrogatesForNOCc.length > 0) {
+        criteriaMet.push('Qualifying surrogate or clinical endpoint likely available');
+        score += 15;
+      } else {
+        criteriaUnmet.push('Qualifying surrogate endpoint availability should be confirmed');
+      }
+      break;
+    }
+
+    case 'hc_orphan': {
+      if (isRare) {
+        criteriaMet.push('Disease prevalence likely meets Canadian rare disease threshold (<1 in 2,500)');
+        score += 55;
+      } else {
+        criteriaUnmet.push('Disease may not meet Canadian rare disease prevalence threshold');
+      }
+      if (input.has_orphan_potential) {
+        criteriaMet.push('Sponsor has identified orphan drug potential');
+        score += 15;
+      }
+      criteriaMet.push('Health Canada cross-references FDA/EMA orphan designations');
+      score += 5;
       break;
     }
   }
@@ -2915,7 +3226,22 @@ function findIndicationData(indication: string): (typeof INDICATION_DATA)[number
 
 function getReviewDivision(input: RegulatoryAnalysisInput, agency: RegulatoryAgency): string {
   if (agency !== 'FDA') {
-    return agency === 'EMA' ? 'CHMP (Committee for Medicinal Products for Human Use)' : 'PMDA Review Division';
+    switch (agency) {
+      case 'EMA':
+        return 'CHMP (Committee for Medicinal Products for Human Use)';
+      case 'PMDA':
+        return 'PMDA Review Division';
+      case 'NMPA':
+        return 'CDE (Center for Drug Evaluation)';
+      case 'MHRA':
+        return 'MHRA Licensing Division';
+      case 'TGA':
+        return 'TGA Prescription Medicines Evaluation Branch';
+      case 'Health_Canada':
+        return 'Health Canada BGTD (Biologic and Genetic Therapies Directorate) / TPD (Therapeutic Products Directorate)';
+      default:
+        return `${agency} Review Division`;
+    }
   }
 
   const indicationData = findIndicationData(input.indication);
@@ -2988,6 +3314,21 @@ function getDataSources(): DataSource[] {
       name: 'PMDA Review Reports',
       type: 'public',
       url: 'https://www.pmda.go.jp/english/review-services/reviews/approved-information/drugs/0001.html',
+    },
+    {
+      name: 'MHRA Products and Submissions',
+      type: 'public',
+      url: 'https://products.mhra.gov.uk/',
+    },
+    {
+      name: 'TGA Australian Register of Therapeutic Goods',
+      type: 'public',
+      url: 'https://www.tga.gov.au/resources/artg',
+    },
+    {
+      name: 'Health Canada Drug Product Database',
+      type: 'public',
+      url: 'https://www.canada.ca/en/health-canada/services/drugs-health-products/drug-products/drug-product-database.html',
     },
     {
       name: 'Terrain Regulatory Pathway Database',

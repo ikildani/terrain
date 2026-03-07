@@ -670,25 +670,58 @@ function buildAdoptionModel(
   };
 }
 
+// Device market geographic distribution differs from pharma:
+// - EU device market is relatively larger (higher hospital CapEx, universal coverage for procedures)
+// - Japan device market is relatively larger (aging population, high procedure volumes)
+// - China device market is relatively smaller for high-end devices (VBP pricing pressure, local competitors)
+// Source: Evaluate MedTech World Preview 2024, IQVIA MedTech Market Report 2024
+const DEVICE_MULTIPLIER_ADJUSTMENT: Record<string, number> = {
+  US: 1.0,
+  EU5: 1.25, // EU device market ~50% of US (vs 40% pharma) — more procedures, universal access
+  Germany: 1.3, // Largest EU device market; strong hospital infrastructure
+  France: 1.2, // High adoption of innovative devices; liste en sus program
+  Italy: 1.1, // Lower device spending but high procedure volumes
+  Spain: 1.1, // Growing MedTech market
+  UK: 1.0, // NHS cost-constrained but NICE innovation pathway
+  Japan: 1.3, // Aging population drives high device/procedure volumes
+  China: 0.7, // VBP drives down device pricing; local competition intense
+  Canada: 1.1, // Similar to US but smaller scale
+  Australia: 1.1, // High per-capita device spending
+  RoW: 0.8, // Variable but generally lower for premium devices
+};
+
 function buildDeviceGeographyBreakdown(
   geographies: string[],
   us_tam_billions: number,
   procedure: NonNullable<ReturnType<typeof findProcedure>>,
 ) {
-  return geographies
+  // Expand 'Global' to all individual territories
+  const expandedGeos = geographies.includes('Global')
+    ? ['US', 'EU5', 'Japan', 'China', 'Canada', 'Australia', 'RoW']
+    : geographies;
+
+  return expandedGeos
     .map((geo) => {
       const territory = TERRITORY_MULTIPLIERS.find((t) => t.code === geo || t.territory === geo);
-      const multiplier = territory?.multiplier || 0.5;
+      // Apply device-specific adjustment to pharma multiplier
+      const pharmaMultiplier = territory?.multiplier ?? 0.5;
+      const deviceAdj = DEVICE_MULTIPLIER_ADJUSTMENT[geo] ?? 1.0;
+      const multiplier = pharmaMultiplier * deviceAdj;
 
       const reimbursementNotes: Record<string, string> = {
         US: 'CMS/Medicare coverage; private payer negotiated rates',
         EU5: 'National health system reimbursement; DRG-based hospital payment',
-        Germany: 'G-DRG system; NUB application for novel devices',
-        France: 'GHS/GHM system; CNEDIMTS HTA for high-value devices',
-        UK: 'NHS procurement; NICE medical technologies evaluation',
-        Japan: 'NHI reimbursement; PMDA device approval; biennial price revision',
-        China: 'NMPA approved; provincial reimbursement catalog listing required',
-        RoW: 'Variable; tender-based procurement in many markets',
+        Germany: 'G-DRG system; NUB application for novel devices; InEK cost data',
+        France: 'GHS/GHM system; CNEDIMTS HTA for high-value devices; liste en sus for costly devices',
+        Italy: 'DRG-based hospital reimbursement; AGENAS HTA; regional procurement via CONSIP',
+        Spain: 'SNS national health system; regional autonomous community procurement; AEMPS device registration',
+        UK: 'NHS procurement; NICE medical technologies evaluation; NHSE commercial frameworks',
+        Japan: 'NHI reimbursement; PMDA device approval; biennial price revision; C1/C2 reimbursement categories',
+        China:
+          'NMPA approved; provincial reimbursement catalog listing required; centralized volume-based procurement (VBP)',
+        Canada: 'Provincial health authority procurement; CADTH device HTA; group purchasing organizations (GPOs)',
+        Australia: 'TGA device registration; MSAC HTA for prostheses list; PBS equivalent for implantables',
+        RoW: 'Variable; tender-based procurement in many markets; WHO prequalification for some device classes',
       };
 
       const tamVal = us_tam_billions * multiplier;

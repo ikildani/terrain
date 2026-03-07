@@ -2278,6 +2278,647 @@ const PREVALENCE_ADJUSTMENTS: Record<string, Record<string, number>> = {
     Canada: 0.5,
     Australia: 0.4,
   },
+
+  // --- PSYCHIATRY ---
+
+  // Bipolar disorder: ~1% globally, similar in developed countries, underdiagnosed in Asia
+  'Bipolar Disorder': {
+    China: 0.4,
+    Japan: 0.5,
+    RoW: 0.5,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 0.9,
+    Spain: 0.9,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+  // PTSD: higher in conflict regions, higher diagnosed rates in US/UK
+  'Post-Traumatic Stress Disorder': {
+    China: 0.3,
+    Japan: 0.4,
+    RoW: 0.7,
+    EU5: 0.8,
+    Germany: 0.8,
+    France: 0.8,
+    Italy: 0.7,
+    Spain: 0.7,
+    UK: 0.9,
+    Canada: 0.9,
+    Australia: 0.9,
+  },
+  // ADHD: much higher diagnosed rates in US; cultural differences in recognition
+  'Attention Deficit Hyperactivity Disorder': {
+    China: 0.3,
+    Japan: 0.3,
+    RoW: 0.3,
+    EU5: 0.6,
+    Germany: 0.6,
+    France: 0.5,
+    Italy: 0.4,
+    Spain: 0.5,
+    UK: 0.7,
+    Canada: 0.8,
+    Australia: 0.7,
+  },
+  // Generalized Anxiety Disorder
+  'Generalized Anxiety Disorder': {
+    China: 0.4,
+    Japan: 0.5,
+    RoW: 0.5,
+    EU5: 0.9,
+    Germany: 0.9,
+    France: 1.0,
+    Italy: 0.9,
+    Spain: 0.9,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+  // OCD: ~2% globally, similar across populations
+  'Obsessive-Compulsive Disorder': {
+    China: 0.7,
+    Japan: 0.8,
+    RoW: 0.6,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 1.0,
+    Spain: 0.9,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+  // Alcohol Use Disorder: higher in Eastern Europe/RoW, lower in Asia (flush reaction)
+  'Alcohol Use Disorder': {
+    China: 0.4,
+    Japan: 0.5,
+    RoW: 1.2,
+    EU5: 1.2,
+    Germany: 1.3,
+    France: 1.4,
+    Italy: 1.0,
+    Spain: 1.1,
+    UK: 1.3,
+    Canada: 1.0,
+    Australia: 1.1,
+  },
+  // Substance Use Disorder: higher in US (opioid crisis), varies by substance globally
+  'Substance Use Disorder': {
+    China: 0.3,
+    Japan: 0.2,
+    RoW: 0.6,
+    EU5: 0.7,
+    Germany: 0.7,
+    France: 0.7,
+    Italy: 0.6,
+    Spain: 0.7,
+    UK: 0.8,
+    Canada: 0.8,
+    Australia: 0.7,
+  },
+
+  // --- PAIN ---
+
+  // Chronic pain: US has highest treatment rates; opioid prescribing patterns unique
+  'Chronic Pain': {
+    China: 0.6,
+    Japan: 0.7,
+    RoW: 0.5,
+    EU5: 0.8,
+    Germany: 0.9,
+    France: 0.8,
+    Italy: 0.7,
+    Spain: 0.7,
+    UK: 0.8,
+    Canada: 0.9,
+    Australia: 0.8,
+  },
+  // Fibromyalgia: higher diagnosed rates in US/EU; less recognized in Asia
+  Fibromyalgia: {
+    China: 0.3,
+    Japan: 0.4,
+    RoW: 0.4,
+    EU5: 0.8,
+    Germany: 0.8,
+    France: 0.7,
+    Italy: 0.6,
+    Spain: 0.7,
+    UK: 0.8,
+    Canada: 0.8,
+    Australia: 0.7,
+  },
+  // Neuropathic pain: follows diabetic neuropathy patterns + post-herpetic neuralgia
+  'Neuropathic Pain': {
+    China: 0.8,
+    Japan: 0.9,
+    RoW: 0.7,
+    EU5: 0.9,
+    Germany: 1.0,
+    France: 0.9,
+    Italy: 0.9,
+    Spain: 0.8,
+    UK: 0.9,
+    Canada: 0.9,
+    Australia: 0.9,
+  },
+
+  // --- NEPHROLOGY ---
+
+  // IgA Nephropathy: much higher in East Asia (especially Japan/China)
+  'IgA Nephropathy': {
+    China: 3.0,
+    Japan: 3.5,
+    RoW: 1.5,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 1.0,
+    Spain: 0.9,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 0.9,
+  },
+  // FSGS: higher in African ancestry populations
+  'Focal Segmental Glomerulosclerosis': {
+    China: 0.6,
+    Japan: 0.5,
+    RoW: 1.2,
+    EU5: 0.8,
+    Germany: 0.8,
+    France: 0.9,
+    Italy: 0.7,
+    Spain: 0.7,
+    UK: 0.9,
+    Canada: 0.8,
+    Australia: 0.7,
+  },
+  // ESRD: follows CKD/diabetes/hypertension prevalence
+  'End-Stage Renal Disease': {
+    China: 1.0,
+    Japan: 1.3,
+    RoW: 0.8,
+    EU5: 0.9,
+    Germany: 1.0,
+    France: 0.9,
+    Italy: 0.9,
+    Spain: 0.9,
+    UK: 0.9,
+    Canada: 0.9,
+    Australia: 0.9,
+  },
+  // Lupus nephritis: follows SLE distribution
+  'Lupus Nephritis': {
+    China: 1.3,
+    Japan: 0.9,
+    RoW: 0.9,
+    EU5: 0.8,
+    Germany: 0.7,
+    France: 0.8,
+    Italy: 0.8,
+    Spain: 0.9,
+    UK: 0.9,
+    Canada: 0.9,
+    Australia: 0.8,
+  },
+
+  // --- DERMATOLOGY ---
+
+  // Vitiligo: higher in darker skin populations, similar globally
+  Vitiligo: {
+    China: 0.8,
+    Japan: 0.7,
+    RoW: 1.2,
+    EU5: 0.9,
+    Germany: 0.9,
+    France: 0.9,
+    Italy: 1.0,
+    Spain: 1.0,
+    UK: 0.9,
+    Canada: 0.9,
+    Australia: 0.9,
+  },
+  // Alopecia areata: similar globally (~2%)
+  'Alopecia Areata': {
+    China: 0.9,
+    Japan: 1.0,
+    RoW: 0.8,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 1.0,
+    Spain: 1.0,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+
+  // --- GASTROENTEROLOGY ---
+
+  // GERD: higher in Western nations, rising in Asia
+  'Gastroesophageal Reflux Disease': {
+    China: 0.5,
+    Japan: 0.6,
+    RoW: 0.5,
+    EU5: 0.9,
+    Germany: 1.0,
+    France: 0.9,
+    Italy: 0.8,
+    Spain: 0.8,
+    UK: 0.9,
+    Canada: 0.9,
+    Australia: 0.9,
+  },
+  // IBS: similar globally (~10%), diagnosis rates vary
+  'Irritable Bowel Syndrome': {
+    China: 0.7,
+    Japan: 0.8,
+    RoW: 0.6,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 0.9,
+    Spain: 0.9,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+  // Celiac disease: higher in Northern European ancestry, very low in East Asia
+  'Celiac Disease': {
+    China: 0.05,
+    Japan: 0.05,
+    RoW: 0.3,
+    EU5: 1.2,
+    Germany: 1.1,
+    France: 1.0,
+    Italy: 1.3,
+    Spain: 1.0,
+    UK: 1.2,
+    Canada: 1.1,
+    Australia: 1.1,
+  },
+
+  // --- HEPATOLOGY ---
+
+  // Cirrhosis: follows HBV/HCV/alcohol patterns
+  Cirrhosis: {
+    China: 2.5,
+    Japan: 1.5,
+    RoW: 2.0,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.2,
+    Italy: 1.1,
+    Spain: 1.0,
+    UK: 0.9,
+    Canada: 0.8,
+    Australia: 0.7,
+  },
+
+  // --- ENDOCRINOLOGY ---
+
+  // Type 1 Diabetes: higher in Northern Europe/Scandinavia
+  'Type 1 Diabetes': {
+    China: 0.2,
+    Japan: 0.3,
+    RoW: 0.4,
+    EU5: 1.3,
+    Germany: 1.2,
+    France: 1.1,
+    Italy: 1.0,
+    Spain: 0.9,
+    UK: 1.4,
+    Canada: 1.1,
+    Australia: 1.1,
+  },
+  // Osteoporosis: higher in aging populations, lower in Africa
+  Osteoporosis: {
+    China: 0.8,
+    Japan: 1.2,
+    RoW: 0.6,
+    EU5: 1.1,
+    Germany: 1.1,
+    France: 1.0,
+    Italy: 1.1,
+    Spain: 1.0,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+  // Hypothyroidism: higher in iodine-deficient regions
+  Hypothyroidism: {
+    China: 0.9,
+    Japan: 1.0,
+    RoW: 1.2,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 1.0,
+    Spain: 1.0,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+
+  // --- MUSCULOSKELETAL ---
+
+  // Osteoarthritis: higher in aging populations, higher BMI nations
+  Osteoarthritis: {
+    China: 0.8,
+    Japan: 1.1,
+    RoW: 0.6,
+    EU5: 1.0,
+    Germany: 1.1,
+    France: 1.0,
+    Italy: 1.0,
+    Spain: 0.9,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+  // Gout: higher in Pacific Islanders, rising in China
+  Gout: {
+    China: 1.3,
+    Japan: 1.0,
+    RoW: 0.8,
+    EU5: 0.8,
+    Germany: 0.8,
+    France: 0.7,
+    Italy: 0.7,
+    Spain: 0.7,
+    UK: 0.9,
+    Canada: 0.9,
+    Australia: 1.0,
+  },
+  // Ankylosing Spondylitis: follows HLA-B27 prevalence (higher in Northern Europeans)
+  'Ankylosing Spondylitis': {
+    China: 0.5,
+    Japan: 0.3,
+    RoW: 0.4,
+    EU5: 1.2,
+    Germany: 1.3,
+    France: 1.1,
+    Italy: 0.9,
+    Spain: 0.9,
+    UK: 1.2,
+    Canada: 1.1,
+    Australia: 1.0,
+  },
+
+  // --- HEMATOLOGY ---
+
+  // ITP: similar globally
+  'Immune Thrombocytopenic Purpura': {
+    China: 0.9,
+    Japan: 1.0,
+    RoW: 0.7,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 1.0,
+    Spain: 1.0,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+  // Hemophilia B: similar globally (X-linked)
+  'Hemophilia B': {
+    China: 1.0,
+    Japan: 1.0,
+    RoW: 1.0,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 1.0,
+    Spain: 1.0,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+
+  // --- OPHTHALMOLOGY ---
+
+  // Glaucoma: higher in African ancestry, angle-closure more common in East Asia
+  Glaucoma: {
+    China: 1.3,
+    Japan: 1.1,
+    RoW: 1.2,
+    EU5: 0.9,
+    Germany: 0.9,
+    France: 0.9,
+    Italy: 0.9,
+    Spain: 0.8,
+    UK: 0.9,
+    Canada: 0.9,
+    Australia: 0.9,
+  },
+  // Dry Eye Disease: higher in Asia (screen time, environmental factors)
+  'Dry Eye Disease': {
+    China: 1.5,
+    Japan: 1.4,
+    RoW: 0.8,
+    EU5: 0.8,
+    Germany: 0.8,
+    France: 0.8,
+    Italy: 0.8,
+    Spain: 0.8,
+    UK: 0.8,
+    Canada: 0.9,
+    Australia: 0.9,
+  },
+  // Retinal Vein Occlusion
+  'Retinal Vein Occlusion': {
+    China: 0.8,
+    Japan: 1.0,
+    RoW: 0.6,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 1.0,
+    Spain: 0.9,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+
+  // --- PULMONOLOGY ---
+
+  // Pulmonary Arterial Hypertension: similar globally, underdiagnosed everywhere
+  'Pulmonary Arterial Hypertension': {
+    China: 0.7,
+    Japan: 0.8,
+    RoW: 0.5,
+    EU5: 1.0,
+    Germany: 1.1,
+    France: 1.1,
+    Italy: 1.0,
+    Spain: 0.9,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+  // Sarcoidosis: higher in Northern Europeans and African Americans
+  Sarcoidosis: {
+    China: 0.2,
+    Japan: 0.5,
+    RoW: 0.4,
+    EU5: 1.2,
+    Germany: 1.3,
+    France: 1.1,
+    Italy: 0.8,
+    Spain: 0.7,
+    UK: 1.1,
+    Canada: 1.0,
+    Australia: 0.8,
+  },
+  // Bronchiectasis: higher in Asia/Pacific
+  Bronchiectasis: {
+    China: 1.5,
+    Japan: 1.3,
+    RoW: 1.2,
+    EU5: 0.9,
+    Germany: 0.9,
+    France: 0.9,
+    Italy: 0.9,
+    Spain: 0.9,
+    UK: 1.1,
+    Canada: 0.9,
+    Australia: 1.0,
+  },
+
+  // --- INFECTIOUS DISEASE ---
+
+  // C. difficile: follows antibiotic use patterns
+  'Clostridioides difficile Infection': {
+    China: 0.6,
+    Japan: 0.5,
+    RoW: 0.5,
+    EU5: 0.9,
+    Germany: 1.0,
+    France: 0.9,
+    Italy: 0.9,
+    Spain: 0.8,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 0.8,
+  },
+  // CMV: higher seroprevalence in developing countries
+  'Cytomegalovirus Infection': {
+    China: 1.2,
+    Japan: 1.0,
+    RoW: 1.5,
+    EU5: 0.9,
+    Germany: 0.8,
+    France: 0.9,
+    Italy: 1.0,
+    Spain: 1.0,
+    UK: 0.8,
+    Canada: 0.8,
+    Australia: 0.8,
+  },
+  // Influenza: global, seasonal variation
+  Influenza: {
+    China: 1.0,
+    Japan: 1.0,
+    RoW: 1.0,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 1.0,
+    Spain: 1.0,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+  // Fungal infections (invasive): higher in immunocompromised populations
+  'Invasive Fungal Infections': {
+    China: 0.8,
+    Japan: 0.9,
+    RoW: 1.5,
+    EU5: 0.9,
+    Germany: 0.9,
+    France: 0.9,
+    Italy: 0.9,
+    Spain: 0.9,
+    UK: 0.9,
+    Canada: 0.9,
+    Australia: 0.8,
+  },
+
+  // --- RARE DISEASE (additional) ---
+
+  // Huntington's disease: similar globally (~5/100K), founder mutations in some populations
+  "Huntington's Disease": {
+    China: 0.2,
+    Japan: 0.3,
+    RoW: 0.4,
+    EU5: 1.2,
+    Germany: 1.2,
+    France: 1.1,
+    Italy: 1.0,
+    Spain: 1.0,
+    UK: 1.3,
+    Canada: 1.1,
+    Australia: 1.1,
+  },
+  // Fabry disease: X-linked, similar globally but underdiagnosed
+  'Fabry Disease': {
+    China: 0.8,
+    Japan: 1.0,
+    RoW: 0.6,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 1.0,
+    Spain: 1.0,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+  // Gaucher disease: higher in Ashkenazi Jewish populations
+  'Gaucher Disease': {
+    China: 0.3,
+    Japan: 0.4,
+    RoW: 0.5,
+    EU5: 0.8,
+    Germany: 0.8,
+    France: 0.9,
+    Italy: 0.7,
+    Spain: 0.7,
+    UK: 0.9,
+    Canada: 0.9,
+    Australia: 0.8,
+  },
+  // Hereditary angioedema: similar globally
+  'Hereditary Angioedema': {
+    China: 0.8,
+    Japan: 0.9,
+    RoW: 0.7,
+    EU5: 1.0,
+    Germany: 1.0,
+    France: 1.0,
+    Italy: 1.0,
+    Spain: 1.0,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
+  // PKU: varies by population, higher carrier frequency in some European populations
+  Phenylketonuria: {
+    China: 0.6,
+    Japan: 0.5,
+    RoW: 0.6,
+    EU5: 1.2,
+    Germany: 1.1,
+    France: 1.0,
+    Italy: 1.3,
+    Spain: 1.0,
+    UK: 1.0,
+    Canada: 1.0,
+    Australia: 1.0,
+  },
 };
 
 function buildGeographyBreakdown(
@@ -2312,7 +2953,27 @@ function buildGeographyBreakdown(
         key.toLowerCase().includes(indicationName.toLowerCase()),
     )?.[1];
 
-  return geographies
+  // Expand 'Global' to all major territories
+  // Deduplicate EU5 vs individual EU countries to prevent double-counting:
+  // If EU5 is selected alongside any individual EU country, drop EU5 and use individual countries
+  const EU5_COUNTRIES = ['Germany', 'France', 'Italy', 'Spain', 'UK'];
+  let resolvedGeos: string[];
+
+  if (geographies.includes('Global')) {
+    resolvedGeos = ['US', 'EU5', 'Japan', 'China', 'Canada', 'Australia', 'RoW'];
+  } else {
+    const hasEU5 = geographies.includes('EU5');
+    const hasIndividualEU = geographies.some((g) => EU5_COUNTRIES.includes(g));
+    if (hasEU5 && hasIndividualEU) {
+      // Drop EU5 aggregate, keep individual countries to avoid double-counting
+      resolvedGeos = geographies.filter((g) => g !== 'EU5');
+    } else {
+      resolvedGeos = geographies;
+    }
+  }
+  const expandedGeos = resolvedGeos;
+
+  return expandedGeos
     .map((geo) => {
       const territory = TERRITORY_MULTIPLIERS.find((t) => t.code === geo || t.territory === geo);
       const multiplier = territory?.multiplier ?? 0.5;
@@ -3094,13 +3755,41 @@ const GTN_BASE_RATES: Record<string, number> = {
   neurology: 0.15,
   immunology: 0.2,
   cardiovascular: 0.22,
+  metabolic: 0.25, // High payer pressure (GLP-1s, SGLT2s — large populations, formulary wars)
+  psychiatry: 0.28, // Heavy Medicaid mix, state supplemental rebates
+  pain_management: 0.3, // Highest rebate pressure — prior auth walls, step therapy, opioid pushback
+  infectious_disease: 0.15, // Moderate — vaccines lower GTN, antivirals moderate
+  hematology: 0.1, // Low — specialty/orphan pricing, limited formulary negotiation
+  ophthalmology: 0.12, // Low — buy-and-bill Part B, limited PBM rebate leverage
+  pulmonology: 0.2, // Moderate — large asthma/COPD populations drive payer scrutiny
+  nephrology: 0.18, // Moderate — Medicare Part D dominant, IRA price negotiation exposure
+  dermatology: 0.22, // Moderate-high — biosimilar pressure on anti-TNF/IL-17
+  gastroenterology: 0.22, // Moderate-high — biologics face step-through requirements
+  hepatology: 0.18, // Moderate — HCV cured-in-one model; NASH still emerging
+  endocrinology: 0.28, // High — insulin/GLP-1 payer wars, IRA exposure, massive populations
+  musculoskeletal: 0.24, // Moderate-high — biosimilar competition in anti-TNF class
   default: 0.18,
 };
 
 const REBATE_ESCALATION_RATES: Record<string, number> = {
-  oncology: 0.015,
-  immunology: 0.02,
-  rare_disease: 0.01,
+  oncology: 0.015, // Slow escalation — specialty pharmacy, limited formulary competition
+  immunology: 0.02, // Moderate — biosimilar entry drives annual ratchet
+  rare_disease: 0.01, // Slowest — limited competition, no formulary leverage
+  cardiovascular: 0.022, // Moderate — large patient pools, generic competition in adjacencies
+  metabolic: 0.025, // Fast — GLP-1/SGLT2 class competition, IRA price negotiation
+  neurology: 0.018, // Moderate — specialty distribution, limited biosimilar pressure
+  psychiatry: 0.022, // Moderate — Medicaid best-price ratchet, generic step therapy
+  pain_management: 0.025, // Fast — payer pushback intensifying, prior auth tightening
+  infectious_disease: 0.015, // Slow — vaccines/antivirals have less rebate pressure
+  hematology: 0.01, // Slow — orphan/specialty, limited competition
+  ophthalmology: 0.012, // Slow — buy-and-bill model, ASP-based pricing
+  pulmonology: 0.02, // Moderate — biologic competition in severe asthma
+  nephrology: 0.018, // Moderate — Medicare Part D, IRA exposure post-2028
+  dermatology: 0.022, // Moderate — IL-17/IL-23 class competition, biosimilar wave
+  gastroenterology: 0.022, // Moderate — anti-TNF biosimilars driving class-wide pressure
+  hepatology: 0.015, // Slow — HCV declining volumes, NASH still nascent
+  endocrinology: 0.028, // Fastest — insulin price caps, GLP-1 payer wars, IRA
+  musculoskeletal: 0.02, // Moderate — anti-TNF biosimilar impact
   default: 0.018,
 };
 

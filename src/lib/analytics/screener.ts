@@ -3,7 +3,7 @@
 // lib/analytics/screener.ts
 //
 // Computes a 0-100 composite opportunity score for each of the
-// 214 indications in the database across 5 weighted dimensions:
+// 224 indications in the database across 5 weighted dimensions:
 //   Market Attractiveness (0-30), Competitive Openness (0-25),
 //   Unmet Need (0-20), Development Feasibility (0-15),
 //   Partner Landscape (0-10).
@@ -493,13 +493,18 @@ function scoreMarketAttractiveness(
 
 /**
  * Competitive Openness (0-25):
- * Inverse of crowding — a crowding score of 0 yields 25, and 10 yields 0.
+ * Uses a sigmoid (S-curve) rather than linear mapping so that:
+ *   - Low crowding (0-3): openness stays high (20-25) — diminishing returns
+ *   - Mid crowding (3-7): openness drops steeply — most discriminating range
+ *   - High crowding (7-10): openness is low (0-5) — floor effect
  * When competitorCount is 0, caps at 15/25 to avoid inflating empty markets
- * where the high openness may simply reflect missing data rather than a
- * genuinely uncontested opportunity.
+ * where the high openness may simply reflect missing data.
  */
 function scoreCompetitiveOpenness(crowdingScore: number, competitorCount: number): number {
-  const raw = Math.round(25 * (1 - crowdingScore / 10) * 10) / 10;
+  // Sigmoid: f(x) = 1 / (1 + e^(k*(x - midpoint)))
+  // midpoint=5 (center of 0-10 range), k=0.8 (steepness)
+  const sigmoid = 1 / (1 + Math.exp(0.8 * (crowdingScore - 5)));
+  const raw = Math.round(25 * sigmoid * 10) / 10;
   if (competitorCount === 0) return Math.min(raw, 15);
   return raw;
 }
@@ -532,8 +537,10 @@ function scoreUnmetNeed(
 /**
  * Development Feasibility (0-15):
  * Prioritizes indication-specific LoA when available, falls back to
- * therapy-area LoA, then hardcoded defaults. Adds a biomarker
- * availability bonus (+1) if strong biomarker testing exists.
+ * therapy-area LoA, then hardcoded defaults. Adds bonuses for:
+ *   - Biomarker availability (+1) if strong biomarker testing exists
+ *   - Orphan drug eligibility (+1.5) if US prevalence < 200,000
+ *     (faster review, 7-year exclusivity, tax credits reduce dev cost)
  *
  * Returns the score plus metadata for explanations.
  */
@@ -541,7 +548,8 @@ function scoreDevelopmentFeasibility(
   therapyArea: string,
   indicationName: string,
   biomarkers: BiomarkerEntry[],
-): { score: number; avgLoa: number; hasIndicationLoa: boolean; biomarkerBonus: number } {
+  usPrevalence?: number,
+): { score: number; avgLoa: number; hasIndicationLoa: boolean; biomarkerBonus: number; orphanBonus: number } {
   // Try indication-specific LoA first
   const indicationKey = indicationName.toLowerCase();
   const indicationLoa = INDICATION_SPECIFIC_LOA[indicationKey];
@@ -575,8 +583,16 @@ function scoreDevelopmentFeasibility(
     raw += 1;
   }
 
+  // Orphan drug regulatory advantage bonus: US prevalence < 200,000
+  // Benefits: priority review, 7-year market exclusivity, FDA fee waivers, tax credits
+  let orphanBonus = 0;
+  if (usPrevalence !== undefined && usPrevalence < 200_000) {
+    orphanBonus = 1.5;
+    raw += 1.5;
+  }
+
   const score = Math.round(Math.min(raw, 15) * 10) / 10;
-  return { score, avgLoa, hasIndicationLoa, biomarkerBonus };
+  return { score, avgLoa, hasIndicationLoa, biomarkerBonus, orphanBonus };
 }
 
 /**
@@ -738,13 +754,24 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
     indication.diagnosis_rate,
     indication.severity_distribution,
   );
-  const devFeasibility = scoreDevelopmentFeasibility(indication.therapy_area, indication.name, biomarkers);
+  const devFeasibility = scoreDevelopmentFeasibility(
+    indication.therapy_area,
+    indication.name,
+    biomarkers,
+    indication.us_prevalence,
+  );
   const partnerResult = scorePartnerLandscape(indication.therapy_area, indication.name, competitors);
 
-  const opportunityScore =
-    Math.round(
-      (marketAttractiveness + competitiveOpenness + unmetNeed + devFeasibility.score + partnerResult.score) * 10,
-    ) / 10;
+  const rawOpportunityScore =
+    marketAttractiveness + competitiveOpenness + unmetNeed + devFeasibility.score + partnerResult.score;
+
+  // Confidence discount: low-confidence indications (0 competitors, sparse data)
+  // get a 15% discount; medium gets 5%. Prevents low-data indications from
+  // ranking above well-characterized ones.
+  const confidenceLevel: DataConfidence =
+    indication.data_confidence ?? (competitorCount >= 5 ? 'high' : competitorCount >= 1 ? 'medium' : 'low');
+  const confidenceMultiplier = confidenceLevel === 'low' ? 0.85 : confidenceLevel === 'medium' ? 0.95 : 1.0;
+  const opportunityScore = Math.round(rawOpportunityScore * confidenceMultiplier * 10) / 10;
 
   // ── Score explanations ──
   const severityNote = indication.severity_distribution
@@ -763,8 +790,13 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
         ? 'No tracked competitors (capped at 15/25 due to data uncertainty)'
         : `${competitorCount} competitors, crowding ${crowdingScore.toFixed(1)}/10 (${crowdingLabel})`,
     unmet_need: `Treatment rate ${(indication.treatment_rate * 100).toFixed(0)}%, diagnosis rate ${(indication.diagnosis_rate * 100).toFixed(0)}%${severityNote}`,
-    development_feasibility: `${devFeasibility.hasIndicationLoa ? 'Indication-specific' : 'Therapy-area'} LoA avg ${(devFeasibility.avgLoa * 100).toFixed(0)}%${devFeasibility.biomarkerBonus > 0 ? ', biomarker bonus +1' : ''}`,
+    development_feasibility: `${devFeasibility.hasIndicationLoa ? 'Indication-specific' : 'Therapy-area'} LoA avg ${(devFeasibility.avgLoa * 100).toFixed(0)}%${devFeasibility.biomarkerBonus > 0 ? ', biomarker bonus +1' : ''}${devFeasibility.orphanBonus > 0 ? ', orphan drug advantage +1.5' : ''}`,
     partner_landscape: `${partnerResult.activeCount} active partners in ${indication.therapy_area}${partnerResult.indicationDealBonus > 0 ? `, ${partnerResult.indicationDealBonus} with indication deals` : ''}`,
+    ...(confidenceMultiplier < 1
+      ? {
+          confidence_adjustment: `Score discounted ${((1 - confidenceMultiplier) * 100).toFixed(0)}% due to ${confidenceLevel} data confidence`,
+        }
+      : {}),
   };
 
   // ── Top competitors & assets ──
@@ -804,9 +836,8 @@ function scoreIndication(indication: IndicationData, prefetchedCompetitors?: Com
   // ── Emerging asset count ──
   const emergingAssetCount = competitors.filter((c) => earlyPhases.has(c.phase) && !c.partner).length;
 
-  // ── Data confidence — prefer authoritative source from indication data ──
-  const dataConfidence: DataConfidence =
-    indication.data_confidence ?? (competitorCount >= 5 ? 'high' : competitorCount >= 1 ? 'medium' : 'low');
+  // ── Data confidence — reuse earlier computation ──
+  const dataConfidence: DataConfidence = confidenceLevel;
 
   // ── Severity profile ──
   const severityProfile = indication.severity_distribution ?? null;
