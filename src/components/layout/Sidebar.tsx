@@ -16,7 +16,6 @@ import {
   LayoutDashboard,
   ExternalLink,
   Lock,
-  Radio,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -39,10 +38,6 @@ const NAV_SECTIONS: { section: string; items: NavItem[] }[] = [
       { label: 'Partner Discovery', href: '/partners', icon: Users, pro: true },
       { label: 'Regulatory Intel', href: '/regulatory', icon: Shield, pro: true },
     ],
-  },
-  {
-    section: 'Intelligence',
-    items: [{ label: 'Market Intelligence', href: '/intelligence', icon: Radio, tourId: 'intelligence' }],
   },
   {
     section: 'Workspace',
