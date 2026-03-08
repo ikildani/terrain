@@ -83,19 +83,27 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
   // Extract results with graceful fallbacks for failed queries
   const unwrap = <T>(r: PromiseSettledResult<T>, fallback: T): T => (r.status === 'fulfilled' ? r.value : fallback);
 
-  const emptyQuery = { data: null, count: null, error: null, status: 0, statusText: '' } as const;
+  const emptyCountQuery = { data: null, count: null, error: null, status: 0, statusText: '' } as unknown;
   const usageRes = unwrap(
     settled[0],
-    emptyQuery as (typeof settled)[0] extends PromiseSettledResult<infer U> ? U : never,
+    emptyCountQuery as Awaited<(typeof settled)[0] extends PromiseSettledResult<infer U> ? U : never>,
   );
   const reportsRes = unwrap(
     settled[1],
-    emptyQuery as (typeof settled)[1] extends PromiseSettledResult<infer U> ? U : never,
+    emptyCountQuery as Awaited<(typeof settled)[1] extends PromiseSettledResult<infer U> ? U : never>,
   );
-  const dailyActivityRes = unwrap(settled[2], { data: [] } as { data: { created_at: string }[] | null });
-  const moduleBreakdownRes = unwrap(settled[3], { data: [] } as { data: { feature: string }[] | null });
-  const topIndicationsRes = unwrap(settled[4], { data: [] } as { data: { indication: string }[] | null });
-  const reportsByTypeRes = unwrap(settled[5], { data: [] } as { data: { report_type: string }[] | null });
+  const dailyActivityRes = unwrap(settled[2], { data: null } as unknown as Awaited<
+    (typeof settled)[2] extends PromiseSettledResult<infer U> ? U : never
+  >);
+  const moduleBreakdownRes = unwrap(settled[3], { data: null } as unknown as Awaited<
+    (typeof settled)[3] extends PromiseSettledResult<infer U> ? U : never
+  >);
+  const topIndicationsRes = unwrap(settled[4], { data: null } as unknown as Awaited<
+    (typeof settled)[4] extends PromiseSettledResult<infer U> ? U : never
+  >);
+  const reportsByTypeRes = unwrap(settled[5], { data: null } as unknown as Awaited<
+    (typeof settled)[5] extends PromiseSettledResult<infer U> ? U : never
+  >);
 
   // --- Process daily activity: group by day ---
   const dailyMap = new Map<string, number>();

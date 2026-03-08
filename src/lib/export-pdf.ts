@@ -3,20 +3,8 @@
 import html2canvas from 'html2canvas-pro';
 import { jsPDF } from 'jspdf';
 
-// ── PDF Layout Constants (shared with preview overlay for WYSIWYG) ──
-export const PDF_LAYOUT = {
-  pageWidth: 215.9, // mm — Letter width
-  pageHeight: 279.4, // mm — Letter height
-  margin: 15, // mm — all sides
-  headerHeight: 28, // mm
-  footerHeight: 15, // mm
-  contentWidth: 185.9, // pageWidth - margin*2
-  contentHeight: 206.4, // pageHeight - margin*2 - headerHeight - footerHeight
-  teal: 'rgb(0, 138, 116)',
-  navy950: 'rgb(4, 8, 15)',
-  slate500: 'rgb(100, 116, 139)',
-  gray300: 'rgb(209, 213, 219)',
-} as const;
+// Re-export layout constants from dedicated module (keeps heavy deps out of light importers)
+export { PDF_LAYOUT } from './pdf-layout';
 
 interface ExportPdfOptions {
   title: string;

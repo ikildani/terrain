@@ -5,7 +5,7 @@ import { X, Download, Loader2, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
-import { PDF_LAYOUT } from '@/lib/export-pdf';
+import { PDF_LAYOUT } from '@/lib/pdf-layout';
 
 interface PdfPreviewOverlayProps {
   isOpen: boolean;

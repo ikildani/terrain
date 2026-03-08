@@ -1,18 +1,44 @@
 // ============================================================
 // TERRAIN — Suggestion Lists for Autocomplete
 // Extracted from competitor-database and device-indications
+//
+// PERFORMANCE: competitor-database (~1.5MB) is lazy-loaded via
+// dynamic import() to avoid pulling it into the client bundle
+// at module init time. The computed suggestion arrays are cached
+// after first load.
 // ============================================================
 
 import type { SuggestionItem } from '@/components/ui/FuzzyAutocomplete';
-import { COMPETITOR_DATABASE } from './competitor-database';
+import type { CompetitorRecord } from './competitor-database';
 import { PROCEDURE_VOLUME_DATA } from './device-indications';
+
+// ── Lazy Competitor Database Loader ──────────────────────────
+// Dynamic import() ensures webpack/Next.js code-splits this module
+// and only loads it when actually needed (not at page load).
+
+let _competitorDbCache: CompetitorRecord[] | null = null;
+
+async function loadCompetitorDatabase(): Promise<CompetitorRecord[]> {
+  if (_competitorDbCache) return _competitorDbCache;
+  const mod = await import('./competitor-database');
+  _competitorDbCache = mod.COMPETITOR_DATABASE;
+  return _competitorDbCache;
+}
+
+// ── Cached Suggestion Arrays ─────────────────────────────────
+// Computed once from competitor-database, then cached for the
+// lifetime of the page.
+
+let _mechanismSuggestions: SuggestionItem[] | null = null;
+let _targetSuggestions: SuggestionItem[] | null = null;
+let _subtypeSuggestions: SuggestionItem[] | null = null;
 
 // ── Mechanism Suggestions ────────────────────────────────────
 // Deduplicated from competitor-database mechanism field
 
-function buildMechanismSuggestions(): SuggestionItem[] {
+function buildMechanismSuggestions(db: CompetitorRecord[]): SuggestionItem[] {
   const counts = new Map<string, { category: string; count: number }>();
-  for (const rec of COMPETITOR_DATABASE) {
+  for (const rec of db) {
     const key = rec.mechanism;
     if (!key) continue;
     const existing = counts.get(key);
@@ -34,7 +60,16 @@ function buildMechanismSuggestions(): SuggestionItem[] {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export const MECHANISM_SUGGESTIONS: SuggestionItem[] = buildMechanismSuggestions();
+/**
+ * Lazily loads and caches mechanism suggestions from competitor-database.
+ * Returns cached result on subsequent calls.
+ */
+export async function getMechanismSuggestions(): Promise<SuggestionItem[]> {
+  if (_mechanismSuggestions) return _mechanismSuggestions;
+  const db = await loadCompetitorDatabase();
+  _mechanismSuggestions = buildMechanismSuggestions(db);
+  return _mechanismSuggestions;
+}
 
 export const POPULAR_MECHANISMS = [
   'PD-1 inhibitor',
@@ -47,9 +82,9 @@ export const POPULAR_MECHANISMS = [
 
 // ── Molecular Target Suggestions ─────────────────────────────
 
-function buildTargetSuggestions(): SuggestionItem[] {
+function buildTargetSuggestions(db: CompetitorRecord[]): SuggestionItem[] {
   const counts = new Map<string, { area: string; count: number }>();
-  for (const rec of COMPETITOR_DATABASE) {
+  for (const rec of db) {
     const target = rec.molecular_target;
     if (!target) continue;
     const existing = counts.get(target);
@@ -71,14 +106,23 @@ function buildTargetSuggestions(): SuggestionItem[] {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export const TARGET_SUGGESTIONS: SuggestionItem[] = buildTargetSuggestions();
+/**
+ * Lazily loads and caches target suggestions from competitor-database.
+ * Returns cached result on subsequent calls.
+ */
+export async function getTargetSuggestions(): Promise<SuggestionItem[]> {
+  if (_targetSuggestions) return _targetSuggestions;
+  const db = await loadCompetitorDatabase();
+  _targetSuggestions = buildTargetSuggestions(db);
+  return _targetSuggestions;
+}
 
 // ── Subtype / Specifics Suggestions ──────────────────────────
 // Dynamically built from competitor-database indication_specifics
 
-function buildSubtypeSuggestions(): SuggestionItem[] {
+function buildSubtypeSuggestions(db: CompetitorRecord[]): SuggestionItem[] {
   const seen = new Map<string, { indication: string; count: number }>();
-  for (const rec of COMPETITOR_DATABASE) {
+  for (const rec of db) {
     const specifics = rec.indication_specifics;
     if (!specifics) continue;
     const existing = seen.get(specifics);
@@ -97,7 +141,16 @@ function buildSubtypeSuggestions(): SuggestionItem[] {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export const SUBTYPE_SUGGESTIONS: SuggestionItem[] = buildSubtypeSuggestions();
+/**
+ * Lazily loads and caches subtype suggestions from competitor-database.
+ * Returns cached result on subsequent calls.
+ */
+export async function getSubtypeSuggestions(): Promise<SuggestionItem[]> {
+  if (_subtypeSuggestions) return _subtypeSuggestions;
+  const db = await loadCompetitorDatabase();
+  _subtypeSuggestions = buildSubtypeSuggestions(db);
+  return _subtypeSuggestions;
+}
 
 export const POPULAR_SUBTYPES = [
   'EGFR-mutated NSCLC',
@@ -863,31 +916,36 @@ function filtered(items: SuggestionItem[], total: number, source: string): Filte
 /**
  * Filter subtypes to those matching the selected indication.
  * Falls back to full list if no indication or no matches found.
+ * Async because subtypes are lazy-loaded from competitor-database.
  */
-export function getSubtypesForIndication(indication: string): FilteredSuggestions {
-  if (!indication) return unfiltered(SUBTYPE_SUGGESTIONS);
+export async function getSubtypesForIndication(indication: string): Promise<FilteredSuggestions> {
+  const subtypes = await getSubtypeSuggestions();
+  if (!indication) return unfiltered(subtypes);
   const lower = indication.toLowerCase();
-  const result = SUBTYPE_SUGGESTIONS.filter((s) => s.category && s.category.toLowerCase().includes(lower));
-  if (result.length === 0) return unfiltered(SUBTYPE_SUGGESTIONS);
-  return filtered(result, SUBTYPE_SUGGESTIONS.length, indication);
+  const result = subtypes.filter((s) => s.category && s.category.toLowerCase().includes(lower));
+  if (result.length === 0) return unfiltered(subtypes);
+  return filtered(result, subtypes.length, indication);
 }
 
 /**
  * Filter mechanisms to those seen in the competitor database for the given indication.
  * Falls back to full list if no indication or no matches found.
+ * Async because competitor-database is lazy-loaded.
  */
-export function getMechanismsForIndication(indication: string): FilteredSuggestions {
-  if (!indication) return unfiltered(MECHANISM_SUGGESTIONS);
+export async function getMechanismsForIndication(indication: string): Promise<FilteredSuggestions> {
+  const mechanisms = await getMechanismSuggestions();
+  if (!indication) return unfiltered(mechanisms);
+  const db = await loadCompetitorDatabase();
   const lower = indication.toLowerCase();
   const relevantMechanisms = new Set<string>();
-  for (const rec of COMPETITOR_DATABASE) {
+  for (const rec of db) {
     if (rec.indication.toLowerCase().includes(lower) || lower.includes(rec.indication.toLowerCase())) {
       relevantMechanisms.add(rec.mechanism);
     }
   }
-  if (relevantMechanisms.size === 0) return unfiltered(MECHANISM_SUGGESTIONS);
-  const result = MECHANISM_SUGGESTIONS.filter((m) => relevantMechanisms.has(m.name));
-  return filtered(result, MECHANISM_SUGGESTIONS.length, indication);
+  if (relevantMechanisms.size === 0) return unfiltered(mechanisms);
+  const result = mechanisms.filter((m) => relevantMechanisms.has(m.name));
+  return filtered(result, mechanisms.length, indication);
 }
 
 /**

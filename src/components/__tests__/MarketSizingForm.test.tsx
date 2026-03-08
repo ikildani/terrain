@@ -72,7 +72,9 @@ vi.mock('@/components/shared/ProductTypeSelector', () => ({
 }));
 
 vi.mock('@/lib/data/suggestion-lists', () => ({
-  MECHANISM_SUGGESTIONS: [],
+  getMechanismSuggestions: () => Promise.resolve([]),
+  getTargetSuggestions: () => Promise.resolve([]),
+  getSubtypeSuggestions: () => Promise.resolve([]),
   POPULAR_MECHANISMS: [],
   PATIENT_SEGMENT_SUGGESTIONS: [],
   POPULAR_SEGMENTS: [],
@@ -81,9 +83,27 @@ vi.mock('@/lib/data/suggestion-lists', () => ({
   SPECIALTY_SUGGESTIONS: [],
   BIOMARKER_SUGGESTIONS: [],
   POPULAR_BIOMARKERS: [],
-  SUBTYPE_SUGGESTIONS: [],
   POPULAR_SUBTYPES: [],
   BIOMARKER_PREVALENCE: {},
+  getSubtypesForIndication: () =>
+    Promise.resolve({ items: [], isFiltered: false, totalCount: 0, filteredCount: 0, filterSource: '' }),
+  getMechanismsForIndication: () =>
+    Promise.resolve({ items: [], isFiltered: false, totalCount: 0, filteredCount: 0, filterSource: '' }),
+  getSpecialtiesForProcedure: () => ({
+    items: [],
+    isFiltered: false,
+    totalCount: 0,
+    filteredCount: 0,
+    filterSource: '',
+  }),
+  getSettingForProcedure: () => null,
+  getBiomarkersForIndication: () => ({
+    items: [],
+    isFiltered: false,
+    totalCount: 0,
+    filteredCount: 0,
+    filterSource: '',
+  }),
 }));
 
 vi.mock('@/lib/data/nutraceutical-data', () => ({

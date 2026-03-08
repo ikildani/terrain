@@ -488,9 +488,38 @@ function PharmaForm({
   const developmentStage = watch('development_stage');
   const pricingAssumption = watch('pricing_assumption');
 
-  // Indication-aware filtered suggestions
-  const filteredSubtypes = useMemo(() => getSubtypesForIndication(indication), [indication]);
-  const filteredMechanisms = useMemo(() => getMechanismsForIndication(indication), [indication]);
+  // Indication-aware filtered suggestions (lazy-loaded from competitor-database)
+  const [filteredSubtypes, setFilteredSubtypes] = useState<FilteredSuggestions>({
+    items: [],
+    isFiltered: false,
+    totalCount: 0,
+    filteredCount: 0,
+    filterSource: '',
+  });
+  const [filteredMechanisms, setFilteredMechanisms] = useState<FilteredSuggestions>({
+    items: [],
+    isFiltered: false,
+    totalCount: 0,
+    filteredCount: 0,
+    filterSource: '',
+  });
+  useEffect(() => {
+    let cancelled = false;
+    async function loadFiltered() {
+      const [subtypes, mechanisms] = await Promise.all([
+        getSubtypesForIndication(indication),
+        getMechanismsForIndication(indication),
+      ]);
+      if (!cancelled) {
+        setFilteredSubtypes(subtypes);
+        setFilteredMechanisms(mechanisms);
+      }
+    }
+    loadFiltered();
+    return () => {
+      cancelled = true;
+    };
+  }, [indication]);
 
   // Clear subtype & mechanism when indication changes (they may no longer be relevant)
   const prevIndicationRef = useRef(indication);

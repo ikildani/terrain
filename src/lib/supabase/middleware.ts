@@ -80,5 +80,28 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // ────────────────────────────────────────────────────────────
+  // Protect API routes (defense-in-depth)
+  // Individual route handlers still perform their own auth,
+  // but middleware blocks unauthenticated requests early.
+  // ────────────────────────────────────────────────────────────
+  const pathname = request.nextUrl.pathname;
+  if (pathname.startsWith('/api/')) {
+    // Routes that must remain publicly accessible
+    const PUBLIC_API_PREFIXES = [
+      '/api/stripe/webhook', // Stripe signature-verified
+      '/api/cron/', // Vercel cron (uses CRON_SECRET)
+      '/api/health', // Health check
+      '/api/share/', // Public shared report access
+      '/api/email/welcome', // Triggered by auth hooks
+    ];
+
+    const isPublicApi = PUBLIC_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+
+    if (!isPublicApi && !user) {
+      return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+    }
+  }
+
   return response;
 }

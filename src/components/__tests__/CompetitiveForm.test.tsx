@@ -76,7 +76,7 @@ vi.mock('@/lib/data/competitor-database', () => ({
 }));
 
 vi.mock('@/lib/data/suggestion-lists', () => ({
-  MECHANISM_SUGGESTIONS: [],
+  getMechanismSuggestions: () => Promise.resolve([]),
   POPULAR_MECHANISMS: [],
 }));
 

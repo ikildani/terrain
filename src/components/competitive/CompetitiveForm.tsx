@@ -3,13 +3,14 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Crosshair, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { IndicationAutocomplete } from '@/components/ui/IndicationAutocomplete';
 import { FuzzyAutocomplete } from '@/components/ui/FuzzyAutocomplete';
+import type { SuggestionItem } from '@/components/ui/FuzzyAutocomplete';
 import { ProductTypeSelector } from '@/components/shared/ProductTypeSelector';
 import { COVERED_INDICATIONS, COVERED_PROCEDURES, COVERED_BIOMARKERS } from '@/lib/data/competitive-suggestions';
-import { MECHANISM_SUGGESTIONS, POPULAR_MECHANISMS } from '@/lib/data/suggestion-lists';
+import { getMechanismSuggestions, POPULAR_MECHANISMS } from '@/lib/data/suggestion-lists';
 import type { ProductCategory } from '@/types/devices-diagnostics';
 
 // ────────────────────────────────────────────────────────────
@@ -133,6 +134,12 @@ function categoryToApiString(cat: ProductCategory): string {
 
 export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveFormProps) {
   const [productCategory, setProductCategory] = useState<ProductCategory>('pharmaceutical');
+
+  // Lazy-load mechanism suggestions to avoid pulling ~1.5MB competitor-database into initial bundle
+  const [mechanismSuggestions, setMechanismSuggestions] = useState<SuggestionItem[]>([]);
+  useEffect(() => {
+    getMechanismSuggestions().then(setMechanismSuggestions);
+  }, []);
 
   // ── Pharma form ──────────────────────────────────────────
   const pharmaForm = useForm<z.infer<typeof pharmaSchema>>({
@@ -261,7 +268,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               label="Mechanism of Action (Optional)"
               value={pharmaForm.watch('mechanism') || ''}
               onChange={(v) => pharmaForm.setValue('mechanism', v)}
-              items={MECHANISM_SUGGESTIONS}
+              items={mechanismSuggestions}
               popularItems={POPULAR_MECHANISMS}
               storageKey="terrain:recent-mechanisms"
               placeholder="e.g., PD-1 inhibitor, ADC"
