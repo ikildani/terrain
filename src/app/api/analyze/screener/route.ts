@@ -6,6 +6,7 @@ import { checkUsage, recordUsage } from '@/lib/usage';
 import { scoreAllIndications } from '@/lib/analytics/screener';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, logApiRequest, logApiResponse } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 import type { ApiResponse } from '@/types';
 import type { OpportunityFilters } from '@/lib/analytics/screener';
 
@@ -186,6 +187,7 @@ export async function POST(request: NextRequest) {
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } },
     );
   } catch (error: unknown) {
+    captureApiError(error, { route: '/api/analyze/screener' });
     const message = error instanceof Error ? error.message : 'Screener analysis failed.';
     logger.error('screener_analysis_error', {
       error: message,

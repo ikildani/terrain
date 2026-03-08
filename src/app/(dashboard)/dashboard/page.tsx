@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { StatCard } from '@/components/shared/StatCard';
 import { Progress } from '@/components/ui/Progress';
 import {
@@ -439,14 +440,13 @@ function DashboardContent() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center py-10 text-center">
-            <FileText className="w-10 h-10 text-navy-600 mb-3" />
-            <p className="text-sm text-slate-400 mb-1">No reports yet</p>
-            <p className="text-xs text-slate-600 mb-4">Run your first market analysis to get started.</p>
-            <Link href="/market-sizing" className="btn btn-primary btn-sm">
-              New Market Analysis
-            </Link>
-          </div>
+          <EmptyState
+            icon={FileText}
+            heading="No reports yet"
+            description="Run your first market analysis to get started."
+            cta={{ label: 'New Market Analysis', href: '/market-sizing' }}
+            variant="inline"
+          />
         )}
       </div>
     </>

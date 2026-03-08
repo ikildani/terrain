@@ -70,6 +70,22 @@ test.describe('API Route Protection', () => {
     expect(response.status()).toBe(401);
   });
 
+  test('POST /api/reports returns 401 without auth', async ({ request }) => {
+    const response = await request.post('/api/reports', {
+      data: {
+        title: 'Test Report',
+        report_type: 'market_sizing',
+        indication: 'NSCLC',
+        inputs: {},
+        outputs: {},
+      },
+    });
+
+    expect(response.status()).toBe(401);
+    const body = await response.json();
+    expect(body.success).toBe(false);
+  });
+
   test('POST /api/stripe/checkout returns 401 without auth', async ({ request }) => {
     const response = await request.post('/api/stripe/checkout', {
       data: { plan: 'pro' },

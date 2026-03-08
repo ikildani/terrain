@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorized, createServiceClient } from '@/lib/cron-auth';
 import { logger } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 
 // ────────────────────────────────────────────────────────────
 // openFDA Drug Approvals — Daily refresh
@@ -150,6 +151,7 @@ export async function GET(request: NextRequest) {
       }
     }
   } catch (err) {
+    captureApiError(err, { route: '/api/cron/refresh-fda' });
     errors.push(`Fetch error: ${err instanceof Error ? err.message : String(err)}`);
   }
 

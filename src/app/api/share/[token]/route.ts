@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { rateLimit } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/api/client-ip';
 import { logger } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 import type { ApiResponse } from '@/types';
 
 type RouteContext = { params: Promise<{ token: string }> };
@@ -12,8 +14,8 @@ type RouteContext = { params: Promise<{ token: string }> };
 export async function GET(request: NextRequest, context: RouteContext) {
   const { token } = await context.params;
 
-  // Rate limit by IP to prevent token enumeration
-  const ip = request.headers.get('x-real-ip') || 'unknown';
+  // Rate limit by IP to prevent token enumeration (see lib/api/client-ip.ts for trust model)
+  const ip = getClientIp(request);
   const rl = await rateLimit(`share_view:${ip}`, { limit: 30, windowMs: 60_000 });
   if (!rl.success) {
     return NextResponse.json({ success: false, error: 'Rate limit exceeded.' } satisfies ApiResponse<never>, {
@@ -82,6 +84,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       },
     });
   } catch (err) {
+    captureApiError(err, { route: '/api/share/[token]', token });
     logger.error('share_view_error', { token, error: err instanceof Error ? err.message : 'Unknown error' });
     return NextResponse.json({ success: false, error: 'Unable to load shared report.' } satisfies ApiResponse<never>, {
       status: 500,

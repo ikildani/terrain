@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 import type { ApiResponse } from '@/types';
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -119,6 +120,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
       .single();
 
     if (insertError || !share) {
+      captureApiError(insertError ?? new Error('Public share insert returned null'), {
+        route: '/api/reports/[id]/share/public',
+        reportId: id,
+      });
       logger.error('public_share_create_failed', { error: insertError?.message, reportId: id });
       return NextResponse.json(
         { success: false, error: 'Failed to create public share.' } satisfies ApiResponse<never>,

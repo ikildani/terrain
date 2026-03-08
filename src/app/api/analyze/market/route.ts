@@ -9,6 +9,9 @@ import { calculateNutraceuticalMarketSizing } from '@/lib/analytics/nutraceutica
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, withTiming, logApiRequest, logApiResponse, logBusinessEvent } from '@/lib/logger';
 import { sanitizePostgrestValue, sanitizePostgrestSearch } from '@/lib/utils/sanitize';
+import { getClientIp } from '@/lib/api/client-ip';
+import { parseBodyWithLimit, BodyTooLargeError } from '@/lib/api/parse-body';
+import { captureApiError } from '@/lib/utils/sentry';
 import type { ApiResponse } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -143,14 +146,26 @@ export async function POST(request: NextRequest) {
   const routeStart = performance.now();
   try {
     // ── Check for demo mode (unauthenticated) ─────────────────
-    const body = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = (await parseBodyWithLimit(request)) as Record<string, unknown>;
+    } catch (err) {
+      if (err instanceof BodyTooLargeError) {
+        return NextResponse.json({ success: false, error: (err as Error).message } satisfies ApiResponse<never>, {
+          status: 413,
+        });
+      }
+      return NextResponse.json({ success: false, error: 'Invalid request body.' } satisfies ApiResponse<never>, {
+        status: 400,
+      });
+    }
     const isDemo = body.demo === true;
 
     let user: { id: string } | null = null;
 
     if (isDemo) {
-      // Rate limit demo requests by IP
-      const ip = request.headers.get('x-real-ip') || 'unknown';
+      // Rate limit demo requests by IP (see lib/api/client-ip.ts for trust model)
+      const ip = getClientIp(request);
       if (await isDemoRateLimited(ip)) {
         return NextResponse.json(
           {
@@ -443,6 +458,7 @@ export async function POST(request: NextRequest) {
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } },
     );
   } catch (error: unknown) {
+    captureApiError(error, { route: '/api/analyze/market' });
     const message = error instanceof Error ? error.message : 'Market analysis failed.';
     logger.error('market_analysis_error', { error: message, stack: error instanceof Error ? error.stack : undefined });
     logApiResponse({

@@ -10,6 +10,7 @@ import { useReports } from '@/hooks/useReports';
 import { useSubscription } from '@/hooks/useSubscription';
 import { formatRelativeDate } from '@/lib/utils/format';
 import { FileText, Star, Trash2, ExternalLink, BarChart3, Share2 } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
 
 const ShareModal = dynamic(
   () => import('@/components/shared/ShareModal').then((mod) => ({ default: mod.ShareModal })),
@@ -84,19 +85,12 @@ function ReportsContent() {
       )}
 
       {!isLoading && filtered.length === 0 && (
-        <div className="card noise p-12 text-center flex flex-col items-center">
-          <div className="w-16 h-16 rounded-2xl bg-teal-500/5 border border-teal-500/10 flex items-center justify-center mb-6">
-            <FileText className="w-8 h-8 text-teal-500/40" />
-          </div>
-          <h2 className="font-display text-lg text-slate-200 mb-2">No saved reports yet</h2>
-          <p className="text-sm text-slate-500 max-w-md mb-6">Run your first market analysis to create a report.</p>
-          <Link href="/market-sizing">
-            <Button variant="primary">
-              <BarChart3 className="w-4 h-4" />
-              New Market Analysis
-            </Button>
-          </Link>
-        </div>
+        <EmptyState
+          icon={FileText}
+          heading="No saved reports yet"
+          description="Run your first market analysis to create a report."
+          cta={{ label: 'New Market Analysis', href: '/market-sizing', icon: BarChart3 }}
+        />
       )}
 
       {!isLoading && filtered.length > 0 && (

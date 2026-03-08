@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { BarChart3 } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { PageHeader } from '@/components/layout/PageHeader';
 import MarketSizingForm from '@/components/market-sizing/MarketSizingForm';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
@@ -69,16 +70,13 @@ function ResultsSkeleton() {
   );
 }
 
-function EmptyState() {
+function MarketSizingEmptyState() {
   return (
-    <div className="card noise p-12 text-center flex flex-col items-center">
-      <BarChart3 className="w-12 h-12 text-navy-600 mb-4" />
-      <h3 className="font-display text-lg text-white mb-2">Run Your First Analysis</h3>
-      <p className="text-sm text-slate-500 max-w-md">
-        Select a product category and configure your parameters to generate an investor-grade market assessment with
-        TAM, SAM, SOM, patient funnel, geography breakdown, and 10-year revenue projections.
-      </p>
-    </div>
+    <EmptyState
+      icon={BarChart3}
+      heading="Run Your First Analysis"
+      description="Select a product category and configure your parameters to generate an investor-grade market assessment with TAM, SAM, SOM, patient funnel, geography breakdown, and 10-year revenue projections."
+    />
   );
 }
 
@@ -201,7 +199,7 @@ export default function MarketSizingPage() {
                 </p>
               </div>
             )}
-            {!isLoading && !error && !results && <EmptyState />}
+            {!isLoading && !error && !results && <MarketSizingEmptyState />}
             {!isLoading && !error && results && formInput && renderReport()}
           </div>
         </div>

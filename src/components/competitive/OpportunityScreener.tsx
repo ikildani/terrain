@@ -19,6 +19,7 @@ import {
   X,
   UserCog,
 } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { OpportunityFilterBar, type ScreenerFilters } from './OpportunityFilterBar';
 import { OpportunityTable } from './OpportunityTable';
 import { OpportunityScoreBar } from './OpportunityScoreBar';
@@ -351,14 +352,16 @@ function Pagination({
 
 function ScreenerEmptyState() {
   return (
-    <div className="card noise p-12 text-center flex flex-col items-center">
-      <BarChart3 className="w-12 h-12 text-navy-600 mb-4" />
-      <h3 className="font-display text-lg text-white mb-2">Opportunity Screener</h3>
-      <p className="text-sm text-slate-500 max-w-md">
-        Cross-query 214 indications against competitive density, global prevalence, unmet need, and partner landscape.
-        Click <strong className="text-slate-300">Screen Opportunities</strong> to generate a ranked opportunity map.
-      </p>
-    </div>
+    <EmptyState
+      icon={BarChart3}
+      heading="Opportunity Screener"
+      description={
+        <>
+          Cross-query 214 indications against competitive density, global prevalence, unmet need, and partner landscape.
+          Click <strong className="text-slate-300">Screen Opportunities</strong> to generate a ranked opportunity map.
+        </>
+      }
+    />
   );
 }
 

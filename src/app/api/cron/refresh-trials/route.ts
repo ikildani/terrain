@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorized, createServiceClient } from '@/lib/cron-auth';
 import { logger } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 
 // ────────────────────────────────────────────────────────────
 // ClinicalTrials.gov API v2 — Weekly pipeline refresh
@@ -190,6 +191,7 @@ export async function GET(request: NextRequest) {
       // Respect rate limit: ~3 req/sec
       await new Promise((r) => setTimeout(r, 400));
     } catch (err) {
+      captureApiError(err, { route: '/api/cron/refresh-trials', query });
       errors.push(`Fetch error for "${query}": ${err instanceof Error ? err.message : String(err)}`);
     }
   }

@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Shield, Loader2 } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { UpgradeGate } from '@/components/shared/UpgradeGate';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -98,16 +99,13 @@ function ResultsSkeleton() {
 // EMPTY STATE
 // ────────────────────────────────────────────────────────────
 
-function EmptyState() {
+function RegulatoryEmptyState() {
   return (
-    <div className="card noise p-12 text-center flex flex-col items-center">
-      <Shield className="w-12 h-12 text-navy-600 mb-4" />
-      <h3 className="font-display text-lg text-white mb-2">Analyze Your Regulatory Strategy</h3>
-      <p className="text-sm text-slate-500 max-w-md">
-        Enter your product profile to receive pathway recommendations, designation eligibility assessment, timeline
-        estimates, comparable approval precedents, and risk analysis.
-      </p>
-    </div>
+    <EmptyState
+      icon={Shield}
+      heading="Analyze Your Regulatory Strategy"
+      description="Enter your product profile to receive pathway recommendations, designation eligibility assessment, timeline estimates, comparable approval precedents, and risk analysis."
+    />
   );
 }
 
@@ -385,7 +383,7 @@ function RegulatoryContent() {
             </p>
           </div>
         )}
-        {!isLoading && !error && !results && <EmptyState />}
+        {!isLoading && !error && !results && <RegulatoryEmptyState />}
         {!isLoading && !error && results && <RegulatoryResults data={results} />}
       </div>
     </div>

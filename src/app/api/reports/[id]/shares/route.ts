@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 import type { ApiResponse } from '@/types';
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -48,6 +49,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     .eq('report_id', id);
 
   if (error) {
+    captureApiError(error, { route: '/api/reports/[id]/shares', action: 'list', reportId: id });
     logger.error('shares_list_failed', { error: error.message, reportId: id });
     return NextResponse.json({ success: false, error: 'Failed to fetch shares.' } satisfies ApiResponse<never>, {
       status: 500,
@@ -149,6 +151,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (toInsert.length > 0) {
       const { error: insertError } = await supabase.from('report_shares').insert(toInsert);
       if (insertError) {
+        captureApiError(insertError, { route: '/api/reports/[id]/shares', action: 'insert', reportId: id });
         logger.error('share_insert_failed', { error: insertError.message, reportId: id });
         return NextResponse.json({ success: false, error: 'Failed to share report.' } satisfies ApiResponse<never>, {
           status: 500,

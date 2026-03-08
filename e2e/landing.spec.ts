@@ -18,6 +18,13 @@ test.describe('Landing Page', () => {
     await expect(signIn).toBeVisible();
   });
 
+  test('"Start for free" CTA navigates to signup', async ({ page }) => {
+    const startCta = page.getByRole('link', { name: /start|get started|try free/i });
+    await startCta.click();
+    await page.waitForURL(/\/signup/, { timeout: 10_000 });
+    expect(page.url()).toContain('/signup');
+  });
+
   test('navigation links are present and functional', async ({ page }) => {
     // Desktop nav links
     const modulesLink = page.locator('a[href="#modules"]');
@@ -37,9 +44,11 @@ test.describe('Landing Page', () => {
 
     // Should have module cards (at least 4)
     const cards = modulesSection.locator('[class*="card"]');
-    await expect(cards).toHaveCount(4, { timeout: 5000 }).catch(() => {
-      // Flexible — may be more or fewer
-    });
+    await expect(cards)
+      .toHaveCount(4, { timeout: 5000 })
+      .catch(() => {
+        // Flexible — may be more or fewer
+      });
     const count = await cards.count();
     expect(count).toBeGreaterThanOrEqual(3);
   });
@@ -85,7 +94,10 @@ test.describe('Landing Page — Mobile', () => {
     const desktopNav = page.locator('.hidden.md\\:flex');
 
     // Look for hamburger button
-    const menuButton = page.locator('button').filter({ has: page.locator('svg') }).first();
+    const menuButton = page
+      .locator('button')
+      .filter({ has: page.locator('svg') })
+      .first();
     if (await menuButton.isVisible()) {
       await menuButton.click();
 

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { checkUsage } from '@/lib/usage';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, logApiRequest, logApiResponse } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 import { getCompetitorsForIndication, type CompetitorRecord } from '@/lib/data/competitor-database';
 import { PHARMA_PARTNER_DATABASE } from '@/lib/data/partner-database';
 import { findIndicationByName } from '@/lib/data/indication-map';
@@ -523,6 +524,7 @@ export async function POST(request: NextRequest) {
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } },
     );
   } catch (error: unknown) {
+    captureApiError(error, { route: '/api/analyze/screener/detail' });
     const message = error instanceof Error ? error.message : 'Screener detail fetch failed.';
     logger.error('screener_detail_error', {
       error: message,

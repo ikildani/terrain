@@ -15,6 +15,7 @@ import { logger, withTiming, logApiRequest, logApiResponse, logBusinessEvent } f
 import { redis } from '@/lib/redis';
 import type { ApiResponse } from '@/types';
 import type { FeatureKey } from '@/lib/subscription';
+import { parseBodyWithLimit, BodyTooLargeError } from '@/lib/api/parse-body';
 
 const CACHE_TTL_SECONDS = 900; // 15 minutes
 
@@ -140,8 +141,20 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
         );
       }
 
-      // ── Parse + validate ──────────────────────────────────
-      const body = await request.json();
+      // ── Parse + validate (with body size limit) ──────────
+      let body: unknown;
+      try {
+        body = await parseBodyWithLimit(request);
+      } catch (err) {
+        if (err instanceof BodyTooLargeError) {
+          return NextResponse.json({ success: false, error: err.message } satisfies ApiResponse<never>, {
+            status: 413,
+          });
+        }
+        return NextResponse.json({ success: false, error: 'Invalid request body.' } satisfies ApiResponse<never>, {
+          status: 400,
+        });
+      }
       const parsed = config.schema.safeParse(body);
 
       if (!parsed.success) {
@@ -219,7 +232,7 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
 
       // ── Save report (only when explicitly requested) ───
       let reportId: string | undefined;
-      if (body.save === true) {
+      if ((body as Record<string, unknown>).save === true) {
         const reportType = FEATURE_REPORT_TYPE[config.feature] ?? config.feature;
         const titleSuffix = FEATURE_TITLE_SUFFIX[config.feature] ?? 'Analysis';
         const title = indication ? `${indication} ${titleSuffix}` : titleSuffix;
@@ -267,6 +280,9 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
       );
     } catch (error: unknown) {
       const message = `${config.feature} analysis failed. Please try again.`;
+      Sentry.captureException(error, {
+        extra: { route: config.route, feature: config.feature, requestId },
+      });
       logger.error(`${config.rateKey}_analysis_error`, {
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,

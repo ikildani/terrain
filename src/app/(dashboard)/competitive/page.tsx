@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Crosshair } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Tabs } from '@/components/ui/Tabs';
 import CompetitiveForm from '@/components/competitive/CompetitiveForm';
@@ -70,17 +71,13 @@ function ResultsSkeleton() {
   );
 }
 
-function EmptyState() {
+function CompetitiveEmptyState() {
   return (
-    <div className="card noise p-12 text-center flex flex-col items-center">
-      <Crosshair className="w-12 h-12 text-navy-600 mb-4" />
-      <h3 className="font-display text-lg text-white mb-2">Map Your Competitive Landscape</h3>
-      <p className="text-sm text-slate-500 max-w-md">
-        Select a product category and enter your target indication, procedure, biomarker, or ingredient to generate a
-        competitive landscape analysis with differentiation scoring, evidence assessment, and white space
-        identification.
-      </p>
-    </div>
+    <EmptyState
+      icon={Crosshair}
+      heading="Map Your Competitive Landscape"
+      description="Select a product category and enter your target indication, procedure, biomarker, or ingredient to generate a competitive landscape analysis with differentiation scoring, evidence assessment, and white space identification."
+    />
   );
 }
 
@@ -195,7 +192,7 @@ export default function CompetitivePage() {
                   </p>
                 </div>
               )}
-              {!isLoading && !error && !analysisResult && <EmptyState />}
+              {!isLoading && !error && !analysisResult && <CompetitiveEmptyState />}
               {!isLoading && !error && analysisResult && renderResults()}
             </div>
           </div>

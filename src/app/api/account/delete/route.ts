@@ -4,6 +4,7 @@ import { createClient as createAdminClient } from '@supabase/supabase-js';
 import { stripe } from '@/lib/stripe';
 import { logger } from '@/lib/logger';
 import { rateLimit } from '@/lib/rate-limit';
+import { captureApiError } from '@/lib/utils/sentry';
 
 const DELETE_RATE_LIMIT = { limit: 3, windowMs: 24 * 60 * 60 * 1000 } as const; // 3 per day
 
@@ -82,6 +83,7 @@ export async function POST() {
   const { error } = await adminClient.auth.admin.deleteUser(user.id);
 
   if (error) {
+    captureApiError(error, { route: '/api/account/delete', userId: user.id });
     return NextResponse.json({ success: false, error: 'Failed to delete account' }, { status: 500 });
   }
 

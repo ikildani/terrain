@@ -10,6 +10,7 @@ import { analyzeNutraceuticalCompetitiveLandscape } from '@/lib/analytics/nutrac
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, withTiming, logApiRequest, logApiResponse, logBusinessEvent } from '@/lib/logger';
 import { sanitizePostgrestValue, sanitizePostgrestSearch } from '@/lib/utils/sanitize';
+import { captureApiError } from '@/lib/utils/sentry';
 import type { ApiResponse } from '@/types';
 import type { DeviceCategory, CDxPlatform, NutraceuticalCategory } from '@/types/devices-diagnostics';
 
@@ -345,6 +346,7 @@ export async function POST(request: NextRequest) {
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } },
     );
   } catch (error: unknown) {
+    captureApiError(error, { route: '/api/analyze/competitive' });
     const message = error instanceof Error ? error.message : 'Competitive analysis failed.';
     logger.error('competitive_analysis_error', {
       error: message,

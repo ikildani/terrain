@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorized, createServiceClient } from '@/lib/cron-auth';
 import { logger } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 
 // ────────────────────────────────────────────────────────────
 // SEC EDGAR Full-Text Search — Weekly deal announcement scan
@@ -260,6 +261,7 @@ export async function GET(request: NextRequest) {
       // Respect SEC rate limit: 10 req/sec
       await new Promise((r) => setTimeout(r, 150));
     } catch (err) {
+      captureApiError(err, { route: '/api/cron/refresh-sec', query: query.slice(0, 40) });
       errors.push(
         `Fetch error for query "${query.slice(0, 40)}...": ${err instanceof Error ? err.message : String(err)}`,
       );

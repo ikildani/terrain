@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr';
 import { sendEmail } from '@/lib/email';
 import { RenewalReminderEmail } from '@/emails/RenewalReminderEmail';
 import { logger } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 import { timingSafeEqual } from 'crypto';
 
 function createServiceClient() {
@@ -98,6 +99,7 @@ export async function GET(request: NextRequest) {
 
       sent++;
     } catch (err) {
+      captureApiError(err, { route: '/api/cron/renewal-reminder', userId: sub.user_id });
       logger.error('renewal_reminder_email_failed', {
         userId: sub.user_id,
         error: err instanceof Error ? err.message : String(err),

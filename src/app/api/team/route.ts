@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+import { captureApiError } from '@/lib/utils/sentry';
 import type { ApiResponse } from '@/types';
 
 const TEAM_INVITE_RATE_LIMIT = { limit: 10, windowMs: 60 * 60 * 1000 } as const; // 10 invites/hour
@@ -141,6 +142,7 @@ export async function POST(request: NextRequest) {
     const { error } = await supabase.from('team_invitations').insert({ inviter_id: user.id, email, role: 'member' });
 
     if (error) {
+      captureApiError(error, { route: '/api/team', action: 'invite_insert', email });
       logger.error('team_invite_insert_failed', { error: error.message, email });
       return NextResponse.json({ success: false, error: 'Failed to create invitation.' } satisfies ApiResponse<never>, {
         status: 500,
@@ -194,6 +196,7 @@ export async function POST(request: NextRequest) {
         tags: [{ name: 'type', value: 'team_invite' }],
       });
     } catch (emailErr) {
+      captureApiError(emailErr, { route: '/api/team', action: 'invite_email' });
       logger.error('team_invite_email_failed', {
         error: emailErr instanceof Error ? emailErr.message : String(emailErr),
       });

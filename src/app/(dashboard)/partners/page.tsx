@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Users } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { UpgradeGate } from '@/components/shared/UpgradeGate';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -48,16 +49,13 @@ function ResultsSkeleton() {
 // EMPTY STATE
 // ────────────────────────────────────────────────────────────
 
-function EmptyState() {
+function PartnersEmptyState() {
   return (
-    <div className="card noise p-12 text-center flex flex-col items-center">
-      <Users className="w-12 h-12 text-navy-600 mb-4" />
-      <h3 className="font-display text-lg text-white mb-2">Discover Your Ideal BD Partners</h3>
-      <p className="text-sm text-slate-500 max-w-md">
-        Enter your asset profile to screen 300+ biopharma companies and rank the most likely partners based on
-        therapeutic alignment, pipeline gaps, deal history, geographic fit, and financial capacity.
-      </p>
-    </div>
+    <EmptyState
+      icon={Users}
+      heading="Discover Your Ideal BD Partners"
+      description="Enter your asset profile to screen 300+ biopharma companies and rank the most likely partners based on therapeutic alignment, pipeline gaps, deal history, geographic fit, and financial capacity."
+    />
   );
 }
 
@@ -161,7 +159,7 @@ export default function PartnersPage() {
             <SkeletonCard className="h-[600px]" />
           </div>
           <div className="flex-1 min-w-0">
-            <EmptyState />
+            <PartnersEmptyState />
           </div>
         </div>
       </>
@@ -215,7 +213,7 @@ export default function PartnersPage() {
                 </p>
               </div>
             )}
-            {!isLoading && !error && !results && <EmptyState />}
+            {!isLoading && !error && !results && <PartnersEmptyState />}
             {!isLoading && !error && results && (
               <PartnerDiscoveryReport
                 data={results}

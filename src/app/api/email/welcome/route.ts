@@ -4,6 +4,7 @@ import { sendEmail } from '@/lib/email';
 import { WelcomeEmail } from '@/emails/WelcomeEmail';
 import { logger } from '@/lib/logger';
 import { rateLimit } from '@/lib/rate-limit';
+import { captureApiError } from '@/lib/utils/sentry';
 
 export async function POST() {
   const supabase = await createClient();
@@ -35,6 +36,10 @@ export async function POST() {
   });
 
   if (!result.success) {
+    captureApiError(new Error(`Welcome email failed: ${result.error}`), {
+      route: '/api/email/welcome',
+      userId: user.id,
+    });
     logger.error('welcome_email_failed', {
       userId: user.id,
       error: result.error,

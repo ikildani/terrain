@@ -4,6 +4,7 @@ import { sendEmail } from '@/lib/email';
 import { ReportEmail } from '@/emails/ReportEmail';
 import { logger } from '@/lib/logger';
 import { rateLimit } from '@/lib/rate-limit';
+import { captureApiError } from '@/lib/utils/sentry';
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -53,6 +54,11 @@ export async function POST(request: NextRequest) {
   });
 
   if (!result.success) {
+    captureApiError(new Error(`Report email failed: ${result.error}`), {
+      route: '/api/email/report',
+      userId: user.id,
+      reportTitle,
+    });
     logger.error('report_email_failed', {
       userId: user.id,
       reportTitle,
