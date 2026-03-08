@@ -15,7 +15,7 @@ const patchSchema = z.object({
 
 export async function GET(_request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,
@@ -60,7 +60,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 
 export async function DELETE(_request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,
@@ -86,7 +86,7 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,

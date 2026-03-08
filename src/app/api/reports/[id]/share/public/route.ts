@@ -15,7 +15,7 @@ const createSchema = z.object({
 // ── GET: Get existing public share ───────────────────────────
 export async function GET(_request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,
@@ -55,7 +55,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 // ── POST: Create or regenerate public share ──────────────────
 export async function POST(request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 // ── DELETE: Revoke public share ──────────────────────────────
 export async function DELETE(_request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,

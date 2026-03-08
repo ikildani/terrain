@@ -11,7 +11,7 @@ interface TooltipProps {
 
 export function Tooltip({ content, children, className }: TooltipProps) {
   const [visible, setVisible] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   const show = useCallback(() => {
     clearTimeout(timeoutRef.current);
@@ -32,7 +32,7 @@ export function Tooltip({ content, children, className }: TooltipProps) {
             'absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5',
             'text-xs text-white bg-navy-700 border border-navy-600 rounded-md',
             'whitespace-nowrap z-50 animate-fade-in',
-            className
+            className,
           )}
         >
           {content}

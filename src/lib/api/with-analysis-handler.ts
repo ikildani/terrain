@@ -76,7 +76,7 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
 
     try {
       // ── Auth ──────────────────────────────────────────────
-      const supabase = createClient();
+      const supabase = await createClient();
       const {
         data: { user },
         error: authError,

@@ -15,7 +15,7 @@ const shareSchema = z.object({
 // ── GET: List shares for a report ────────────────────────────
 export async function GET(_request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,
@@ -78,7 +78,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 // ── POST: Share with team members ────────────────────────────
 export async function POST(request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 // ── DELETE: Revoke a share ───────────────────────────────────
 export async function DELETE(request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,

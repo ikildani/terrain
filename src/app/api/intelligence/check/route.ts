@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 // Returns only data source timestamps — no feed data.
 // Used by the notification bell to show/hide the unread dot.
 export async function GET(request: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },

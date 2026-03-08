@@ -135,7 +135,7 @@ function toSearchPattern(search: string): string {
 // ---------------------------------------------------------------------------
 
 export async function GET(request: NextRequest): Promise<NextResponse<FeedResponse | ErrorResponse>> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // ── Authentication ──────────────────────────────────────────────────────
   const {

@@ -25,7 +25,7 @@ const checkoutSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,

@@ -8,7 +8,7 @@ import { rateLimit } from '@/lib/rate-limit';
 const DELETE_RATE_LIMIT = { limit: 3, windowMs: 24 * 60 * 60 * 1000 } as const; // 3 per day
 
 export async function POST() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },

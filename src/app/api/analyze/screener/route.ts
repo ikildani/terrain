@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
   const routeStart = performance.now();
   try {
     // ── Auth ──────────────────────────────────────────────────
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,

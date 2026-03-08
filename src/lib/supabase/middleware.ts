@@ -1,13 +1,19 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export async function updateSession(request: NextRequest) {
+export async function updateSession(request: NextRequest, nonce?: string) {
+  // Clone headers and inject nonce for Next.js script injection
+  const requestHeaders = new Headers(request.headers);
+  if (nonce) {
+    requestHeaders.set('x-nonce', nonce);
+  }
+
   let response = NextResponse.next({
     request: {
-      headers: request.headers,
+      headers: requestHeaders,
     },
   });
 
@@ -23,26 +29,17 @@ export async function updateSession(request: NextRequest) {
 
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
-      get(name: string) {
-        return request.cookies.get(name)?.value;
+      getAll() {
+        return request.cookies.getAll();
       },
-      set(name: string, value: string, options: CookieOptions) {
-        request.cookies.set({ name, value, ...options });
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({
           request: {
-            headers: request.headers,
+            headers: requestHeaders,
           },
         });
-        response.cookies.set({ name, value, ...options });
-      },
-      remove(name: string, options: CookieOptions) {
-        request.cookies.set({ name, value: '', ...options });
-        response = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        });
-        response.cookies.set({ name, value: '', ...options });
+        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
       },
     },
   });
@@ -101,6 +98,26 @@ export async function updateSession(request: NextRequest) {
     if (!isPublicApi && !user) {
       return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
     }
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // Nonce-based CSP (Next.js 15 propagates nonce to inline scripts)
+  // ────────────────────────────────────────────────────────────
+  if (nonce) {
+    const csp = [
+      "default-src 'self'",
+      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://*.vercel-scripts.com https://us.i.posthog.com`,
+      "style-src 'self' 'unsafe-inline'",
+      "font-src 'self' data:",
+      "img-src 'self' data: blob:",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com https://us.i.posthog.com https://*.posthog.com",
+      'frame-src https://js.stripe.com',
+      "object-src 'none'",
+      "base-uri 'self'",
+    ].join('; ');
+
+    response.headers.set('Content-Security-Policy', csp);
+    response.headers.set('x-nonce', nonce);
   }
 
   return response;

@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // ── Auth ──────────────────────────────────────────────────
-      const supabase = createClient();
+      const supabase = await createClient();
       const {
         data: { user: authUser },
         error: authError,
@@ -342,7 +342,7 @@ export async function POST(request: NextRequest) {
       const searchTermIlike = sanitizePostgrestSearch(indication.trim());
 
       if (searchTerm) {
-        const liveSupabase = createClient();
+        const liveSupabase = await createClient();
 
         // Count active clinical trials as a competitive density signal
         const { count: trialsCount, error: trialsError } = await liveSupabase
@@ -393,7 +393,7 @@ export async function POST(request: NextRequest) {
     // ── Save report (skip for demo, respect save parameter) ──
     let reportId: string | undefined;
     if (!isDemo && user && save === true) {
-      const supabase = createClient();
+      const supabase = await createClient();
       const title = indication ? `${indication} Market Assessment` : 'Market Assessment';
       const { data: saved } = await supabase
         .from('reports')

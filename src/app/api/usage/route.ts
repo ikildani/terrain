@@ -5,7 +5,7 @@ import { rateLimit } from '@/lib/rate-limit';
 import type { ApiResponse } from '@/types';
 
 export async function GET() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,

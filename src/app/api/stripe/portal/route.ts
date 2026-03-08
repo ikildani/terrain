@@ -6,17 +6,14 @@ import { captureApiError } from '@/lib/utils/sentry';
 
 export async function POST() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required.' },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
     }
 
     const { data: subscription } = await supabase
@@ -26,10 +23,7 @@ export async function POST() {
       .single();
 
     if (!subscription?.stripe_customer_id) {
-      return NextResponse.json(
-        { success: false, error: 'No billing account found.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'No billing account found.' }, { status: 400 });
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
@@ -49,9 +43,6 @@ export async function POST() {
       stack: err instanceof Error ? err.stack : undefined,
     });
     captureApiError(err, { route: '/api/stripe/portal' });
-    return NextResponse.json(
-      { success: false, error: 'Failed to create billing portal session.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Failed to create billing portal session.' }, { status: 500 });
   }
 }

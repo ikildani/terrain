@@ -17,7 +17,7 @@ interface UsageCheckResult {
  * Returns usage metadata for the API response.
  */
 export async function checkUsage(userId: string, feature: FeatureKey): Promise<UsageCheckResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Get user's plan
   const { data: subscription } = await supabase
@@ -76,7 +76,7 @@ export async function recordUsage(
   indication?: string,
   metadata?: Record<string, unknown>,
 ) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase.from('usage_events').insert({
     user_id: userId,

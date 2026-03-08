@@ -11,7 +11,7 @@ const TEAM_INVITE_RATE_LIMIT = { limit: 10, windowMs: 60 * 60 * 1000 } as const;
 // ────────────────────────────────────────────────────────────
 
 export async function GET() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,
@@ -50,7 +50,7 @@ export async function GET() {
 // ────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,
@@ -208,7 +208,7 @@ export async function POST(request: NextRequest) {
 // ────────────────────────────────────────────────────────────
 
 export async function DELETE(request: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError,

@@ -12,12 +12,12 @@ export async function GET(request: Request) {
   const safePath = next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard';
 
   if (code) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       // Trigger welcome email (non-blocking, fire-and-forget)
       try {
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         const cookieHeader = cookieStore
           .getAll()
           .map((c) => `${c.name}=${c.value}`)
