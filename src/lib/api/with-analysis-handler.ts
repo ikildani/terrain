@@ -189,7 +189,7 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
       });
 
       // ── Check cache ──────────────────────────────────────
-      const cacheKey = redis ? `analysis:${config.feature}:${stableHash(validatedBody)}` : null;
+      const cacheKey = redis ? `analysis:${config.feature}:${user.id}:${stableHash(validatedBody)}` : null;
       let result: TResult | undefined;
       let cacheHit = false;
 

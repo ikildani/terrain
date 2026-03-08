@@ -21,10 +21,13 @@ const FOCUSABLE_SELECTOR =
 export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
   // Close on Escape
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     if (isOpen) document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
@@ -51,6 +54,16 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
       }
     }
   }, []);
+
+  // Save previously focused element when modal opens, restore on close
+  useEffect(() => {
+    if (isOpen) {
+      previouslyFocusedRef.current = document.activeElement as HTMLElement;
+    } else if (previouslyFocusedRef.current) {
+      previouslyFocusedRef.current.focus();
+      previouslyFocusedRef.current = null;
+    }
+  }, [isOpen]);
 
   // Auto-focus panel on open + attach focus trap
   useEffect(() => {
@@ -97,7 +110,9 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
           >
             {title && (
               <div className="flex items-center justify-between px-6 py-4 border-b border-navy-700">
-                <h2 id="modal-title" className="font-display text-lg text-white">{title}</h2>
+                <h2 id="modal-title" className="font-display text-lg text-white">
+                  {title}
+                </h2>
                 <button
                   onClick={onClose}
                   aria-label="Close"

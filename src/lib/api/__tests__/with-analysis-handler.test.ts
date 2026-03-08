@@ -47,6 +47,7 @@ vi.mock('@sentry/nextjs', () => ({
   setUser: vi.fn(),
   setTag: vi.fn(),
   setContext: vi.fn(),
+  captureException: vi.fn(),
 }));
 
 import { withAnalysisHandler } from '../with-analysis-handler';
