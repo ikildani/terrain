@@ -4,17 +4,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export async function updateSession(request: NextRequest, nonce?: string) {
-  // Clone headers and inject nonce for Next.js script injection
-  const requestHeaders = new Headers(request.headers);
-  if (nonce) {
-    requestHeaders.set('x-nonce', nonce);
-  }
-
+export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
+    request,
   });
 
   // Deny access when Supabase is not configured — don't silently allow through
@@ -34,11 +26,7 @@ export async function updateSession(request: NextRequest, nonce?: string) {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({
-          request: {
-            headers: requestHeaders,
-          },
-        });
+        response = NextResponse.next({ request });
         cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
       },
     },
@@ -100,24 +88,24 @@ export async function updateSession(request: NextRequest, nonce?: string) {
   }
 
   // ────────────────────────────────────────────────────────────
-  // Nonce-based CSP (Next.js 15 propagates nonce to inline scripts)
+  // CSP — compatible with both static (cached) and dynamic pages.
+  // Static pages have no nonce on their script tags, so we cannot
+  // use 'strict-dynamic' (it would block all non-nonce'd scripts).
+  // Instead we allowlist specific script origins explicitly.
   // ────────────────────────────────────────────────────────────
-  if (nonce) {
-    const csp = [
-      "default-src 'self'",
-      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://*.vercel-scripts.com https://us.i.posthog.com`,
-      "style-src 'self' 'unsafe-inline'",
-      "font-src 'self' data:",
-      "img-src 'self' data: blob:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com https://us.i.posthog.com https://*.posthog.com",
-      'frame-src https://js.stripe.com',
-      "object-src 'none'",
-      "base-uri 'self'",
-    ].join('; ');
+  const csp = [
+    "default-src 'self'",
+    `script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.vercel-scripts.com https://us.i.posthog.com`,
+    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self' data:",
+    "img-src 'self' data: blob:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com https://us.i.posthog.com https://*.posthog.com",
+    'frame-src https://js.stripe.com',
+    "object-src 'none'",
+    "base-uri 'self'",
+  ].join('; ');
 
-    response.headers.set('Content-Security-Policy', csp);
-    response.headers.set('x-nonce', nonce);
-  }
+  response.headers.set('Content-Security-Policy', csp);
 
   return response;
 }

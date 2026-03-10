@@ -2,9 +2,7 @@ import { type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
-  // Generate a nonce for CSP (Next.js 15 propagates this to scripts)
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
-  return await updateSession(request, nonce);
+  return await updateSession(request);
 }
 
 export const config = {
