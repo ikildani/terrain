@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { PageHeader } from '@/components/layout/PageHeader';
 import MarketSizingForm from '@/components/market-sizing/MarketSizingForm';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
-import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
+import { Skeleton, SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
 
 // Dynamic imports — heavy report components loaded on demand
 const MarketSizingReport = dynamic(() => import('@/components/market-sizing/MarketSizingReport'));
@@ -70,6 +70,58 @@ function ResultsSkeleton() {
   );
 }
 
+function FormSkeleton() {
+  return (
+    <div className="card noise p-6 space-y-5 animate-fade-in">
+      {/* Product type selector */}
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-24" />
+        <div className="flex gap-2">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-9 w-28 rounded-md" />
+          ))}
+        </div>
+      </div>
+      {/* Indication field */}
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-10 w-full rounded-md" />
+      </div>
+      {/* Subtype field */}
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-28" />
+        <Skeleton className="h-10 w-full rounded-md" />
+      </div>
+      {/* Geography multi-select */}
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-10 w-full rounded-md" />
+      </div>
+      {/* Development stage pills */}
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-32" />
+        <div className="flex gap-2 flex-wrap">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-8 w-20 rounded-full" />
+          ))}
+        </div>
+      </div>
+      {/* Mechanism field */}
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-32" />
+        <Skeleton className="h-10 w-full rounded-md" />
+      </div>
+      {/* Pricing assumption */}
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-28" />
+        <Skeleton className="h-10 w-full rounded-md" />
+      </div>
+      {/* Submit button */}
+      <Skeleton className="h-11 w-full rounded-md" />
+    </div>
+  );
+}
+
 function MarketSizingEmptyState() {
   return (
     <EmptyState
@@ -81,9 +133,14 @@ function MarketSizingEmptyState() {
 }
 
 export default function MarketSizingPage() {
+  const [mounted, setMounted] = useState(false);
   const [formInput, setFormInput] = useState<Record<string, unknown> | null>(null);
   const [productCategory, setProductCategory] = useState<string>('pharmaceutical');
   const [previewOpen, setPreviewOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const mutation = useMutation({
     mutationFn: async ({
@@ -186,7 +243,7 @@ export default function MarketSizingPage() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left panel — Form */}
           <div className="w-full lg:w-[380px] lg:flex-shrink-0">
-            <MarketSizingForm onSubmit={handleSubmit} isLoading={isLoading} />
+            {mounted ? <MarketSizingForm onSubmit={handleSubmit} isLoading={isLoading} /> : <FormSkeleton />}
           </div>
 
           {/* Right panel — Results */}

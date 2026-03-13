@@ -4,7 +4,29 @@ import { NextResponse, type NextRequest } from 'next/server';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
+function setCorsHeaders(res: NextResponse, origin: string | null) {
+  const allowedOrigin = process.env.NEXT_PUBLIC_APP_URL || '';
+  if (
+    origin &&
+    (origin === allowedOrigin || origin === 'http://localhost:3000' || origin === 'https://terrain.ambrosiaventures.co')
+  ) {
+    res.headers.set('Access-Control-Allow-Origin', origin);
+  }
+  res.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.headers.set('Access-Control-Max-Age', '86400');
+}
+
 export async function updateSession(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
+  // Handle CORS preflight for API routes
+  if (request.method === 'OPTIONS' && request.nextUrl.pathname.startsWith('/api/')) {
+    const preflightResponse = new NextResponse(null, { status: 204 });
+    setCorsHeaders(preflightResponse, origin);
+    return preflightResponse;
+  }
+
   let response = NextResponse.next({
     request,
   });
@@ -88,14 +110,37 @@ export async function updateSession(request: NextRequest) {
   }
 
   // ────────────────────────────────────────────────────────────
-  // CSP — compatible with both static (cached) and dynamic pages.
-  // Static pages have no nonce on their script tags, so we cannot
-  // use 'strict-dynamic' (it would block all non-nonce'd scripts).
-  // Instead we allowlist specific script origins explicitly.
+  // CSP — Nonce-based with strict-dynamic.
+  // Next.js 16 reads the x-nonce request header and automatically
+  // applies the nonce to all framework-generated <script> tags.
+  // 'strict-dynamic' lets nonce'd scripts load their children
+  // (e.g., Stripe.js loading its iframe scripts).
   // ────────────────────────────────────────────────────────────
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+
+  // Pass nonce to Next.js via request header so it can inject
+  // the nonce attribute onto inline scripts it generates.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
+
+  // Rebuild the response with the updated request headers.
+  // We must re-create the response so the Supabase cookie logic
+  // and the new request headers are both preserved.
+  const existingCookies = response.headers.getSetCookie();
+  response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+  // Re-apply any cookies Supabase may have set
+  for (const cookie of existingCookies) {
+    response.headers.append('Set-Cookie', cookie);
+  }
+
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.vercel-scripts.com https://us.i.posthog.com`,
+    // 'strict-dynamic' means the browser trusts scripts loaded by nonce'd scripts,
+    // so explicit host allowlists are ignored in modern browsers — but we keep them
+    // as fallback for older browsers that don't support 'strict-dynamic'.
+    `script-src 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://*.vercel-scripts.com https://us.i.posthog.com`,
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self' data:",
     "img-src 'self' data: blob:",
@@ -106,6 +151,13 @@ export async function updateSession(request: NextRequest) {
   ].join('; ');
 
   response.headers.set('Content-Security-Policy', csp);
+  // Expose nonce to server components via response header
+  response.headers.set('x-nonce', nonce);
+
+  // Set CORS headers on API responses
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    setCorsHeaders(response, origin);
+  }
 
   return response;
 }

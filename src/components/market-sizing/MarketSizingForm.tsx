@@ -471,6 +471,7 @@ function PharmaForm({
     formState: { errors },
   } = useForm({
     resolver: zodResolver(pharmaSchema),
+    mode: 'onTouched',
     defaultValues: {
       indication: '',
       subtype: '',
@@ -609,7 +610,15 @@ function PharmaForm({
 
       <PricingAssumptionCards value={pricingAssumption} onChange={(v) => setValue('pricing_assumption', v)} />
 
-      <Input label="Expected Launch Year" type="number" {...register('launch_year')} min={2025} max={2040} step={1} />
+      <Input
+        label="Expected Launch Year"
+        type="number"
+        {...register('launch_year')}
+        min={2025}
+        max={2040}
+        step={1}
+        error={errors.launch_year?.message}
+      />
 
       <SectionDivider />
 
@@ -641,6 +650,7 @@ function DeviceForm({
     formState: { errors },
   } = useForm({
     resolver: zodResolver(deviceSchema),
+    mode: 'onTouched',
     defaultValues: {
       procedure_or_condition: '',
       device_category: 'cardiovascular',
@@ -803,7 +813,15 @@ function DeviceForm({
 
       <GeographyGrid selected={geography} onToggle={toggleGeo} error={errors.geography?.message} />
 
-      <Input label="Expected Launch Year" type="number" {...register('launch_year')} min={2025} max={2040} step={1} />
+      <Input
+        label="Expected Launch Year"
+        type="number"
+        {...register('launch_year')}
+        min={2025}
+        max={2040}
+        step={1}
+        error={errors.launch_year?.message}
+      />
 
       <SectionDivider />
 
@@ -835,6 +853,7 @@ function CdxForm({
     formState: { errors },
   } = useForm({
     resolver: zodResolver(cdxSchema),
+    mode: 'onTouched',
     defaultValues: {
       drug_indication: '',
       biomarker: '',
@@ -986,7 +1005,15 @@ function CdxForm({
 
       <GeographyGrid selected={geography} onToggle={toggleGeo} error={errors.geography?.message} />
 
-      <Input label="Expected Launch Year" type="number" {...register('launch_year')} min={2025} max={2040} step={1} />
+      <Input
+        label="Expected Launch Year"
+        type="number"
+        {...register('launch_year')}
+        min={2025}
+        max={2040}
+        step={1}
+        error={errors.launch_year?.message}
+      />
 
       <SectionDivider />
 
@@ -1018,6 +1045,7 @@ function NutraForm({
     formState: { errors },
   } = useForm({
     resolver: zodResolver(nutraSchema),
+    mode: 'onTouched',
     defaultValues: {
       primary_ingredient: '',
       health_focus: '',
@@ -1282,7 +1310,15 @@ function NutraForm({
 
       <GeographyGrid selected={geography} onToggle={toggleGeo} error={errors.geography?.message} />
 
-      <Input label="Expected Launch Year" type="number" {...register('launch_year')} min={2025} max={2040} step={1} />
+      <Input
+        label="Expected Launch Year"
+        type="number"
+        {...register('launch_year')}
+        min={2025}
+        max={2040}
+        step={1}
+        error={errors.launch_year?.message}
+      />
 
       <SectionDivider />
 

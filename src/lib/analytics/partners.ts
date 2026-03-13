@@ -2552,7 +2552,8 @@ function buildLOEGapAnalysis(
   ).loe_year;
 
   // Determine gap severity based on max revenue at risk
-  const maxRevenue = Math.max(...upcomingLOE.map((e) => e.revenue_b));
+  const revenueValues = upcomingLOE.map((e) => e.revenue_b);
+  const maxRevenue = revenueValues.length > 0 ? Math.max(...revenueValues) : 0;
   let gap_severity: LOEGapAnalysis['gap_severity'];
   if (maxRevenue > 5) gap_severity = 'critical';
   else if (maxRevenue >= 2) gap_severity = 'significant';

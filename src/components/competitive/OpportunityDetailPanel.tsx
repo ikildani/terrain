@@ -958,8 +958,17 @@ export function OpportunityDetailPanel({
                     <div>
                       <span className="text-[9px] text-slate-600 uppercase tracking-wider">Range</span>
                       <div className="font-mono text-sm text-slate-200 mt-0.5">
-                        {formatWac(Math.min(...detail.pricing_comparables.map((p) => p.us_launch_wac_annual)))} –{' '}
-                        {formatWac(Math.max(...detail.pricing_comparables.map((p) => p.us_launch_wac_annual)))}
+                        {formatWac(
+                          detail.pricing_comparables.length > 0
+                            ? Math.min(...detail.pricing_comparables.map((p) => p.us_launch_wac_annual))
+                            : 0,
+                        )}{' '}
+                        –{' '}
+                        {formatWac(
+                          detail.pricing_comparables.length > 0
+                            ? Math.max(...detail.pricing_comparables.map((p) => p.us_launch_wac_annual))
+                            : 0,
+                        )}
                       </div>
                     </div>
                     <div>
