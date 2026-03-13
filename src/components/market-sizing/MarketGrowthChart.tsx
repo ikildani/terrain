@@ -13,7 +13,8 @@ export default function MarketGrowthChart({ projections, peakSales }: MarketGrow
   const peakIndex = projections.reduce((maxIdx, curr, idx, arr) => (curr.base > arr[maxIdx].base ? idx : maxIdx), 0);
   const peakYear = projections[peakIndex]?.year;
 
-  function formatValue(val: number): string {
+  function formatValue(val: number | null | undefined): string {
+    if (val == null || isNaN(val) || !isFinite(val)) return '$0M';
     if (val >= 1) return `$${val.toFixed(1)}B`;
     return `$${(val * 1000).toFixed(0)}M`;
   }

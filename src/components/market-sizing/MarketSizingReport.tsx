@@ -151,7 +151,14 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
 
       {/* Revenue Projection */}
       {data.revenue_projection.length > 0 && (
-        <MarketGrowthChart projections={data.revenue_projection} peakSales={summary.peak_sales_estimate} />
+        <MarketGrowthChart
+          projections={data.revenue_projection}
+          peakSales={{
+            low: summary.peak_sales_estimate?.low ?? 0,
+            base: summary.peak_sales_estimate?.base ?? 0,
+            high: summary.peak_sales_estimate?.high ?? 0,
+          }}
+        />
       )}
 
       {/* Sensitivity Analysis */}

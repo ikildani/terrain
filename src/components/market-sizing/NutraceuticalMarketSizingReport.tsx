@@ -265,7 +265,7 @@ export default function NutraceuticalMarketSizingReport({
                               : 'text-signal-red'
                         }
                       >
-                        {ch.ltv_to_cac.toFixed(1)}x
+                        {(ch.ltv_to_cac ?? 0).toFixed(1)}x
                       </span>
                     </td>
                   </tr>
@@ -354,7 +354,7 @@ export default function NutraceuticalMarketSizingReport({
             <div>
               <p className="text-2xs text-slate-600 uppercase tracking-wider">Avg Rating</p>
               <p className="font-mono text-sm text-white mt-1">
-                {data.amazon_intelligence.avg_rating_top_10.toFixed(1)}/5.0
+                {(data.amazon_intelligence?.avg_rating_top_10 ?? 0).toFixed(1)}/5.0
               </p>
             </div>
             <div>
@@ -465,7 +465,14 @@ export default function NutraceuticalMarketSizingReport({
 
       {/* Revenue Projection */}
       {data.revenue_projection.length > 0 && (
-        <MarketGrowthChart projections={data.revenue_projection} peakSales={summary.peak_annual_revenue} />
+        <MarketGrowthChart
+          projections={data.revenue_projection}
+          peakSales={{
+            low: summary.peak_annual_revenue?.low ?? 0,
+            base: summary.peak_annual_revenue?.base ?? 0,
+            high: summary.peak_annual_revenue?.high ?? 0,
+          }}
+        />
       )}
 
       {/* Competitive Positioning */}
@@ -708,15 +715,15 @@ export default function NutraceuticalMarketSizingReport({
             <div>
               <p className="text-2xs text-slate-600 uppercase tracking-wider">Revenue Multiple</p>
               <p className="font-mono text-sm text-white mt-1">
-                {data.acquisition_attractiveness.revenue_multiple_range.low.toFixed(1)}x–
-                {data.acquisition_attractiveness.revenue_multiple_range.high.toFixed(1)}x
+                {(data.acquisition_attractiveness?.revenue_multiple_range?.low ?? 0).toFixed(1)}x–
+                {(data.acquisition_attractiveness?.revenue_multiple_range?.high ?? 0).toFixed(1)}x
               </p>
             </div>
             <div>
               <p className="text-2xs text-slate-600 uppercase tracking-wider">EBITDA Multiple</p>
               <p className="font-mono text-sm text-white mt-1">
-                {data.acquisition_attractiveness.ebitda_multiple_range.low.toFixed(1)}x–
-                {data.acquisition_attractiveness.ebitda_multiple_range.high.toFixed(1)}x
+                {(data.acquisition_attractiveness?.ebitda_multiple_range?.low ?? 0).toFixed(1)}x–
+                {(data.acquisition_attractiveness?.ebitda_multiple_range?.high ?? 0).toFixed(1)}x
               </p>
             </div>
           </div>

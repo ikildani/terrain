@@ -103,9 +103,9 @@ export default function DeviceMarketSizingReport({
   const { summary } = data;
 
   // Compute peak sales from revenue projection for MarketGrowthChart
-  const peakBase = Math.max(...data.revenue_projection.map((r) => r.base));
-  const peakBear = Math.max(...data.revenue_projection.map((r) => r.bear));
-  const peakBull = Math.max(...data.revenue_projection.map((r) => r.bull));
+  const peakBase = Math.max(0, ...data.revenue_projection.map((r) => r.base ?? 0));
+  const peakBear = Math.max(0, ...data.revenue_projection.map((r) => r.bear ?? 0));
+  const peakBull = Math.max(0, ...data.revenue_projection.map((r) => r.bull ?? 0));
 
   return (
     <div className="space-y-6 animate-fade-in" data-report-content>
