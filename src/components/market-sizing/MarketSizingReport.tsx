@@ -75,8 +75,10 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
   const { summary } = data;
 
   // Role-based section visibility for Pro users
-  const showDealSections = !role || ['bd_executive', 'corp_dev', 'investor', 'analyst', 'consultant'].includes(role);
-  const showManufacturing = !role || ['founder', 'investor', 'analyst', 'consultant'].includes(role);
+  // Investors and analysts see everything — full diligence depth for any niche market
+  const fullDepth = !role || ['investor', 'analyst'].includes(role);
+  const showDealSections = fullDepth || ['bd_executive', 'corp_dev', 'consultant'].includes(role!);
+  const showManufacturing = fullDepth || ['founder', 'consultant'].includes(role!);
 
   return (
     <div className="space-y-6 animate-fade-in" data-report-content>

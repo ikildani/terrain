@@ -131,11 +131,13 @@ export default function DeviceMarketSizingReport({
   const { summary } = data;
 
   // Role-based section visibility for Pro users
-  // Sections are grouped by user intent to avoid information overload
-  const showDealSections = !role || ['bd_executive', 'corp_dev', 'investor', 'analyst', 'consultant'].includes(role);
-  const showClinicalSections = !role || ['founder', 'investor', 'analyst', 'consultant'].includes(role);
-  const showReimbursementDepth = !role || ['founder', 'bd_executive', 'corp_dev', 'analyst'].includes(role);
-  const showOperationalSections = !role || ['founder', 'analyst'].includes(role);
+  // Investors and analysts see everything — full diligence depth for any niche market
+  // Other roles see sections relevant to their function to avoid overload
+  const fullDepth = !role || ['investor', 'analyst'].includes(role);
+  const showDealSections = fullDepth || ['bd_executive', 'corp_dev', 'consultant'].includes(role!);
+  const showClinicalSections = fullDepth || ['founder', 'consultant'].includes(role!);
+  const showReimbursementDepth = fullDepth || ['founder', 'bd_executive', 'corp_dev'].includes(role!);
+  const showOperationalSections = fullDepth || role === 'founder';
 
   // Compute peak sales from revenue projection for MarketGrowthChart
   const peakBase = Math.max(0, ...data.revenue_projection.map((r) => r.base ?? 0));
