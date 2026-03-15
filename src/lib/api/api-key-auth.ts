@@ -58,17 +58,11 @@ export async function authenticateApiKey(request: NextRequest): Promise<ApiKeyCo
     if (apiKey.expires_at && new Date(apiKey.expires_at) < new Date()) return null;
 
     // Update last_used_at (fire-and-forget — never block the request)
-    admin
+    void admin
       .from('api_keys')
       .update({ last_used_at: new Date().toISOString() })
       .eq('id', apiKey.id)
-      .then(() => {})
-      .catch((err) => {
-        logger.warn('api_key_last_used_update_failed', {
-          error: err instanceof Error ? err.message : String(err),
-          keyId: apiKey.id,
-        });
-      });
+      .then(() => undefined);
 
     return {
       workspaceId: apiKey.workspace_id,

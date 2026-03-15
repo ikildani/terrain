@@ -100,6 +100,7 @@ export async function updateSession(request: NextRequest) {
       '/api/cron/', // Vercel cron (uses CRON_SECRET)
       '/api/health', // Health check
       '/api/share/', // Public shared report access
+      '/api/v1/', // v1 public API (uses API key auth, not session)
     ];
 
     const isPublicApi = PUBLIC_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));

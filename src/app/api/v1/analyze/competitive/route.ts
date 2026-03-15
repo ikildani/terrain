@@ -137,28 +137,28 @@ export async function POST(request: NextRequest) {
     if (isPharma(product_category)) {
       const { result: r } = await withTiming(
         'v1_competitive_pharma',
-        () => analyzeCompetitiveLandscape(input as Parameters<typeof analyzeCompetitiveLandscape>[0]),
+        async () => analyzeCompetitiveLandscape(input as Parameters<typeof analyzeCompetitiveLandscape>[0]),
         { indication },
       );
       result = r;
     } else if (isDevice(product_category)) {
       const { result: r } = await withTiming(
         'v1_competitive_device',
-        () => analyzeDeviceCompetitiveLandscape(input as Parameters<typeof analyzeDeviceCompetitiveLandscape>[0]),
+        async () => analyzeDeviceCompetitiveLandscape(input as Parameters<typeof analyzeDeviceCompetitiveLandscape>[0]),
         { indication },
       );
       result = r;
     } else if (isCDx(product_category)) {
       const { result: r } = await withTiming(
         'v1_competitive_cdx',
-        () => analyzeCDxCompetitiveLandscape(input as Parameters<typeof analyzeCDxCompetitiveLandscape>[0]),
+        async () => analyzeCDxCompetitiveLandscape(input as Parameters<typeof analyzeCDxCompetitiveLandscape>[0]),
         { indication },
       );
       result = r;
     } else if (isNutraceutical(product_category)) {
       const { result: r } = await withTiming(
         'v1_competitive_nutra',
-        () =>
+        async () =>
           analyzeNutraceuticalCompetitiveLandscape(
             input as Parameters<typeof analyzeNutraceuticalCompetitiveLandscape>[0],
           ),
