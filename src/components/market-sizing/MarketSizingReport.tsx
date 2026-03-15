@@ -11,6 +11,7 @@ import { ConfidentialFooter } from '@/components/shared/ConfidentialFooter';
 import { ExportButton } from '@/components/shared/ExportButton';
 import { UpgradeGate } from '@/components/shared/UpgradeGate';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useProfile } from '@/hooks/useProfile';
 import TAMChart from './TAMChart';
 import PatientFunnelChart from './PatientFunnelChart';
 import GeographyBreakdown from './GeographyBreakdown';
@@ -70,7 +71,12 @@ function flattenForCSV(data: MarketSizingOutput): Record<string, unknown>[] {
 export default function MarketSizingReport({ data, input, previewMode, onPdfExport }: MarketSizingReportProps) {
   const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
   const { isPro } = useSubscription();
+  const { role } = useProfile();
   const { summary } = data;
+
+  // Role-based section visibility for Pro users
+  const showDealSections = !role || ['bd_executive', 'corp_dev', 'investor', 'analyst', 'consultant'].includes(role);
+  const showManufacturing = !role || ['founder', 'investor', 'analyst', 'consultant'].includes(role);
 
   return (
     <div className="space-y-6 animate-fade-in" data-report-content>
@@ -364,6 +370,7 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
 
       {/* ──────────────────────── Label Expansion Opportunities ──────────────────────── */}
       {(isPro || previewMode) &&
+        showDealSections &&
         data.label_expansion_opportunities &&
         data.label_expansion_opportunities.length > 0 && (
           <div className="chart-container noise">
@@ -405,6 +412,7 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
 
       {/* ──────────────────────── Manufacturing Constraints ──────────────────────── */}
       {(isPro || previewMode) &&
+        showManufacturing &&
         data.manufacturing_constraint &&
         data.manufacturing_constraint.constrained_years.length > 0 && (
           <div className="chart-container noise">

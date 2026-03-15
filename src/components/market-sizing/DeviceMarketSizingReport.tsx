@@ -11,6 +11,7 @@ import { ConfidentialFooter } from '@/components/shared/ConfidentialFooter';
 import { ExportButton } from '@/components/shared/ExportButton';
 import { UpgradeGate } from '@/components/shared/UpgradeGate';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useProfile } from '@/hooks/useProfile';
 import TAMChart from './TAMChart';
 import ProcedureVolumeChart from './ProcedureVolumeChart';
 import RevenueStreamChart from './RevenueStreamChart';
@@ -126,7 +127,15 @@ export default function DeviceMarketSizingReport({
 }: DeviceMarketSizingReportProps) {
   const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
   const { isPro } = useSubscription();
+  const { role } = useProfile();
   const { summary } = data;
+
+  // Role-based section visibility for Pro users
+  // Sections are grouped by user intent to avoid information overload
+  const showDealSections = !role || ['bd_executive', 'corp_dev', 'investor', 'analyst', 'consultant'].includes(role);
+  const showClinicalSections = !role || ['founder', 'investor', 'analyst', 'consultant'].includes(role);
+  const showReimbursementDepth = !role || ['founder', 'bd_executive', 'corp_dev', 'analyst'].includes(role);
+  const showOperationalSections = !role || ['founder', 'analyst'].includes(role);
 
   // Compute peak sales from revenue projection for MarketGrowthChart
   const peakBase = Math.max(0, ...data.revenue_projection.map((r) => r.base ?? 0));
@@ -440,7 +449,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── A. NTAP & Reimbursement Economics ──────────────────────── */}
-      {(isPro || previewMode) && data.reimbursement_analytics && (
+      {(isPro || previewMode) && showReimbursementDepth && data.reimbursement_analytics && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">NTAP &amp; Reimbursement Economics</div>
           <div className="space-y-4">
@@ -696,7 +705,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── C. Evidence Gap Analysis ──────────────────────── */}
-      {(isPro || previewMode) && data.evidence_gap_analysis && (
+      {(isPro || previewMode) && showClinicalSections && data.evidence_gap_analysis && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Evidence Gap Analysis</div>
           <div className="space-y-4">
@@ -875,7 +884,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── E. Deal Benchmarking ──────────────────────── */}
-      {(isPro || previewMode) && data.deal_benchmark && (
+      {(isPro || previewMode) && showDealSections && data.deal_benchmark && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Deal Benchmarking</div>
           <div className="space-y-4">
@@ -961,7 +970,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── F. Technology Readiness ──────────────────────── */}
-      {(isPro || previewMode) && data.technology_readiness && (
+      {(isPro || previewMode) && showClinicalSections && data.technology_readiness && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Technology Readiness</div>
           <div className="space-y-4">
@@ -1062,7 +1071,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── G. Clinical Superiority Matrix ──────────────────────── */}
-      {(isPro || previewMode) && data.clinical_superiority && (
+      {(isPro || previewMode) && showClinicalSections && data.clinical_superiority && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Clinical Superiority Matrix</div>
           <div className="space-y-4">
@@ -1150,7 +1159,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── H. Surgeon Switching Cost ──────────────────────── */}
-      {(isPro || previewMode) && data.surgeon_switching_cost && (
+      {(isPro || previewMode) && showOperationalSections && data.surgeon_switching_cost && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Surgeon Switching Cost Analysis</div>
           <div className="space-y-4">
