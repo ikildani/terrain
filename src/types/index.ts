@@ -1667,3 +1667,21 @@ export interface SSOConfig {
   created_at: string;
   updated_at: string;
 }
+
+// ────────────────────────────────────────────────────────────
+// API KEYS
+// ────────────────────────────────────────────────────────────
+
+export interface ApiKey {
+  id: string;
+  workspace_id: string;
+  created_by: string | null;
+  name: string;
+  key_prefix: string;
+  scopes: string[];
+  rate_limit_rpm: number;
+  last_used_at: string | null;
+  expires_at: string | null;
+  revoked_at: string | null;
+  created_at: string;
+}
