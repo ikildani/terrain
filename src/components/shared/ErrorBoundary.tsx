@@ -51,7 +51,12 @@ export class ErrorBoundary extends Component<Props, State> {
               An unexpected error occurred while rendering this page.
             </p>
             {this.state.error && (
-              <p className="text-xs font-mono text-slate-600 mb-6 max-w-sm break-all">{this.state.error.message}</p>
+              <>
+                <p className="text-xs font-mono text-slate-600 mb-2 max-w-sm break-all">{this.state.error.message}</p>
+                <p className="text-2xs font-mono text-slate-700 mb-6 max-w-lg break-all whitespace-pre-wrap">
+                  {this.state.error.stack?.split('\n').slice(0, 5).join('\n')}
+                </p>
+              </>
             )}
             <button onClick={this.handleRetry} className="btn btn-primary text-sm">
               <RefreshCw className="w-3.5 h-3.5" />
