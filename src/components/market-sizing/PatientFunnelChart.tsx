@@ -67,7 +67,7 @@ function PatientFunnelChart({ funnel }: PatientFunnelChartProps) {
             <LabelList
               dataKey="count"
               position="top"
-              formatter={(val: number) => formatNumber(val)}
+              formatter={(val: unknown) => formatNumber(Number(val))}
               style={{ fontFamily: '"JetBrains Mono"', fontSize: 11, fill: '#94A3B8' }}
             />
           </Bar>

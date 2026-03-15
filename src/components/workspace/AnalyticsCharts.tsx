@@ -77,8 +77,8 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
                   fontFamily: 'JetBrains Mono',
                   color: '#F0F4F8',
                 }}
-                labelFormatter={(label: string) =>
-                  new Date(label).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                labelFormatter={(label: unknown) =>
+                  new Date(String(label)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                 }
               />
               <Line
@@ -125,9 +125,9 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
                     fontFamily: 'JetBrains Mono',
                     color: '#F0F4F8',
                   }}
-                  formatter={(value: number, _name: string, props: { payload?: { type?: string } }) => [
-                    value,
-                    formatReportType(props.payload?.type ?? ''),
+                  formatter={(value: unknown, _name: unknown, props: unknown) => [
+                    value as number,
+                    formatReportType((props as { payload?: { type?: string } })?.payload?.type ?? ''),
                   ]}
                 />
               </PieChart>

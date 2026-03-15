@@ -118,9 +118,10 @@ function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
             <LabelList
               dataKey="value"
               position="right"
-              formatter={(val: number) => {
-                const item = data.find((d) => d.value === val);
-                return formatMetric(val, item?.unit || 'B');
+              formatter={(val: unknown) => {
+                const v = Number(val);
+                const item = data.find((d) => d.value === v);
+                return formatMetric(v, item?.unit || 'B');
               }}
               style={{
                 fontFamily: '"JetBrains Mono"',

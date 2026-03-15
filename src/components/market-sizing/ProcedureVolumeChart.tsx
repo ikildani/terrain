@@ -93,7 +93,7 @@ function ProcedureVolumeChart({ procedureVolume, peakSharePct }: ProcedureVolume
             <LabelList
               dataKey="count"
               position="right"
-              formatter={(val: number) => formatNumber(val)}
+              formatter={(val: unknown) => formatNumber(Number(val))}
               style={{
                 fontFamily: '"JetBrains Mono"',
                 fontSize: 12,
