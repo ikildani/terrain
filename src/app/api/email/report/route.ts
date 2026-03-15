@@ -28,12 +28,14 @@ export async function POST(request: NextRequest) {
 
   let body: { reportTitle?: string; reportSubtitle?: string };
   try {
-    body = await request.json();
+    const { parseBodyWithLimit } = await import('@/lib/api/parse-body');
+    body = (await parseBodyWithLimit(request)) as { reportTitle?: string; reportSubtitle?: string };
   } catch {
-    return NextResponse.json({ success: false, error: 'Invalid request body' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid or oversized request body' }, { status: 400 });
   }
 
-  const { reportTitle, reportSubtitle } = body;
+  const reportTitle = typeof body.reportTitle === 'string' ? body.reportTitle.trim().slice(0, 500) : '';
+  const reportSubtitle = typeof body.reportSubtitle === 'string' ? body.reportSubtitle.trim().slice(0, 500) : undefined;
 
   if (!reportTitle) {
     return NextResponse.json({ success: false, error: 'reportTitle is required' }, { status: 400 });

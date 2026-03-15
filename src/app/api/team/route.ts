@@ -88,10 +88,21 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const body = await request.json();
-  const email = body.email?.trim()?.toLowerCase();
+  let body: Record<string, unknown>;
+  try {
+    const { parseBodyWithLimit } = await import('@/lib/api/parse-body');
+    body = (await parseBodyWithLimit(request)) as Record<string, unknown>;
+  } catch {
+    return NextResponse.json(
+      { success: false, error: 'Invalid or oversized request body.' } satisfies ApiResponse<never>,
+      {
+        status: 400,
+      },
+    );
+  }
+  const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
 
-  if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+  if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email) || email.length > 254) {
     return NextResponse.json({ success: false, error: 'Valid email address required.' } satisfies ApiResponse<never>, {
       status: 400,
     });

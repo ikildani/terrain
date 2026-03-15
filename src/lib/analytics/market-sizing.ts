@@ -49,6 +49,15 @@ import type {
   PatentCliffAnalysis,
   OneTimeTreatmentModel,
   PediatricAnalysis,
+  DealCompsAnalysis,
+  DealCompsAnalysisEntry,
+  InvestmentThesis,
+  InvestmentScenario,
+  MarketSizingDevelopmentCost,
+  DevelopmentPhaseEntry,
+  DCFWaterfall,
+  DCFWaterfallYear,
+  DCFSensitivityPoint,
 } from '@/types';
 
 import { findIndicationByName, INDICATION_DATA } from '@/lib/data/indication-map';
@@ -56,6 +65,7 @@ import { TERRITORY_MULTIPLIERS } from '@/lib/data/territory-multipliers';
 import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
 import { getLikelihoodOfApproval } from '@/lib/data/loa-tables';
 import { BIOMARKER_DATA } from '@/lib/data/biomarker-prevalence';
+import { filterDealComps } from '@/lib/data/pharma-deal-comps';
 
 // ────────────────────────────────────────────────────────────
 // STAGE-BASED PEAK MARKET SHARE RANGES
@@ -1564,7 +1574,11 @@ function isPediatricSegment(patientSegment: string | undefined, subtype: string 
 
 function isPediatricPrimaryIndication(indicationName: string): boolean {
   const name = indicationName.toLowerCase();
-  return PEDIATRIC_PRIMARY_INDICATIONS.some((pi) => name.includes(pi));
+  return PEDIATRIC_PRIMARY_INDICATIONS.some((pi) => {
+    // Use word boundary matching to prevent "sma" matching "small" in "Non-Small Cell Lung Cancer"
+    const regex = new RegExp(`\\b${pi.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+    return regex.test(name);
+  });
 }
 
 function buildPediatricAnalysis(
@@ -1617,6 +1631,529 @@ function buildPediatricAnalysis(
     adult_prevalence: adultPrevalence,
     pricing_adjustment: pricingAdjustment,
     rationale,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// ENHANCEMENT: PHARMA M&A DEAL COMPS + IMPLIED VALUATIONS
+// Filters comps database by TA and stage, calculates
+// median/mean EV/Peak Sales multiples, derives implied
+// valuation range from user's peak sales estimate.
+// ────────────────────────────────────────────────────────────
+
+function buildDealCompsAnalysis(
+  therapyArea: string,
+  developmentStage: DevelopmentStage,
+  peakSalesBase: number,
+  peakSalesLow: number,
+  peakSalesHigh: number,
+): DealCompsAnalysis {
+  const comps = filterDealComps(therapyArea, developmentStage);
+
+  // Map to analysis entry type
+  const comparableDeals: DealCompsAnalysisEntry[] = comps.slice(0, 10).map((d) => ({
+    acquirer: d.acquirer,
+    target: d.target,
+    asset_or_indication: d.asset_or_indication,
+    therapy_area: d.therapy_area,
+    development_stage: d.development_stage,
+    deal_type: d.deal_type,
+    total_deal_value_m: d.total_deal_value_m,
+    upfront_m: d.upfront_m,
+    milestones_m: d.milestones_m,
+    royalty_pct: d.royalty_pct,
+    peak_sales_estimate_m: d.peak_sales_estimate_m,
+    ev_peak_sales_multiple: d.ev_peak_sales_multiple,
+    year: d.year,
+    source: d.source,
+  }));
+
+  // Calculate multiples
+  const multiples = comps.map((d) => d.ev_peak_sales_multiple).sort((a, b) => a - b);
+  const median =
+    multiples.length === 0
+      ? 2.0
+      : multiples.length % 2 === 0
+        ? (multiples[multiples.length / 2 - 1] + multiples[multiples.length / 2]) / 2
+        : multiples[Math.floor(multiples.length / 2)];
+  const mean = multiples.length === 0 ? 2.0 : multiples.reduce((s, v) => s + v, 0) / multiples.length;
+
+  // Implied valuations: use p25, median, p75 of multiples applied to peak sales
+  const p25 = multiples.length >= 4 ? multiples[Math.floor(multiples.length * 0.25)] : median * 0.7;
+  const p75 = multiples.length >= 4 ? multiples[Math.floor(multiples.length * 0.75)] : median * 1.3;
+
+  const impliedLow = Math.round(peakSalesLow * p25);
+  const impliedBase = Math.round(peakSalesBase * median);
+  const impliedHigh = Math.round(peakSalesHigh * p75);
+
+  const narrative =
+    `Based on ${comps.length} comparable ${therapyArea} transactions ` +
+    `(${developmentStage} stage focus), median EV/Peak Sales multiple is ${median.toFixed(1)}x ` +
+    `(mean ${mean.toFixed(1)}x). Applied to peak sales estimate of $${peakSalesBase.toLocaleString()}M, ` +
+    `implied enterprise value is $${impliedBase.toLocaleString()}M (range: ` +
+    `$${impliedLow.toLocaleString()}M to $${impliedHigh.toLocaleString()}M). ` +
+    `Recent transactions (${comps.length > 0 ? comps[0].year : 'N/A'}) show ` +
+    `${median > 3 ? 'premium valuations reflecting strong buyer appetite' : median > 1.5 ? 'moderate multiples consistent with risk-adjusted returns' : 'conservative multiples reflecting early-stage risk'}.`;
+
+  return {
+    comparable_deals: comparableDeals,
+    median_ev_peak_sales: parseFloat(median.toFixed(2)),
+    mean_ev_peak_sales: parseFloat(mean.toFixed(2)),
+    implied_valuation_low_m: impliedLow,
+    implied_valuation_base_m: impliedBase,
+    implied_valuation_high_m: impliedHigh,
+    narrative,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// ENHANCEMENT: BULL/BASE/BEAR INVESTMENT THESIS
+// Generates structured thesis with probability-weighted EV,
+// key binary risks, and scenario-specific drivers/narratives.
+// ────────────────────────────────────────────────────────────
+
+const STAGE_PROBABILITY_WEIGHTS: Record<string, { bull: number; base: number; bear: number }> = {
+  preclinical: { bull: 0.15, base: 0.35, bear: 0.5 },
+  phase1: { bull: 0.2, base: 0.4, bear: 0.4 },
+  phase2: { bull: 0.25, base: 0.5, bear: 0.25 },
+  phase3: { bull: 0.25, base: 0.5, bear: 0.25 },
+  approved: { bull: 0.3, base: 0.5, bear: 0.2 },
+};
+
+function buildInvestmentThesis(
+  developmentStage: DevelopmentStage,
+  therapyArea: string,
+  peakSales: { low: number; base: number; high: number },
+  competitorCount: number,
+  indicationName: string,
+  loa: number,
+  mechanism: string | undefined,
+): InvestmentThesis {
+  const weights = STAGE_PROBABILITY_WEIGHTS[developmentStage] ?? STAGE_PROBABILITY_WEIGHTS.phase2;
+
+  // Scale bull/bear peak sales with therapy-area-specific multipliers
+  const bullPeak = Math.round(peakSales.high * 1.3); // 30% upside beyond SOM high
+  const basePeak = peakSales.base;
+  const bearPeak = Math.round(peakSales.low * 0.5); // 50% downside from SOM low
+
+  // Bull drivers
+  const bullDrivers: string[] = [
+    `Label expansion into adjacent indications within ${therapyArea}`,
+    'Faster-than-expected adoption driven by strong Phase 3 data readout',
+    'Premium pricing supported by demonstrated differentiation vs. standard of care',
+    `Limited competitive entries; fewer than ${Math.max(2, competitorCount - 2)} new launches during peak sales window`,
+    'Favorable payer coverage decisions enabling broad formulary access',
+  ];
+
+  // Base drivers
+  const baseDrivers: string[] = [
+    `Standard S-curve adoption for ${therapyArea} consistent with historical analogues`,
+    'Median pricing within therapy-area comparables',
+    `${competitorCount} competitors in market; share consistent with ${developmentStage} entrant benchmarks`,
+    'Expected competitive dynamics: incremental share erosion post-Year 5',
+    `Treatment rate and diagnosis rate in line with current ${indicationName} epidemiology`,
+  ];
+
+  // Bear drivers
+  const bearDrivers: string[] = [
+    'Payer resistance: step-therapy requirements and prior authorization delays',
+    'Slower diagnosis rates and physician adoption inertia',
+    `${competitorCount + 3}+ competitor launches compressing market share below expectations`,
+    'Manufacturing delays or scale-up issues limiting supply during launch window',
+    'Adverse safety signal or label restriction narrowing addressable population',
+  ];
+
+  // Key binary risks — stage-dependent
+  const binaryRisks: string[] = [];
+  if (developmentStage === 'preclinical' || developmentStage === 'phase1') {
+    binaryRisks.push(
+      `IND-enabling toxicology results (${developmentStage === 'preclinical' ? 'upcoming' : 'completed'})`,
+      'Phase 1 dose-limiting toxicity and MTD determination',
+      'Proof-of-concept signal in Phase 1b/2',
+    );
+  }
+  if (developmentStage === 'phase2') {
+    binaryRisks.push(
+      'Phase 2 primary endpoint hit (pivotal readout)',
+      'Regulatory alignment on pivotal trial design (EOP2 meeting)',
+      `Competitive data readout from ${Math.min(3, competitorCount)} rival programs`,
+    );
+  }
+  if (developmentStage === 'phase3') {
+    binaryRisks.push(
+      'Phase 3 primary endpoint success (registration-enabling)',
+      'FDA/EMA filing acceptance and review timeline',
+      'Advisory committee vote (if applicable)',
+    );
+  }
+  if (developmentStage === 'approved') {
+    binaryRisks.push(
+      'Post-marketing safety commitment results (Phase 4/REMS)',
+      'Payer coverage determination (commercial formulary + Medicare)',
+      'Label expansion (sNDA/sBLA) outcomes for additional indications',
+    );
+  }
+  binaryRisks.push(
+    `Patent/exclusivity challenge (${mechanism?.toLowerCase().includes('biologic') ? 'biosimilar' : 'Paragraph IV'} risk)`,
+    'IRA Medicare price negotiation timing and magnitude',
+  );
+
+  // Expected value
+  const ev = Math.round(weights.bear * bearPeak + weights.base * basePeak + weights.bull * bullPeak);
+
+  // Investment decision framework
+  const framework =
+    `At ${developmentStage} stage with LoA of ${(loa * 100).toFixed(0)}%, ` +
+    `probability-weighted expected peak sales of $${ev.toLocaleString()}M. ` +
+    `Bull case ($${bullPeak.toLocaleString()}M, ${(weights.bull * 100).toFixed(0)}% probability) requires ` +
+    `label expansion success and limited competitive entry. ` +
+    `Bear case ($${bearPeak.toLocaleString()}M, ${(weights.bear * 100).toFixed(0)}% probability) ` +
+    `materializes if payer resistance or competitor launches compress share. ` +
+    `Key catalyst: ${developmentStage === 'approved' ? 'commercial launch trajectory vs. consensus' : developmentStage === 'phase3' ? 'Phase 3 topline data readout' : 'clinical data readout and regulatory feedback'}. ` +
+    `Risk-reward profile is ${ev / basePeak > 0.9 ? 'favorable' : ev / basePeak > 0.7 ? 'balanced' : 'skewed to downside'} ` +
+    `for a ${therapyArea} asset at this stage.`;
+
+  return {
+    bull_case: {
+      peak_sales_m: bullPeak,
+      probability_pct: Math.round(weights.bull * 100),
+      drivers: bullDrivers,
+      narrative:
+        `Bull case assumes label expansion, premium pricing, and limited competitive disruption. ` +
+        `Peak sales of $${bullPeak.toLocaleString()}M achievable if all key catalysts deliver. ` +
+        `${therapyArea === 'rare_disease' ? 'Orphan exclusivity provides downside protection.' : `Requires ${mechanism ? `${mechanism} to demonstrate` : 'asset to demonstrate'} best-in-class efficacy.`}`,
+    },
+    base_case: {
+      peak_sales_m: basePeak,
+      probability_pct: Math.round(weights.base * 100),
+      drivers: baseDrivers,
+      narrative:
+        `Base case reflects standard ${therapyArea} adoption curves and median competitive dynamics. ` +
+        `Peak sales of $${basePeak.toLocaleString()}M consistent with ` +
+        `${developmentStage} stage historical outcomes and ${competitorCount}-competitor market.`,
+    },
+    bear_case: {
+      peak_sales_m: bearPeak,
+      probability_pct: Math.round(weights.bear * 100),
+      drivers: bearDrivers,
+      narrative:
+        `Bear case assumes payer resistance, slow adoption, and aggressive competitive launches. ` +
+        `Peak sales floor of $${bearPeak.toLocaleString()}M reflects scenario where ` +
+        `${developmentStage === 'approved' ? 'commercial execution underperforms consensus' : 'clinical data disappoints or regulatory timeline extends'}.`,
+    },
+    expected_value_m: ev,
+    key_binary_risks: binaryRisks,
+    investment_decision_framework: framework,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// ENHANCEMENT: CLINICAL DEVELOPMENT COST ESTIMATION
+// Phase-specific R&D costs by therapy area (BIO/Informa benchmarks)
+// and timelines from current stage to launch.
+// ────────────────────────────────────────────────────────────
+
+const DEVELOPMENT_COSTS_M: Record<string, { phase1: number; phase2: number; phase3: number; nda: number }> = {
+  oncology: { phase1: 15, phase2: 35, phase3: 150, nda: 5 },
+  rare_disease: { phase1: 10, phase2: 25, phase3: 80, nda: 5 },
+  neurology: { phase1: 18, phase2: 40, phase3: 180, nda: 5 },
+  immunology: { phase1: 15, phase2: 35, phase3: 140, nda: 5 },
+  cardiovascular: { phase1: 20, phase2: 45, phase3: 200, nda: 5 },
+  metabolic: { phase1: 18, phase2: 42, phase3: 190, nda: 5 },
+  psychiatry: { phase1: 16, phase2: 38, phase3: 170, nda: 5 },
+  pain_management: { phase1: 14, phase2: 32, phase3: 145, nda: 5 },
+  infectious_disease: { phase1: 12, phase2: 30, phase3: 120, nda: 5 },
+  hematology: { phase1: 14, phase2: 33, phase3: 130, nda: 5 },
+  ophthalmology: { phase1: 12, phase2: 28, phase3: 110, nda: 5 },
+  pulmonology: { phase1: 16, phase2: 38, phase3: 160, nda: 5 },
+  nephrology: { phase1: 15, phase2: 35, phase3: 140, nda: 5 },
+  dermatology: { phase1: 12, phase2: 28, phase3: 100, nda: 5 },
+  gastroenterology: { phase1: 14, phase2: 35, phase3: 140, nda: 5 },
+  hepatology: { phase1: 15, phase2: 35, phase3: 130, nda: 5 },
+  endocrinology: { phase1: 16, phase2: 38, phase3: 150, nda: 5 },
+  musculoskeletal: { phase1: 15, phase2: 35, phase3: 145, nda: 5 },
+};
+
+const DEFAULT_DEV_COSTS = { phase1: 15, phase2: 35, phase3: 150, nda: 5 };
+
+// Timeline by TA: years from each stage to launch
+const DEVELOPMENT_TIMELINE: Record<string, Record<string, number>> = {
+  oncology: { preclinical: 8, phase1: 6, phase2: 4, phase3: 2, approved: 0 },
+  rare_disease: { preclinical: 7, phase1: 5, phase2: 3.5, phase3: 1.5, approved: 0 },
+  neurology: { preclinical: 10, phase1: 8, phase2: 5, phase3: 2.5, approved: 0 },
+  immunology: { preclinical: 9, phase1: 7, phase2: 4.5, phase3: 2, approved: 0 },
+  cardiovascular: { preclinical: 10, phase1: 8, phase2: 5, phase3: 2.5, approved: 0 },
+  metabolic: { preclinical: 9, phase1: 7, phase2: 4.5, phase3: 2.5, approved: 0 },
+  psychiatry: { preclinical: 10, phase1: 8, phase2: 5, phase3: 2.5, approved: 0 },
+  pain_management: { preclinical: 9, phase1: 7, phase2: 4.5, phase3: 2.5, approved: 0 },
+  infectious_disease: { preclinical: 7, phase1: 5, phase2: 3.5, phase3: 2, approved: 0 },
+  hematology: { preclinical: 8, phase1: 6, phase2: 4, phase3: 2, approved: 0 },
+  ophthalmology: { preclinical: 8, phase1: 6, phase2: 4, phase3: 2, approved: 0 },
+  pulmonology: { preclinical: 9, phase1: 7, phase2: 4.5, phase3: 2.5, approved: 0 },
+  nephrology: { preclinical: 9, phase1: 7, phase2: 4.5, phase3: 2, approved: 0 },
+  dermatology: { preclinical: 8, phase1: 6, phase2: 4, phase3: 2, approved: 0 },
+  gastroenterology: { preclinical: 9, phase1: 7, phase2: 4.5, phase3: 2, approved: 0 },
+  hepatology: { preclinical: 9, phase1: 7, phase2: 4.5, phase3: 2, approved: 0 },
+  endocrinology: { preclinical: 9, phase1: 7, phase2: 4.5, phase3: 2.5, approved: 0 },
+  musculoskeletal: { preclinical: 9, phase1: 7, phase2: 4.5, phase3: 2.5, approved: 0 },
+};
+
+const DEFAULT_TIMELINE: Record<string, number> = {
+  preclinical: 9,
+  phase1: 7,
+  phase2: 4.5,
+  phase3: 2,
+  approved: 0,
+};
+
+// Phase duration (years per phase)
+const PHASE_DURATIONS: Record<string, number> = {
+  preclinical_to_phase1: 2,
+  phase1: 1.5,
+  phase2: 2,
+  phase3: 2.5,
+  nda: 1,
+};
+
+function buildDevelopmentCostEstimate(
+  developmentStage: DevelopmentStage,
+  therapyArea: string,
+  riskAdjustedNPV: number,
+  discountRate: number,
+): MarketSizingDevelopmentCost {
+  const taLower = therapyArea.toLowerCase();
+  const costs = DEVELOPMENT_COSTS_M[taLower] ?? DEFAULT_DEV_COSTS;
+  const timelineMap = DEVELOPMENT_TIMELINE[taLower] ?? DEFAULT_TIMELINE;
+  const yearsToLaunch = timelineMap[developmentStage] ?? 4.5;
+
+  // Determine which phases remain
+  const remainingPhases: DevelopmentPhaseEntry[] = [];
+  const stageOrder: DevelopmentStage[] = ['preclinical', 'phase1', 'phase2', 'phase3', 'approved'];
+  const currentIdx = stageOrder.indexOf(developmentStage);
+
+  if (currentIdx < 1) {
+    // Preclinical: needs all phases
+    remainingPhases.push({
+      phase: 'Preclinical to IND',
+      cost_m: Math.round(costs.phase1 * 0.5),
+      duration_years: PHASE_DURATIONS.preclinical_to_phase1,
+    });
+    remainingPhases.push({ phase: 'Phase 1', cost_m: costs.phase1, duration_years: PHASE_DURATIONS.phase1 });
+    remainingPhases.push({ phase: 'Phase 2', cost_m: costs.phase2, duration_years: PHASE_DURATIONS.phase2 });
+    remainingPhases.push({ phase: 'Phase 3', cost_m: costs.phase3, duration_years: PHASE_DURATIONS.phase3 });
+    remainingPhases.push({ phase: 'NDA/BLA Filing', cost_m: costs.nda, duration_years: PHASE_DURATIONS.nda });
+  } else if (currentIdx === 1) {
+    // Phase 1: needs Phase 2, 3, NDA
+    remainingPhases.push({ phase: 'Phase 2', cost_m: costs.phase2, duration_years: PHASE_DURATIONS.phase2 });
+    remainingPhases.push({ phase: 'Phase 3', cost_m: costs.phase3, duration_years: PHASE_DURATIONS.phase3 });
+    remainingPhases.push({ phase: 'NDA/BLA Filing', cost_m: costs.nda, duration_years: PHASE_DURATIONS.nda });
+  } else if (currentIdx === 2) {
+    // Phase 2: needs Phase 3, NDA
+    remainingPhases.push({ phase: 'Phase 3', cost_m: costs.phase3, duration_years: PHASE_DURATIONS.phase3 });
+    remainingPhases.push({ phase: 'NDA/BLA Filing', cost_m: costs.nda, duration_years: PHASE_DURATIONS.nda });
+  } else if (currentIdx === 3) {
+    // Phase 3: needs NDA only
+    remainingPhases.push({ phase: 'NDA/BLA Filing', cost_m: costs.nda, duration_years: PHASE_DURATIONS.nda });
+  }
+  // Approved: no remaining phases
+
+  const totalRemainingCost = remainingPhases.reduce((sum, p) => sum + p.cost_m, 0);
+
+  // Cost-adjusted NPV: subtract PV of development costs from risk-adjusted NPV
+  let pvDevCosts = 0;
+  let cumulativeYears = 0;
+  for (const phase of remainingPhases) {
+    // Costs incurred at midpoint of each phase
+    const midpoint = cumulativeYears + phase.duration_years / 2;
+    pvDevCosts += phase.cost_m / Math.pow(1 + discountRate, midpoint);
+    cumulativeYears += phase.duration_years;
+  }
+
+  const costAdjustedNPV = Math.round(riskAdjustedNPV - pvDevCosts);
+
+  const narrative =
+    developmentStage === 'approved'
+      ? `Asset is approved. No remaining clinical development costs. ` +
+        `Cost-adjusted rNPV of $${costAdjustedNPV.toLocaleString()}M equals risk-adjusted NPV.`
+      : `Remaining development cost from ${developmentStage} to launch: $${totalRemainingCost}M ` +
+        `across ${remainingPhases.length} phases over ~${yearsToLaunch.toFixed(1)} years. ` +
+        `Phase 3 is the largest cost component at $${costs.phase3}M for ${therapyArea} indications ` +
+        `(BIO/Informa industry benchmarks). PV of development costs at ${(discountRate * 100).toFixed(0)}% WACC ` +
+        `is $${Math.round(pvDevCosts)}M. Cost-adjusted rNPV: $${costAdjustedNPV.toLocaleString()}M ` +
+        `(risk-adjusted NPV of $${riskAdjustedNPV.toLocaleString()}M minus PV of remaining R&D).`;
+
+  return {
+    remaining_phases: remainingPhases,
+    total_remaining_cost_m: totalRemainingCost,
+    estimated_years_to_launch: yearsToLaunch,
+    cost_adjusted_npv_m: costAdjustedNPV,
+    narrative,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// ENHANCEMENT: FULL DCF WATERFALL TABLE
+// Year-by-year DCF with COGS, SG&A, R&D, tax, FCF, PV
+// using therapy-area-specific cost assumptions.
+// Terminal value: perpetuity growth at 2% after Year 10.
+// WACC sensitivity: EV at 8%, 10%, 12%, 15%.
+// ────────────────────────────────────────────────────────────
+
+// Therapy-area-specific COGS and SG&A assumptions (as % of revenue)
+const DCF_COST_ASSUMPTIONS: Record<string, { cogs_pct: number; sgna_pct: number }> = {
+  oncology: { cogs_pct: 0.15, sgna_pct: 0.25 },
+  rare_disease: { cogs_pct: 0.1, sgna_pct: 0.2 },
+  neurology: { cogs_pct: 0.2, sgna_pct: 0.3 },
+  immunology: { cogs_pct: 0.18, sgna_pct: 0.28 },
+  cardiovascular: { cogs_pct: 0.25, sgna_pct: 0.4 },
+  metabolic: { cogs_pct: 0.25, sgna_pct: 0.4 },
+  psychiatry: { cogs_pct: 0.22, sgna_pct: 0.35 },
+  pain_management: { cogs_pct: 0.2, sgna_pct: 0.3 },
+  infectious_disease: { cogs_pct: 0.2, sgna_pct: 0.28 },
+  hematology: { cogs_pct: 0.12, sgna_pct: 0.22 },
+  ophthalmology: { cogs_pct: 0.15, sgna_pct: 0.25 },
+  pulmonology: { cogs_pct: 0.22, sgna_pct: 0.32 },
+  nephrology: { cogs_pct: 0.18, sgna_pct: 0.28 },
+  dermatology: { cogs_pct: 0.2, sgna_pct: 0.32 },
+  gastroenterology: { cogs_pct: 0.18, sgna_pct: 0.3 },
+  hepatology: { cogs_pct: 0.18, sgna_pct: 0.28 },
+  endocrinology: { cogs_pct: 0.22, sgna_pct: 0.35 },
+  musculoskeletal: { cogs_pct: 0.22, sgna_pct: 0.32 },
+};
+
+const DEFAULT_DCF_COSTS = { cogs_pct: 0.2, sgna_pct: 0.3 };
+const CORPORATE_TAX_RATE = 0.21; // US federal rate
+const TERMINAL_GROWTH_RATE = 0.02; // 2% perpetuity growth
+const WACC_SENSITIVITY_RATES = [0.08, 0.1, 0.12, 0.15];
+
+function buildDCFWaterfall(
+  revenueProjection: RevenueProjectionYear[],
+  therapyArea: string,
+  developmentStage: DevelopmentStage,
+  loa: number,
+  discountRate: number,
+  devCostEstimate: MarketSizingDevelopmentCost | undefined,
+): DCFWaterfall {
+  const taLower = therapyArea.toLowerCase();
+  const costAssumptions = DCF_COST_ASSUMPTIONS[taLower] ?? DEFAULT_DCF_COSTS;
+
+  // Determine pre-launch R&D spending schedule from development cost estimate
+  const devPhases = devCostEstimate?.remaining_phases ?? [];
+  let rndSchedule: number[] = [];
+  if (devPhases.length > 0) {
+    // Distribute development costs across pre-launch years
+    // Pre-launch years come before the revenue projection starts
+    const totalDevYears = Math.ceil(devCostEstimate?.estimated_years_to_launch ?? 0);
+    rndSchedule = new Array(totalDevYears).fill(0);
+    let yearOffset = 0;
+    for (const phase of devPhases) {
+      const phaseYears = Math.max(1, Math.round(phase.duration_years));
+      const costPerYear = phase.cost_m / phaseYears;
+      for (let y = 0; y < phaseYears && yearOffset + y < rndSchedule.length; y++) {
+        rndSchedule[yearOffset + y] += costPerYear;
+      }
+      yearOffset += phaseYears;
+    }
+  }
+
+  // Build year-by-year DCF rows
+  // Combine pre-launch R&D years (negative FCF) + post-launch revenue years
+  const prelaunchYears = rndSchedule.length;
+  const launchYear = revenueProjection.length > 0 ? revenueProjection[0].year : new Date().getFullYear() + 2;
+  const allYears: DCFWaterfallYear[] = [];
+
+  // Pre-launch years (R&D only, no revenue)
+  for (let i = 0; i < prelaunchYears; i++) {
+    const year = launchYear - prelaunchYears + i;
+    const rnd = Math.round(rndSchedule[i]);
+    const fcf = -rnd;
+    const df = 1 / Math.pow(1 + discountRate, i + 1);
+    allYears.push({
+      year,
+      revenue_m: 0,
+      cogs_m: 0,
+      gross_profit_m: 0,
+      sgna_m: 0,
+      rnd_m: rnd,
+      ebit_m: -rnd,
+      tax_m: 0, // No tax on losses (NOL carry-forward)
+      fcf_m: fcf,
+      discount_factor: parseFloat(df.toFixed(4)),
+      pv_fcf_m: Math.round(fcf * df),
+    });
+  }
+
+  // Post-launch revenue years (from revenue projection)
+  for (let i = 0; i < revenueProjection.length; i++) {
+    const yr = revenueProjection[i];
+    const revenue = yr.base * loa; // Risk-adjusted revenue
+    const cogs = Math.round(revenue * costAssumptions.cogs_pct);
+    const grossProfit = Math.round(revenue - cogs);
+    // SG&A ramps: higher as % in early years (launch investment), stabilizes
+    const sgnaRamp = i < 2 ? 1.2 : i < 4 ? 1.1 : 1.0;
+    const sgna = Math.round(revenue * costAssumptions.sgna_pct * sgnaRamp);
+    // Post-launch R&D: ~5% of revenue for lifecycle management
+    const rnd = Math.round(revenue * 0.05);
+    const ebit = Math.round(grossProfit - sgna - rnd);
+    const tax = ebit > 0 ? Math.round(ebit * CORPORATE_TAX_RATE) : 0;
+    const fcf = ebit - tax;
+    const discountPeriod = prelaunchYears + i + 1;
+    const df = 1 / Math.pow(1 + discountRate, discountPeriod);
+
+    allYears.push({
+      year: yr.year,
+      revenue_m: Math.round(revenue),
+      cogs_m: cogs,
+      gross_profit_m: grossProfit,
+      sgna_m: sgna,
+      rnd_m: rnd,
+      ebit_m: ebit,
+      tax_m: tax,
+      fcf_m: Math.round(fcf),
+      discount_factor: parseFloat(df.toFixed(4)),
+      pv_fcf_m: Math.round(fcf * df),
+    });
+  }
+
+  // Sum of PV(FCF)
+  const sumPVFCF = allYears.reduce((sum, yr) => sum + yr.pv_fcf_m, 0);
+
+  // Terminal value: FCF of last year growing at perpetuity rate
+  const lastRevYear = allYears[allYears.length - 1];
+  const terminalFCF = lastRevYear ? lastRevYear.fcf_m * (1 + TERMINAL_GROWTH_RATE) : 0;
+  const terminalValue =
+    discountRate > TERMINAL_GROWTH_RATE && terminalFCF > 0
+      ? Math.round(terminalFCF / (discountRate - TERMINAL_GROWTH_RATE))
+      : 0;
+
+  // Discount terminal value to present
+  const totalPeriods = allYears.length;
+  const pvTerminalValue = Math.round(terminalValue / Math.pow(1 + discountRate, totalPeriods));
+
+  const enterpriseValue = sumPVFCF + pvTerminalValue;
+
+  // WACC sensitivity
+  const sensitivity: DCFSensitivityPoint[] = WACC_SENSITIVITY_RATES.map((wacc) => {
+    let evAtWacc = 0;
+    // Re-discount all FCFs at this WACC
+    for (let i = 0; i < allYears.length; i++) {
+      evAtWacc += allYears[i].fcf_m / Math.pow(1 + wacc, i + 1);
+    }
+    // Terminal value at this WACC
+    if (wacc > TERMINAL_GROWTH_RATE && lastRevYear && lastRevYear.fcf_m > 0) {
+      const tvAtWacc = (lastRevYear.fcf_m * (1 + TERMINAL_GROWTH_RATE)) / (wacc - TERMINAL_GROWTH_RATE);
+      evAtWacc += tvAtWacc / Math.pow(1 + wacc, totalPeriods);
+    }
+    return { wacc: parseFloat((wacc * 100).toFixed(0)), ev_m: Math.round(evAtWacc) };
+  });
+
+  return {
+    discount_rate_pct: parseFloat((discountRate * 100).toFixed(0)),
+    years: allYears,
+    sum_pv_fcf_m: sumPVFCF,
+    terminal_value_m: pvTerminalValue,
+    enterprise_value_m: enterpriseValue,
+    sensitivity,
   };
 }
 
@@ -1919,6 +2456,34 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
     });
   }
 
+  // Step 8u: Enhancement — Deal Comps Analysis (implied valuations from M&A precedents)
+  const dealCompsAnalysis = buildDealCompsAnalysis(
+    indication.therapy_area,
+    input.development_stage,
+    peakSales.base,
+    peakSales.low,
+    peakSales.high,
+  );
+
+  // Step 8v: Enhancement — Bull/Base/Bear Investment Thesis
+  const investmentThesis = buildInvestmentThesis(
+    input.development_stage,
+    indication.therapy_area,
+    peakSales,
+    competitorCount,
+    indication.name,
+    loa,
+    input.mechanism,
+  );
+
+  // Step 8w: Enhancement — Clinical Development Cost Estimation
+  const developmentCostEstimate = buildDevelopmentCostEstimate(
+    input.development_stage,
+    indication.therapy_area,
+    riskAdjustment.risk_adjusted_npv_m,
+    discountRate,
+  );
+
   // Apply patent cliff erosion to revenue projection (replaces hardcoded LOE_DECLINE in S-curve)
   if (patentCliffAnalysis.erosion_profile.length > 0) {
     revenueProjection = revenueProjection.map((yr) => {
@@ -1946,6 +2511,16 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
     patientFunnel,
     shareRange,
     indication.therapy_area,
+  );
+
+  // Step 8x: Enhancement — Full DCF Waterfall Table
+  const dcfWaterfall = buildDCFWaterfall(
+    revenueProjection,
+    indication.therapy_area,
+    input.development_stage,
+    loa,
+    discountRate,
+    developmentCostEstimate.remaining_phases.length > 0 ? developmentCostEstimate : undefined,
   );
 
   // Step 9: Competitive context (already computed in Step 7 for S-curve adjustment)
@@ -2007,6 +2582,10 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
     patent_cliff_analysis: patentCliffAnalysis,
     one_time_treatment_model: oneTimeTreatmentModel,
     pediatric_analysis: pediatricAnalysis,
+    deal_comps_analysis: dealCompsAnalysis,
+    investment_thesis: investmentThesis,
+    development_cost_estimate: developmentCostEstimate,
+    dcf_waterfall: dcfWaterfall,
   };
 }
 

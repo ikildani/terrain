@@ -136,6 +136,8 @@ export interface WorkspaceMember {
   // Joined fields from profiles (optional, populated by API)
   email?: string;
   full_name?: string | null;
+  user_name?: string | null;
+  user_email?: string | null;
 }
 
 export interface ReportFolder {
@@ -1055,6 +1057,119 @@ export interface MarketSizingOutput {
   patent_cliff_analysis?: PatentCliffAnalysis;
   one_time_treatment_model?: OneTimeTreatmentModel;
   pediatric_analysis?: PediatricAnalysis;
+
+  // Enhancement: Deal Comps Analysis (implied valuations from M&A precedents)
+  deal_comps_analysis?: DealCompsAnalysis;
+
+  // Enhancement: Bull/Base/Bear Investment Thesis
+  investment_thesis?: InvestmentThesis;
+
+  // Enhancement: Clinical Development Cost Estimation
+  development_cost_estimate?: MarketSizingDevelopmentCost;
+
+  // Enhancement: Full DCF Waterfall Table
+  dcf_waterfall?: DCFWaterfall;
+}
+
+// ────────────────────────────────────────────────────────────
+// DEAL COMPS ANALYSIS (Implied Valuations from M&A Precedents)
+// ────────────────────────────────────────────────────────────
+
+export interface DealCompsAnalysisEntry {
+  acquirer: string;
+  target: string;
+  asset_or_indication: string;
+  therapy_area: string;
+  development_stage: string;
+  deal_type: 'acquisition' | 'licensing' | 'co_development' | 'option';
+  total_deal_value_m: number;
+  upfront_m: number;
+  milestones_m: number;
+  royalty_pct?: number;
+  peak_sales_estimate_m: number;
+  ev_peak_sales_multiple: number;
+  year: number;
+  source: string;
+}
+
+export interface DealCompsAnalysis {
+  comparable_deals: DealCompsAnalysisEntry[];
+  median_ev_peak_sales: number;
+  mean_ev_peak_sales: number;
+  implied_valuation_low_m: number;
+  implied_valuation_base_m: number;
+  implied_valuation_high_m: number;
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// BULL/BASE/BEAR INVESTMENT THESIS
+// ────────────────────────────────────────────────────────────
+
+export interface InvestmentScenario {
+  peak_sales_m: number;
+  probability_pct: number;
+  drivers: string[];
+  narrative: string;
+}
+
+export interface InvestmentThesis {
+  bull_case: InvestmentScenario;
+  base_case: InvestmentScenario;
+  bear_case: InvestmentScenario;
+  expected_value_m: number;
+  key_binary_risks: string[];
+  investment_decision_framework: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// CLINICAL DEVELOPMENT COST ESTIMATION (Market Sizing Module)
+// ────────────────────────────────────────────────────────────
+
+export interface DevelopmentPhaseEntry {
+  phase: string;
+  cost_m: number;
+  duration_years: number;
+}
+
+export interface MarketSizingDevelopmentCost {
+  remaining_phases: DevelopmentPhaseEntry[];
+  total_remaining_cost_m: number;
+  estimated_years_to_launch: number;
+  cost_adjusted_npv_m: number;
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// DCF WATERFALL TABLE
+// ────────────────────────────────────────────────────────────
+
+export interface DCFWaterfallYear {
+  year: number;
+  revenue_m: number;
+  cogs_m: number;
+  gross_profit_m: number;
+  sgna_m: number;
+  rnd_m: number;
+  ebit_m: number;
+  tax_m: number;
+  fcf_m: number;
+  discount_factor: number;
+  pv_fcf_m: number;
+}
+
+export interface DCFSensitivityPoint {
+  wacc: number;
+  ev_m: number;
+}
+
+export interface DCFWaterfall {
+  discount_rate_pct: number;
+  years: DCFWaterfallYear[];
+  sum_pv_fcf_m: number;
+  terminal_value_m: number;
+  enterprise_value_m: number;
+  sensitivity: DCFSensitivityPoint[];
 }
 
 // ────────────────────────────────────────────────────────────
@@ -1512,4 +1627,43 @@ export interface ComparisonRow {
   category: string;
   values: (string | number | null)[];
   format?: 'currency' | 'percent' | 'number' | 'text';
+}
+
+// ────────────────────────────────────────────────────────────
+// AUDIT LOG
+// ────────────────────────────────────────────────────────────
+
+export interface AuditEntry {
+  id: string;
+  workspace_id: string;
+  user_id: string | null;
+  action: string;
+  resource_type: string | null;
+  resource_id: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  old_value: Record<string, unknown> | null;
+  new_value: Record<string, unknown> | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  user_name?: string;
+  user_email?: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// SSO CONFIGURATION
+// ────────────────────────────────────────────────────────────
+
+export interface SSOConfig {
+  id: string;
+  workspace_id: string;
+  provider: 'saml' | 'google_workspace' | 'azure_ad' | 'okta';
+  sso_provider_id: string | null;
+  domain: string;
+  metadata_url: string | null;
+  enforce_sso: boolean;
+  auto_provision: boolean;
+  default_role: string;
+  created_at: string;
+  updated_at: string;
 }

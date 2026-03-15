@@ -63,7 +63,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    let body: unknown;
+    try {
+      const { parseBodyWithLimit } = await import('@/lib/api/parse-body');
+      body = await parseBodyWithLimit(request);
+    } catch {
+      return NextResponse.json({ success: false, error: 'Invalid or oversized request body.' }, { status: 400 });
+    }
     const parsed = createReportSchema.safeParse(body);
 
     if (!parsed.success) {
@@ -94,7 +100,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Failed to save report.' }, { status: 500 });
     }
 
-    logBusinessEvent('report_saved', { userId: user.id, report_type: body.report_type });
+    logBusinessEvent('report_saved', { userId: user.id, report_type: parsed.data.report_type });
 
     return NextResponse.json({ success: true, data: report }, { status: 201 });
   } catch {

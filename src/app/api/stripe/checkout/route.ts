@@ -41,7 +41,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Rate limit exceeded.' }, { status: 429 });
     }
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      const { parseBodyWithLimit } = await import('@/lib/api/parse-body');
+      body = await parseBodyWithLimit(request);
+    } catch {
+      return NextResponse.json({ success: false, error: 'Invalid or oversized request body.' }, { status: 400 });
+    }
     const parsed = checkoutSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ success: false, error: 'Invalid request body.' }, { status: 400 });

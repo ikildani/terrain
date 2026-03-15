@@ -40,7 +40,16 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    let body: unknown;
+    try {
+      const { parseBodyWithLimit } = await import('@/lib/api/parse-body');
+      body = await parseBodyWithLimit(request);
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid or oversized request body.' } satisfies ApiResponse<never>,
+        { status: 400 },
+      );
+    }
     const parsed = compareSchema.safeParse(body);
 
     if (!parsed.success) {

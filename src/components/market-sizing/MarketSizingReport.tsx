@@ -65,6 +65,49 @@ function flattenForCSV(data: MarketSizingOutput): Record<string, unknown>[] {
     });
   });
 
+  // Deal comps
+  if (data.deal_comps_analysis?.comparable_deals) {
+    data.deal_comps_analysis.comparable_deals.forEach((txn) => {
+      rows.push({
+        section: 'Deal Comp',
+        acquirer: txn.acquirer,
+        target: txn.target,
+        indication: txn.asset_or_indication,
+        stage: txn.development_stage,
+        deal_value: txn.total_deal_value_m,
+        peak_sales_estimate: txn.peak_sales_estimate_m,
+        ev_peak_sales: txn.ev_peak_sales_multiple,
+        year: txn.year,
+      });
+    });
+  }
+
+  // DCF waterfall
+  if (data.dcf_waterfall?.years) {
+    data.dcf_waterfall.years.forEach((yr) => {
+      rows.push({
+        section: 'DCF Waterfall',
+        year: yr.year,
+        revenue: yr.revenue_m,
+        cogs: yr.cogs_m,
+        gross_profit: yr.gross_profit_m,
+        sga: yr.sgna_m,
+        rnd: yr.rnd_m,
+        ebit: yr.ebit_m,
+        tax: yr.tax_m,
+        fcf: yr.fcf_m,
+        pv_fcf: yr.pv_fcf_m,
+      });
+    });
+    rows.push({
+      section: 'DCF Summary',
+      sum_pv_fcf_m: data.dcf_waterfall.sum_pv_fcf_m,
+      terminal_value: data.dcf_waterfall.terminal_value_m,
+      enterprise_value: data.dcf_waterfall.enterprise_value_m,
+      discount_rate: data.dcf_waterfall.discount_rate_pct,
+    });
+  }
+
   return rows;
 }
 
@@ -611,6 +654,427 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
             </div>
           )}
           <p className="text-xs text-slate-500 leading-relaxed">{data.patent_cliff_analysis.narrative}</p>
+        </div>
+      )}
+
+      {/* ──────────────────────── Investment Thesis (Bull / Base / Bear) ──────────────────────── */}
+      {(isPro || previewMode) && data.investment_thesis && (
+        <div className="chart-container noise">
+          <div className="chart-title">Investment Thesis — Bull / Base / Bear</div>
+
+          {/* Scenario cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            {/* Bull Case */}
+            {data.investment_thesis.bull_case && (
+              <div className="p-4 bg-navy-800/50 rounded-md border border-emerald-500/20">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-emerald-400 font-medium">Bull Case</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-emerald-500/12 text-emerald-400 border border-emerald-500/20">
+                    {data.investment_thesis.bull_case.probability_pct != null
+                      ? `${data.investment_thesis.bull_case.probability_pct}%`
+                      : '—'}
+                  </span>
+                </div>
+                <div className="mb-3">
+                  <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Peak Sales</div>
+                  <div className="metric text-lg text-emerald-400">
+                    {formatCompact(data.investment_thesis.bull_case.peak_sales_m ?? 0)}
+                  </div>
+                </div>
+                {data.investment_thesis.bull_case.drivers && data.investment_thesis.bull_case.drivers.length > 0 && (
+                  <div className="mb-3">
+                    <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Key Drivers</div>
+                    <ul className="space-y-1">
+                      {data.investment_thesis.bull_case.drivers.map((d: string, i: number) => (
+                        <li key={`bull-driver-${i}`} className="text-xs text-slate-400 flex items-start gap-2">
+                          <span className="w-1 h-1 rounded-full bg-emerald-500/60 mt-1.5 flex-shrink-0" />
+                          {d}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {data.investment_thesis.bull_case.narrative && (
+                  <p className="text-xs text-slate-500 leading-relaxed">{data.investment_thesis.bull_case.narrative}</p>
+                )}
+              </div>
+            )}
+
+            {/* Base Case */}
+            {data.investment_thesis.base_case && (
+              <div className="p-4 bg-navy-800/50 rounded-md border border-teal-500/20">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-teal-400 font-medium">Base Case</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-teal-500/12 text-teal-400 border border-teal-500/20">
+                    {data.investment_thesis.base_case.probability_pct != null
+                      ? `${data.investment_thesis.base_case.probability_pct}%`
+                      : '—'}
+                  </span>
+                </div>
+                <div className="mb-3">
+                  <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Peak Sales</div>
+                  <div className="metric text-lg text-teal-400">
+                    {formatCompact(data.investment_thesis.base_case.peak_sales_m ?? 0)}
+                  </div>
+                </div>
+                {data.investment_thesis.base_case.drivers && data.investment_thesis.base_case.drivers.length > 0 && (
+                  <div className="mb-3">
+                    <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Key Drivers</div>
+                    <ul className="space-y-1">
+                      {data.investment_thesis.base_case.drivers.map((d: string, i: number) => (
+                        <li key={`base-driver-${i}`} className="text-xs text-slate-400 flex items-start gap-2">
+                          <span className="w-1 h-1 rounded-full bg-teal-500/60 mt-1.5 flex-shrink-0" />
+                          {d}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {data.investment_thesis.base_case.narrative && (
+                  <p className="text-xs text-slate-500 leading-relaxed">{data.investment_thesis.base_case.narrative}</p>
+                )}
+              </div>
+            )}
+
+            {/* Bear Case */}
+            {data.investment_thesis.bear_case && (
+              <div className="p-4 bg-navy-800/50 rounded-md border border-red-500/20">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-red-400 font-medium">Bear Case</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-red-500/12 text-red-400 border border-red-500/20">
+                    {data.investment_thesis.bear_case.probability_pct != null
+                      ? `${data.investment_thesis.bear_case.probability_pct}%`
+                      : '—'}
+                  </span>
+                </div>
+                <div className="mb-3">
+                  <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Peak Sales</div>
+                  <div className="metric text-lg text-red-400">
+                    {formatCompact(data.investment_thesis.bear_case.peak_sales_m ?? 0)}
+                  </div>
+                </div>
+                {data.investment_thesis.bear_case.drivers && data.investment_thesis.bear_case.drivers.length > 0 && (
+                  <div className="mb-3">
+                    <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Key Drivers</div>
+                    <ul className="space-y-1">
+                      {data.investment_thesis.bear_case.drivers.map((d: string, i: number) => (
+                        <li key={`bear-driver-${i}`} className="text-xs text-slate-400 flex items-start gap-2">
+                          <span className="w-1 h-1 rounded-full bg-red-500/60 mt-1.5 flex-shrink-0" />
+                          {d}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {data.investment_thesis.bear_case.narrative && (
+                  <p className="text-xs text-slate-500 leading-relaxed">{data.investment_thesis.bear_case.narrative}</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Expected Value */}
+          {data.investment_thesis.expected_value_m != null && (
+            <div className="p-4 bg-navy-800/50 rounded-md border border-navy-700 mb-4">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
+                Probability-Weighted Expected Peak Sales
+              </div>
+              <div className="metric text-2xl text-teal-400">
+                {formatCompact(data.investment_thesis.expected_value_m)}
+              </div>
+            </div>
+          )}
+
+          {/* Key Binary Risks */}
+          {data.investment_thesis.key_binary_risks && data.investment_thesis.key_binary_risks.length > 0 && (
+            <div className="mb-4">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Key Binary Risks</div>
+              <div className="flex flex-wrap gap-2">
+                {data.investment_thesis.key_binary_risks.map((risk: string, i: number) => (
+                  <span
+                    key={`risk-${i}`}
+                    className="inline-flex items-center px-2 py-1 rounded text-2xs font-mono bg-red-500/10 text-red-400 border border-red-500/20"
+                  >
+                    {risk}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Investment Decision Framework */}
+          {data.investment_thesis.investment_decision_framework && (
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Investment Decision Framework</div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                {data.investment_thesis.investment_decision_framework}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ──────────────────────── Deal Comps & Implied Valuation ──────────────────────── */}
+      {(isPro || previewMode) && (fullDepth || showDealSections) && data.deal_comps_analysis && (
+        <div className="chart-container noise">
+          <div className="chart-title">Deal Comps &amp; Implied Valuation</div>
+
+          {/* Top metric cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            {data.deal_comps_analysis.median_ev_peak_sales != null && (
+              <div className="p-4 bg-navy-800/50 rounded-md border border-navy-700">
+                <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Median EV / Peak Sales</div>
+                <div className="metric text-lg text-white">
+                  {data.deal_comps_analysis.median_ev_peak_sales.toFixed(1)}x
+                </div>
+              </div>
+            )}
+            {data.deal_comps_analysis.implied_valuation_base_m != null && (
+              <div className="p-4 bg-navy-800/50 rounded-md border border-teal-500/20">
+                <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Implied Valuation (Base)</div>
+                <div className="metric text-xl text-teal-400">
+                  {formatCompact(data.deal_comps_analysis.implied_valuation_base_m)}
+                </div>
+              </div>
+            )}
+            {data.deal_comps_analysis.implied_valuation_low_m != null &&
+              data.deal_comps_analysis.implied_valuation_high_m != null && (
+                <div className="p-4 bg-navy-800/50 rounded-md border border-navy-700">
+                  <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Valuation Range</div>
+                  <div className="metric text-lg text-white">
+                    {formatCompact(data.deal_comps_analysis.implied_valuation_low_m)} –{' '}
+                    {formatCompact(data.deal_comps_analysis.implied_valuation_high_m)}
+                  </div>
+                </div>
+              )}
+          </div>
+
+          {/* Comparable transactions table */}
+          {data.deal_comps_analysis.comparable_deals && data.deal_comps_analysis.comparable_deals.length > 0 && (
+            <div className="overflow-x-auto mb-4">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Acquirer</th>
+                    <th>Target</th>
+                    <th>Indication</th>
+                    <th>Stage</th>
+                    <th>Deal Value</th>
+                    <th>Peak Sales Est.</th>
+                    <th>EV / Peak Sales</th>
+                    <th>Year</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...data.deal_comps_analysis.comparable_deals]
+                    .sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
+                    .map((txn, i) => (
+                      <tr key={`deal-comp-${i}`}>
+                        <td className="text-slate-300 font-medium">{txn.acquirer}</td>
+                        <td>{txn.target}</td>
+                        <td>
+                          <span className="text-2xs text-slate-500">{txn.asset_or_indication}</span>
+                        </td>
+                        <td>
+                          <span className="text-2xs text-slate-400">{txn.development_stage}</span>
+                        </td>
+                        <td className="numeric">{formatCompact(txn.total_deal_value_m ?? 0)}</td>
+                        <td className="numeric">{formatCompact(txn.peak_sales_estimate_m ?? 0)}</td>
+                        <td className="numeric">
+                          {txn.ev_peak_sales_multiple != null ? `${txn.ev_peak_sales_multiple.toFixed(1)}x` : '—'}
+                        </td>
+                        <td className="numeric">{txn.year}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Narrative */}
+          {data.deal_comps_analysis.narrative && (
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <p className="text-xs text-slate-400 leading-relaxed">{data.deal_comps_analysis.narrative}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ──────────────────────── Clinical Development Cost Estimate ──────────────────────── */}
+      {(isPro || previewMode) && data.development_cost_estimate && (
+        <div className="chart-container noise">
+          <div className="chart-title">Clinical Development Cost Estimate</div>
+
+          {/* Phase progression display */}
+          {data.development_cost_estimate.remaining_phases &&
+            data.development_cost_estimate.remaining_phases.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 mb-6">
+                {data.development_cost_estimate.remaining_phases.map((phase, i, arr) => (
+                  <div key={`phase-${i}`} className="flex items-center gap-2">
+                    <div className="p-3 bg-navy-800/50 rounded-md border border-navy-700 text-center min-w-[120px]">
+                      <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">{phase.phase}</div>
+                      <div className="metric text-sm text-teal-400">{formatCompact(phase.cost_m ?? 0)}</div>
+                      <div className="text-2xs font-mono text-slate-500 mt-0.5">
+                        {phase.duration_years} yr{phase.duration_years !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                    {i < arr.length - 1 && <span className="text-slate-600 text-lg">→</span>}
+                  </div>
+                ))}
+              </div>
+            )}
+
+          {/* Summary metrics */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            {data.development_cost_estimate.total_remaining_cost_m != null && (
+              <div className="p-3 bg-navy-800/50 rounded-md">
+                <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Total Remaining Cost</div>
+                <div className="metric text-lg text-white">
+                  {formatCompact(data.development_cost_estimate.total_remaining_cost_m)}
+                </div>
+              </div>
+            )}
+            {data.development_cost_estimate.estimated_years_to_launch != null && (
+              <div className="p-3 bg-navy-800/50 rounded-md">
+                <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Years to Launch</div>
+                <div className="metric text-lg text-white">
+                  {data.development_cost_estimate.estimated_years_to_launch}
+                </div>
+              </div>
+            )}
+            {data.development_cost_estimate.cost_adjusted_npv_m != null && (
+              <div className="p-3 bg-navy-800/50 rounded-md border border-teal-500/20">
+                <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Cost-Adjusted NPV</div>
+                <div className="metric text-lg text-teal-400">
+                  {formatCompact(data.development_cost_estimate.cost_adjusted_npv_m)}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Narrative */}
+          {data.development_cost_estimate.narrative && (
+            <p className="text-xs text-slate-500 leading-relaxed">{data.development_cost_estimate.narrative}</p>
+          )}
+        </div>
+      )}
+
+      {/* ──────────────────────── DCF Waterfall ──────────────────────── */}
+      {(isPro || previewMode) && (fullDepth || showDealSections) && data.dcf_waterfall && (
+        <div className="chart-container noise">
+          <div className="chart-title">DCF Waterfall Analysis</div>
+
+          {/* Discount rate */}
+          {data.dcf_waterfall.discount_rate_pct != null && (
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-navy-800/50 rounded-md">
+                <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Discount Rate (WACC)</div>
+                <div className="metric text-lg text-white">
+                  {formatPercent(data.dcf_waterfall.discount_rate_pct * 100, 1)}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Year-by-year table */}
+          {data.dcf_waterfall.years && data.dcf_waterfall.years.length > 0 && (
+            <div className="overflow-x-auto mb-4">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Revenue</th>
+                    <th>COGS</th>
+                    <th>Gross Profit</th>
+                    <th>SG&amp;A</th>
+                    <th>R&amp;D</th>
+                    <th>EBIT</th>
+                    <th>Tax</th>
+                    <th>FCF</th>
+                    <th>PV(FCF)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.dcf_waterfall.years.map((yr, i) => (
+                    <tr key={`dcf-yr-${i}`}>
+                      <td className="numeric">{yr.year}</td>
+                      <td className="numeric">{formatCompact(yr.revenue_m ?? 0)}</td>
+                      <td className="numeric">{formatCompact(yr.cogs_m ?? 0)}</td>
+                      <td className="numeric">{formatCompact(yr.gross_profit_m ?? 0)}</td>
+                      <td className="numeric">{formatCompact(yr.sgna_m ?? 0)}</td>
+                      <td className="numeric">{formatCompact(yr.rnd_m ?? 0)}</td>
+                      <td className="numeric">{formatCompact(yr.ebit_m ?? 0)}</td>
+                      <td className="numeric">{formatCompact(yr.tax_m ?? 0)}</td>
+                      <td className="numeric">{formatCompact(yr.fcf_m ?? 0)}</td>
+                      <td className="numeric font-medium text-teal-400">{formatCompact(yr.pv_fcf_m ?? 0)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t border-navy-600">
+                    <td colSpan={9} className="text-slate-300 font-medium text-right">
+                      Total PV(FCF)
+                    </td>
+                    <td className="numeric font-medium text-teal-400">
+                      {formatCompact(data.dcf_waterfall.sum_pv_fcf_m ?? 0)}
+                    </td>
+                  </tr>
+                  {data.dcf_waterfall.terminal_value_m != null && (
+                    <tr>
+                      <td colSpan={9} className="text-slate-300 font-medium text-right">
+                        Terminal Value
+                      </td>
+                      <td className="numeric font-medium text-white">
+                        {formatCompact(data.dcf_waterfall.terminal_value_m)}
+                      </td>
+                    </tr>
+                  )}
+                  {data.dcf_waterfall.enterprise_value_m != null && (
+                    <tr className="border-t border-navy-600">
+                      <td colSpan={9} className="text-slate-300 font-medium text-right">
+                        Enterprise Value
+                      </td>
+                      <td className="numeric font-medium text-teal-400 text-base">
+                        {formatCompact(data.dcf_waterfall.enterprise_value_m)}
+                      </td>
+                    </tr>
+                  )}
+                </tfoot>
+              </table>
+            </div>
+          )}
+
+          {/* WACC Sensitivity */}
+          {data.dcf_waterfall.sensitivity && data.dcf_waterfall.sensitivity.length > 0 && (
+            <div className="mb-4">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-2">
+                WACC Sensitivity — Enterprise Value
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {data.dcf_waterfall.sensitivity.map((ws, i) => (
+                  <div
+                    key={`wacc-${i}`}
+                    className={cn(
+                      'p-3 rounded-md text-center min-w-[100px]',
+                      ws.wacc === data.dcf_waterfall?.discount_rate_pct
+                        ? 'bg-teal-500/12 border border-teal-500/20'
+                        : 'bg-navy-800/50 border border-navy-700',
+                    )}
+                  >
+                    <div className="text-2xs font-mono text-slate-500">{formatPercent(ws.wacc, 0)}</div>
+                    <div
+                      className={cn(
+                        'metric text-sm',
+                        ws.wacc === data.dcf_waterfall?.discount_rate_pct ? 'text-teal-400' : 'text-white',
+                      )}
+                    >
+                      {formatCompact(ws.ev_m ?? 0)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

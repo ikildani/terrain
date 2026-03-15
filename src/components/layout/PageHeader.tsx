@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils/cn';
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
-  badge?: 'Pro' | 'Team';
+  badge?: 'Pro' | 'Team' | 'Enterprise';
   actions?: React.ReactNode;
 }
 
@@ -14,11 +14,7 @@ export function PageHeader({ title, subtitle, badge, actions }: PageHeaderProps)
         <div>
           <div className="flex items-center gap-3">
             <h1 className="page-title">{title}</h1>
-            {badge && (
-              <span className={cn('badge', badge === 'Pro' ? 'badge-pro' : 'badge-teal')}>
-                {badge}
-              </span>
-            )}
+            {badge && <span className={cn('badge', badge === 'Pro' ? 'badge-pro' : 'badge-teal')}>{badge}</span>}
           </div>
           {subtitle && <p className="page-subtitle">{subtitle}</p>}
         </div>
