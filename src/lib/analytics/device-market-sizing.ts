@@ -68,7 +68,7 @@ const CAPITAL_INSTALLED_RAMP = [0.05, 0.15, 0.3, 0.5, 0.68, 0.82, 0.92, 1.0, 1.0
 export async function calculateDeviceMarketSizing(input: DeviceMarketSizingInput): Promise<DeviceMarketSizingOutput> {
   // Step 0: Normalize input — API schema marks many fields optional,
   // but the engine expects them. Apply safe defaults for any missing fields.
-  const safeInput: DeviceMarketSizingInput = {
+  let safeInput: DeviceMarketSizingInput = {
     ...input,
     unit_ase: input.unit_ase ?? 0,
     physician_specialty: input.physician_specialty ?? [],
@@ -85,6 +85,14 @@ export async function calculateDeviceMarketSizing(input: DeviceMarketSizingInput
   // Step 1: Look up procedure data (with graceful fallback for unmatched inputs)
   const matchedProcedure = findProcedure(safeInput.procedure_or_condition);
   const procedure = matchedProcedure || buildFallbackProcedure(safeInput);
+
+  // Derive ASE from procedure reimbursement data if user didn't provide one
+  if (!safeInput.unit_ase || safeInput.unit_ase === 0) {
+    const fallbackASE = procedure.reimbursement.medicare_facility_rate;
+    if (fallbackASE && fallbackASE > 0) {
+      safeInput = { ...safeInput, unit_ase: fallbackASE };
+    }
+  }
 
   // Step 2: Determine market share range
   const shareRange = DEVICE_STAGE_SHARE[safeInput.development_stage] ?? DEVICE_STAGE_SHARE.clinical_trial; // Fallback if stage doesn't match enum

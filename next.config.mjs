@@ -28,6 +28,10 @@ const nextConfig = {
             value: 'max-age=63072000; includeSubDomains; preload',
           },
           {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+          {
             key: 'Access-Control-Allow-Origin',
             value: process.env.NEXT_PUBLIC_APP_URL || 'https://terrain.ambrosiaventures.co',
           },

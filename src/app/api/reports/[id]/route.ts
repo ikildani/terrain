@@ -48,7 +48,11 @@ export async function GET(_request: NextRequest, context: RouteContext) {
   if (share) {
     // Use admin client to bypass RLS — we've already verified the share permission above
     const adminSupabase = createAdminClient();
-    const { data: sharedReport } = await adminSupabase.from('reports').select('*').eq('id', id).single();
+    const { data: sharedReport } = await adminSupabase
+      .from('reports')
+      .select('id, title, report_type, indication, outputs, status, is_starred, tags, created_at, updated_at')
+      .eq('id', id)
+      .single();
 
     if (sharedReport) {
       return NextResponse.json({ success: true, data: { ...sharedReport, _share_permission: share.permission } });

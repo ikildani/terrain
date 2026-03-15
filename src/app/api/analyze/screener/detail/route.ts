@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { checkUsage } from '@/lib/usage';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { parseBodyWithLimit, BodyTooLargeError } from '@/lib/api/parse-body';
 import { logger, logApiRequest, logApiResponse } from '@/lib/logger';
 import { captureApiError } from '@/lib/utils/sentry';
 import { getCompetitorsForIndication, type CompetitorRecord } from '@/lib/data/competitor-database';
@@ -168,8 +169,8 @@ function matchesTherapyArea(partnerArea: string, indicationArea: string): boolea
 // ────────────────────────────────────────────────────────────
 
 const DetailRequestSchema = z.object({
-  indication: z.string().min(1),
-  product_category: z.string().default('pharmaceutical'),
+  indication: z.string().trim().min(1).max(500),
+  product_category: z.string().trim().max(100).default('pharmaceutical'),
 });
 
 // ────────────────────────────────────────────────────────────
@@ -245,8 +246,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ── Parse body ──────────────────────────────────────────
-    const body = await request.json();
+    // ── Parse body (with size limit) ────────────────────────
+    let body: unknown;
+    try {
+      body = await parseBodyWithLimit(request);
+    } catch (err) {
+      if (err instanceof BodyTooLargeError) {
+        return NextResponse.json({ success: false, error: err.message } satisfies ApiResponse<never>, { status: 413 });
+      }
+      return NextResponse.json({ success: false, error: 'Invalid request body.' } satisfies ApiResponse<never>, {
+        status: 400,
+      });
+    }
 
     // ── Validate with Zod ───────────────────────────────────
     const parsed = DetailRequestSchema.safeParse(body);

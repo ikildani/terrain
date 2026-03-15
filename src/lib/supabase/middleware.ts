@@ -99,7 +99,6 @@ export async function updateSession(request: NextRequest) {
       '/api/cron/', // Vercel cron (uses CRON_SECRET)
       '/api/health', // Health check
       '/api/share/', // Public shared report access
-      '/api/email/welcome', // Triggered by auth hooks
     ];
 
     const isPublicApi = PUBLIC_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
@@ -110,37 +109,14 @@ export async function updateSession(request: NextRequest) {
   }
 
   // ────────────────────────────────────────────────────────────
-  // CSP — Nonce-based with strict-dynamic.
-  // Next.js 16 reads the x-nonce request header and automatically
-  // applies the nonce to all framework-generated <script> tags.
-  // 'strict-dynamic' lets nonce'd scripts load their children
-  // (e.g., Stripe.js loading its iframe scripts).
+  // CSP — 'self' + 'unsafe-inline' for script-src.
+  // Next.js 16 does not reliably propagate nonces to <script> tags,
+  // so we use 'unsafe-inline' to allow framework-generated inline
+  // scripts. Host allowlists restrict loading to known domains.
   // ────────────────────────────────────────────────────────────
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
-
-  // Pass nonce to Next.js via request header so it can inject
-  // the nonce attribute onto inline scripts it generates.
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-nonce', nonce);
-
-  // Rebuild the response with the updated request headers.
-  // We must re-create the response so the Supabase cookie logic
-  // and the new request headers are both preserved.
-  const existingCookies = response.headers.getSetCookie();
-  response = NextResponse.next({
-    request: { headers: requestHeaders },
-  });
-  // Re-apply any cookies Supabase may have set
-  for (const cookie of existingCookies) {
-    response.headers.append('Set-Cookie', cookie);
-  }
-
   const csp = [
     "default-src 'self'",
-    // 'strict-dynamic' means the browser trusts scripts loaded by nonce'd scripts,
-    // so explicit host allowlists are ignored in modern browsers — but we keep them
-    // as fallback for older browsers that don't support 'strict-dynamic'.
-    `script-src 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://*.vercel-scripts.com https://us.i.posthog.com`,
+    "script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.vercel-scripts.com https://us.i.posthog.com",
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self' data:",
     "img-src 'self' data: blob:",
@@ -148,11 +124,10 @@ export async function updateSession(request: NextRequest) {
     'frame-src https://js.stripe.com',
     "object-src 'none'",
     "base-uri 'self'",
+    "form-action 'self'",
   ].join('; ');
 
   response.headers.set('Content-Security-Policy', csp);
-  // Expose nonce to server components via response header
-  response.headers.set('x-nonce', nonce);
 
   // Set CORS headers on API responses
   if (request.nextUrl.pathname.startsWith('/api/')) {

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { checkUsage, recordUsage } from '@/lib/usage';
 import { scoreAllIndications } from '@/lib/analytics/screener';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { parseBodyWithLimit, BodyTooLargeError } from '@/lib/api/parse-body';
 import { logger, logApiRequest, logApiResponse } from '@/lib/logger';
 import { captureApiError } from '@/lib/utils/sentry';
 import type { ApiResponse } from '@/types';
@@ -17,7 +18,7 @@ import type { OpportunityFilters } from '@/lib/analytics/screener';
 const ScreenerRequestSchema = z.object({
   filters: z
     .object({
-      therapy_areas: z.array(z.string()).optional(),
+      therapy_areas: z.array(z.string().trim().max(100)).max(20).optional(),
       product_category: z.string().default('pharmaceutical'),
       min_prevalence: z.number().optional(),
       max_crowding: z.number().optional(),
@@ -121,8 +122,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ── Parse body ──────────────────────────────────────────
-    const body = await request.json();
+    // ── Parse body (with size limit) ────────────────────────
+    let body: unknown;
+    try {
+      body = await parseBodyWithLimit(request);
+    } catch (err) {
+      if (err instanceof BodyTooLargeError) {
+        return NextResponse.json({ success: false, error: err.message } satisfies ApiResponse<never>, { status: 413 });
+      }
+      return NextResponse.json({ success: false, error: 'Invalid request body.' } satisfies ApiResponse<never>, {
+        status: 400,
+      });
+    }
 
     // ── Validate with Zod ───────────────────────────────────
     const parsed = ScreenerRequestSchema.safeParse(body);

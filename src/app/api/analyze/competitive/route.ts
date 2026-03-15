@@ -8,6 +8,7 @@ import { analyzeDeviceCompetitiveLandscape } from '@/lib/analytics/device-compet
 import { analyzeCDxCompetitiveLandscape } from '@/lib/analytics/cdx-competitive';
 import { analyzeNutraceuticalCompetitiveLandscape } from '@/lib/analytics/nutraceutical-competitive';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { parseBodyWithLimit, BodyTooLargeError } from '@/lib/api/parse-body';
 import { logger, withTiming, logApiRequest, logApiResponse, logBusinessEvent } from '@/lib/logger';
 import { sanitizePostgrestValue, sanitizePostgrestSearch } from '@/lib/utils/sanitize';
 import { captureApiError } from '@/lib/utils/sentry';
@@ -46,28 +47,28 @@ function isNutraceutical(category: string): boolean {
 const RequestSchema = z.object({
   input: z.object({
     // Pharma fields
-    indication: z.string().optional(),
-    mechanism: z.string().optional(),
+    indication: z.string().trim().max(500).optional(),
+    mechanism: z.string().trim().max(500).optional(),
 
     // Device fields
-    procedure_or_condition: z.string().optional(),
-    device_category: z.string().optional(),
-    technology_type: z.string().optional(),
+    procedure_or_condition: z.string().trim().max(500).optional(),
+    device_category: z.string().trim().max(200).optional(),
+    technology_type: z.string().trim().max(200).optional(),
 
     // CDx fields
-    biomarker: z.string().optional(),
-    test_type: z.string().optional(),
-    linked_drug: z.string().optional(),
+    biomarker: z.string().trim().max(200).optional(),
+    test_type: z.string().trim().max(200).optional(),
+    linked_drug: z.string().trim().max(200).optional(),
 
     // Nutraceutical fields
-    primary_ingredient: z.string().optional(),
-    health_focus: z.string().optional(),
-    ingredient_category: z.string().optional(),
+    primary_ingredient: z.string().trim().max(200).optional(),
+    health_focus: z.string().trim().max(200).optional(),
+    ingredient_category: z.string().trim().max(200).optional(),
   }),
 
-  product_category: z.string().default('pharmaceutical'),
+  product_category: z.string().trim().max(100).default('pharmaceutical'),
   save: z.boolean().optional(),
-  report_title: z.string().optional(),
+  report_title: z.string().trim().max(200).optional(),
 });
 
 // ────────────────────────────────────────────────────────────
@@ -127,8 +128,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ── Parse body ──────────────────────────────────────────
-    const body = await request.json();
+    // ── Parse body (with size limit) ────────────────────────
+    let body: unknown;
+    try {
+      body = await parseBodyWithLimit(request);
+    } catch (err) {
+      if (err instanceof BodyTooLargeError) {
+        return NextResponse.json({ success: false, error: err.message } satisfies ApiResponse<never>, { status: 413 });
+      }
+      return NextResponse.json({ success: false, error: 'Invalid request body.' } satisfies ApiResponse<never>, {
+        status: 400,
+      });
+    }
 
     // ── Validate with Zod ───────────────────────────────────
     const parsed = RequestSchema.safeParse(body);
