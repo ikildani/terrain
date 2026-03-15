@@ -106,7 +106,7 @@ export async function exportToExcel(data: Record<string, unknown>[], options: Ex
   dividerRow.height = 4;
   for (let c = 1; c <= colCount; c++) {
     const cell = dividerRow.getCell(c);
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: TEAL } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: accentColor } };
   }
 
   // ── Row 6: Column headers ──────────────────────────────
@@ -124,7 +124,7 @@ export async function exportToExcel(data: Record<string, unknown>[], options: Ex
     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: NAVY_800 } };
     cell.alignment = { vertical: 'middle', horizontal: 'left' };
     cell.border = {
-      bottom: { style: 'thin', color: { argb: TEAL } },
+      bottom: { style: 'thin', color: { argb: accentColor } },
     };
   });
 
@@ -185,7 +185,7 @@ export async function exportToExcel(data: Record<string, unknown>[], options: Ex
 
   // ── Footer row ─────────────────────────────────────────
   ws.addRow([]); // spacer
-  const footerRow = ws.addRow(['terrain.ambrosiaventures.co  |  Ambrosia Ventures  |  CONFIDENTIAL']);
+  const footerRow = ws.addRow([footerLabel]);
   ws.mergeCells(footerRow.number, 1, footerRow.number, colCount);
   const footerCell = footerRow.getCell(1);
   footerCell.font = { name: 'Calibri', size: 7, italic: true, color: { argb: SLATE_400 } };

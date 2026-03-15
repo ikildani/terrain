@@ -119,9 +119,9 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
                     fontFamily: 'DM Mono',
                     color: '#F0F4F8',
                   }}
-                  formatter={(value: number, _name: string, props: { payload: { type: string } }) => [
+                  formatter={(value: number, _name: string, props: { payload?: { type?: string } }) => [
                     value,
-                    formatReportType(props.payload.type),
+                    formatReportType(props.payload?.type ?? ''),
                   ]}
                 />
               </PieChart>
