@@ -1892,6 +1892,50 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
   // Step 8r: Enhancement 7 — Multi-dimensional payer-tier pricing
   const payerTierPricing = buildPayerTierPricing(input.launch_year, indication.therapy_area, selectedPrice);
 
+  // Step 8s: Mechanism-based competitive analysis
+  const competitiveMechanismAnalysis = buildCompetitiveMechanismAnalysis(
+    input.mechanism,
+    indication.major_competitors,
+    indication.therapy_area,
+  );
+
+  // Step 8t: Patent cliff analysis
+  const hasOrphanDesignation = indication.us_prevalence < 200000;
+  const patentCliffAnalysis = buildPatentCliffAnalysis(input.mechanism, input.launch_year, hasOrphanDesignation, 10);
+
+  // Apply mechanism-weighted erosion to competitive response (augments flat-rate model)
+  if (competitiveMechanismAnalysis.mechanism_weighted_erosion_pct > 0) {
+    const mechErosionFactor = 1 - competitiveMechanismAnalysis.mechanism_weighted_erosion_pct / 100;
+    revenueProjection = revenueProjection.map((yr, i) => {
+      // Phase in mechanism erosion over years 2-5 (competitors don't all launch simultaneously)
+      const phaseIn = i === 0 ? 0.2 : i === 1 ? 0.5 : i === 2 ? 0.75 : i === 3 ? 0.9 : 1.0;
+      const yearFactor = 1 - (1 - mechErosionFactor) * phaseIn;
+      return {
+        ...yr,
+        bear: Math.round(yr.bear * yearFactor),
+        base: Math.round(yr.base * yearFactor),
+        bull: Math.round(yr.bull * yearFactor),
+      };
+    });
+  }
+
+  // Apply patent cliff erosion to revenue projection (replaces hardcoded LOE_DECLINE in S-curve)
+  if (patentCliffAnalysis.erosion_profile.length > 0) {
+    revenueProjection = revenueProjection.map((yr) => {
+      const cliffYear = patentCliffAnalysis.erosion_profile.find((e) => e.year === yr.year);
+      if (cliffYear && cliffYear.retained_pct < 100) {
+        const factor = cliffYear.retained_pct / 100;
+        return {
+          ...yr,
+          bear: Math.round(yr.bear * factor),
+          base: Math.round(yr.base * factor),
+          bull: Math.round(yr.bull * factor),
+        };
+      }
+      return yr;
+    });
+  }
+
   // Step 8p: Integrated revenue projection
   const integratedProjection = buildIntegratedProjection(
     revenueProjection,
@@ -1959,6 +2003,8 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
     manufacturing_constraint:
       manufacturingConstraint.constrained_years.length > 0 ? manufacturingConstraint : undefined,
     regulatory_pathway_analysis: regulatoryPathwayAnalysis,
+    competitive_mechanism_analysis: competitiveMechanismAnalysis,
+    patent_cliff_analysis: patentCliffAnalysis,
     one_time_treatment_model: oneTimeTreatmentModel,
     pediatric_analysis: pediatricAnalysis,
   };
@@ -3929,9 +3975,9 @@ function buildMethodology(
     '',
     `IRA Impact: Inflation Reduction Act Medicare price negotiation modeled at Year 9 (small molecule) or Year 13 (biologic) post-launch.`,
     '',
-    `Competitive Response: Dynamic model projects price erosion (5-15% per new entrant) and share redistribution as competitors launch, calibrated to ${indication.therapy_area} competitive dynamics.`,
+    `Competitive Response: Mechanism-based competitive analysis scores each competitor by mechanism similarity (same mechanism: 25-35% erosion, same target: 15-20%, same pathway: 10-15%, different mechanism: 3-5%). Dynamic model projects mechanism-weighted erosion and share redistribution as competitors launch, calibrated to ${indication.therapy_area} competitive dynamics.`,
     '',
-    `Biosimilar/LOE Erosion: Post-LOE revenue decline modeled using IQVIA biosimilar uptake curves. ${isBiologicProduct ? 'Biologic: 60-80% share loss within 3 years of first biosimilar entry.' : 'Small molecule: 80-95% share loss within 2 years of generic entry.'}`,
+    `Patent Cliff / LOE: Product-type-specific patent cliff modeling. ${isBiologicProduct ? 'Biologic: 12-year exclusivity + patents, gradual biosimilar erosion (85% retained Year 1, 70% Year 2, 55% Year 3 post-LOE).' : 'Small molecule: NCE 5-year + patent protection, sharp generic cliff (40% retained Year 1, 20% Year 2 post-LOE).'} Cell/gene therapies: no generic pathway, minimal LOE erosion.`,
     '',
     `Payer Mix: Commercial/Medicare/Medicaid/VA split evolves over product lifecycle. Managed entry agreements (MEAs) modeled from Year 2 onward. Blended net price factor declines as Medicare share increases.`,
     '',
@@ -4703,6 +4749,437 @@ function buildNonLinearCompetitiveErosion(
   }
 
   return results;
+}
+
+// ────────────────────────────────────────────────────────────
+// MECHANISM-BASED COMPETITIVE RESPONSE
+// Investment-bank grade mechanism similarity scoring.
+// Replaces flat per-entrant erosion with mechanism-aware logic:
+//   Same mechanism class:       25-35% erosion per entrant
+//   Same target, diff modality: 15-20% erosion per entrant
+//   Same pathway:               10-15% erosion per entrant
+//   Different mechanism:        3-5% erosion (may expand market)
+// Source: IQVIA competitive dynamics, Ambrosia Ventures deal DB
+// ────────────────────────────────────────────────────────────
+
+// Erosion ranges by mechanism relationship
+const MECHANISM_EROSION_RANGES: Record<MechanismRelationship, { low: number; high: number }> = {
+  same_mechanism: { low: 0.25, high: 0.35 },
+  same_target: { low: 0.15, high: 0.2 },
+  same_pathway: { low: 0.1, high: 0.15 },
+  different_mechanism: { low: 0.03, high: 0.05 },
+};
+
+// Known mechanism -> target -> pathway mappings for similarity scoring
+const MECHANISM_TAXONOMY: Record<string, { target: string; pathway: string; modality: string }> = {
+  'pd-1 inhibitor': { target: 'PD-1', pathway: 'PD-1/PD-L1', modality: 'mAb' },
+  'pd-l1 inhibitor': { target: 'PD-L1', pathway: 'PD-1/PD-L1', modality: 'mAb' },
+  'pd-1/lag-3 inhibitor': { target: 'PD-1', pathway: 'PD-1/PD-L1', modality: 'bispecific' },
+  'ctla-4 inhibitor': { target: 'CTLA-4', pathway: 'immune checkpoint', modality: 'mAb' },
+  'anti-cd38 mab': { target: 'CD38', pathway: 'CD38', modality: 'mAb' },
+  'anti-cd20 mab': { target: 'CD20', pathway: 'B-cell depletion', modality: 'mAb' },
+  'anti-cd19 mab': { target: 'CD19', pathway: 'B-cell depletion', modality: 'mAb' },
+  'btk inhibitor': { target: 'BTK', pathway: 'B-cell receptor', modality: 'small molecule' },
+  'bcl-2 inhibitor': { target: 'BCL-2', pathway: 'apoptosis', modality: 'small molecule' },
+  'kras g12c inhibitor': { target: 'KRAS G12C', pathway: 'RAS/MAPK', modality: 'small molecule' },
+  'kras inhibitor': { target: 'KRAS', pathway: 'RAS/MAPK', modality: 'small molecule' },
+  'egfr inhibitor': { target: 'EGFR', pathway: 'EGFR/HER', modality: 'small molecule' },
+  'egfr tki': { target: 'EGFR', pathway: 'EGFR/HER', modality: 'small molecule' },
+  'her2 inhibitor': { target: 'HER2', pathway: 'EGFR/HER', modality: 'mAb' },
+  'alk inhibitor': { target: 'ALK', pathway: 'ALK/ROS1', modality: 'small molecule' },
+  'ros1 inhibitor': { target: 'ROS1', pathway: 'ALK/ROS1', modality: 'small molecule' },
+  'braf inhibitor': { target: 'BRAF', pathway: 'RAS/MAPK', modality: 'small molecule' },
+  'mek inhibitor': { target: 'MEK', pathway: 'RAS/MAPK', modality: 'small molecule' },
+  'jak inhibitor': { target: 'JAK', pathway: 'JAK/STAT', modality: 'small molecule' },
+  'jak1 inhibitor': { target: 'JAK1', pathway: 'JAK/STAT', modality: 'small molecule' },
+  'jak2 inhibitor': { target: 'JAK2', pathway: 'JAK/STAT', modality: 'small molecule' },
+  'tnf inhibitor': { target: 'TNF-alpha', pathway: 'TNF', modality: 'mAb' },
+  'anti-tnf': { target: 'TNF-alpha', pathway: 'TNF', modality: 'mAb' },
+  'anti-il-6': { target: 'IL-6', pathway: 'IL-6/JAK/STAT', modality: 'mAb' },
+  'il-6 inhibitor': { target: 'IL-6', pathway: 'IL-6/JAK/STAT', modality: 'mAb' },
+  'anti-il-17': { target: 'IL-17', pathway: 'IL-17/IL-23', modality: 'mAb' },
+  'il-17 inhibitor': { target: 'IL-17', pathway: 'IL-17/IL-23', modality: 'mAb' },
+  'anti-il-23': { target: 'IL-23', pathway: 'IL-17/IL-23', modality: 'mAb' },
+  'il-23 inhibitor': { target: 'IL-23', pathway: 'IL-17/IL-23', modality: 'mAb' },
+  'anti-il-4/il-13': { target: 'IL-4/IL-13', pathway: 'type 2 inflammation', modality: 'mAb' },
+  'anti-il-5': { target: 'IL-5', pathway: 'type 2 inflammation', modality: 'mAb' },
+  'anti-il-13': { target: 'IL-13', pathway: 'type 2 inflammation', modality: 'mAb' },
+  'anti-vegf': { target: 'VEGF', pathway: 'VEGF/angiogenesis', modality: 'mAb' },
+  'vegfr inhibitor': { target: 'VEGFR', pathway: 'VEGF/angiogenesis', modality: 'small molecule' },
+  'vegf trap': { target: 'VEGF', pathway: 'VEGF/angiogenesis', modality: 'fusion protein' },
+  'parp inhibitor': { target: 'PARP', pathway: 'DNA damage repair', modality: 'small molecule' },
+  'cdk4/6 inhibitor': { target: 'CDK4/6', pathway: 'cell cycle', modality: 'small molecule' },
+  'pi3k inhibitor': { target: 'PI3K', pathway: 'PI3K/AKT/mTOR', modality: 'small molecule' },
+  'mtor inhibitor': { target: 'mTOR', pathway: 'PI3K/AKT/mTOR', modality: 'small molecule' },
+  'sglt2 inhibitor': { target: 'SGLT2', pathway: 'renal glucose transport', modality: 'small molecule' },
+  'glp-1 agonist': { target: 'GLP-1R', pathway: 'incretin', modality: 'peptide' },
+  'glp-1/gip agonist': { target: 'GLP-1R/GIPR', pathway: 'incretin', modality: 'peptide' },
+  'dpp-4 inhibitor': { target: 'DPP-4', pathway: 'incretin', modality: 'small molecule' },
+  'car-t': { target: 'variable', pathway: 'adoptive cell therapy', modality: 'cell therapy' },
+  'car-t (cd19)': { target: 'CD19', pathway: 'adoptive cell therapy', modality: 'cell therapy' },
+  'car-t (bcma)': { target: 'BCMA', pathway: 'adoptive cell therapy', modality: 'cell therapy' },
+  'bispecific (bcmaxcd3)': { target: 'BCMA', pathway: 'T-cell engager', modality: 'bispecific' },
+  'bispecific (gprc5dxcd3)': { target: 'GPRC5D', pathway: 'T-cell engager', modality: 'bispecific' },
+  'bispecific (cd20xcd3)': { target: 'CD20', pathway: 'T-cell engager', modality: 'bispecific' },
+  'adc (her2)': { target: 'HER2', pathway: 'EGFR/HER', modality: 'ADC' },
+  'adc (trop-2)': { target: 'Trop-2', pathway: 'ADC payload delivery', modality: 'ADC' },
+  'adc (nectin-4)': { target: 'Nectin-4', pathway: 'ADC payload delivery', modality: 'ADC' },
+  'adc (cd30)': { target: 'CD30', pathway: 'ADC payload delivery', modality: 'ADC' },
+  'adc (cd79b)': { target: 'CD79b', pathway: 'ADC payload delivery', modality: 'ADC' },
+  'adc (fra)': { target: 'FRa', pathway: 'ADC payload delivery', modality: 'ADC' },
+  'anti-cgrp': { target: 'CGRP', pathway: 'CGRP', modality: 'mAb' },
+  'cgrp receptor antagonist': { target: 'CGRP receptor', pathway: 'CGRP', modality: 'small molecule' },
+  'complement inhibitor': { target: 'C5', pathway: 'complement', modality: 'mAb' },
+  'anti-c5': { target: 'C5', pathway: 'complement', modality: 'mAb' },
+  'gene therapy': { target: 'variable', pathway: 'gene replacement', modality: 'gene therapy' },
+  'enzyme replacement': { target: 'variable', pathway: 'enzyme replacement', modality: 'biologic' },
+  'antisense oligonucleotide': { target: 'variable', pathway: 'RNA modulation', modality: 'oligonucleotide' },
+  sirna: { target: 'variable', pathway: 'RNA modulation', modality: 'oligonucleotide' },
+  mrna: { target: 'variable', pathway: 'RNA modulation', modality: 'mRNA' },
+};
+
+/**
+ * Look up mechanism taxonomy entry via fuzzy matching.
+ * Normalizes the input mechanism string and tries exact then partial matches.
+ */
+function lookupMechanismTaxonomy(mechanism: string): { target: string; pathway: string; modality: string } | undefined {
+  const m = mechanism.toLowerCase().trim();
+  // Exact match
+  if (MECHANISM_TAXONOMY[m]) return MECHANISM_TAXONOMY[m];
+  // Partial match: find the longest key that's contained in the input
+  let bestMatch: string | undefined;
+  let bestLen = 0;
+  for (const key of Object.keys(MECHANISM_TAXONOMY)) {
+    if (m.includes(key) && key.length > bestLen) {
+      bestMatch = key;
+      bestLen = key.length;
+    }
+  }
+  if (bestMatch) return MECHANISM_TAXONOMY[bestMatch];
+  // Reverse: check if any key contains the input
+  for (const key of Object.keys(MECHANISM_TAXONOMY)) {
+    if (key.includes(m) && m.length > 3) return MECHANISM_TAXONOMY[key];
+  }
+  return undefined;
+}
+
+/**
+ * Score mechanism similarity between user's mechanism and a competitor's mechanism.
+ * Returns relationship type and similarity score (0-1).
+ */
+function scoreMechanismSimilarity(
+  userMechanism: string,
+  competitorMechanism: string,
+): { relationship: MechanismRelationship; similarity: number } {
+  const userTax = lookupMechanismTaxonomy(userMechanism);
+  const compTax = lookupMechanismTaxonomy(competitorMechanism);
+
+  // If we can't classify either mechanism, fall back to string similarity
+  if (!userTax || !compTax) {
+    const uLower = userMechanism.toLowerCase();
+    const cLower = competitorMechanism.toLowerCase();
+    const uTokens = uLower.split(/[\s_\-/()]+/).filter((t) => t.length > 2);
+    const cTokens = cLower.split(/[\s_\-/()]+/).filter((t) => t.length > 2);
+    const overlap = uTokens.filter((t) => cTokens.some((ct) => ct.includes(t) || t.includes(ct)));
+    if (overlap.length >= 2) return { relationship: 'same_mechanism', similarity: 0.85 };
+    if (overlap.length === 1) return { relationship: 'same_pathway', similarity: 0.4 };
+    return { relationship: 'different_mechanism', similarity: 0.1 };
+  }
+
+  // Both classified — compare at each level
+  // Same mechanism class (e.g., both "PD-1 inhibitor")
+  if (userTax.target === compTax.target && userTax.modality === compTax.modality) {
+    return { relationship: 'same_mechanism', similarity: 0.95 };
+  }
+
+  // Same target, different modality (e.g., PD-1 mAb vs PD-1 bispecific)
+  if (userTax.target === compTax.target && userTax.modality !== compTax.modality) {
+    return { relationship: 'same_target', similarity: 0.7 };
+  }
+
+  // Same pathway (e.g., PD-1 vs PD-L1, both in PD-1/PD-L1 pathway)
+  if (userTax.pathway === compTax.pathway) {
+    return { relationship: 'same_pathway', similarity: 0.45 };
+  }
+
+  // Different mechanism entirely
+  return { relationship: 'different_mechanism', similarity: 0.1 };
+}
+
+/**
+ * Extract mechanism class from a competitor name string like "Keytruda (pembrolizumab, MSD)"
+ * by cross-referencing with PRICING_BENCHMARKS.
+ */
+function extractCompetitorMechanism(competitorName: string): string | undefined {
+  const nameLower = competitorName.toLowerCase();
+  // Try matching against pricing benchmarks drug names
+  for (const benchmark of PRICING_BENCHMARKS) {
+    const drugLower = benchmark.drug_name.toLowerCase();
+    if (nameLower.includes(drugLower) || drugLower.includes(nameLower.split('(')[0].trim())) {
+      return benchmark.mechanism_class;
+    }
+  }
+
+  // Try matching generic name in parentheses
+  const parenMatch = competitorName.match(/\(([^,)]+)/);
+  if (parenMatch) {
+    const genericName = parenMatch[1].toLowerCase().trim();
+    for (const benchmark of PRICING_BENCHMARKS) {
+      if (benchmark.drug_name.toLowerCase().includes(genericName)) {
+        return benchmark.mechanism_class;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Build mechanism-based competitive analysis.
+ * Scores each competitor by mechanism similarity and calculates
+ * mechanism-weighted cumulative erosion.
+ */
+function buildCompetitiveMechanismAnalysis(
+  userMechanism: string | undefined,
+  competitors: string[],
+  therapyArea: string,
+): CompetitiveMechanismAnalysis {
+  if (!userMechanism || competitors.length === 0) {
+    return {
+      competitors: [],
+      overall_mechanism_crowding: 'low',
+      mechanism_weighted_erosion_pct: 0,
+      differentiation_narrative:
+        'Insufficient mechanism data for competitive similarity analysis. Default flat erosion applied.',
+    };
+  }
+
+  const analyzed: CompetitiveMechanismAnalysis['competitors'] = [];
+  let cumulativeErosion = 0;
+  let sameMechCount = 0;
+  let sameTargetCount = 0;
+
+  for (const comp of competitors) {
+    const compMechanism = extractCompetitorMechanism(comp);
+    if (!compMechanism) {
+      // Unknown mechanism — treat as different mechanism with minimal erosion
+      const erosionPct = 4.0; // midpoint of 3-5%
+      cumulativeErosion += erosionPct;
+      analyzed.push({
+        name: comp.split('(')[0].trim(),
+        mechanism: 'Unknown',
+        similarity_score: 0.1,
+        relationship: 'different_mechanism',
+        erosion_impact_pct: erosionPct,
+        market_effect: 'mixed',
+      });
+      continue;
+    }
+
+    const { relationship, similarity } = scoreMechanismSimilarity(userMechanism, compMechanism);
+    const erosionRange = MECHANISM_EROSION_RANGES[relationship];
+    // Use similarity to interpolate within the erosion range
+    const erosionPct = parseFloat(
+      ((erosionRange.low + (erosionRange.high - erosionRange.low) * similarity) * 100).toFixed(1),
+    );
+
+    // Determine market effect
+    let marketEffect: 'cannibalistic' | 'additive' | 'mixed';
+    if (relationship === 'same_mechanism' || relationship === 'same_target') {
+      marketEffect = 'cannibalistic';
+      if (relationship === 'same_mechanism') sameMechCount++;
+      else sameTargetCount++;
+    } else if (relationship === 'different_mechanism') {
+      marketEffect = 'additive';
+    } else {
+      marketEffect = 'mixed';
+    }
+
+    // Diminishing returns: each additional same-mechanism competitor has 15% less marginal impact
+    const sameTypeCount = sameMechCount + sameTargetCount;
+    const diminishingFactor = sameTypeCount > 1 ? Math.pow(0.85, sameTypeCount - 1) : 1.0;
+    const adjustedErosion = parseFloat((erosionPct * diminishingFactor).toFixed(1));
+
+    cumulativeErosion += adjustedErosion;
+
+    analyzed.push({
+      name: comp.split('(')[0].trim(),
+      mechanism: compMechanism,
+      similarity_score: parseFloat(similarity.toFixed(2)),
+      relationship,
+      erosion_impact_pct: adjustedErosion,
+      market_effect: marketEffect,
+    });
+  }
+
+  // Cap cumulative erosion at 70% (some market always remains for differentiated products)
+  cumulativeErosion = Math.min(70, cumulativeErosion);
+
+  // Determine overall crowding
+  let crowding: CompetitiveMechanismAnalysis['overall_mechanism_crowding'];
+  if (sameMechCount >= 3 || cumulativeErosion > 50) {
+    crowding = 'high';
+  } else if (sameMechCount >= 1 || sameTargetCount >= 2 || cumulativeErosion > 25) {
+    crowding = 'moderate';
+  } else {
+    crowding = 'low';
+  }
+
+  // Build differentiation narrative
+  let narrative: string;
+  if (crowding === 'high') {
+    narrative =
+      `High mechanism crowding detected: ${sameMechCount} same-mechanism competitor(s) ` +
+      `and ${sameTargetCount} same-target competitor(s) in ${therapyArea}. ` +
+      `Cumulative mechanism-weighted erosion of ${cumulativeErosion.toFixed(0)}% projected. ` +
+      `Differentiation on efficacy, safety profile, dosing convenience, or combination potential is critical ` +
+      `to sustain pricing and market share. Consider biomarker-selected subpopulations for positioning.`;
+  } else if (crowding === 'moderate') {
+    narrative =
+      `Moderate mechanism crowding: ${sameMechCount + sameTargetCount} competitor(s) share mechanism similarity. ` +
+      `${analyzed.filter((c) => c.market_effect === 'additive').length} competitor(s) target different mechanisms ` +
+      `and may expand the overall market. Mechanism-weighted erosion of ${cumulativeErosion.toFixed(0)}% projected. ` +
+      `Targeted differentiation on clinical data superiority or patient selection can mitigate competitive pressure.`;
+  } else {
+    narrative =
+      `Low mechanism crowding: most competitors operate via different mechanisms or pathways. ` +
+      `Mechanism-weighted erosion of ${cumulativeErosion.toFixed(0)}% projected, with ` +
+      `${analyzed.filter((c) => c.market_effect === 'additive').length} additive competitor(s) that may expand the addressable market. ` +
+      `First-in-class or best-in-class positioning is achievable.`;
+  }
+
+  return {
+    competitors: analyzed,
+    overall_mechanism_crowding: crowding,
+    mechanism_weighted_erosion_pct: parseFloat(cumulativeErosion.toFixed(1)),
+    differentiation_narrative: narrative,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// PATENT CLIFF ANALYSIS
+// Granular LOE modeling by product type. Replaces generic
+// [0.95, 0.82, 0.65] with type-specific erosion profiles:
+//   Small molecule:     Paragraph IV cliff -> 80% loss by Year 2
+//   Biologic:           Gradual biosimilar -> 55% retained Year 3
+//   Cell/gene therapy:  No generic pathway -> 90% retained Year 3
+//   Orphan:             7-year exclusivity delay, then gradual
+// Source: IQVIA Generic/Biosimilar Council, Amundsen Consulting
+// ────────────────────────────────────────────────────────────
+
+// Erosion profiles: multiplier of peak revenue retained, indexed by years post-LOE
+const PATENT_CLIFF_PROFILES: Record<string, number[]> = {
+  small_molecule: [1.0, 0.4, 0.2, 0.1, 0.08, 0.05], // Sharp generic cliff
+  biologic: [1.0, 0.85, 0.7, 0.55, 0.4, 0.3], // Gradual biosimilar erosion
+  cell_gene_therapy: [1.0, 0.95, 0.9, 0.87, 0.85, 0.82], // Minimal — no generic pathway
+};
+
+// Typical patent life from launch to LOE by product type
+const TYPICAL_PATENT_LIFE: Record<string, number> = {
+  small_molecule: 13, // NCE 5-year + patents typically give 12-15 years
+  biologic: 16, // 12-year biologic exclusivity + patents
+  cell_gene_therapy: 20, // No generic pathway; effective exclusivity much longer
+};
+
+const ORPHAN_EXCLUSIVITY_YEARS = 7;
+
+/**
+ * Build patent cliff analysis with product-type-specific erosion profiles.
+ */
+function buildPatentCliffAnalysis(
+  mechanism: string | undefined,
+  launchYear: number,
+  hasOrphanDesignation: boolean,
+  projectionYears: number = 10,
+): PatentCliffAnalysis {
+  const productType = detectManufacturingProductType(mechanism);
+  const patentLife = TYPICAL_PATENT_LIFE[productType] ?? 13;
+
+  // Calculate estimated LOE year
+  let estimatedLoeYear: number;
+  let exclusivityType: string;
+
+  if (productType === 'cell_gene_therapy') {
+    estimatedLoeYear = launchYear + 20; // Effectively no LOE in projection window
+    exclusivityType = 'No generic pathway';
+  } else if (hasOrphanDesignation) {
+    // Orphan: 7-year exclusivity, then normal erosion
+    const orphanExpiryYear = launchYear + ORPHAN_EXCLUSIVITY_YEARS;
+    estimatedLoeYear = Math.max(orphanExpiryYear, launchYear + patentLife);
+    exclusivityType = `7-year orphan exclusivity (expires ${orphanExpiryYear}) + ${productType === 'biologic' ? '12-year biologic' : 'NCE 5-year + patent'}`;
+  } else if (productType === 'biologic') {
+    estimatedLoeYear = launchYear + patentLife;
+    exclusivityType = '12-year biologic exclusivity + patents';
+  } else {
+    estimatedLoeYear = launchYear + patentLife;
+    exclusivityType = 'NCE 5-year + patent protection';
+  }
+
+  // Build erosion profile within the projection window
+  const erosionMultipliers = PATENT_CLIFF_PROFILES[productType] ?? PATENT_CLIFF_PROFILES['biologic'];
+  const erosionProfile: { year: number; retained_pct: number }[] = [];
+  const peakRetained = 100;
+  let troughRetained = 100;
+
+  for (let yr = 0; yr < projectionYears; yr++) {
+    const calendarYear = launchYear + yr;
+    let retainedPct: number;
+
+    if (calendarYear < estimatedLoeYear) {
+      // Pre-LOE: full revenue retained
+      retainedPct = 100;
+    } else {
+      // Post-LOE: apply product-specific erosion profile
+      const yearsPostLoe = calendarYear - estimatedLoeYear;
+      const profileIdx = Math.min(yearsPostLoe, erosionMultipliers.length - 1);
+      retainedPct = Math.round(erosionMultipliers[profileIdx] * 100);
+    }
+
+    erosionProfile.push({ year: calendarYear, retained_pct: retainedPct });
+    troughRetained = Math.min(troughRetained, retainedPct);
+  }
+
+  const peakToTroughDecline = peakRetained - troughRetained;
+
+  // Build narrative
+  let narrative: string;
+  const loeInWindow = estimatedLoeYear <= launchYear + projectionYears;
+
+  if (productType === 'cell_gene_therapy') {
+    narrative =
+      'Cell/gene therapy has no established generic or biosimilar pathway. Patent cliff risk is minimal ' +
+      'within the projection window. Revenue retention projected at 90%+ through Year 10. ' +
+      'Key risk is not generic entry but rather next-generation therapies from competing platforms.';
+  } else if (!loeInWindow) {
+    narrative =
+      `LOE estimated at ${estimatedLoeYear}, beyond the ${projectionYears}-year projection window. ` +
+      `${exclusivityType} provides protection. Revenue fully retained through the projection period. ` +
+      `${hasOrphanDesignation ? 'Orphan drug exclusivity provides additional protection against generic/biosimilar entry. ' : ''}` +
+      'Consider extending projections to capture post-LOE dynamics for DCF modeling.';
+  } else if (productType === 'small_molecule') {
+    narrative =
+      `Small molecule LOE projected at ${estimatedLoeYear}. Paragraph IV generic challenge risk is material — ` +
+      `expect 60% revenue loss in Year 1 post-LOE, 80% by Year 2. ` +
+      `${hasOrphanDesignation ? 'Orphan designation delays generic entry to ' + (launchYear + ORPHAN_EXCLUSIVITY_YEARS) + '. ' : ''}` +
+      'Authorized generic strategy may recapture 10-15% of lost share. ' +
+      'Consider lifecycle management (extended-release, combinations, new indications) to mitigate cliff.';
+  } else {
+    narrative =
+      `Biologic LOE projected at ${estimatedLoeYear}. Biosimilar entry is gradual — physician switching hesitancy, ` +
+      `interchangeability requirements, and rebate dynamics slow erosion. ` +
+      `Expect 15% loss Year 1, 30% by Year 2, 45% by Year 3 post-LOE. ` +
+      `${hasOrphanDesignation ? 'Orphan designation provides additional protection. ' : ''}` +
+      'Next-generation formulation or delivery innovation can defend share against biosimilar entrants.';
+  }
+
+  return {
+    product_type: productType,
+    estimated_loe_year: estimatedLoeYear,
+    exclusivity_type: exclusivityType,
+    erosion_profile: erosionProfile,
+    peak_to_trough_decline_pct: peakToTroughDecline,
+    narrative,
+  };
 }
 
 // ────────────────────────────────────────────────────────────

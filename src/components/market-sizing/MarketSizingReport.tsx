@@ -461,6 +461,251 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
           </div>
         )}
 
+      {/* ──────────────────────── Competitive Mechanism Analysis ──────────────────────── */}
+      {(isPro || previewMode) && data.competitive_mechanism_analysis && (
+        <div className="chart-container noise">
+          <div className="flex items-center justify-between mb-4">
+            <div className="chart-title !mb-0">Competitive Mechanism Analysis</div>
+            <span
+              className={cn(
+                'inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono uppercase tracking-wider',
+                data.competitive_mechanism_analysis.overall_mechanism_crowding === 'high'
+                  ? 'bg-red-500/12 text-red-400 border border-red-500/20'
+                  : data.competitive_mechanism_analysis.overall_mechanism_crowding === 'moderate'
+                    ? 'bg-amber-500/12 text-amber-400 border border-amber-500/20'
+                    : 'bg-emerald-500/12 text-emerald-400 border border-emerald-500/20',
+              )}
+            >
+              {data.competitive_mechanism_analysis.overall_mechanism_crowding} crowding
+            </span>
+          </div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Mechanism-Weighted Erosion</div>
+              <div className="metric text-lg text-amber-400">
+                {data.competitive_mechanism_analysis.mechanism_weighted_erosion_pct.toFixed(1)}%
+              </div>
+            </div>
+          </div>
+          {data.competitive_mechanism_analysis.competitors.length > 0 && (
+            <div className="overflow-x-auto mb-4">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Competitor</th>
+                    <th>Mechanism</th>
+                    <th>Relationship</th>
+                    <th>Similarity</th>
+                    <th>Erosion Impact</th>
+                    <th>Market Effect</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.competitive_mechanism_analysis.competitors.map((c) => (
+                    <tr key={c.name}>
+                      <td className="text-slate-300 font-medium">{c.name}</td>
+                      <td>
+                        <span className="text-2xs text-slate-500">{c.mechanism}</span>
+                      </td>
+                      <td>
+                        <span
+                          className={cn(
+                            'inline-flex items-center px-1.5 py-0.5 rounded text-2xs font-mono',
+                            c.relationship === 'same_mechanism'
+                              ? 'bg-red-500/12 text-red-400'
+                              : c.relationship === 'same_target'
+                                ? 'bg-amber-500/12 text-amber-400'
+                                : c.relationship === 'same_pathway'
+                                  ? 'bg-amber-500/10 text-amber-300'
+                                  : 'bg-emerald-500/12 text-emerald-400',
+                          )}
+                        >
+                          {c.relationship.replace(/_/g, ' ')}
+                        </span>
+                      </td>
+                      <td className="numeric">{formatPercent(c.similarity_score * 100, 0)}</td>
+                      <td className="numeric">{c.erosion_impact_pct.toFixed(1)}%</td>
+                      <td>
+                        <span
+                          className={cn(
+                            'text-2xs font-mono',
+                            c.market_effect === 'cannibalistic'
+                              ? 'text-red-400'
+                              : c.market_effect === 'additive'
+                                ? 'text-emerald-400'
+                                : 'text-amber-400',
+                          )}
+                        >
+                          {c.market_effect}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="text-xs text-slate-500 leading-relaxed">
+            {data.competitive_mechanism_analysis.differentiation_narrative}
+          </p>
+        </div>
+      )}
+
+      {/* ──────────────────────── Patent Cliff Analysis ──────────────────────── */}
+      {(isPro || previewMode) && data.patent_cliff_analysis && (
+        <div className="chart-container noise">
+          <div className="chart-title">Patent Cliff & LOE Analysis</div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Product Type</div>
+              <div className="text-sm text-white font-medium">
+                {data.patent_cliff_analysis.product_type.replace(/_/g, ' ')}
+              </div>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Estimated LOE Year</div>
+              <div className="metric text-lg text-white">{data.patent_cliff_analysis.estimated_loe_year}</div>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Exclusivity Type</div>
+              <div className="text-2xs text-slate-300">{data.patent_cliff_analysis.exclusivity_type}</div>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Peak-to-Trough Decline</div>
+              <div
+                className={cn(
+                  'metric text-lg',
+                  data.patent_cliff_analysis.peak_to_trough_decline_pct > 60
+                    ? 'text-red-400'
+                    : data.patent_cliff_analysis.peak_to_trough_decline_pct > 30
+                      ? 'text-amber-400'
+                      : 'text-emerald-400',
+                )}
+              >
+                {data.patent_cliff_analysis.peak_to_trough_decline_pct}%
+              </div>
+            </div>
+          </div>
+          {data.patent_cliff_analysis.erosion_profile.length > 0 && (
+            <div className="mb-4">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Revenue Retention Post-LOE</div>
+              <div className="flex gap-2 flex-wrap">
+                {data.patent_cliff_analysis.erosion_profile.map((yr) => (
+                  <div key={yr.year} className="text-center">
+                    <div className="text-2xs font-mono text-slate-500">{yr.year}</div>
+                    <div
+                      className={cn(
+                        'metric text-xs',
+                        yr.retained_pct < 50
+                          ? 'text-red-400'
+                          : yr.retained_pct < 80
+                            ? 'text-amber-400'
+                            : 'text-emerald-400',
+                      )}
+                    >
+                      {yr.retained_pct}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="text-xs text-slate-500 leading-relaxed">{data.patent_cliff_analysis.narrative}</p>
+        </div>
+      )}
+
+      {/* ──────────────────────── One-Time Treatment Model ──────────────────────── */}
+      {(isPro || previewMode) && data.one_time_treatment_model?.is_one_time && (
+        <div className="chart-container noise">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="chart-title !mb-0">One-Time Treatment Revenue Model</div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-purple-500/12 text-purple-400 border border-purple-500/20">
+              Gene / Cell Therapy
+            </span>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Prevalent Pool</div>
+              <div className="metric text-lg text-white">
+                {formatNumber(data.one_time_treatment_model.prevalent_pool)}
+              </div>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Annual New Cases</div>
+              <div className="metric text-lg text-white">
+                {formatNumber(data.one_time_treatment_model.annual_new_cases)}
+              </div>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Pool Depletion</div>
+              <div className="metric text-lg text-amber-400">
+                {data.one_time_treatment_model.pool_depletion_years} years
+              </div>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Steady-State Revenue</div>
+              <div className="metric text-lg text-teal-400">
+                ${data.one_time_treatment_model.steady_state_revenue_m}M/yr
+              </div>
+            </div>
+          </div>
+          {data.one_time_treatment_model.revenue_by_year.length > 0 && (
+            <div className="overflow-x-auto mb-4">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Patients Treated</th>
+                    <th>Revenue ($M)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.one_time_treatment_model.revenue_by_year.map((yr) => (
+                    <tr key={yr.year}>
+                      <td className="numeric">{yr.year}</td>
+                      <td className="numeric">{formatNumber(yr.patients_treated)}</td>
+                      <td className="numeric">${yr.revenue_m}M</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="text-xs text-slate-500 leading-relaxed">{data.one_time_treatment_model.narrative}</p>
+        </div>
+      )}
+
+      {/* ──────────────────────── Pediatric Analysis ──────────────────────── */}
+      {(isPro || previewMode) && data.pediatric_analysis?.is_pediatric_focused && (
+        <div className="chart-container noise">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="chart-title !mb-0">Pediatric Population Analysis</div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-blue-500/12 text-blue-400 border border-blue-500/20">
+              Pediatric
+            </span>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Pediatric Prevalence</div>
+              <div className="metric text-lg text-white">
+                {formatNumber(data.pediatric_analysis.pediatric_prevalence)}
+              </div>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Adult Prevalence</div>
+              <div className="metric text-lg text-slate-400">
+                {formatNumber(data.pediatric_analysis.adult_prevalence)}
+              </div>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Pricing Adjustment</div>
+              <div className="metric text-lg text-amber-400">{data.pediatric_analysis.pricing_adjustment}x</div>
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 leading-relaxed">{data.pediatric_analysis.rationale}</p>
+        </div>
+      )}
+
       {/* Methodology */}
       <div className="chart-container noise">
         <button

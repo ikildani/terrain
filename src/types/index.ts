@@ -1457,3 +1457,36 @@ export interface RegulatoryPathwayDefinition {
   advantages: string[];
   disadvantages: string[];
 }
+
+// ────────────────────────────────────────────────────────────
+// ANNOTATIONS
+// ────────────────────────────────────────────────────────────
+
+export interface Annotation {
+  id: string;
+  report_id: string;
+  workspace_id: string;
+  user_id: string;
+  content: string;
+  mentions: string[];
+  parent_id: string | null;
+  section_key: string | null;
+  resolved: boolean;
+  resolved_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined
+  user_name?: string;
+  user_email?: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// COMPARISON
+// ────────────────────────────────────────────────────────────
+
+export interface ComparisonRow {
+  label: string;
+  category: string;
+  values: (string | number | null)[];
+  format?: 'currency' | 'percent' | 'number' | 'text';
+}
