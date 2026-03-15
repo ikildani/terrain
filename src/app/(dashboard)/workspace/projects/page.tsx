@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useWorkspace } from '@/hooks/useWorkspace';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useEnterpriseSignals } from '@/hooks/useEnterpriseSignals';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import type { WorkspaceProject } from '@/types';
 
@@ -21,6 +22,7 @@ interface ProjectWithCounts extends WorkspaceProject {
 function ProjectsContent() {
   const { isLoading: subLoading, hasWorkspace, isEnterprise: isEnterprisePlan } = useSubscription();
   const { activeWorkspace, activeWorkspaceId, myRole, isLoading: wsLoading } = useWorkspace();
+  const { shouldNudge, reason } = useEnterpriseSignals(activeWorkspaceId);
 
   const [projects, setProjects] = useState<ProjectWithCounts[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
@@ -138,21 +140,28 @@ function ProjectsContent() {
     return (
       <>
         <PageHeader title="Projects" subtitle="Organize deal rooms with information barriers." />
-        <div className="card noise p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
-          <div className="w-10 h-10 rounded-lg bg-slate-500/10 flex items-center justify-center mb-4">
-            <Info className="w-5 h-5 text-slate-400" />
+        {shouldNudge ? (
+          <div className="card noise p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
+            <div className="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center mb-4">
+              <Info className="w-5 h-5 text-teal-400" />
+            </div>
+            <p className="text-sm text-slate-300 leading-relaxed mb-2">{reason}</p>
+            <p className="text-xs text-slate-500 mb-4">
+              Projects with information barriers are available on Enterprise.
+            </p>
+            <a
+              href="mailto:team@ambrosiaventures.co"
+              className="text-sm text-teal-400 hover:text-teal-300 transition-colors inline-flex items-center gap-1.5"
+            >
+              <Mail className="w-3.5 h-3.5" />
+              team@ambrosiaventures.co
+            </a>
           </div>
-          <p className="text-sm text-slate-400 leading-relaxed mb-4">
-            This feature is available on the Enterprise plan. Contact our team to learn more.
-          </p>
-          <a
-            href="mailto:team@ambrosiaventures.co"
-            className="text-sm text-teal-400 hover:text-teal-300 transition-colors inline-flex items-center gap-1.5"
-          >
-            <Mail className="w-3.5 h-3.5" />
-            team@ambrosiaventures.co
-          </a>
-        </div>
+        ) : (
+          <div className="mt-8 text-center">
+            <p className="text-xs text-slate-500">Available on Enterprise</p>
+          </div>
+        )}
       </>
     );
   }
