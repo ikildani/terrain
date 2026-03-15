@@ -1,7 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { isAuthorized, createServiceClient } from '@/lib/cron-auth';
 import { logger } from '@/lib/logger';
 import { captureApiError } from '@/lib/utils/sentry';
+
+// Schema for validated SEC filing records before DB insertion
+const SecFilingSchema = z.object({
+  accession_number: z.string().max(30),
+  company_name: z.string().max(500),
+  ticker: z.string().max(20).nullable(),
+  cik: z.string().max(20).nullable(),
+  form_type: z.string().max(20),
+  filed_date: z.string().max(20),
+  description: z.string().max(2000),
+  file_url: z.string().max(500),
+  is_deal_related: z.boolean(),
+  deal_keywords: z.array(z.string().max(200)).max(20),
+});
 
 // ────────────────────────────────────────────────────────────
 // SEC EDGAR Full-Text Search — Weekly deal announcement scan
@@ -268,8 +283,20 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Parse and upsert
-  const parsed = allFilings.map(parseFiling).filter(Boolean);
+  // Parse and validate before upsert
+  const rawParsed = allFilings.map(parseFiling).filter(Boolean);
+  const parsed: z.infer<typeof SecFilingSchema>[] = [];
+  for (const record of rawParsed) {
+    const validated = SecFilingSchema.safeParse(record);
+    if (validated.success) {
+      parsed.push(validated.data);
+    } else {
+      logger.warn('sec_filing_validation_failed', {
+        accessionNumber: record?.accession_number,
+        issues: validated.error.issues.map((i) => i.message).join('; '),
+      });
+    }
+  }
 
   if (parsed.length > 0) {
     // Batch upsert in chunks of 50

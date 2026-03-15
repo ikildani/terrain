@@ -1,7 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { isAuthorized, createServiceClient } from '@/lib/cron-auth';
 import { logger } from '@/lib/logger';
 import { captureApiError } from '@/lib/utils/sentry';
+
+// Schema for validated FDA approval records before DB insertion
+const FdaRecordSchema = z.object({
+  application_number: z.string().max(50),
+  brand_name: z.string().max(500).nullable(),
+  generic_name: z.string().max(500).nullable(),
+  sponsor_name: z.string().max(500).nullable(),
+  approval_date: z.string().max(20).nullable(),
+  application_type: z.string().max(50),
+  active_ingredients: z.array(z.string().max(200)).max(50),
+  indications: z.array(z.string().max(500)).max(50),
+  route: z.string().max(200).nullable(),
+  dosage_form: z.string().max(200).nullable(),
+  marketing_status: z.string().max(100).nullable(),
+  submission_type: z.string().max(100).nullable(),
+  submission_status: z.string().max(100).nullable(),
+});
 
 // ────────────────────────────────────────────────────────────
 // openFDA Drug Approvals — Daily refresh
@@ -127,7 +145,21 @@ export async function GET(request: NextRequest) {
     const results = await fetchRecentApprovals(30);
     totalFetched = results.length;
 
-    const parsed = results.map(parseApproval).filter(Boolean);
+    const rawParsed = results.map(parseApproval).filter(Boolean);
+
+    // Validate each record against schema before DB insertion
+    const parsed: z.infer<typeof FdaRecordSchema>[] = [];
+    for (const record of rawParsed) {
+      const validated = FdaRecordSchema.safeParse(record);
+      if (validated.success) {
+        parsed.push(validated.data);
+      } else {
+        logger.warn('fda_record_validation_failed', {
+          applicationNumber: record?.application_number,
+          issues: validated.error.issues.map((i) => i.message).join('; '),
+        });
+      }
+    }
 
     if (parsed.length > 0) {
       // Batch upsert in chunks of 50

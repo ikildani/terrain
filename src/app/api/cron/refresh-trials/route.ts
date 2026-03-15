@@ -1,7 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { isAuthorized, createServiceClient } from '@/lib/cron-auth';
 import { logger } from '@/lib/logger';
 import { captureApiError } from '@/lib/utils/sentry';
+
+// Schema for validated clinical trial records before DB insertion
+const TrialRecordSchema = z.object({
+  nct_id: z.string().max(20),
+  title: z.string().max(1000),
+  status: z.string().max(100),
+  phase: z.string().max(50),
+  conditions: z.array(z.string().max(500)).max(100),
+  interventions: z
+    .array(
+      z.object({
+        type: z.string().max(200),
+        name: z.string().max(500),
+        description: z.string().max(5000),
+      }),
+    )
+    .max(50),
+  sponsor: z.string().max(500),
+  collaborators: z.array(z.string().max(500)).max(50),
+  enrollment: z.number().int().min(0),
+  start_date: z.string().max(50),
+  completion_date: z.string().max(50),
+  study_type: z.string().max(100),
+  primary_outcomes: z
+    .array(
+      z.object({
+        measure: z.string().max(2000),
+        timeFrame: z.string().max(500),
+      }),
+    )
+    .max(50),
+  locations_count: z.number().int().min(0),
+  last_update_posted: z.string().max(50),
+});
 
 // ────────────────────────────────────────────────────────────
 // ClinicalTrials.gov API v2 — Weekly pipeline refresh
@@ -169,7 +204,19 @@ export async function GET(request: NextRequest) {
       const studies = await fetchStudies(query);
       totalFetched += studies.length;
 
-      const parsed = studies.map(parseStudy).filter(Boolean);
+      const rawParsed = studies.map(parseStudy).filter(Boolean);
+      const parsed: z.infer<typeof TrialRecordSchema>[] = [];
+      for (const record of rawParsed) {
+        const validated = TrialRecordSchema.safeParse(record);
+        if (validated.success) {
+          parsed.push(validated.data);
+        } else {
+          logger.warn('trial_record_validation_failed', {
+            nctId: record?.nct_id,
+            issues: validated.error.issues.map((i) => i.message).join('; '),
+          });
+        }
+      }
 
       if (parsed.length > 0) {
         const rows = parsed.map((s) => ({
