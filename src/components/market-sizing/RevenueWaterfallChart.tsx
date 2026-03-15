@@ -28,8 +28,6 @@ interface WaterfallDatum {
   isTotal: boolean;
 }
 
-const NAVY = '#0D1B2E';
-const NAVY_LIGHT = '#102236';
 const SLATE = '#64748B';
 const TEAL = '#00C9A7';
 const NAVY_BAR = '#1E293B'; // slate-800 — navy bars for reductions
