@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, ResponsiveContainer, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, LabelList } from 'recharts';
 import { formatCompact } from '@/lib/utils/format';
 
 // ────────────────────────────────────────────────────────────
@@ -107,42 +107,36 @@ export default function RevenueWaterfallChart(props: RevenueWaterfallChartProps)
         How the total addressable market narrows to peak annual revenue
       </div>
 
-      <div
-        role="img"
-        aria-label="Revenue waterfall chart from TAM to peak sales"
-        style={{ width: '100%', height: 260 }}
-      >
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 20, right: 40, left: 20, bottom: 10 }}>
-            <XAxis
-              dataKey="name"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: SLATE, fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
+      <div role="img" aria-label="Revenue waterfall chart from TAM to peak sales" style={{ overflowX: 'auto' }}>
+        <BarChart width={600} height={260} data={data} margin={{ top: 20, right: 40, left: 20, bottom: 10 }}>
+          <XAxis
+            dataKey="name"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: SLATE, fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
+          />
+          <YAxis hide />
+          <Tooltip content={<CustomTooltip />} cursor={false} />
+
+          {/* Invisible spacer bar */}
+          <Bar dataKey="invisible" stackId="stack" fill="transparent" isAnimationActive={false} />
+
+          {/* Visible value bar */}
+          <Bar dataKey="value" stackId="stack" radius={[3, 3, 0, 0]} isAnimationActive={false}>
+            {data.map((d, i) => (
+              <Cell key={i} fill={d.isTotal ? TEAL : NAVY_BAR} />
+            ))}
+            <LabelList
+              dataKey="displayLabel"
+              position="top"
+              style={{
+                fill: '#94A3B8',
+                fontSize: 11,
+                fontFamily: 'JetBrains Mono, monospace',
+              }}
             />
-            <YAxis hide />
-            <Tooltip content={<CustomTooltip />} cursor={false} />
-
-            {/* Invisible spacer bar */}
-            <Bar dataKey="invisible" stackId="stack" fill="transparent" isAnimationActive={false} />
-
-            {/* Visible value bar */}
-            <Bar dataKey="value" stackId="stack" radius={[3, 3, 0, 0]} isAnimationActive={false}>
-              {data.map((d, i) => (
-                <Cell key={i} fill={d.isTotal ? TEAL : NAVY_BAR} />
-              ))}
-              <LabelList
-                dataKey="displayLabel"
-                position="top"
-                style={{
-                  fill: '#94A3B8',
-                  fontSize: 11,
-                  fontFamily: 'JetBrains Mono, monospace',
-                }}
-              />
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+          </Bar>
+        </BarChart>
       </div>
     </div>
   );

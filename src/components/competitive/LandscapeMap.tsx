@@ -1,17 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import {
-  ScatterChart,
-  Scatter,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ReferenceLine,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts';
+import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Cell } from 'recharts';
 import type { Competitor, ClinicalPhase } from '@/types';
 
 interface LandscapeMapProps {
@@ -117,8 +107,8 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
         endpoint maturity, data quality. Bubble size scales with combined score.
       </p>
 
-      <ResponsiveContainer width="100%" height={400}>
-        <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 10 }}>
+      <div style={{ overflowX: 'auto' }}>
+        <ScatterChart width={700} height={400} margin={{ top: 10, right: 20, bottom: 20, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.08)" />
           <XAxis
             type="number"
@@ -195,7 +185,7 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
             ))}
           </Scatter>
         </ScatterChart>
-      </ResponsiveContainer>
+      </div>
 
       {/* Quadrant labels */}
       <div className="grid grid-cols-2 gap-px mt-2">

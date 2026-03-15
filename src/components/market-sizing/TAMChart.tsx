@@ -71,62 +71,66 @@ export default function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
       {/* Section header */}
       <div className="label">TAM / SAM / SOM</div>
 
-      <div role="img" aria-label="TAM SAM SOM waterfall chart" style={{ width: '100%', height: 200 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart layout="vertical" data={data} margin={{ top: 10, right: 80, left: 10, bottom: 10 }}>
-            <XAxis type="number" hide />
-            <YAxis
-              type="category"
-              dataKey="name"
-              width={48}
-              tick={{ fontSize: 12, fontFamily: '"JetBrains Mono"', fill: COLORS.text }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              cursor={{ fill: COLORS.navyLight }}
-              content={({ active, payload }) => {
-                if (!active || !payload?.[0]) return null;
-                const d = payload[0].payload as ChartDatum;
-                return (
-                  <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
-                    <div className="text-slate-300 font-medium mb-1">{d.name}</div>
-                    <div className="font-mono text-white text-sm">{formatMetric(d.value, d.unit)}</div>
-                    <div
-                      className={cn(
-                        'text-2xs font-mono uppercase mt-1',
-                        d.confidence === 'high' && 'confidence-high',
-                        d.confidence === 'medium' && 'confidence-medium',
-                        d.confidence === 'low' && 'confidence-low',
-                      )}
-                    >
-                      {d.confidence} confidence
-                    </div>
+      <div role="img" aria-label="TAM SAM SOM waterfall chart" style={{ overflowX: 'auto' }}>
+        <BarChart
+          layout="vertical"
+          data={data}
+          width={600}
+          height={200}
+          margin={{ top: 10, right: 80, left: 10, bottom: 10 }}
+        >
+          <XAxis type="number" hide />
+          <YAxis
+            type="category"
+            dataKey="name"
+            width={48}
+            tick={{ fontSize: 12, fontFamily: '"JetBrains Mono"', fill: COLORS.text }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <Tooltip
+            cursor={{ fill: COLORS.navyLight }}
+            content={({ active, payload }) => {
+              if (!active || !payload?.[0]) return null;
+              const d = payload[0].payload as ChartDatum;
+              return (
+                <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
+                  <div className="text-slate-300 font-medium mb-1">{d.name}</div>
+                  <div className="font-mono text-white text-sm">{formatMetric(d.value, d.unit)}</div>
+                  <div
+                    className={cn(
+                      'text-2xs font-mono uppercase mt-1',
+                      d.confidence === 'high' && 'confidence-high',
+                      d.confidence === 'medium' && 'confidence-medium',
+                      d.confidence === 'low' && 'confidence-low',
+                    )}
+                  >
+                    {d.confidence} confidence
                   </div>
-                );
+                </div>
+              );
+            }}
+          />
+          <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={36}>
+            {data.map((entry, i) => (
+              <Cell key={i} fill={entry.fill} />
+            ))}
+            <LabelList
+              dataKey="value"
+              position="right"
+              formatter={(val: number) => {
+                const item = data.find((d) => d.value === val);
+                return formatMetric(val, item?.unit || 'B');
+              }}
+              style={{
+                fontFamily: '"JetBrains Mono"',
+                fontSize: 13,
+                fill: '#F0F4F8',
+                fontWeight: 500,
               }}
             />
-            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={36}>
-              {data.map((entry, i) => (
-                <Cell key={i} fill={entry.fill} />
-              ))}
-              <LabelList
-                dataKey="value"
-                position="right"
-                formatter={(val: number) => {
-                  const item = data.find((d) => d.value === val);
-                  return formatMetric(val, item?.unit || 'B');
-                }}
-                style={{
-                  fontFamily: '"JetBrains Mono"',
-                  fontSize: 13,
-                  fill: '#F0F4F8',
-                  fontWeight: 500,
-                }}
-              />
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+          </Bar>
+        </BarChart>
       </div>
 
       {/* Legend with confidence badges */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList, CartesianGrid, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Cell, LabelList, CartesianGrid, Tooltip } from 'recharts';
 import { formatNumber, formatPercent } from '@/lib/utils/format';
 
 interface CDxTestingFunnelChartProps {
@@ -79,61 +79,59 @@ export default function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartP
   return (
     <div className="chart-container noise">
       <div className="chart-title">Patient Testing Funnel</div>
-      <div style={{ width: '100%', height: 320 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(16,34,54,0.8)" />
-            <XAxis
-              dataKey="stage"
-              tick={{ fontSize: 10, fontFamily: 'Inter', fill: '#94A3B8' }}
-              axisLine={false}
-              tickLine={false}
-              interval={0}
-              angle={0}
-            />
-            <YAxis
-              tickFormatter={(val) => formatNumber(val)}
-              tick={{ fontSize: 11, fontFamily: '"JetBrains Mono"', fill: '#64748B' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (!active || !payload?.[0]) return null;
-                const d = payload[0].payload as FunnelStage;
-                return (
-                  <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
-                    <div className="text-slate-300 font-medium mb-1">{d.stage}</div>
-                    <div className="metric text-white">{formatNumber(d.count)}</div>
-                    {d.rate !== null && d.rate < 1 && (
-                      <div className="text-slate-500 mt-1">{formatPercent(d.rate * 100, 0)} of prior stage</div>
-                    )}
-                    {d.isSeparate && (
-                      <div className="text-slate-500 mt-1 italic">Monitoring / resistance retests (additive)</div>
-                    )}
-                  </div>
-                );
-              }}
-            />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={48}>
-              {data.map((entry, i) => (
-                <Cell
-                  key={i}
-                  fill={FUNNEL_COLORS[i]}
-                  stroke={entry.isHighlight ? '#00C9A7' : 'none'}
-                  strokeWidth={entry.isHighlight ? 2 : 0}
-                  strokeDasharray={entry.isSeparate ? '4 2' : undefined}
-                />
-              ))}
-              <LabelList
-                dataKey="count"
-                position="top"
-                formatter={(val: number) => formatNumber(val)}
-                style={{ fontFamily: '"JetBrains Mono"', fontSize: 11, fill: '#94A3B8' }}
+      <div style={{ overflowX: 'auto' }}>
+        <BarChart width={600} height={320} data={data} margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(16,34,54,0.8)" />
+          <XAxis
+            dataKey="stage"
+            tick={{ fontSize: 10, fontFamily: 'Inter', fill: '#94A3B8' }}
+            axisLine={false}
+            tickLine={false}
+            interval={0}
+            angle={0}
+          />
+          <YAxis
+            tickFormatter={(val) => formatNumber(val)}
+            tick={{ fontSize: 11, fontFamily: '"JetBrains Mono"', fill: '#64748B' }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <Tooltip
+            content={({ active, payload }) => {
+              if (!active || !payload?.[0]) return null;
+              const d = payload[0].payload as FunnelStage;
+              return (
+                <div className="bg-navy-800 border border-navy-700 rounded-md px-4 py-3 text-xs shadow-elevated">
+                  <div className="text-slate-300 font-medium mb-1">{d.stage}</div>
+                  <div className="metric text-white">{formatNumber(d.count)}</div>
+                  {d.rate !== null && d.rate < 1 && (
+                    <div className="text-slate-500 mt-1">{formatPercent(d.rate * 100, 0)} of prior stage</div>
+                  )}
+                  {d.isSeparate && (
+                    <div className="text-slate-500 mt-1 italic">Monitoring / resistance retests (additive)</div>
+                  )}
+                </div>
+              );
+            }}
+          />
+          <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={48}>
+            {data.map((entry, i) => (
+              <Cell
+                key={i}
+                fill={FUNNEL_COLORS[i]}
+                stroke={entry.isHighlight ? '#00C9A7' : 'none'}
+                strokeWidth={entry.isHighlight ? 2 : 0}
+                strokeDasharray={entry.isSeparate ? '4 2' : undefined}
               />
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+            ))}
+            <LabelList
+              dataKey="count"
+              position="top"
+              formatter={(val: number) => formatNumber(val)}
+              style={{ fontFamily: '"JetBrains Mono"', fontSize: 11, fill: '#94A3B8' }}
+            />
+          </Bar>
+        </BarChart>
       </div>
 
       {/* Conversion rates between stages */}
