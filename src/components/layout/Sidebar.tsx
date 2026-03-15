@@ -16,6 +16,10 @@ import {
   LayoutDashboard,
   ExternalLink,
   Lock,
+  Library,
+  Activity,
+  BarChart2,
+  FileStack,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -56,9 +60,16 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
+const WORKSPACE_ITEMS: NavItem[] = [
+  { label: 'Report Library', href: '/workspace', icon: Library },
+  { label: 'Activity', href: '/workspace/activity', icon: Activity },
+  { label: 'Analytics', href: '/workspace/analytics', icon: BarChart2 },
+  { label: 'Templates', href: '/workspace/templates', icon: FileStack },
+];
+
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { plan, isPro } = useSubscription();
+  const { plan, isPro, hasWorkspace } = useSubscription();
   const settingsActive = pathname.startsWith('/settings');
 
   function isActive(href: string) {
@@ -137,6 +148,36 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               </div>
             );
           })}
+
+          {/* Team Workspace section — visible only for team/enterprise plans */}
+          {hasWorkspace && (
+            <div>
+              <div
+                className={cn(
+                  'sidebar-section-label',
+                  WORKSPACE_ITEMS.some((item) => isActive(item.href)) && 'text-slate-300',
+                )}
+              >
+                Team Workspace
+              </div>
+              {WORKSPACE_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onClose}
+                    className={cn('sidebar-nav-item', active && 'active')}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    <Icon />
+                    <span className="flex-1">{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
 
           {/* Settings submenu */}
           <div>

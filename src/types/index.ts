@@ -97,9 +97,57 @@ export type {
 
 export type UserRole = 'founder' | 'bd_executive' | 'investor' | 'corp_dev' | 'researcher';
 
-export type Plan = 'free' | 'pro' | 'team';
+export type Plan = 'free' | 'pro' | 'team' | 'enterprise';
 
 export type SubscriptionStatus = 'active' | 'trialing' | 'canceled' | 'past_due' | 'incomplete';
+
+// ────────────────────────────────────────────────────────────
+// WORKSPACES
+// ────────────────────────────────────────────────────────────
+
+export type WorkspaceRole = 'owner' | 'admin' | 'analyst' | 'viewer';
+
+export type WorkspacePlan = 'team' | 'enterprise';
+
+export interface Workspace {
+  id: string;
+  name: string;
+  slug: string;
+  owner_id: string | null;
+  plan: WorkspacePlan;
+  logo_url: string | null;
+  brand_primary_color: string | null;
+  brand_footer_text: string | null;
+  max_seats: number;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  settings: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkspaceMember {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  role: WorkspaceRole;
+  joined_at: string;
+  invited_by: string | null;
+  // Joined fields from profiles (optional, populated by API)
+  email?: string;
+  full_name?: string | null;
+}
+
+export interface ReportFolder {
+  id: string;
+  workspace_id: string;
+  name: string;
+  parent_id: string | null;
+  created_by: string | null;
+  color: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface UserProfile {
   id: string;

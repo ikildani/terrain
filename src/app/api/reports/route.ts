@@ -11,6 +11,8 @@ const createReportSchema = z.object({
   inputs: z.record(z.unknown()).optional(),
   outputs: z.record(z.unknown()).optional(),
   tags: z.array(z.string()).optional(),
+  workspace_id: z.string().uuid().optional(),
+  folder_id: z.string().uuid().optional(),
 });
 
 export async function GET() {
@@ -29,10 +31,12 @@ export async function GET() {
     return NextResponse.json({ success: false, error: 'Rate limit exceeded' }, { status: 429 });
   }
 
+  // Fetch personal reports + workspace reports (RLS handles access control)
   const { data: reports, error } = await supabase
     .from('reports')
-    .select('id, title, report_type, indication, status, is_starred, tags, created_at, updated_at')
-    .eq('user_id', user.id)
+    .select(
+      'id, title, report_type, indication, status, is_starred, tags, workspace_id, folder_id, created_at, updated_at',
+    )
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -66,7 +70,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Validation failed.' }, { status: 400 });
     }
 
-    const { title, report_type, indication, inputs, outputs, tags } = parsed.data;
+    const { title, report_type, indication, inputs, outputs, tags, workspace_id, folder_id } = parsed.data;
 
     const { data: report, error } = await supabase
       .from('reports')
@@ -80,6 +84,8 @@ export async function POST(request: NextRequest) {
         tags: tags ?? [],
         status: 'draft',
         is_starred: false,
+        workspace_id: workspace_id ?? null,
+        folder_id: folder_id ?? null,
       })
       .select()
       .single();

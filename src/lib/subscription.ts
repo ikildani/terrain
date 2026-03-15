@@ -28,13 +28,47 @@ export const PLAN_LIMITS = {
     export_pdf: true,
     export_csv: true,
     team_sharing: true,
+    api_access: false,
+    seats: 10,
+    workspace: true,
+    activity_feed: true,
+    annotations: true,
+    comparison_mode: true,
+    templates: true,
+    team_analytics: true,
+    export_branding: true,
+    sso: false,
+    audit_log: false,
+    information_barriers: false,
+    white_label: false,
+  },
+  enterprise: {
+    market_sizing: -1,
+    competitive: -1,
+    partners: -1,
+    regulatory: -1,
+    reports_saved: -1,
+    export_pdf: true,
+    export_csv: true,
+    team_sharing: true,
     api_access: true,
-    seats: 5,
+    seats: -1,
+    workspace: true,
+    activity_feed: true,
+    annotations: true,
+    comparison_mode: true,
+    templates: true,
+    team_analytics: true,
+    export_branding: true,
+    sso: true,
+    audit_log: true,
+    information_barriers: true,
+    white_label: true,
   },
 } as const;
 
 export type PlanKey = keyof typeof PLAN_LIMITS;
-export type FeatureKey = keyof typeof PLAN_LIMITS.pro;
+export type FeatureKey = keyof typeof PLAN_LIMITS.enterprise;
 
 export function hasFeatureAccess(plan: PlanKey, feature: FeatureKey): boolean {
   const limits = PLAN_LIMITS[plan];
@@ -79,8 +113,15 @@ export const PLAN_DISPLAY = {
     name: 'Team',
     price: '$499',
     period: '/month',
-    tagline: '5 seats with collaboration and API access',
+    tagline: '10 seats with shared workspace and collaboration',
     color: 'amber',
     badge: 'Best Value',
+  },
+  enterprise: {
+    name: 'Enterprise',
+    price: 'Custom',
+    tagline: 'Unlimited seats, SSO, API, audit logs, and white-label',
+    color: 'purple',
+    badge: 'Contact Sales',
   },
 } as const;

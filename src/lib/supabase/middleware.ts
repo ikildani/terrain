@@ -70,6 +70,7 @@ export async function updateSession(request: NextRequest) {
     '/reports',
     '/settings',
     '/onboarding',
+    '/workspace',
   ];
   const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) => request.nextUrl.pathname.startsWith(prefix));
 

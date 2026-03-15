@@ -10,6 +10,8 @@ interface SubscriptionState {
   isLoading: boolean;
   isPro: boolean;
   isTeam: boolean;
+  isEnterprise: boolean;
+  hasWorkspace: boolean;
   cancelAtPeriodEnd: boolean;
   currentPeriodEnd: string | null;
 }
@@ -46,10 +48,7 @@ export function useSubscription(): SubscriptionState {
 
       if (data && !error) {
         const row = data as Record<string, string | boolean | null>;
-        const effectivePlan =
-          row.status === 'active' || row.status === 'trialing'
-            ? (row.plan as Plan)
-            : 'free';
+        const effectivePlan = row.status === 'active' || row.status === 'trialing' ? (row.plan as Plan) : 'free';
         setPlan(effectivePlan);
         setCancelAtPeriodEnd(Boolean(row.cancel_at_period_end ?? false));
         setCurrentPeriodEnd((row.current_period_end as string) ?? null);
@@ -63,8 +62,10 @@ export function useSubscription(): SubscriptionState {
   return {
     plan,
     isLoading: isLoading || userLoading,
-    isPro: plan === 'pro' || plan === 'team',
-    isTeam: plan === 'team',
+    isPro: plan === 'pro' || plan === 'team' || plan === 'enterprise',
+    isTeam: plan === 'team' || plan === 'enterprise',
+    isEnterprise: plan === 'enterprise',
+    hasWorkspace: plan === 'team' || plan === 'enterprise',
     cancelAtPeriodEnd,
     currentPeriodEnd,
   };
