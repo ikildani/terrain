@@ -121,12 +121,7 @@ function riskBadgeClass(risk: 'low' | 'moderate' | 'high'): string {
 // Component
 // ────────────────────────────────────────────────────────────
 
-export default function DeviceMarketSizingReport({
-  data,
-  input,
-  previewMode,
-  onPdfExport,
-}: DeviceMarketSizingReportProps) {
+function DeviceMarketSizingReport({ data, input, previewMode, onPdfExport }: DeviceMarketSizingReportProps) {
   const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
   const { isPro } = useSubscription();
   const { role } = useProfile();
@@ -1438,3 +1433,5 @@ export default function DeviceMarketSizingReport({
     </div>
   );
 }
+
+export default DeviceMarketSizingReport;

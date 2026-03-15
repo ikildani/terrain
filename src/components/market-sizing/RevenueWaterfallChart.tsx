@@ -97,7 +97,7 @@ function CustomTooltip({ active, payload }: any) {
   );
 }
 
-export default function RevenueWaterfallChart(props: RevenueWaterfallChartProps) {
+function RevenueWaterfallChart(props: RevenueWaterfallChartProps) {
   const data = buildWaterfallData(props);
 
   return (
@@ -141,3 +141,5 @@ export default function RevenueWaterfallChart(props: RevenueWaterfallChartProps)
     </div>
   );
 }
+
+export default RevenueWaterfallChart;

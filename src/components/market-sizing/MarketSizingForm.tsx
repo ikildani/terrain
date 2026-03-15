@@ -513,7 +513,7 @@ function PricingAssumptionCards({ value, onChange }: { value: string; onChange: 
 // Main Component
 // ────────────────────────────────────────────────────────────
 
-export default function MarketSizingForm({ onSubmit, isLoading }: MarketSizingFormProps) {
+function MarketSizingForm({ onSubmit, isLoading }: MarketSizingFormProps) {
   const [productCategory, setProductCategory] = useState<ProductCategory>('pharmaceutical');
   const formMode = getFormMode(productCategory);
 
@@ -1766,3 +1766,5 @@ function NutraForm({
     </form>
   );
 }
+
+export default MarketSizingForm;

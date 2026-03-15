@@ -25,7 +25,7 @@ interface VolumeStage {
   fill: string;
 }
 
-export default function ProcedureVolumeChart({ procedureVolume, peakSharePct }: ProcedureVolumeChartProps) {
+function ProcedureVolumeChart({ procedureVolume, peakSharePct }: ProcedureVolumeChartProps) {
   const shareRate = (peakSharePct ?? 15) / 100;
   const capturable = Math.round(procedureVolume.us_addressable_procedures * shareRate);
 
@@ -122,3 +122,5 @@ export default function ProcedureVolumeChart({ procedureVolume, peakSharePct }: 
     </div>
   );
 }
+
+export default ProcedureVolumeChart;

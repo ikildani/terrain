@@ -8,7 +8,7 @@ interface MarketGrowthChartProps {
   peakSales: { low: number; base: number; high: number };
 }
 
-export default function MarketGrowthChart({ projections, peakSales }: MarketGrowthChartProps) {
+function MarketGrowthChart({ projections, peakSales }: MarketGrowthChartProps) {
   // Find peak year for annotation
   const peakIndex = projections.reduce((maxIdx, curr, idx, arr) => (curr.base > arr[maxIdx].base ? idx : maxIdx), 0);
   const peakYear = projections[peakIndex]?.year;
@@ -107,3 +107,5 @@ export default function MarketGrowthChart({ projections, peakSales }: MarketGrow
     </div>
   );
 }
+
+export default MarketGrowthChart;

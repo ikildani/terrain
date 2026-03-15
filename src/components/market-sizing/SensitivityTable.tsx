@@ -21,11 +21,7 @@ const SHARE_VARIANTS = [
   { label: 'High Share', multiplier: 1.5 },
 ] as const;
 
-export default function SensitivityTable({
-  addressablePatients,
-  netPrice,
-  baseSharePct,
-}: SensitivityTableProps) {
+function SensitivityTable({ addressablePatients, netPrice, baseSharePct }: SensitivityTableProps) {
   return (
     <div className="chart-container noise">
       <h3 className="chart-title">Sensitivity Analysis</h3>
@@ -52,31 +48,19 @@ export default function SensitivityTable({
           <tbody>
             {PRICING_VARIANTS.map((pv) => (
               <tr key={pv.label}>
-                <td className="text-xs text-slate-400 font-medium py-2 pr-4 border-t border-navy-700/50">
-                  {pv.label}
-                </td>
+                <td className="text-xs text-slate-400 font-medium py-2 pr-4 border-t border-navy-700/50">{pv.label}</td>
                 {SHARE_VARIANTS.map((sv) => {
-                  const som =
-                    addressablePatients *
-                    (netPrice * pv.multiplier) *
-                    (baseSharePct * sv.multiplier);
+                  const som = addressablePatients * (netPrice * pv.multiplier) * (baseSharePct * sv.multiplier);
                   const isBaseCase = pv.multiplier === 1.0 && sv.multiplier === 1.0;
                   return (
                     <td
                       key={sv.label}
                       className={cn(
                         'text-center py-2 px-3 border-t border-navy-700/50',
-                        isBaseCase
-                          ? 'bg-teal-500/10 rounded'
-                          : '',
+                        isBaseCase ? 'bg-teal-500/10 rounded' : '',
                       )}
                     >
-                      <span
-                        className={cn(
-                          'metric text-sm',
-                          isBaseCase ? 'text-teal-400' : 'text-slate-300',
-                        )}
-                      >
+                      <span className={cn('metric text-sm', isBaseCase ? 'text-teal-400' : 'text-slate-300')}>
                         {formatCompact(som)}
                       </span>
                     </td>
@@ -93,3 +77,5 @@ export default function SensitivityTable({
     </div>
   );
 }
+
+export default SensitivityTable;

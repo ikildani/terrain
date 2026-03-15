@@ -39,7 +39,7 @@ interface ChartDatum {
   fill: string;
 }
 
-export default function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
+function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
   const data: ChartDatum[] = [
     { name: 'TAM', value: tam.value, unit: tam.unit, confidence: tam.confidence, fill: BAR_FILLS.TAM },
     { name: 'SAM', value: sam.value, unit: sam.unit, confidence: sam.confidence, fill: BAR_FILLS.SAM },
@@ -170,3 +170,5 @@ export default function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
     </div>
   );
 }
+
+export default TAMChart;

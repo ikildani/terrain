@@ -9,7 +9,7 @@ interface GeographyBreakdownProps {
   data: GeographyBreakdownItem[];
 }
 
-export default function GeographyBreakdown({ data }: GeographyBreakdownProps) {
+function GeographyBreakdown({ data }: GeographyBreakdownProps) {
   const chartData = data.map((d) => ({
     territory: d.territory,
     value: d.tam.unit === 'B' ? d.tam.value : d.tam.value / 1000,
@@ -96,3 +96,5 @@ export default function GeographyBreakdown({ data }: GeographyBreakdownProps) {
     </div>
   );
 }
+
+export default GeographyBreakdown;

@@ -26,7 +26,7 @@ interface FunnelStage {
   isSeparate: boolean;
 }
 
-export default function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartProps) {
+function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartProps) {
   // Compute conversion rates between stages
   const treatedRate =
     funnel.biomarker_positive_patients > 0 ? funnel.treated_on_linked_drug / funnel.biomarker_positive_patients : 0;
@@ -170,3 +170,5 @@ export default function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartP
     </div>
   );
 }
+
+export default CDxTestingFunnelChart;

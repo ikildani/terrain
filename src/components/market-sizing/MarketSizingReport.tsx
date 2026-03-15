@@ -112,7 +112,7 @@ function flattenForCSV(data: MarketSizingOutput): Record<string, unknown>[] {
   return rows;
 }
 
-export default function MarketSizingReport({ data, input, previewMode, onPdfExport }: MarketSizingReportProps) {
+function MarketSizingReport({ data, input, previewMode, onPdfExport }: MarketSizingReportProps) {
   const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
   const { isPro } = useSubscription();
   const { role } = useProfile();
@@ -1296,3 +1296,5 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
     </div>
   );
 }
+
+export default MarketSizingReport;

@@ -22,14 +22,8 @@ interface PricingComparableTableProps {
   };
 }
 
-export default function PricingComparableTable({
-  comparables,
-  recommendedRange,
-}: PricingComparableTableProps) {
-  const sorted = useMemo(
-    () => [...comparables].sort((a, b) => b.launch_year - a.launch_year),
-    [comparables]
-  );
+function PricingComparableTable({ comparables, recommendedRange }: PricingComparableTableProps) {
+  const sorted = useMemo(() => [...comparables].sort((a, b) => b.launch_year - a.launch_year), [comparables]);
 
   return (
     <div className="chart-container noise">
@@ -93,9 +87,7 @@ export default function PricingComparableTable({
             </div>
             <div className="text-center">
               <div className="text-2xs text-teal-500 mb-1">Base Case</div>
-              <div className="metric text-lg font-medium text-teal-500">
-                {formatCurrency(recommendedRange.base)}
-              </div>
+              <div className="metric text-lg font-medium text-teal-500">{formatCurrency(recommendedRange.base)}</div>
               <div className="w-full h-0.5 mt-2 rounded-full bg-teal-500" />
             </div>
             <div className="text-center">
@@ -113,17 +105,13 @@ export default function PricingComparableTable({
           <div>
             <span className="text-2xs text-slate-500">Avg Launch WAC: </span>
             <span className="metric text-2xs text-slate-300">
-              {formatCurrency(
-                Math.round(sorted.reduce((sum, c) => sum + c.launch_wac, 0) / sorted.length)
-              )}
+              {formatCurrency(Math.round(sorted.reduce((sum, c) => sum + c.launch_wac, 0) / sorted.length))}
             </span>
           </div>
           <div>
             <span className="text-2xs text-slate-500">Avg Net Price: </span>
             <span className="metric text-2xs text-slate-300">
-              {formatCurrency(
-                Math.round(sorted.reduce((sum, c) => sum + c.current_net_price, 0) / sorted.length)
-              )}
+              {formatCurrency(Math.round(sorted.reduce((sum, c) => sum + c.current_net_price, 0) / sorted.length))}
             </span>
           </div>
           <div>
@@ -135,3 +123,5 @@ export default function PricingComparableTable({
     </div>
   );
 }
+
+export default PricingComparableTable;

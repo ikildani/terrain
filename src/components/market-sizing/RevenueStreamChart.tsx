@@ -17,7 +17,7 @@ interface RevenueStreamChartProps {
 
 const STREAM_COLORS = ['#00C9A7', '#002E27', '#64748B', '#004D40', '#94A3B8'];
 
-export default function RevenueStreamChart({ streams }: RevenueStreamChartProps) {
+function RevenueStreamChart({ streams }: RevenueStreamChartProps) {
   const stackedData = streams.reduce<Record<string, number | string>>(
     (acc, s) => {
       acc[s.stream] = s.gross_revenue_m;
@@ -156,3 +156,5 @@ export default function RevenueStreamChart({ streams }: RevenueStreamChartProps)
     </div>
   );
 }
+
+export default RevenueStreamChart;

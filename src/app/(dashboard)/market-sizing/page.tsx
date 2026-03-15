@@ -8,8 +8,7 @@ import { BarChart3 } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
-
-const MarketSizingForm = dynamic(() => import('@/components/market-sizing/MarketSizingForm'), { ssr: false });
+import MarketSizingForm from '@/components/market-sizing/MarketSizingForm';
 import { Skeleton, SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
 
 // Dynamic imports — heavy report components loaded on demand

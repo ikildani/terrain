@@ -92,7 +92,7 @@ function flattenForCSV(data: NutraceuticalMarketSizingOutput): Record<string, un
   return rows;
 }
 
-export default function NutraceuticalMarketSizingReport({
+function NutraceuticalMarketSizingReport({
   data,
   input,
   previewMode,
@@ -879,3 +879,5 @@ export default function NutraceuticalMarketSizingReport({
     </div>
   );
 }
+
+export default NutraceuticalMarketSizingReport;

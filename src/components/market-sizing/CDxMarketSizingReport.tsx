@@ -174,7 +174,7 @@ function getPathwayBadgeClass(pathway: string): string {
 // COMPONENT
 // ────────────────────────────────────────────────────────────
 
-export default function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMarketSizingReportProps) {
+function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMarketSizingReportProps) {
   const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
   const { summary } = data;
   const economics = data.cdx_economics;
@@ -641,3 +641,5 @@ export default function CDxMarketSizingReport({ data, input, previewMode, onPdfE
     </div>
   );
 }
+
+export default CDxMarketSizingReport;

@@ -17,7 +17,7 @@ interface FunnelStage {
   rate: number;
 }
 
-export default function PatientFunnelChart({ funnel }: PatientFunnelChartProps) {
+function PatientFunnelChart({ funnel }: PatientFunnelChartProps) {
   const data: FunnelStage[] = [
     { stage: 'Prevalence', count: funnel.us_prevalence, rate: 1.0 },
     { stage: 'Diagnosed', count: funnel.diagnosed, rate: funnel.diagnosed_rate },
@@ -90,3 +90,5 @@ export default function PatientFunnelChart({ funnel }: PatientFunnelChartProps) 
     </div>
   );
 }
+
+export default PatientFunnelChart;
