@@ -149,6 +149,29 @@ export interface ReportFolder {
   updated_at: string;
 }
 
+export interface ReportTemplate {
+  id: string;
+  workspace_id: string;
+  created_by: string | null;
+  name: string;
+  description: string | null;
+  report_type: string;
+  inputs: Record<string, unknown>;
+  tags: string[];
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AnalyticsData {
+  top_indications: { indication: string; count: number }[];
+  usage_by_member: { user_id: string; name: string; analysis_count: number; report_count: number }[];
+  activity_by_day: { date: string; count: number }[];
+  report_type_distribution: { type: string; count: number }[];
+  total_analyses: number;
+  total_reports: number;
+}
+
 export interface UserProfile {
   id: string;
   email: string;

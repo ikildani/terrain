@@ -6,10 +6,32 @@
  * standard of a Goldman Sachs or Morgan Stanley research report.
  */
 
+interface ExportBranding {
+  logoUrl?: string | null;
+  primaryColor?: string | null;
+  footerText?: string | null;
+}
+
 interface ExportExcelOptions {
   title: string;
   subtitle?: string;
   filename?: string;
+  branding?: ExportBranding;
+}
+
+/** Convert a hex color string to ARGB format for ExcelJS. Returns teal default if invalid. */
+function hexToArgb(hex: string | null | undefined, fallback: string = 'FF00C9A7'): string {
+  if (!hex) return fallback;
+  const clean = hex.replace('#', '');
+  if (!/^[0-9a-fA-F]{3,8}$/.test(clean)) return fallback;
+  const full =
+    clean.length <= 4
+      ? clean
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : clean;
+  return `FF${full.slice(0, 6).toUpperCase()}`;
 }
 
 // Brand colors
@@ -21,7 +43,10 @@ const WHITE = 'FFF0F4F8';
 
 export async function exportToExcel(data: Record<string, unknown>[], options: ExportExcelOptions): Promise<void> {
   const ExcelJS = await import('exceljs');
-  const { title, subtitle, filename = 'terrain-export' } = options;
+  const { title, subtitle, filename = 'terrain-export', branding } = options;
+  const accentColor = hexToArgb(branding?.primaryColor, TEAL);
+  const footerLabel = branding?.footerText || 'terrain.ambrosiaventures.co  |  Ambrosia Ventures  |  CONFIDENTIAL';
+  const brandHeader = branding?.logoUrl ? 'TERRAIN' : 'TERRAIN by Ambrosia Ventures';
 
   if (!data.length) return;
 
@@ -38,7 +63,7 @@ export async function exportToExcel(data: Record<string, unknown>[], options: Ex
   const colCount = dataKeys.length;
 
   // ── Row 1: Brand header ────────────────────────────────
-  const brandRow = ws.addRow(['TERRAIN by Ambrosia Ventures']);
+  const brandRow = ws.addRow([brandHeader]);
   ws.mergeCells(1, 1, 1, colCount);
   const brandCell = brandRow.getCell(1);
   brandCell.font = { name: 'Calibri', size: 14, bold: true, color: { argb: NAVY_950 } };
