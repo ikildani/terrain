@@ -181,7 +181,15 @@ export interface MarketSizingInput {
   patient_segment?: string; // e.g., "2L+ after platinum-based chemo"
   pricing_assumption: PricingAssumption;
   launch_year: number;
+  regulatory_designations?: RegulatoryDesignation[]; // Enhancement 9: pathway-based LoA modifiers
 }
+
+export type RegulatoryDesignation =
+  | 'Breakthrough Therapy'
+  | 'Fast Track'
+  | 'Priority Review'
+  | 'Accelerated Approval'
+  | 'Orphan Drug';
 
 export interface MarketMetric {
   value: number;
@@ -789,6 +797,79 @@ export interface CMCRiskAssessment {
   narrative: string;
 }
 
+// ────────────────────────────────────────────────────────────
+// LABEL EXPANSION (Enhancement 6)
+// Models additional indications that could expand addressable market
+// ────────────────────────────────────────────────────────────
+
+export interface LabelExpansionOpportunity {
+  indication: string;
+  therapy_area: string;
+  additional_addressable_patients: number;
+  expected_approval_year: number;
+  incremental_peak_revenue_m: number;
+  probability: number;
+  rationale: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// PAYER-TIER PRICING (Enhancement 7)
+// Multi-dimensional pricing model with payer-specific rebate tiers
+// ────────────────────────────────────────────────────────────
+
+export interface PayerTierPricingEntry {
+  payer_tier: string;
+  share_pct: number;
+  discount_pct: number;
+  net_price: number;
+  rationale: string;
+}
+
+export interface PayerTierPricing {
+  year: number;
+  wac: number;
+  tiers: PayerTierPricingEntry[];
+  blended_net_price: number;
+  effective_gtn_pct: number;
+}
+
+// ────────────────────────────────────────────────────────────
+// MANUFACTURING CAPACITY CONSTRAINT (Enhancement 8)
+// Supply-side cap on revenue for complex modalities
+// ────────────────────────────────────────────────────────────
+
+export type ManufacturingProductType = 'small_molecule' | 'biologic' | 'cell_gene_therapy';
+
+export interface ManufacturingConstraint {
+  product_type: ManufacturingProductType;
+  constrained_years: { year: number; capacity_pct: number; revenue_cap_m: number }[];
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// DEVICE MANUFACTURING CONSTRAINT (Enhancement 8)
+// ────────────────────────────────────────────────────────────
+
+export interface DeviceManufacturingConstraint {
+  product_category: string;
+  constrained_years: { year: number; capacity_pct: number; revenue_cap_m: number }[];
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// REGULATORY PATHWAY ANALYSIS (Enhancement 9)
+// LoA modifiers based on regulatory designations
+// ────────────────────────────────────────────────────────────
+
+export interface RegulatoryPathwayAnalysis {
+  base_loa: number;
+  designations: RegulatoryDesignation[];
+  pathway_modifier: number;
+  adjusted_loa: number;
+  rationale: string;
+  inferred: boolean; // true if designations were inferred from indication characteristics
+}
+
 export interface MarketSizingOutput {
   summary: {
     tam_us: MarketMetric;
@@ -830,6 +911,10 @@ export interface MarketSizingOutput {
   non_linear_competitive_erosion?: NonLinearCompetitiveErosion[];
   gtn_evolution?: GTNEvolutionYear[];
   efficacy_share_modifier?: EfficacyShareModifier;
+  label_expansion_opportunities?: LabelExpansionOpportunity[];
+  payer_tier_pricing?: PayerTierPricing[];
+  manufacturing_constraint?: ManufacturingConstraint;
+  regulatory_pathway_analysis?: RegulatoryPathwayAnalysis;
 }
 
 // ────────────────────────────────────────────────────────────

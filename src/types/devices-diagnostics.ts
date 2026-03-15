@@ -204,6 +204,13 @@ export interface DeviceMarketSizingOutput {
   clinical_superiority?: ClinicalSuperiorityMatrix;
   surgeon_switching_cost?: SurgeonSwitchingCostModel;
 
+  // Manufacturing capacity constraint (Enhancement 8)
+  manufacturing_constraint?: {
+    product_category: string;
+    constrained_years: { year: number; capacity_pct: number; revenue_cap_m: number }[];
+    narrative: string;
+  };
+
   methodology: string;
   data_sources: { name: string; type: 'public' | 'proprietary' | 'licensed'; url?: string }[];
   generated_at: string;

@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { BookmarkCheck } from 'lucide-react';
-import { formatMetric, formatCompact, formatCurrency, formatPercent } from '@/lib/utils/format';
+import { cn } from '@/lib/utils/cn';
+import { formatMetric, formatCompact, formatCurrency, formatPercent, formatNumber } from '@/lib/utils/format';
 import { StatCard } from '@/components/shared/StatCard';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import { ConfidentialFooter } from '@/components/shared/ConfidentialFooter';
@@ -215,6 +216,218 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
               Gross-to-net estimate: {formatPercent(data.pricing_analysis.gross_to_net_estimate * 100, 0)}
             </p>
           </div>
+        </div>
+      )}
+
+      {/* ──────────────────────── Regulatory Pathway Analysis ──────────────────────── */}
+      {data.regulatory_pathway_analysis && (
+        <div className="chart-container noise">
+          <div className="chart-title">Regulatory Pathway Analysis</div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Base LoA</div>
+              <div className="metric text-lg text-slate-400">
+                {formatPercent(data.regulatory_pathway_analysis.base_loa * 100, 1)}
+              </div>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Pathway Modifier</div>
+              <div className="metric text-lg text-white">{data.regulatory_pathway_analysis.pathway_modifier}x</div>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Adjusted LoA</div>
+              <div className="metric text-lg text-teal-400">
+                {formatPercent(data.regulatory_pathway_analysis.adjusted_loa * 100, 1)}
+              </div>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Designations</div>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {data.regulatory_pathway_analysis.designations.length > 0 ? (
+                  data.regulatory_pathway_analysis.designations.map((d) => (
+                    <span
+                      key={d}
+                      className="inline-flex items-center px-1.5 py-0.5 rounded text-2xs font-mono bg-teal-500/12 text-teal-400 border border-teal-500/20"
+                    >
+                      {d}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-2xs text-slate-500">Standard</span>
+                )}
+              </div>
+            </div>
+          </div>
+          {data.regulatory_pathway_analysis.inferred && (
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xs font-mono text-amber-400/70 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+                Inferred
+              </span>
+              <span className="text-2xs text-slate-500">Designations inferred from indication characteristics</span>
+            </div>
+          )}
+          <p className="text-xs text-slate-500 leading-relaxed">{data.regulatory_pathway_analysis.rationale}</p>
+        </div>
+      )}
+
+      {/* ──────────────────────── Payer-Tier Pricing ──────────────────────── */}
+      {data.payer_tier_pricing && data.payer_tier_pricing.length > 0 && (
+        <div className="chart-container noise">
+          <div className="chart-title">Payer-Tier Pricing Analysis</div>
+          {/* Year 1 tier breakdown */}
+          {(() => {
+            const yr1 = data.payer_tier_pricing[0];
+            return (
+              <>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="p-3 bg-navy-800/50 rounded-md flex-1">
+                    <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">WAC (List Price)</div>
+                    <div className="metric text-lg text-white">{formatCurrency(yr1.wac)}</div>
+                  </div>
+                  <div className="p-3 bg-navy-800/50 rounded-md flex-1">
+                    <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Blended Net Price</div>
+                    <div className="metric text-lg text-teal-400">{formatCurrency(yr1.blended_net_price)}</div>
+                  </div>
+                  <div className="p-3 bg-navy-800/50 rounded-md flex-1">
+                    <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Effective GTN</div>
+                    <div className="metric text-lg text-amber-400">{yr1.effective_gtn_pct}%</div>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Payer Tier</th>
+                        <th>Volume Share</th>
+                        <th>Discount</th>
+                        <th>Net Price</th>
+                        <th>Rationale</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {yr1.tiers.map((tier) => (
+                        <tr key={tier.payer_tier}>
+                          <td className="text-slate-300 font-medium">{tier.payer_tier}</td>
+                          <td className="numeric">{tier.share_pct}%</td>
+                          <td className="numeric">{tier.discount_pct}%</td>
+                          <td className="numeric">{formatCurrency(tier.net_price)}</td>
+                          <td>
+                            <span className="text-2xs text-slate-500">{tier.rationale}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* GTN trajectory over 10 years */}
+                <div className="mt-4 pt-3 border-t border-navy-700">
+                  <div className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Effective GTN Trajectory</div>
+                  <div className="flex gap-2 flex-wrap">
+                    {data.payer_tier_pricing.map((yr) => (
+                      <div key={yr.year} className="text-center">
+                        <div className="text-2xs font-mono text-slate-500">{yr.year}</div>
+                        <div
+                          className={cn(
+                            'metric text-xs',
+                            yr.effective_gtn_pct > 40
+                              ? 'text-red-400'
+                              : yr.effective_gtn_pct > 30
+                                ? 'text-amber-400'
+                                : 'text-emerald-400',
+                          )}
+                        >
+                          {yr.effective_gtn_pct}%
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* ──────────────────────── Label Expansion Opportunities ──────────────────────── */}
+      {data.label_expansion_opportunities && data.label_expansion_opportunities.length > 0 && (
+        <div className="chart-container noise">
+          <div className="chart-title">Label Expansion Opportunities</div>
+          <div className="space-y-4">
+            {data.label_expansion_opportunities.map((exp) => (
+              <div key={exp.indication} className="p-4 bg-navy-800/50 rounded-md border border-navy-700">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <span className="text-sm text-white font-medium">{exp.indication}</span>
+                    <span className="text-2xs text-slate-500 ml-2">({exp.therapy_area})</span>
+                  </div>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-teal-500/12 text-teal-400 border border-teal-500/20">
+                    {formatPercent(exp.probability * 100, 0)} probability
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-4 mb-3">
+                  <div>
+                    <div className="text-2xs text-slate-500 uppercase tracking-wider">Additional Patients</div>
+                    <div className="metric text-sm text-white">{formatNumber(exp.additional_addressable_patients)}</div>
+                  </div>
+                  <div>
+                    <div className="text-2xs text-slate-500 uppercase tracking-wider">Expected Approval</div>
+                    <div className="metric text-sm text-white">{exp.expected_approval_year}</div>
+                  </div>
+                  <div>
+                    <div className="text-2xs text-slate-500 uppercase tracking-wider">Incremental Peak Revenue</div>
+                    <div className="metric text-sm text-teal-400">${exp.incremental_peak_revenue_m}M</div>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-500 leading-relaxed">{exp.rationale}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ──────────────────────── Manufacturing Constraints ──────────────────────── */}
+      {data.manufacturing_constraint && data.manufacturing_constraint.constrained_years.length > 0 && (
+        <div className="chart-container noise">
+          <div className="chart-title">Manufacturing Capacity Constraints</div>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-xs text-slate-400">Product Type:</span>
+            <span
+              className={cn(
+                'inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono uppercase tracking-wider',
+                data.manufacturing_constraint.product_type === 'cell_gene_therapy'
+                  ? 'bg-red-500/12 text-red-400 border border-red-500/20'
+                  : data.manufacturing_constraint.product_type === 'biologic'
+                    ? 'bg-amber-500/12 text-amber-400 border border-amber-500/20'
+                    : 'bg-emerald-500/12 text-emerald-400 border border-emerald-500/20',
+              )}
+            >
+              {data.manufacturing_constraint.product_type.replace(/_/g, ' ')}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            {data.manufacturing_constraint.constrained_years.map((yr) => (
+              <div key={yr.year} className="p-3 bg-navy-800/50 rounded-md">
+                <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Year {yr.year}</div>
+                <div className="flex items-baseline gap-2">
+                  <span
+                    className={cn(
+                      'metric text-lg',
+                      yr.capacity_pct < 50
+                        ? 'text-red-400'
+                        : yr.capacity_pct < 80
+                          ? 'text-amber-400'
+                          : 'text-emerald-400',
+                    )}
+                  >
+                    {yr.capacity_pct}%
+                  </span>
+                  <span className="text-2xs text-slate-500">capacity</span>
+                </div>
+                <div className="text-2xs font-mono text-slate-500 mt-1">Cap: ${yr.revenue_cap_m}M</div>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-slate-500 leading-relaxed">{data.manufacturing_constraint.narrative}</p>
         </div>
       )}
 

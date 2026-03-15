@@ -37,6 +37,13 @@ import type {
   NonLinearCompetitiveErosion,
   GTNEvolutionYear,
   EfficacyShareModifier,
+  LabelExpansionOpportunity,
+  PayerTierPricing,
+  PayerTierPricingEntry,
+  ManufacturingConstraint,
+  ManufacturingProductType,
+  RegulatoryPathwayAnalysis,
+  RegulatoryDesignation,
 } from '@/types';
 
 import { findIndicationByName, INDICATION_DATA } from '@/lib/data/indication-map';
@@ -88,9 +95,36 @@ const DEFAULT_S_CURVE = { p: 0.025, q: 0.32 };
 // LOE decline factors for years 8-10 post-launch
 const LOE_DECLINE = [0.95, 0.82, 0.65];
 
-function buildSCurveRamp(therapyArea: string, years: number = 10): number[] {
-  const params = S_CURVE_PARAMS[therapyArea] ?? DEFAULT_S_CURVE;
-  const { p, q } = params;
+// ────────────────────────────────────────────────────────────
+// COMPETITIVE POSITION CONTEXT (Enhancement 5)
+// Adjusts Bass diffusion S-curve based on competitive dynamics
+// ────────────────────────────────────────────────────────────
+interface CompetitivePositionContext {
+  crowding_score?: number; // 1-10
+  is_first_in_class?: boolean; // mechanism differentiation
+  new_entrants_before_peak?: number; // expected competitors entering before peak
+}
+
+function buildSCurveRamp(
+  therapyArea: string,
+  years: number = 10,
+  competitiveContext?: CompetitivePositionContext,
+): number[] {
+  const baseParams = S_CURVE_PARAMS[therapyArea] ?? DEFAULT_S_CURVE;
+  let { p, q } = baseParams;
+
+  // Enhancement 5: Dynamic S-curve by competitive position
+  if (competitiveContext) {
+    // If very crowded (crowding_score > 7), reduce q by 20% (slower imitation)
+    if (competitiveContext.crowding_score !== undefined && competitiveContext.crowding_score > 7) {
+      q = q * 0.8;
+    }
+
+    // If first-in-class, increase p by 30% (faster innovation adoption)
+    if (competitiveContext.is_first_in_class) {
+      p = p * 1.3;
+    }
+  }
 
   // Bass diffusion: F(t) = [1 - e^(-(p+q)*t)] / [1 + (q/p)*e^(-(p+q)*t)]
   const raw: number[] = [];
@@ -103,6 +137,18 @@ function buildSCurveRamp(therapyArea: string, years: number = 10): number[] {
   // Normalize so peak = 1.0
   const peak = Math.max(...raw);
   const normalized = raw.map((v) => v / peak);
+
+  // Enhancement 5: If >3 new entrants before peak, flatten curve
+  if (competitiveContext?.new_entrants_before_peak !== undefined && competitiveContext.new_entrants_before_peak > 3) {
+    // Reduce peak by 15%
+    const peakReduction = 0.85;
+    // Extend time-to-peak by 1 year (shift curve right)
+    for (let i = normalized.length - 1; i >= 1; i--) {
+      // Blend current value with previous year's value to slow the ramp
+      normalized[i] = normalized[i] * peakReduction;
+    }
+    normalized[0] = normalized[0] * peakReduction * 0.85; // Year 1 also dampened
+  }
 
   // Apply LOE decline for final years
   for (let i = 0; i < LOE_DECLINE.length && years - LOE_DECLINE.length + i >= 0; i++) {
@@ -916,6 +962,406 @@ const DEFAULT_WAC: Record<string, number> = {
 const DEFAULT_WAC_FALLBACK = 80000;
 
 // ────────────────────────────────────────────────────────────
+// ENHANCEMENT 5: COMPETITIVE POSITION CONTEXT BUILDER
+// Builds competitive position context for S-curve adjustment
+// ────────────────────────────────────────────────────────────
+
+function buildCompetitivePositionContext(
+  crowdingScore: number,
+  mechanism: string | undefined,
+  competitorCount: number,
+  indication: NonNullable<ReturnType<typeof findIndicationByName>>,
+): CompetitivePositionContext {
+  const mechLower = (mechanism ?? '').toLowerCase();
+
+  // Check if first-in-class: mechanism doesn't overlap with any known competitor
+  const isFirstInClass =
+    mechLower.length > 0 &&
+    (mechLower.includes('first') ||
+      !indication.major_competitors.some((c) => {
+        const cLower = c.toLowerCase();
+        const mechTokens = mechLower.split(/[\s_-]+/);
+        return mechTokens.some((tok) => tok.length > 3 && cLower.includes(tok));
+      }));
+
+  // Estimate new entrants before peak (~year 5)
+  let newEntrantsBeforePeak = 0;
+  if (competitorCount <= 3) newEntrantsBeforePeak = 1;
+  else if (competitorCount <= 6) newEntrantsBeforePeak = 3;
+  else if (competitorCount <= 10) newEntrantsBeforePeak = 5;
+  else newEntrantsBeforePeak = 7;
+
+  return {
+    crowding_score: crowdingScore,
+    is_first_in_class: isFirstInClass,
+    new_entrants_before_peak: newEntrantsBeforePeak,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// ENHANCEMENT 6: LABEL EXPANSION MODELING
+// Models additional indications that expand addressable market
+// ────────────────────────────────────────────────────────────
+
+function buildLabelExpansionOpportunities(
+  primaryIndication: NonNullable<ReturnType<typeof findIndicationByName>>,
+  launchYear: number,
+  netPrice: number,
+  shareRange: { low: number; base: number; high: number },
+): LabelExpansionOpportunity[] {
+  const therapyArea = primaryIndication.therapy_area.toLowerCase();
+
+  // Find related indications in the same therapy area
+  const relatedIndications = INDICATION_DATA.filter(
+    (ind) => ind.therapy_area.toLowerCase() === therapyArea && ind.name !== primaryIndication.name,
+  );
+
+  if (relatedIndications.length === 0) return [];
+
+  // Sort by prevalence to find the most commercially attractive expansions
+  const sorted = [...relatedIndications].sort((a, b) => b.us_prevalence - a.us_prevalence);
+
+  // Take top 2 expansion opportunities
+  const topExpansions = sorted.slice(0, 2);
+
+  return topExpansions.map((expansion, i) => {
+    // Expansion population is 30-50% of primary addressable
+    const expansionFactor = i === 0 ? 0.45 : 0.3;
+    const additionalPatients = Math.round(
+      expansion.us_prevalence * expansion.diagnosis_rate * expansion.treatment_rate * expansionFactor,
+    );
+
+    // Expected approval timing: Year 3-5 post-primary
+    const approvalYear = launchYear + 3 + i;
+
+    // Revenue contribution: patients * share * net price
+    const incrementalRevenue = Math.round((additionalPatients * shareRange.base * netPrice) / 1e6);
+
+    // Probability decreases for later expansions
+    const probability = i === 0 ? 0.55 : 0.35;
+
+    return {
+      indication: expansion.name,
+      therapy_area: expansion.therapy_area,
+      additional_addressable_patients: additionalPatients,
+      expected_approval_year: approvalYear,
+      incremental_peak_revenue_m: incrementalRevenue,
+      probability,
+      rationale:
+        `${expansion.name} shares ${therapyArea} therapeutic overlap with ${primaryIndication.name}. ` +
+        `Estimated ${additionalPatients.toLocaleString()} additional addressable patients ` +
+        `(${(expansionFactor * 100).toFixed(0)}% of ${expansion.name} treated population). ` +
+        `Label expansion expected ~Year ${approvalYear - launchYear} post-primary approval.`,
+    };
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+// ENHANCEMENT 7: MULTI-DIMENSIONAL PAYER-TIER PRICING
+// Payer-specific rebate tiers replacing single GTN
+// ────────────────────────────────────────────────────────────
+
+const PAYER_TIER_REBATES: Record<
+  string,
+  { commercial: number; medicare_b: number; medicare_d: number; medicaid: number; three40b: number }
+> = {
+  oncology: { commercial: 0.18, medicare_b: 0.22, medicare_d: 0.3, medicaid: 0.5, three40b: 0.4 },
+  rare_disease: { commercial: 0.1, medicare_b: 0.22, medicare_d: 0.28, medicaid: 0.5, three40b: 0.42 },
+  neurology: { commercial: 0.25, medicare_b: 0.22, medicare_d: 0.35, medicaid: 0.55, three40b: 0.45 },
+  immunology: { commercial: 0.4, medicare_b: 0.22, medicare_d: 0.38, medicaid: 0.58, three40b: 0.48 },
+  cardiovascular: { commercial: 0.5, medicare_b: 0.22, medicare_d: 0.4, medicaid: 0.6, three40b: 0.5 },
+  metabolic: { commercial: 0.55, medicare_b: 0.22, medicare_d: 0.4, medicaid: 0.6, three40b: 0.5 },
+  hematology: { commercial: 0.2, medicare_b: 0.22, medicare_d: 0.32, medicaid: 0.52, three40b: 0.42 },
+  ophthalmology: { commercial: 0.2, medicare_b: 0.22, medicare_d: 0.3, medicaid: 0.5, three40b: 0.4 },
+  infectious_disease: { commercial: 0.3, medicare_b: 0.22, medicare_d: 0.35, medicaid: 0.55, three40b: 0.45 },
+  pulmonology: { commercial: 0.38, medicare_b: 0.22, medicare_d: 0.38, medicaid: 0.55, three40b: 0.45 },
+  nephrology: { commercial: 0.28, medicare_b: 0.22, medicare_d: 0.35, medicaid: 0.55, three40b: 0.45 },
+  dermatology: { commercial: 0.42, medicare_b: 0.22, medicare_d: 0.38, medicaid: 0.58, three40b: 0.48 },
+  pain_management: { commercial: 0.5, medicare_b: 0.22, medicare_d: 0.4, medicaid: 0.6, three40b: 0.5 },
+  psychiatry: { commercial: 0.45, medicare_b: 0.22, medicare_d: 0.38, medicaid: 0.58, three40b: 0.48 },
+  gastroenterology: { commercial: 0.38, medicare_b: 0.22, medicare_d: 0.38, medicaid: 0.55, three40b: 0.45 },
+  hepatology: { commercial: 0.32, medicare_b: 0.22, medicare_d: 0.35, medicaid: 0.55, three40b: 0.45 },
+  endocrinology: { commercial: 0.42, medicare_b: 0.22, medicare_d: 0.4, medicaid: 0.58, three40b: 0.48 },
+  musculoskeletal: { commercial: 0.45, medicare_b: 0.22, medicare_d: 0.38, medicaid: 0.58, three40b: 0.48 },
+};
+const DEFAULT_PAYER_TIER_REBATES = {
+  commercial: 0.3,
+  medicare_b: 0.22,
+  medicare_d: 0.35,
+  medicaid: 0.55,
+  three40b: 0.45,
+};
+
+function buildPayerTierPricing(
+  launchYear: number,
+  therapyArea: string,
+  wac: number,
+  years: number = 10,
+): PayerTierPricing[] {
+  const areaLower = therapyArea.toLowerCase();
+  const rebates = PAYER_TIER_REBATES[areaLower] ?? DEFAULT_PAYER_TIER_REBATES;
+  const payerProfile = PAYER_MIX_PROFILES[areaLower] ?? PAYER_MIX_PROFILES.default;
+
+  return Array.from({ length: years }, (_, i) => {
+    const t = years <= 1 ? 0 : i / (years - 1);
+
+    // Interpolate payer mix
+    const commercial = payerProfile.yr1_commercial + (payerProfile.yr10_commercial - payerProfile.yr1_commercial) * t;
+    const medicare = payerProfile.yr1_medicare + (payerProfile.yr10_medicare - payerProfile.yr1_medicare) * t;
+    const medicaid = payerProfile.yr1_medicaid + (payerProfile.yr10_medicaid - payerProfile.yr1_medicaid) * t;
+    const va = payerProfile.yr1_va + (payerProfile.yr10_va - payerProfile.yr1_va) * t;
+
+    // Split Medicare into Part B and Part D (approximate: IV products are Part B, oral are Part D)
+    const medicareBShare = 0.4; // ~40% of Medicare is Part B
+    const medicareDShare = 0.6; // ~60% is Part D
+    const partBPct = medicare * medicareBShare;
+    const partDPct = medicare * medicareDShare;
+
+    // 340B is approximately 5-8% of commercial volume
+    const three40bPct = commercial * 0.12;
+    const adjustedCommercial = commercial - three40bPct;
+
+    const tiers: PayerTierPricingEntry[] = [
+      {
+        payer_tier: 'Commercial',
+        share_pct: parseFloat((adjustedCommercial * 100).toFixed(1)),
+        discount_pct: parseFloat((rebates.commercial * 100).toFixed(1)),
+        net_price: Math.round(wac * (1 - rebates.commercial)),
+        rationale: 'Managed care rebates, formulary positioning, and PBM negotiations',
+      },
+      {
+        payer_tier: 'Medicare Part B',
+        share_pct: parseFloat((partBPct * 100).toFixed(1)),
+        discount_pct: parseFloat((rebates.medicare_b * 100).toFixed(1)),
+        net_price: Math.round(wac * (1 - rebates.medicare_b)),
+        rationale: 'ASP+6% buy-and-bill reimbursement model; sequestration reduces further',
+      },
+      {
+        payer_tier: 'Medicare Part D',
+        share_pct: parseFloat((partDPct * 100).toFixed(1)),
+        discount_pct: parseFloat((rebates.medicare_d * 100).toFixed(1)),
+        net_price: Math.round(wac * (1 - rebates.medicare_d)),
+        rationale: 'Coverage gap manufacturer discount (IRA: 10-20%) plus plan rebates',
+      },
+      {
+        payer_tier: 'Medicaid',
+        share_pct: parseFloat((medicaid * 100).toFixed(1)),
+        discount_pct: parseFloat(((rebates.medicaid + i * 0.005) * 100).toFixed(1)),
+        net_price: Math.round(wac * (1 - rebates.medicaid - i * 0.005)),
+        rationale: 'Best price + state supplemental rebates; URA floor applies',
+      },
+      {
+        payer_tier: '340B',
+        share_pct: parseFloat((three40bPct * 100).toFixed(1)),
+        discount_pct: parseFloat((rebates.three40b * 100).toFixed(1)),
+        net_price: Math.round(wac * (1 - rebates.three40b)),
+        rationale: 'Statutory ceiling price; 340B-covered entities purchase at discount',
+      },
+      {
+        payer_tier: 'VA/DoD',
+        share_pct: parseFloat((va * 100).toFixed(1)),
+        discount_pct: parseFloat((0.52 * 100).toFixed(1)),
+        net_price: Math.round(wac * (1 - 0.52)),
+        rationale: 'Federal Supply Schedule pricing; additional negotiated discounts',
+      },
+    ];
+
+    // Calculate blended net price
+    const blendedNet =
+      adjustedCommercial * wac * (1 - rebates.commercial) +
+      partBPct * wac * (1 - rebates.medicare_b) +
+      partDPct * wac * (1 - rebates.medicare_d) +
+      medicaid * wac * (1 - rebates.medicaid - i * 0.005) +
+      three40bPct * wac * (1 - rebates.three40b) +
+      va * wac * (1 - 0.52);
+
+    const effectiveGTN = 1 - blendedNet / wac;
+
+    return {
+      year: launchYear + i,
+      wac,
+      tiers,
+      blended_net_price: Math.round(blendedNet),
+      effective_gtn_pct: parseFloat((effectiveGTN * 100).toFixed(1)),
+    };
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+// ENHANCEMENT 8: MANUFACTURING CAPACITY CONSTRAINTS (Pharma)
+// Caps revenue based on manufacturing capacity for complex products
+// ────────────────────────────────────────────────────────────
+
+const MANUFACTURING_CAPS: Record<ManufacturingProductType, number[]> = {
+  small_molecule: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], // No constraint
+  biologic: [0.6, 0.85, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+  cell_gene_therapy: [0.3, 0.5, 0.75, 0.9, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+};
+
+function detectManufacturingProductType(mechanism: string | undefined): ManufacturingProductType {
+  const m = (mechanism ?? '').toLowerCase();
+  if (m.includes('car-t') || m.includes('car t') || m.includes('gene therapy') || m.includes('cell therapy')) {
+    return 'cell_gene_therapy';
+  }
+  if (
+    m.includes('antibod') ||
+    m.includes('mab') ||
+    m.includes('adc') ||
+    m.includes('bispecific') ||
+    m.includes('fusion') ||
+    m.includes('biologic') ||
+    m.includes('enzyme replacement')
+  ) {
+    return 'biologic';
+  }
+  return 'small_molecule';
+}
+
+function buildManufacturingConstraint(
+  mechanism: string | undefined,
+  revenueProjection: RevenueProjectionYear[],
+): ManufacturingConstraint {
+  const productType = detectManufacturingProductType(mechanism);
+  const caps = MANUFACTURING_CAPS[productType];
+
+  const constrainedYears = revenueProjection
+    .map((yr, i) => {
+      const cap = caps[i] ?? 1.0;
+      return {
+        year: yr.year,
+        capacity_pct: Math.round(cap * 100),
+        revenue_cap_m: Math.round(yr.base * cap),
+      };
+    })
+    .filter((yr) => yr.capacity_pct < 100);
+
+  const narratives: Record<ManufacturingProductType, string> = {
+    small_molecule: 'Small molecule manufacturing has high capacity scalability. No supply constraints expected.',
+    biologic:
+      'Biologic manufacturing requires specialized facilities (CHO cell culture, purification). ' +
+      'Year 1 capacity capped at 60% of demand (facility qualification, batch scale-up), ' +
+      'Year 2 at 85% (tech transfer completion). Full capacity from Year 3.',
+    cell_gene_therapy:
+      'Cell/gene therapy faces severe manufacturing bottlenecks. Autologous products require per-patient manufacturing. ' +
+      'Year 1 capped at 30% (vein-to-vein logistics, QP release), Year 2 at 50%, Year 3 at 75%, Year 4 at 90%. ' +
+      'Multiple manufacturing sites and process automation needed for scale.',
+  };
+
+  return {
+    product_type: productType,
+    constrained_years: constrainedYears,
+    narrative: narratives[productType],
+  };
+}
+
+function applyManufacturingConstraint(
+  projection: RevenueProjectionYear[],
+  constraint: ManufacturingConstraint,
+): RevenueProjectionYear[] {
+  const caps = MANUFACTURING_CAPS[constraint.product_type];
+  return projection.map((yr, i) => {
+    const cap = caps[i] ?? 1.0;
+    if (cap >= 1.0) return yr;
+    return {
+      ...yr,
+      bear: Math.round(yr.bear * cap),
+      base: Math.round(yr.base * cap),
+      bull: Math.round(yr.bull * cap),
+    };
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+// ENHANCEMENT 9: REGULATORY PATHWAY LoA DISTINCTION
+// Adjusts LoA based on regulatory designations
+// ────────────────────────────────────────────────────────────
+
+const DESIGNATION_LOA_MODIFIERS: Record<RegulatoryDesignation, number> = {
+  'Breakthrough Therapy': 1.4,
+  'Fast Track': 1.15,
+  'Priority Review': 1.1,
+  'Accelerated Approval': 1.25,
+  'Orphan Drug': 1.3,
+};
+
+function inferRegulatoryDesignations(
+  indication: NonNullable<ReturnType<typeof findIndicationByName>>,
+  input: MarketSizingInput,
+): RegulatoryDesignation[] {
+  const inferred: RegulatoryDesignation[] = [];
+
+  // If rare disease or low prevalence → Orphan Drug
+  if (indication.therapy_area.toLowerCase() === 'rare_disease' || indication.us_prevalence < 200000) {
+    inferred.push('Orphan Drug');
+  }
+
+  // If treatment rate is very low (high unmet need) → possible Breakthrough
+  if (indication.treatment_rate < 0.3) {
+    inferred.push('Breakthrough Therapy');
+  } else if (indication.treatment_rate < 0.5) {
+    // Moderate unmet need → Fast Track
+    inferred.push('Fast Track');
+  }
+
+  return inferred;
+}
+
+function buildRegulatoryPathwayAnalysis(
+  baseLoa: number,
+  indication: NonNullable<ReturnType<typeof findIndicationByName>>,
+  input: MarketSizingInput,
+): RegulatoryPathwayAnalysis {
+  // Use provided designations or infer
+  const designations: RegulatoryDesignation[] =
+    input.regulatory_designations && input.regulatory_designations.length > 0
+      ? input.regulatory_designations
+      : inferRegulatoryDesignations(indication, input);
+
+  const inferred = !input.regulatory_designations || input.regulatory_designations.length === 0;
+
+  if (designations.length === 0) {
+    return {
+      base_loa: baseLoa,
+      designations: [],
+      pathway_modifier: 1.0,
+      adjusted_loa: baseLoa,
+      rationale: 'Standard regulatory pathway. No special designations detected or provided.',
+      inferred: true,
+    };
+  }
+
+  // Apply the highest modifier (don't stack multiplicatively — designations overlap in benefit)
+  const modifiers = designations.map((d) => DESIGNATION_LOA_MODIFIERS[d]);
+  const maxModifier = Math.max(...modifiers);
+
+  // For multiple designations, add a small bonus for each additional (5% of the delta)
+  const additionalBonus = designations.length > 1 ? (maxModifier - 1.0) * 0.05 * (designations.length - 1) : 0;
+  const pathwayModifier = parseFloat((maxModifier + additionalBonus).toFixed(3));
+
+  // Cap adjusted LoA at 0.95 (never 100% certain)
+  const adjustedLoa = parseFloat(Math.min(0.95, baseLoa * pathwayModifier).toFixed(3));
+
+  const designationNames = designations.join(', ');
+  const rationale = inferred
+    ? `Regulatory designations inferred from indication characteristics: ${designationNames}. ` +
+      `${indication.therapy_area === 'rare_disease' || indication.us_prevalence < 200000 ? 'US prevalence <200K qualifies for Orphan Drug designation. ' : ''}` +
+      `${indication.treatment_rate < 0.3 ? 'Low treatment rate indicates high unmet need, supporting Breakthrough Therapy consideration. ' : ''}` +
+      `Combined pathway modifier of ${pathwayModifier}x increases base LoA from ${(baseLoa * 100).toFixed(1)}% to ${(adjustedLoa * 100).toFixed(1)}%.`
+    : `Regulatory designations provided: ${designationNames}. ` +
+      `Pathway modifier of ${pathwayModifier}x reflects higher historical approval rates for designated products. ` +
+      `Adjusted LoA: ${(adjustedLoa * 100).toFixed(1)}% (from base ${(baseLoa * 100).toFixed(1)}%).`;
+
+  return {
+    base_loa: baseLoa,
+    designations,
+    pathway_modifier: pathwayModifier,
+    adjusted_loa: adjustedLoa,
+    rationale,
+    inferred,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
 // MAIN PHARMA CALCULATION FUNCTION
 // ────────────────────────────────────────────────────────────
 export async function calculateMarketSizing(rawInput: MarketSizingInput): Promise<MarketSizingOutput> {
@@ -989,18 +1435,34 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
   }, 0);
 
   // Step 7: Revenue projection (values in $M) — S-curve adoption
+  // Enhancement 5: Build competitive position context for S-curve adjustment
+  const competitiveContext = buildCompetitiveContext(indication);
+  const competitivePositionCtx = buildCompetitivePositionContext(
+    competitiveContext.crowding_score,
+    input.mechanism,
+    competitorCount,
+    indication,
+  );
+
   let revenueProjection = buildRevenueProjection(
     input.launch_year,
     us_som_low,
     us_som_base,
     us_som_high,
     indication.therapy_area,
+    competitivePositionCtx,
   );
 
   // Step 7b: IRA impact modeling
   const iraImpact = computeIRAImpact(input.launch_year, revenueProjection);
   if (iraImpact) {
     revenueProjection = applyIRAToProjection(revenueProjection, iraImpact);
+  }
+
+  // Step 7c: Enhancement 8 — Manufacturing capacity constraints
+  const manufacturingConstraint = buildManufacturingConstraint(input.mechanism, revenueProjection);
+  if (manufacturingConstraint.constrained_years.length > 0) {
+    revenueProjection = applyManufacturingConstraint(revenueProjection, manufacturingConstraint);
   }
 
   // Step 8: Peak sales ($M)
@@ -1011,7 +1473,12 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
   };
 
   // Step 8b: Risk adjustment (LoA + eNPV) — now with indication-specific calibration
-  const loa = getLikelihoodOfApproval(indication.therapy_area, input.development_stage, input.indication);
+  const baseLoa = getLikelihoodOfApproval(indication.therapy_area, input.development_stage, input.indication);
+
+  // Enhancement 9: Regulatory pathway LoA distinction
+  const regulatoryPathwayAnalysis = buildRegulatoryPathwayAnalysis(baseLoa, indication, input);
+  const loa = regulatoryPathwayAnalysis.adjusted_loa;
+
   const discountRate = 0.1; // Standard pharma 10% WACC
   const riskAdjustedNPV = revenueProjection.reduce((npv, yr, i) => {
     return npv + (yr.base * loa) / Math.pow(1 + discountRate, i + 1);
@@ -1105,6 +1572,36 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
     indication,
   );
 
+  // Step 8q: Enhancement 6 — Label expansion modeling
+  const labelExpansionOpportunities = buildLabelExpansionOpportunities(
+    indication,
+    input.launch_year,
+    netPrice,
+    shareRange,
+  );
+
+  // Add label expansion revenue to bull case (years 4-10)
+  if (labelExpansionOpportunities.length > 0) {
+    revenueProjection = revenueProjection.map((yr) => {
+      let expansionRevenue = 0;
+      for (const exp of labelExpansionOpportunities) {
+        if (yr.year >= exp.expected_approval_year) {
+          // Ramp: 30% in year of expansion approval, 60% year 2, 100% year 3+
+          const yearsPostExpansion = yr.year - exp.expected_approval_year;
+          const rampFactor = yearsPostExpansion === 0 ? 0.3 : yearsPostExpansion === 1 ? 0.6 : 1.0;
+          expansionRevenue += exp.incremental_peak_revenue_m * rampFactor * exp.probability;
+        }
+      }
+      if (expansionRevenue > 0) {
+        return { ...yr, bull: Math.round(yr.bull + expansionRevenue) };
+      }
+      return yr;
+    });
+  }
+
+  // Step 8r: Enhancement 7 — Multi-dimensional payer-tier pricing
+  const payerTierPricing = buildPayerTierPricing(input.launch_year, indication.therapy_area, selectedPrice);
+
   // Step 8p: Integrated revenue projection
   const integratedProjection = buildIntegratedProjection(
     revenueProjection,
@@ -1117,8 +1614,7 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
     indication.therapy_area,
   );
 
-  // Step 9: Competitive context
-  const competitiveContext = buildCompetitiveContext(indication);
+  // Step 9: Competitive context (already computed in Step 7 for S-curve adjustment)
 
   return {
     summary: {
@@ -1168,6 +1664,11 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
     non_linear_competitive_erosion: nonLinearCompetitiveErosion,
     gtn_evolution: gtnEvolution,
     efficacy_share_modifier: efficacyShareModifier,
+    label_expansion_opportunities: labelExpansionOpportunities.length > 0 ? labelExpansionOpportunities : undefined,
+    payer_tier_pricing: payerTierPricing,
+    manufacturing_constraint:
+      manufacturingConstraint.constrained_years.length > 0 ? manufacturingConstraint : undefined,
+    regulatory_pathway_analysis: regulatoryPathwayAnalysis,
   };
 }
 
@@ -2974,7 +3475,22 @@ function buildGeographyBreakdown(
   let resolvedGeos: string[];
 
   if (geographies.includes('Global')) {
-    resolvedGeos = ['US', 'EU5', 'Japan', 'China', 'Canada', 'Australia', 'South Korea', 'Brazil', 'India', 'Mexico', 'Taiwan', 'Saudi Arabia', 'Israel', 'RoW'];
+    resolvedGeos = [
+      'US',
+      'EU5',
+      'Japan',
+      'China',
+      'Canada',
+      'Australia',
+      'South Korea',
+      'Brazil',
+      'India',
+      'Mexico',
+      'Taiwan',
+      'Saudi Arabia',
+      'Israel',
+      'RoW',
+    ];
   } else {
     const hasEU5 = geographies.includes('EU5');
     const hasIndividualEU = geographies.some((g) => EU5_COUNTRIES.includes(g));
@@ -3039,9 +3555,10 @@ function buildRevenueProjection(
   somBase: number,
   somHigh: number,
   therapyArea?: string,
+  competitiveContext?: CompetitivePositionContext,
 ): RevenueProjectionYear[] {
   // Use therapy-area-specific S-curve if available, else fallback to generic ramp
-  const ramp = therapyArea ? buildSCurveRamp(therapyArea, 10) : PHARMA_REVENUE_RAMP;
+  const ramp = therapyArea ? buildSCurveRamp(therapyArea, 10, competitiveContext) : PHARMA_REVENUE_RAMP;
 
   return ramp.map((factor, i) => ({
     year: launchYear + i,

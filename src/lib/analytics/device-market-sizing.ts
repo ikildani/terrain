@@ -63,6 +63,75 @@ const DEVICE_REVENUE_RAMP = [0.08, 0.2, 0.4, 0.62, 0.8, 0.92, 1.0, 1.0, 0.98, 0.
 const CAPITAL_INSTALLED_RAMP = [0.05, 0.15, 0.3, 0.5, 0.68, 0.82, 0.92, 1.0, 1.0, 0.98];
 
 // ────────────────────────────────────────────────────────────
+// DEVICE MANUFACTURING CAPACITY CONSTRAINTS (Enhancement 8)
+// Caps revenue based on product category procurement cycles
+// ────────────────────────────────────────────────────────────
+
+const DEVICE_MANUFACTURING_CAPS: Record<string, number[]> = {
+  capital_equipment: [0.5, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+  consumable: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], // No constraint
+  disposable: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], // No constraint
+  implantable: [0.7, 0.9, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+  default: [0.85, 0.95, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+};
+
+function getDeviceManufacturingCategory(productCategory: string): string {
+  const cat = productCategory.toLowerCase();
+  if (cat.includes('capital') || cat.includes('equipment') || cat.includes('robot') || cat.includes('laser')) {
+    return 'capital_equipment';
+  }
+  if (cat.includes('consumable') || cat.includes('disposable') || cat.includes('catheter') || cat.includes('guide')) {
+    return 'consumable';
+  }
+  if (cat.includes('implant') || cat.includes('stent') || cat.includes('valve') || cat.includes('prosth')) {
+    return 'implantable';
+  }
+  return 'default';
+}
+
+function buildDeviceManufacturingConstraint(
+  productCategory: string,
+  revenueProjection: { year: number; bear: number; base: number; bull: number }[],
+): {
+  product_category: string;
+  constrained_years: { year: number; capacity_pct: number; revenue_cap_m: number }[];
+  narrative: string;
+} {
+  const mfgCategory = getDeviceManufacturingCategory(productCategory);
+  const caps = DEVICE_MANUFACTURING_CAPS[mfgCategory] ?? DEVICE_MANUFACTURING_CAPS.default;
+
+  const constrainedYears = revenueProjection
+    .map((yr, i) => {
+      const cap = caps[i] ?? 1.0;
+      return {
+        year: yr.year,
+        capacity_pct: Math.round(cap * 100),
+        revenue_cap_m: Math.round(yr.base * cap),
+      };
+    })
+    .filter((yr) => yr.capacity_pct < 100);
+
+  const narratives: Record<string, string> = {
+    capital_equipment:
+      'Capital equipment faces hospital procurement cycle constraints. ' +
+      'Year 1 capped at 50% (budget approval, value analysis committee review, installation lead times), ' +
+      'Year 2 at 80% (follow-on orders, reference site visits completed). Full capacity from Year 3.',
+    consumable: 'Consumables/disposables have scalable manufacturing with no significant supply constraints.',
+    disposable: 'Disposables have scalable manufacturing with no significant supply constraints.',
+    implantable:
+      'Implantable devices require surgeon training, instrument tray availability, and hospital credentialing. ' +
+      'Year 1 capped at 70% (limited trained surgeon base), Year 2 at 90% (training programs mature). Full capacity from Year 3.',
+    default: 'Moderate manufacturing ramp expected. Year 1 at 85% capacity, Year 2 at 95%. Full capacity from Year 3.',
+  };
+
+  return {
+    product_category: mfgCategory,
+    constrained_years: constrainedYears,
+    narrative: narratives[mfgCategory] ?? narratives.default,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
 // MAIN DEVICE CALCULATION FUNCTION
 // ────────────────────────────────────────────────────────────
 export async function calculateDeviceMarketSizing(input: DeviceMarketSizingInput): Promise<DeviceMarketSizingOutput> {
@@ -126,12 +195,32 @@ export async function calculateDeviceMarketSizing(input: DeviceMarketSizingInput
   const ramp = adoptionCurveData.factors.map((f, i) => (i < 3 ? f * adoptionCurveData.learning_curve : f));
 
   // Revenue projection in $M (matching pharma engine convention)
-  const revenueProjection = ramp.map((factor, i) => ({
+  let revenueProjection = ramp.map((factor, i) => ({
     year: safeInput.launch_year + i,
     bear: parseFloat((us_som_low * 1000 * factor).toFixed(1)),
     base: parseFloat((us_som_base * 1000 * factor).toFixed(1)),
     bull: parseFloat((us_som_high * 1000 * factor).toFixed(1)),
   }));
+
+  // Enhancement 8: Device manufacturing capacity constraints
+  const deviceMfgConstraint = buildDeviceManufacturingConstraint(
+    safeInput.product_category ?? 'default',
+    revenueProjection,
+  );
+  if (deviceMfgConstraint.constrained_years.length > 0) {
+    const mfgCategory = getDeviceManufacturingCategory(safeInput.product_category ?? 'default');
+    const caps = DEVICE_MANUFACTURING_CAPS[mfgCategory] ?? DEVICE_MANUFACTURING_CAPS.default;
+    revenueProjection = revenueProjection.map((yr, i) => {
+      const cap = caps[i] ?? 1.0;
+      if (cap >= 1.0) return yr;
+      return {
+        ...yr,
+        bear: parseFloat((yr.bear * cap).toFixed(1)),
+        base: parseFloat((yr.base * cap).toFixed(1)),
+        bull: parseFloat((yr.bull * cap).toFixed(1)),
+      };
+    });
+  }
 
   // Step 10: Adoption model
   const adoptionModel = buildAdoptionModel(safeInput, procedure, shareRange);
@@ -246,6 +335,8 @@ export async function calculateDeviceMarketSizing(input: DeviceMarketSizingInput
     technology_readiness: technologyReadiness,
     clinical_superiority: clinicalSuperiority,
     surgeon_switching_cost: surgeonSwitchingCost,
+    // Manufacturing capacity constraint (Enhancement 8)
+    manufacturing_constraint: deviceMfgConstraint.constrained_years.length > 0 ? deviceMfgConstraint : undefined,
     methodology: buildDeviceMethodology(safeInput, procedure, shareRange),
     data_sources: dataSources,
     generated_at: new Date().toISOString(),
@@ -705,7 +796,22 @@ function buildDeviceGeographyBreakdown(
 ) {
   // Expand 'Global' to all individual territories
   const expandedGeos = geographies.includes('Global')
-    ? ['US', 'EU5', 'Japan', 'China', 'Canada', 'Australia', 'South Korea', 'Brazil', 'India', 'Mexico', 'Taiwan', 'Saudi Arabia', 'Israel', 'RoW']
+    ? [
+        'US',
+        'EU5',
+        'Japan',
+        'China',
+        'Canada',
+        'Australia',
+        'South Korea',
+        'Brazil',
+        'India',
+        'Mexico',
+        'Taiwan',
+        'Saudi Arabia',
+        'Israel',
+        'RoW',
+      ]
     : geographies;
 
   return expandedGeos
@@ -734,7 +840,8 @@ function buildDeviceGeographyBreakdown(
         India: 'CDSCO device regulation; NPPA price controls; state-level procurement; rapidly growing private sector',
         Mexico: 'COFEPRIS device registration; IMSS/ISSSTE public hospital procurement; UNOPS centralized purchasing',
         Taiwan: 'TFDA device approval; NHI coverage with PBRS agreements; high medtech adoption rate',
-        'Saudi Arabia': 'SFDA device registration; MOH hospital procurement; NUPCO centralized purchasing; Vision 2030 investment',
+        'Saudi Arabia':
+          'SFDA device registration; MOH hospital procurement; NUPCO centralized purchasing; Vision 2030 investment',
         Israel: 'MOH device regulation; HMO (kupot holim) procurement; strong medtech early adopter market',
         RoW: 'Variable; tender-based procurement in many markets; WHO prequalification for some device classes',
       };
