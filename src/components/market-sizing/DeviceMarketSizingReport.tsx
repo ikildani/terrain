@@ -105,7 +105,8 @@ function flattenDeviceForCSV(data: DeviceMarketSizingOutput): Record<string, unk
 function coverageBadgeClass(status: string): string {
   const s = status.toLowerCase();
   if (s === 'covered') return 'bg-emerald-500/12 text-emerald-400 border border-emerald-500/20';
-  if (s === 'partial' || s === 'coverage_pending') return 'bg-amber-500/12 text-amber-400 border border-amber-500/20';
+  if (s === 'partial' || s === 'pending' || s === 'coverage_pending')
+    return 'bg-amber-500/12 text-amber-400 border border-amber-500/20';
   return 'bg-red-500/12 text-red-400 border border-red-500/20';
 }
 
@@ -497,13 +498,14 @@ export default function DeviceMarketSizingReport({
                       {formatCurrency(data.reimbursement_analytics.ntap.drg_payment)}
                     </div>
                     <div className="text-2xs text-slate-500">
-                      {formatPercent(
-                        (data.reimbursement_analytics.ntap.device_cost /
-                          data.reimbursement_analytics.ntap.drg_payment) *
-                          100,
-                        1,
-                      )}{' '}
-                      of DRG
+                      {data.reimbursement_analytics.ntap.drg_payment > 0
+                        ? `${formatPercent(
+                            (data.reimbursement_analytics.ntap.device_cost /
+                              data.reimbursement_analytics.ntap.drg_payment) *
+                              100,
+                            1,
+                          )} of DRG`
+                        : 'N/A'}
                     </div>
                   </div>
                   <div>

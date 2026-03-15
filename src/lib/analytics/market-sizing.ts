@@ -44,6 +44,11 @@ import type {
   ManufacturingProductType,
   RegulatoryPathwayAnalysis,
   RegulatoryDesignation,
+  CompetitiveMechanismAnalysis,
+  MechanismRelationship,
+  PatentCliffAnalysis,
+  OneTimeTreatmentModel,
+  PediatricAnalysis,
 } from '@/types';
 
 import { findIndicationByName, INDICATION_DATA } from '@/lib/data/indication-map';
@@ -1362,6 +1367,260 @@ function buildRegulatoryPathwayAnalysis(
 }
 
 // ────────────────────────────────────────────────────────────
+// ENHANCEMENT C: ONE-TIME TREATMENT DETECTION
+// Detects gene therapies, CAR-T, and other one-time treatments
+// from mechanism keywords.
+// ────────────────────────────────────────────────────────────
+
+const ONE_TIME_TREATMENT_KEYWORDS = [
+  'gene therapy',
+  'gene editing',
+  'car-t',
+  'car t',
+  'cell therapy',
+  'gene replacement',
+  'crispr',
+  'aav',
+  'aav9',
+  'aav8',
+  'aav5',
+  'lentiviral',
+  'adeno-associated',
+];
+
+function isOneTimeTreatment(mechanism: string | undefined): boolean {
+  const m = (mechanism ?? '').toLowerCase();
+  return ONE_TIME_TREATMENT_KEYWORDS.some((kw) => m.includes(kw));
+}
+
+function buildOneTimeTreatmentModel(
+  mechanism: string | undefined,
+  indication: NonNullable<ReturnType<typeof findIndicationByName>>,
+  netPrice: number,
+  launchYear: number,
+  shareRange: { low: number; base: number; high: number },
+  addressabilityFactor: number,
+): OneTimeTreatmentModel | undefined {
+  if (!isOneTimeTreatment(mechanism)) {
+    return undefined;
+  }
+
+  const prevalentPool = Math.round(
+    indication.us_prevalence * indication.diagnosis_rate * indication.treatment_rate * addressabilityFactor,
+  );
+  const annualNewCases = Math.round(
+    indication.us_incidence * indication.diagnosis_rate * indication.treatment_rate * addressabilityFactor,
+  );
+
+  // Manufacturing capacity: cell/gene therapies are severely constrained
+  // Year 1: 15% of backlog, Year 2: 25%, Year 3: 30% of remaining, Year 4+: new cases only
+  const manufacturingCap = Math.round(prevalentPool * 0.25); // max patients/year early on
+
+  let remainingPool = prevalentPool;
+  const revenueByYear: { year: number; patients_treated: number; revenue_m: number }[] = [];
+  const treatmentRates = [0.15, 0.25, 0.3]; // Year 1-3 prevalent pool penetration
+
+  for (let yr = 0; yr < 10; yr++) {
+    let patientsTreated: number;
+    if (yr < 3 && remainingPool > 0) {
+      // Backlog depletion phase: treat fraction of prevalent pool, capped by manufacturing
+      const targetPatients = Math.round(prevalentPool * (treatmentRates[yr] ?? 0.3));
+      patientsTreated = Math.min(manufacturingCap, targetPatients, remainingPool);
+      remainingPool = Math.max(0, remainingPool - patientsTreated);
+      // Also add new incident cases from year 2 onward
+      if (yr > 0) {
+        const newCaseTreated = Math.round(annualNewCases * shareRange.base);
+        patientsTreated += newCaseTreated;
+      }
+    } else {
+      // Steady state: only new incident cases drive revenue
+      patientsTreated = Math.round(annualNewCases * shareRange.base);
+    }
+
+    const revenue = (patientsTreated * netPrice) / 1e6; // $M
+    revenueByYear.push({
+      year: launchYear + yr,
+      patients_treated: patientsTreated,
+      revenue_m: Math.round(revenue),
+    });
+  }
+
+  // Calculate pool depletion timeline
+  let depletionYears = 0;
+  let simPool = prevalentPool;
+  for (let yr = 0; yr < 20; yr++) {
+    const rate = yr < 3 ? (treatmentRates[yr] ?? 0.3) : 0;
+    const treatedFromPool = yr < 3 ? Math.min(manufacturingCap, Math.round(prevalentPool * rate), simPool) : 0;
+    simPool = Math.max(0, simPool - treatedFromPool);
+    depletionYears = yr + 1;
+    if (simPool <= 0) break;
+  }
+
+  const steadyStateRevenue = Math.round((annualNewCases * shareRange.base * netPrice) / 1e6);
+
+  return {
+    is_one_time: true,
+    prevalent_pool: prevalentPool,
+    annual_new_cases: annualNewCases,
+    pool_depletion_years: depletionYears,
+    steady_state_revenue_m: steadyStateRevenue,
+    revenue_by_year: revenueByYear,
+    narrative:
+      `One-time treatment detected (${mechanism}). Revenue driven by prevalent pool depletion model, ` +
+      `not annual recurring therapy. Prevalent backlog of ${prevalentPool.toLocaleString()} eligible patients ` +
+      `treated over ${depletionYears} years with manufacturing capacity constraints. ` +
+      `After backlog exhaustion, steady-state revenue of ~$${steadyStateRevenue}M/year ` +
+      `from ${annualNewCases.toLocaleString()} new incident cases annually. ` +
+      `Peak revenue occurs in Years 1-3 during backlog treatment phase.`,
+  };
+}
+
+function applyOneTimeTreatmentToProjection(
+  projection: RevenueProjectionYear[],
+  model: OneTimeTreatmentModel,
+): RevenueProjectionYear[] {
+  return projection.map((yr) => {
+    const modelYear = model.revenue_by_year.find((my) => my.year === yr.year);
+    if (!modelYear) return yr;
+
+    // Replace standard S-curve revenue with pool depletion model
+    // Scale bear/bull around the base using existing ratios
+    const baseRatio = yr.base > 0 ? modelYear.revenue_m / yr.base : 1;
+    return {
+      ...yr,
+      bear: Math.round(yr.bear * baseRatio),
+      base: modelYear.revenue_m,
+      bull: Math.round(yr.bull * baseRatio),
+    };
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+// ENHANCEMENT D: REAL-WORLD ADHERENCE RATES
+// Therapy-area-specific adherence/persistence rates that
+// reduce the effective treated population before addressability.
+// Source: WHO adherence reports, disease-specific literature.
+// ────────────────────────────────────────────────────────────
+
+const ADHERENCE_RATES: Record<string, number> = {
+  oncology: 0.92, // High — life-threatening
+  rare_disease: 0.88, // High — severe symptoms
+  neurology: 0.65, // Moderate — side effects, cognitive impairment
+  immunology: 0.72, // Moderate — injection fatigue, remission
+  cardiovascular: 0.55, // Low — asymptomatic, polypharmacy
+  metabolic: 0.5, // Low — lifestyle factors, GI side effects
+  psychiatry: 0.45, // Very low — insight, side effects, stigma
+  pain_management: 0.6, // Moderate — tolerance, abuse concerns
+  infectious_disease: 0.75, // Moderate-high — curative intent
+  hematology: 0.85, // High — serious disease
+  ophthalmology: 0.7, // Moderate — injection visits
+  pulmonology: 0.6, // Moderate — inhaler technique, asymptomatic periods
+  nephrology: 0.65, // Moderate — dialysis adherence varies
+  dermatology: 0.55, // Low — cosmetic perception, topical fatigue
+  gastroenterology: 0.68, // Moderate — symptom-driven
+  hepatology: 0.78, // Moderate-high — curative HCV, serious disease
+  endocrinology: 0.55, // Low — injection fatigue (insulin/GLP-1)
+  musculoskeletal: 0.58, // Low-moderate — pain resolution, side effects
+};
+
+const DEFAULT_ADHERENCE_RATE = 0.65;
+
+function getAdherenceRate(therapyArea: string): number {
+  return ADHERENCE_RATES[therapyArea] ?? DEFAULT_ADHERENCE_RATE;
+}
+
+// ────────────────────────────────────────────────────────────
+// ENHANCEMENT E: PEDIATRIC POPULATION MODELING
+// Uses pediatric_prevalence from indication data when the
+// patient segment specifies a pediatric population.
+// ────────────────────────────────────────────────────────────
+
+// Indications where pediatric population is the primary patient base
+const PEDIATRIC_PRIMARY_INDICATIONS = [
+  'spinal muscular atrophy',
+  'sma',
+  'duchenne muscular dystrophy',
+  'dmd',
+  'duchenne',
+  'pediatric acute lymphoblastic leukemia',
+  'pediatric all',
+  'neuroblastoma',
+  'retinoblastoma',
+  'wilms tumor',
+  'medulloblastoma',
+  'rett syndrome',
+  'dravet syndrome',
+  'lennox-gastaut syndrome',
+  'batten disease',
+  'phenylketonuria',
+  'pku',
+  'cystic fibrosis',
+];
+
+function isPediatricSegment(patientSegment: string | undefined, subtype: string | undefined): boolean {
+  const text = `${patientSegment ?? ''} ${subtype ?? ''}`.toLowerCase();
+  return /\b(pediatric|paediatric|children|child|adolescent|infant|neonatal|juvenile|newborn)\b/.test(text);
+}
+
+function isPediatricPrimaryIndication(indicationName: string): boolean {
+  const name = indicationName.toLowerCase();
+  return PEDIATRIC_PRIMARY_INDICATIONS.some((pi) => name.includes(pi));
+}
+
+function buildPediatricAnalysis(
+  indication: NonNullable<ReturnType<typeof findIndicationByName>>,
+  patientSegment: string | undefined,
+  subtype: string | undefined,
+): PediatricAnalysis | undefined {
+  const isPedSegment = isPediatricSegment(patientSegment, subtype);
+  const isPedPrimary = isPediatricPrimaryIndication(indication.name);
+
+  // Only produce analysis if pediatric context is relevant
+  if (!isPedSegment && !isPedPrimary) return undefined;
+
+  const adultPrevalence = indication.us_prevalence;
+  let pediatricPrevalence: number;
+  let pricingAdjustment: number;
+  let rationale: string;
+
+  if (indication.pediatric_prevalence !== undefined && indication.pediatric_prevalence > 0) {
+    // Use explicit pediatric prevalence from indication data
+    pediatricPrevalence = indication.pediatric_prevalence;
+    pricingAdjustment = 0.85; // Moderate adjustment for weight-based dosing
+    rationale =
+      `Pediatric prevalence of ${pediatricPrevalence.toLocaleString()} used from indication data ` +
+      `(vs adult prevalence of ${adultPrevalence.toLocaleString()}). ` +
+      `Pricing adjusted to 0.85x adult WAC for weight-based pediatric dosing.`;
+  } else if (isPedPrimary) {
+    // Pediatric-primary indication: use 15-25% of adult prevalence
+    const pedFraction = 0.2; // 20% as midpoint
+    pediatricPrevalence = Math.round(adultPrevalence * pedFraction);
+    pricingAdjustment = 0.9; // Less adjustment — pediatric is the primary market
+    rationale =
+      `"${indication.name}" is a pediatric-primary indication. Estimated pediatric prevalence at ` +
+      `20% of total prevalence (${pediatricPrevalence.toLocaleString()} patients). ` +
+      `Pricing adjusted to 0.90x — pediatric formulation is the primary product.`;
+  } else {
+    // Generic pediatric subset of adult indication
+    const pedFraction = 0.15;
+    pediatricPrevalence = Math.round(adultPrevalence * pedFraction);
+    pricingAdjustment = 0.75; // Larger adjustment for lower weight / dose
+    rationale =
+      `Pediatric subset estimated at 15% of adult prevalence (${pediatricPrevalence.toLocaleString()} patients). ` +
+      `Pricing adjusted to 0.75x adult WAC reflecting lower weight-based dosing. ` +
+      `Note: pediatric clinical development may require separate trials and formulation.`;
+  }
+
+  return {
+    is_pediatric_focused: isPedPrimary || isPedSegment,
+    pediatric_prevalence: pediatricPrevalence,
+    adult_prevalence: adultPrevalence,
+    pricing_adjustment: pricingAdjustment,
+    rationale,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
 // MAIN PHARMA CALCULATION FUNCTION
 // ────────────────────────────────────────────────────────────
 export async function calculateMarketSizing(rawInput: MarketSizingInput): Promise<MarketSizingOutput> {
@@ -1393,18 +1652,34 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
   const competitorCount = indication.major_competitors.length;
   const shareRange = adjustShareForCompetition(rawShareRange, competitorCount);
 
-  const diagnosed = Math.round(indication.us_prevalence * indication.diagnosis_rate);
+  // Enhancement E: Pediatric population modeling
+  const pediatricAnalysis = buildPediatricAnalysis(indication, input.patient_segment, input.subtype);
+  const effectivePrevalence =
+    pediatricAnalysis &&
+    (isPediatricSegment(input.patient_segment, input.subtype) || isPediatricPrimaryIndication(indication.name))
+      ? pediatricAnalysis.pediatric_prevalence
+      : indication.us_prevalence;
+
+  const diagnosed = Math.round(effectivePrevalence * indication.diagnosis_rate);
   const treated = Math.round(diagnosed * indication.treatment_rate);
-  const addressable = Math.round(treated * addressabilityFactor);
+
+  // Enhancement D: Real-world adherence step
+  const adherenceRate = getAdherenceRate(indication.therapy_area);
+  const adherent = Math.round(treated * adherenceRate);
+
+  // Addressable now derives from adherent, not treated
+  const addressable = Math.round(adherent * addressabilityFactor);
   const capturable_base = Math.round(addressable * shareRange.base);
 
   const patientFunnel: PatientFunnel = {
-    us_prevalence: indication.us_prevalence,
+    us_prevalence: effectivePrevalence,
     us_incidence: indication.us_incidence,
     diagnosed,
     diagnosed_rate: indication.diagnosis_rate,
     treated,
     treated_rate: indication.treatment_rate,
+    adherent,
+    adherence_rate: adherenceRate,
     addressable,
     addressable_rate: addressabilityFactor,
     capturable: capturable_base,
@@ -1417,7 +1692,9 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
   // Step 4: TAM / SAM / SOM
   const selectedPrice = pricingAnalysis.recommended_wac[input.pricing_assumption];
   const therapyGTN = GROSS_TO_NET[indication.therapy_area] ?? DEFAULT_GTN;
-  const netPrice = selectedPrice * (1 - therapyGTN);
+  // Enhancement E: Apply pediatric pricing adjustment if applicable
+  const pediatricPricingFactor = pediatricAnalysis ? pediatricAnalysis.pricing_adjustment : 1.0;
+  const netPrice = selectedPrice * (1 - therapyGTN) * pediatricPricingFactor;
 
   const us_tam_value = (treated * netPrice) / 1e9;
   const us_sam_value = (addressable * netPrice) / 1e9;
@@ -1463,6 +1740,19 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
   const manufacturingConstraint = buildManufacturingConstraint(input.mechanism, revenueProjection);
   if (manufacturingConstraint.constrained_years.length > 0) {
     revenueProjection = applyManufacturingConstraint(revenueProjection, manufacturingConstraint);
+  }
+
+  // Step 7d: Enhancement C — One-time treatment (gene therapy) revenue model
+  const oneTimeTreatmentModel = buildOneTimeTreatmentModel(
+    input.mechanism,
+    indication,
+    netPrice,
+    input.launch_year,
+    shareRange,
+    addressabilityFactor,
+  );
+  if (oneTimeTreatmentModel) {
+    revenueProjection = applyOneTimeTreatmentToProjection(revenueProjection, oneTimeTreatmentModel);
   }
 
   // Step 8: Peak sales ($M)
@@ -1669,6 +1959,8 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
     manufacturing_constraint:
       manufacturingConstraint.constrained_years.length > 0 ? manufacturingConstraint : undefined,
     regulatory_pathway_analysis: regulatoryPathwayAnalysis,
+    one_time_treatment_model: oneTimeTreatmentModel,
+    pediatric_analysis: pediatricAnalysis,
   };
 }
 
@@ -3618,7 +3910,7 @@ function buildMethodology(
       `treatment rate ${(indication.treatment_rate * 100).toFixed(0)}%. ` +
       `Source: ${indication.prevalence_source}.`,
     '',
-    `Patient Funnel: Prevalence → diagnosed → treated → addressable (segment filter${input.patient_segment ? `: "${input.patient_segment}"` : ': broad'}) → capturable. Biomarker-specific prevalence applied where available.`,
+    `Patient Funnel: Prevalence → diagnosed → treated → adherent (${(getAdherenceRate(indication.therapy_area) * 100).toFixed(0)}% ${indication.therapy_area} adherence rate) → addressable (segment filter${input.patient_segment ? `: "${input.patient_segment}"` : ': broad'}) → capturable. Real-world adherence/persistence rates applied per therapy area to reflect treatment discontinuation. Biomarker-specific prevalence applied where available.`,
     '',
     `Pricing: WAC benchmarked against ${indication.therapy_area} comparables from Terrain drug pricing database (${PRICING_BENCHMARKS.filter((b) => b.therapy_area === indication.therapy_area).length} drugs). ` +
       `Net price $${Math.round(netPrice).toLocaleString()} after ${(grossToNet * 100).toFixed(0)}% gross-to-net.`,
@@ -3645,6 +3937,14 @@ function buildMethodology(
     '',
     `Patient Dynamics: ${patientDyn.total_share_additive_pct}% additive / ${patientDyn.total_share_cannibalistic_pct}% cannibalistic share capture modeled. Net market expansion: ${patientDyn.net_market_expansion_pct}%.`,
     '',
+    isOneTimeTreatment(input.mechanism)
+      ? `One-Time Treatment: Gene therapy/cell therapy revenue modeled using prevalent pool depletion, not annual recurring therapy. Revenue peaks in Years 1-3 as existing patient backlog is treated, then declines to steady-state from new incident cases only. Manufacturing capacity constraints applied.`
+      : '',
+    '',
+    isPediatricSegment(input.patient_segment, input.subtype) || isPediatricPrimaryIndication(indication.name)
+      ? `Pediatric Population: Prevalence adjusted for pediatric population. Pricing reflects weight-based dosing adjustment. Pediatric clinical development timeline and regulatory pathway (PREA, Written Request) may differ from adult programs.`
+      : '',
+    '',
     `Geography: US baseline scaled per territory using IQVIA pharma market revenue ratios (2024). Territory-specific prevalence adjustments applied for diseases with known geographic variation (e.g., HBV, gastric cancer, sickle cell). Non-US estimates should be validated with local epidemiological data.`,
   ]
     .filter(Boolean)
@@ -3665,7 +3965,8 @@ function buildAssumptions(
     `US prevalence: ${indication.us_prevalence.toLocaleString()} (${indication.prevalence_source})`,
     `Diagnosis rate: ${(indication.diagnosis_rate * 100).toFixed(0)}%`,
     `Treatment rate: ${(indication.treatment_rate * 100).toFixed(0)}%`,
-    `Addressability: ${(addressabilityFactor * 100).toFixed(0)}% of treated patients`,
+    `Adherence/persistence: ${(getAdherenceRate(indication.therapy_area) * 100).toFixed(0)}% (${indication.therapy_area})`,
+    `Addressability: ${(addressabilityFactor * 100).toFixed(0)}% of adherent patients`,
     `Pricing: ${input.pricing_assumption} tier`,
     `Gross-to-net: ${(grossToNet * 100).toFixed(0)}% (${indication.therapy_area})`,
     `Stage: ${input.development_stage}`,

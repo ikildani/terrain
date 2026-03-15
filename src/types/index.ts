@@ -254,6 +254,8 @@ export interface PatientFunnel {
   diagnosed_rate: number; // % of prevalent diagnosed
   treated: number;
   treated_rate: number; // % of diagnosed treated
+  adherent: number; // Patients who remain on therapy (treated * adherence_rate)
+  adherence_rate: number; // Real-world adherence/persistence rate (0-1)
   addressable: number; // Meets patient_segment criteria
   addressable_rate: number;
   capturable: number; // Realistic market share at peak
@@ -633,6 +635,41 @@ export interface NonLinearCompetitiveErosion {
 }
 
 // ────────────────────────────────────────────────────────────
+// MECHANISM-BASED COMPETITIVE ANALYSIS
+// Investment-bank grade mechanism similarity scoring
+// ────────────────────────────────────────────────────────────
+
+export type MechanismRelationship = 'same_mechanism' | 'same_target' | 'same_pathway' | 'different_mechanism';
+
+export interface CompetitiveMechanismAnalysis {
+  competitors: {
+    name: string;
+    mechanism: string;
+    similarity_score: number; // 0-1
+    relationship: MechanismRelationship;
+    erosion_impact_pct: number;
+    market_effect: 'cannibalistic' | 'additive' | 'mixed';
+  }[];
+  overall_mechanism_crowding: 'high' | 'moderate' | 'low';
+  mechanism_weighted_erosion_pct: number;
+  differentiation_narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// PATENT CLIFF ANALYSIS
+// Granular LOE modeling by product type
+// ────────────────────────────────────────────────────────────
+
+export interface PatentCliffAnalysis {
+  product_type: 'small_molecule' | 'biologic' | 'cell_gene_therapy';
+  estimated_loe_year: number;
+  exclusivity_type: string; // "NCE 5-year + patent" | "12-year biologic" | "7-year orphan" | "No generic pathway"
+  erosion_profile: { year: number; retained_pct: number }[];
+  peak_to_trough_decline_pct: number;
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
 // GTN EVOLUTION (Market Sizing 99+)
 // Year-by-year gross-to-net modeling
 // ────────────────────────────────────────────────────────────
@@ -918,6 +955,34 @@ export interface RegulatoryPathwayAnalysis {
   inferred: boolean; // true if designations were inferred from indication characteristics
 }
 
+// ────────────────────────────────────────────────────────────
+// ONE-TIME TREATMENT MODEL (Enhancement C)
+// Gene therapy / CAR-T prevalent pool depletion model
+// ────────────────────────────────────────────────────────────
+
+export interface OneTimeTreatmentModel {
+  is_one_time: boolean;
+  prevalent_pool: number;
+  annual_new_cases: number;
+  pool_depletion_years: number; // Years to exhaust prevalent pool
+  steady_state_revenue_m: number; // Annual revenue from new cases only
+  revenue_by_year: { year: number; patients_treated: number; revenue_m: number }[];
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// PEDIATRIC ANALYSIS (Enhancement E)
+// Pediatric population modeling and pricing adjustment
+// ────────────────────────────────────────────────────────────
+
+export interface PediatricAnalysis {
+  is_pediatric_focused: boolean;
+  pediatric_prevalence: number;
+  adult_prevalence: number;
+  pricing_adjustment: number; // 0.7-0.9x
+  rationale: string;
+}
+
 export interface MarketSizingOutput {
   summary: {
     tam_us: MarketMetric;
@@ -963,6 +1028,10 @@ export interface MarketSizingOutput {
   payer_tier_pricing?: PayerTierPricing[];
   manufacturing_constraint?: ManufacturingConstraint;
   regulatory_pathway_analysis?: RegulatoryPathwayAnalysis;
+  competitive_mechanism_analysis?: CompetitiveMechanismAnalysis;
+  patent_cliff_analysis?: PatentCliffAnalysis;
+  one_time_treatment_model?: OneTimeTreatmentModel;
+  pediatric_analysis?: PediatricAnalysis;
 }
 
 // ────────────────────────────────────────────────────────────

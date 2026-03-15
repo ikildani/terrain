@@ -17,6 +17,7 @@ import { redis } from '@/lib/redis';
 import type { ApiResponse } from '@/types';
 import type { FeatureKey } from '@/lib/subscription';
 import { parseBodyWithLimit, BodyTooLargeError } from '@/lib/api/parse-body';
+import { logActivity } from '@/lib/activity';
 
 const CACHE_TTL_SECONDS = 900; // 15 minutes
 
@@ -270,6 +271,19 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
           .select('id')
           .single();
         if (saved) reportId = saved.id;
+      }
+
+      // ── Log activity (if workspace-scoped) ──────────────
+      const workspaceId = (body as Record<string, unknown>).workspace_id as string | undefined;
+      if (workspaceId) {
+        logActivity({
+          workspaceId,
+          userId: user.id,
+          action: 'analysis_run',
+          resourceType: 'report',
+          resourceId: reportId,
+          metadata: { feature: config.feature, indication, report_type: config.feature },
+        });
       }
 
       // ── Success ───────────────────────────────────────────

@@ -9,11 +9,7 @@
 // procurement surveys, SEC filings, ECRI Institute, AdvaMed
 // ============================================================
 
-import type {
-  ProductCategory,
-  DeviceCategory,
-  DevicePricingModel,
-} from '@/types/devices-diagnostics';
+import type { ProductCategory, DeviceCategory, DevicePricingModel } from '@/types/devices-diagnostics';
 
 // ────────────────────────────────────────────────────────────
 // INTERFACE
@@ -38,7 +34,6 @@ export interface DevicePricingBenchmark {
 // ────────────────────────────────────────────────────────────
 
 export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
-
   // ══════════════════════════════════════════════════════════
   // CARDIOVASCULAR (~30)
   // ══════════════════════════════════════════════════════════
@@ -615,6 +610,62 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     pricing_model: 'per_unit_disposable',
     year_launched: 2015,
     gpo_contracted: true,
+    source: 'GPO contract data; hospital procurement surveys',
+  },
+
+  // --- Spine / Vertebral Augmentation ---
+  {
+    device_name: 'Kyphon Balloon Kyphoplasty System',
+    company: 'Medtronic',
+    product_category: 'device_surgical',
+    device_category: 'orthopedic',
+    hospital_asp_usd: 3200,
+    asp_range: { low: 2500, high: 4000 },
+    pricing_model: 'per_procedure',
+    year_launched: 2001,
+    gpo_contracted: true,
+    reimbursement_code: 'CPT 22513/22514',
+    source: 'CMS Fee Schedule 2024; GPO contract data',
+  },
+  {
+    device_name: 'SpineJack Vertebral Augmentation System',
+    company: 'Stryker',
+    product_category: 'device_surgical',
+    device_category: 'orthopedic',
+    hospital_asp_usd: 8500,
+    asp_range: { low: 7000, high: 10000 },
+    pricing_model: 'per_procedure',
+    year_launched: 2018,
+    gpo_contracted: false,
+    reimbursement_code: 'CPT 22513/22514',
+    source: 'Hospital procurement surveys; SEC filings',
+  },
+  {
+    device_name: 'PMMA Bone Cement Kit (Vertebral Augmentation)',
+    company: 'Various (Stryker, Medtronic)',
+    product_category: 'device_surgical',
+    device_category: 'orthopedic',
+    hospital_asp_usd: 350,
+    asp_range: { low: 200, high: 500 },
+    pricing_model: 'per_unit_disposable',
+    year_launched: 2005,
+    gpo_contracted: true,
+    reimbursement_code: 'CPT 22513/22514',
+    source: 'GPO contract data; hospital procurement surveys',
+  },
+
+  // --- Shoulder Arthroplasty ---
+  {
+    device_name: 'BLUEPRINT 3D Shoulder Arthroplasty System',
+    company: 'Wright Medical (Stryker)',
+    product_category: 'device_implantable',
+    device_category: 'orthopedic',
+    hospital_asp_usd: 8200,
+    asp_range: { low: 6500, high: 10000 },
+    pricing_model: 'per_procedure',
+    year_launched: 2018,
+    gpo_contracted: true,
+    reimbursement_code: 'DRG 483',
     source: 'GPO contract data; hospital procurement surveys',
   },
 
@@ -1439,6 +1490,31 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     source: 'Hospital procurement surveys; SEC filings',
   },
   {
+    device_name: 'da Vinci Surgical System Instruments (per procedure)',
+    company: 'Intuitive Surgical',
+    product_category: 'device_surgical',
+    device_category: 'general_surgery',
+    hospital_asp_usd: 2500,
+    asp_range: { low: 1800, high: 3500 },
+    pricing_model: 'per_procedure',
+    year_launched: 2014,
+    gpo_contracted: true,
+    source: 'Hospital procurement surveys; SEC filings; Intuitive investor presentations',
+  },
+  {
+    device_name: 'Ion Robotic Bronchoscopy Consumables (per procedure)',
+    company: 'Intuitive Surgical',
+    product_category: 'device_surgical',
+    device_category: 'respiratory',
+    hospital_asp_usd: 3800,
+    asp_range: { low: 3000, high: 4800 },
+    pricing_model: 'per_procedure',
+    year_launched: 2021,
+    gpo_contracted: false,
+    reimbursement_code: 'CPT 31629',
+    source: 'Hospital procurement surveys; SEC filings',
+  },
+  {
     device_name: 'Versius Surgical Robotic System',
     company: 'CMR Surgical',
     product_category: 'device_capital_equipment',
@@ -1670,6 +1746,33 @@ export const DEVICE_PRICING_BENCHMARKS: DevicePricingBenchmark[] = [
     year_launched: 2017,
     gpo_contracted: true,
     source: 'GPO contract data; hospital procurement surveys',
+  },
+
+  {
+    device_name: 'V.A.C. Therapy Unit (NPWT Pump)',
+    company: 'KCI (3M)',
+    product_category: 'device_monitoring',
+    device_category: 'wound_care',
+    hospital_asp_usd: 1200,
+    asp_range: { low: 900, high: 1600 },
+    pricing_model: 'per_unit_capital',
+    year_launched: 2018,
+    gpo_contracted: true,
+    reimbursement_code: 'HCPCS E2402',
+    source: 'CMS DMEPOS Fee Schedule 2024; GPO contract data',
+  },
+  {
+    device_name: 'Dermagraft Bioengineered Skin Substitute',
+    company: 'Organogenesis',
+    product_category: 'device_implantable',
+    device_category: 'wound_care',
+    hospital_asp_usd: 2800,
+    asp_range: { low: 2000, high: 3600 },
+    pricing_model: 'per_unit_disposable',
+    year_launched: 2012,
+    gpo_contracted: false,
+    reimbursement_code: 'HCPCS Q4106',
+    source: 'CMS Fee Schedule 2024; hospital procurement surveys',
   },
 
   // --- Surgical Staplers ---
@@ -2141,9 +2244,7 @@ export function getASPPercentile(category: DeviceCategory, percentile: number): 
  * @param category - The device category to analyze
  * @returns An object with low (25th percentile), median (50th), and high (75th) ASP values
  */
-export function getCompetitivePricingRange(
-  category: DeviceCategory,
-): { low: number; median: number; high: number } {
+export function getCompetitivePricingRange(category: DeviceCategory): { low: number; median: number; high: number } {
   return {
     low: getASPPercentile(category, 25),
     median: getASPPercentile(category, 50),

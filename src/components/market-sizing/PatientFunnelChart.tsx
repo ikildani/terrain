@@ -22,6 +22,7 @@ export default function PatientFunnelChart({ funnel }: PatientFunnelChartProps) 
     { stage: 'Prevalence', count: funnel.us_prevalence, rate: 1.0 },
     { stage: 'Diagnosed', count: funnel.diagnosed, rate: funnel.diagnosed_rate },
     { stage: 'Treated', count: funnel.treated, rate: funnel.treated_rate },
+    { stage: 'Adherent', count: funnel.adherent, rate: funnel.adherence_rate },
     { stage: 'Addressable', count: funnel.addressable, rate: funnel.addressable_rate },
     { stage: 'Capturable', count: funnel.capturable, rate: funnel.capturable_rate },
   ];
