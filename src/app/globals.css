@@ -1227,6 +1227,16 @@ body {
   border-color: #d1d5db !important;
 }
 
+/* Page-break avoidance — prevent charts/cards/tables from being split across pages */
+.export-light .chart-container,
+.export-light .card,
+.export-light .stat-card,
+.export-light .data-table,
+.export-light [data-report-content] > div {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
 /* ============================================
    RESPONSIVE (Tablet breakpoint)
    ============================================ */

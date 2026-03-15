@@ -6,6 +6,68 @@ import { jsPDF } from 'jspdf';
 // Re-export layout constants from dedicated module (keeps heavy deps out of light importers)
 export { PDF_LAYOUT } from './pdf-layout';
 
+/**
+ * Convert all SVG elements within a container to canvas elements
+ * for reliable html2canvas capture. Returns a cleanup function
+ * to restore the original SVGs.
+ */
+async function svgToCanvas(container: HTMLElement): Promise<() => void> {
+  const svgs = container.querySelectorAll('svg.recharts-surface');
+  const originals: { svg: SVGSVGElement; canvas: HTMLCanvasElement; parent: HTMLElement }[] = [];
+
+  for (const svg of Array.from(svgs)) {
+    const svgElement = svg as SVGSVGElement;
+    const parent = svgElement.parentElement;
+    if (!parent) continue;
+
+    const bbox = svgElement.getBoundingClientRect();
+    const canvas = document.createElement('canvas');
+    canvas.width = bbox.width * 2; // 2x for retina
+    canvas.height = bbox.height * 2;
+    canvas.style.width = `${bbox.width}px`;
+    canvas.style.height = `${bbox.height}px`;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) continue;
+
+    // Serialize SVG to string and render to canvas via Image
+    const svgData = new XMLSerializer().serializeToString(svgElement);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => {
+          ctx.scale(2, 2);
+          ctx.drawImage(img, 0, 0, bbox.width, bbox.height);
+          resolve();
+        };
+        img.onerror = reject;
+        img.src = url;
+      });
+
+      // Replace SVG with canvas in DOM
+      svgElement.style.display = 'none';
+      parent.appendChild(canvas);
+      originals.push({ svg: svgElement, canvas, parent });
+    } catch {
+      // If SVG conversion fails, skip this chart
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  // Return cleanup function
+  return () => {
+    for (const { svg, canvas, parent } of originals) {
+      svg.style.display = '';
+      parent.removeChild(canvas);
+    }
+  };
+}
+
 interface ExportBranding {
   logoUrl?: string | null;
   primaryColor?: string | null;
@@ -61,15 +123,20 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
     await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
   }
 
+  // Convert SVG charts to canvas for reliable capture
+  const restoreSvgs = await svgToCanvas(element);
+
   try {
-    // Capture at 2x for retina clarity
+    // Capture at 3x for print quality
     const canvas = await html2canvas(element, {
-      scale: 2,
+      scale: 3,
       useCORS: true,
       backgroundColor: '#FFFFFF',
       logging: false,
-      windowWidth: element.scrollWidth,
+      windowWidth: 816, // Letter width at 96 DPI
       windowHeight: element.scrollHeight,
+      allowTaint: false,
+      foreignObjectRendering: false, // More compatible across browsers
     });
 
     const imgWidth = canvas.width;
@@ -100,8 +167,9 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
     });
 
     // Scale image to fit content width
-    const ratio = contentWidth / (imgWidth / 2); // /2 because scale=2
-    const scaledHeight = (imgHeight / 2) * ratio;
+    const scaleFactor = 3; // Must match html2canvas scale option
+    const ratio = contentWidth / (imgWidth / scaleFactor);
+    const scaledHeight = (imgHeight / scaleFactor) * ratio;
     const totalPages = Math.ceil(scaledHeight / contentHeight);
 
     const dateString = new Date().toLocaleDateString('en-US', {
@@ -185,8 +253,8 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
       pdf.line(margin, headerHeight + margin - 2, pageWidth - margin, headerHeight + margin - 2);
 
       // ── Content (cropped from the full image) ───────────
-      const sourceY = ((page * contentHeight) / ratio) * 2;
-      const sourceH = Math.min((contentHeight / ratio) * 2, imgHeight - sourceY);
+      const sourceY = ((page * contentHeight) / ratio) * scaleFactor;
+      const sourceH = Math.min((contentHeight / ratio) * scaleFactor, imgHeight - sourceY);
 
       const pageCanvas = document.createElement('canvas');
       pageCanvas.width = imgWidth;
@@ -195,7 +263,7 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
       if (ctx) {
         ctx.drawImage(canvas, 0, sourceY, imgWidth, sourceH, 0, 0, imgWidth, sourceH);
         const pageImgData = pageCanvas.toDataURL('image/png');
-        const sliceHeight = (sourceH / 2) * ratio;
+        const sliceHeight = (sourceH / scaleFactor) * ratio;
         pdf.addImage(pageImgData, 'PNG', margin, headerHeight + margin, contentWidth, sliceHeight);
       }
 
@@ -214,6 +282,8 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
 
     pdf.save(`${filename}.pdf`);
   } finally {
+    // Restore original SVG elements
+    restoreSvgs();
     // Only remove the class if we added it
     if (!alreadyLight) {
       element.classList.remove('export-light');
