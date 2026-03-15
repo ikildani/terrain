@@ -56,7 +56,14 @@ const GEOGRAPHIES = [
   { code: 'China', label: 'China' },
   { code: 'Canada', label: 'Canada' },
   { code: 'Australia', label: 'Australia' },
-  { code: 'RoW', label: 'RoW' },
+  { code: 'South Korea', label: 'South Korea' },
+  { code: 'Brazil', label: 'Brazil' },
+  { code: 'India', label: 'India' },
+  { code: 'Mexico', label: 'Mexico' },
+  { code: 'Taiwan', label: 'Taiwan' },
+  { code: 'Saudi Arabia', label: 'Saudi Arabia' },
+  { code: 'Israel', label: 'Israel' },
+  { code: 'RoW', label: 'RoW (Other)' },
 ] as const;
 
 const PHARMA_STAGES = [

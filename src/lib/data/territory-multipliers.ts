@@ -101,6 +101,76 @@ export const TERRITORY_MULTIPLIERS: TerritoryMultiplier[] = [
       'Blended estimate ~$180B. Includes Brazil, South Korea, Taiwan, Middle East, India, ASEAN. Highly variable access and pricing.',
   },
   {
+    territory: 'South Korea',
+    code: 'South Korea',
+    multiplier: 0.04,
+    population_m: 52,
+    gdp_per_capita_usd: 35000,
+    healthcare_spend_pct: 8.4,
+    notes:
+      'Pharma market ~$24B. MFDS regulated. NHI reimbursement with HIRA HTA evaluation. Strong generics market; innovative drugs face price negotiations.',
+  },
+  {
+    territory: 'Brazil',
+    code: 'Brazil',
+    multiplier: 0.05,
+    population_m: 216,
+    gdp_per_capita_usd: 10000,
+    healthcare_spend_pct: 9.6,
+    notes:
+      'Pharma market ~$30B. ANVISA regulated. SUS public system + private insurance. CONITEC HTA for public formulary. Large patient population offsets low pricing.',
+  },
+  {
+    territory: 'India',
+    code: 'India',
+    multiplier: 0.04,
+    population_m: 1430,
+    gdp_per_capita_usd: 2600,
+    healthcare_spend_pct: 3.3,
+    notes:
+      'Pharma market ~$25B. CDSCO regulated. NPPA price controls on essential drugs. Massive generic manufacturing base. Rapidly growing innovative segment.',
+  },
+  {
+    territory: 'Mexico',
+    code: 'Mexico',
+    multiplier: 0.02,
+    population_m: 130,
+    gdp_per_capita_usd: 11500,
+    healthcare_spend_pct: 5.5,
+    notes:
+      'Pharma market ~$12B. COFEPRIS regulated. IMSS/ISSSTE public procurement; private OOP market growing. UNOPS centralized purchasing.',
+  },
+  {
+    territory: 'Taiwan',
+    code: 'Taiwan',
+    multiplier: 0.015,
+    population_m: 24,
+    gdp_per_capita_usd: 33000,
+    healthcare_spend_pct: 6.6,
+    notes:
+      'Pharma market ~$9B. TFDA regulated. NHI universal coverage with PBRS price-volume agreements. High device adoption.',
+  },
+  {
+    territory: 'Saudi Arabia',
+    code: 'Saudi Arabia',
+    multiplier: 0.015,
+    population_m: 36,
+    gdp_per_capita_usd: 28000,
+    healthcare_spend_pct: 6.4,
+    notes:
+      'Pharma market ~$9B. SFDA regulated. Vision 2030 driving healthcare investment. MOH + NUPCO centralized procurement.',
+  },
+  {
+    territory: 'Israel',
+    code: 'Israel',
+    multiplier: 0.01,
+    population_m: 10,
+    gdp_per_capita_usd: 55000,
+    healthcare_spend_pct: 8.3,
+    notes:
+      'Pharma market ~$6B. MOH regulated. National Health Insurance with HMO (kupot holim) procurement. Strong medtech adoption.',
+  },
+  {
     territory: 'Canada',
     code: 'Canada',
     multiplier: 0.04,

@@ -161,7 +161,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     return NextResponse.json({
       success: true,
-      data: { shared_count: toInsert.length, not_found_emails: notFound },
+      data: { shared_count: toInsert.length, not_found_count: notFound.length },
     });
   } catch {
     return NextResponse.json({ success: false, error: 'Invalid request body.' } satisfies ApiResponse<never>, {

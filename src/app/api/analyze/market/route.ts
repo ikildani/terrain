@@ -86,6 +86,13 @@ const RequestSchema = z.object({
           'Australia',
           'RoW',
           'Global',
+          'South Korea',
+          'Brazil',
+          'India',
+          'Mexico',
+          'Taiwan',
+          'Saudi Arabia',
+          'Israel',
         ]),
       )
       .min(1, 'At least one geography is required.'),

@@ -705,7 +705,7 @@ function buildDeviceGeographyBreakdown(
 ) {
   // Expand 'Global' to all individual territories
   const expandedGeos = geographies.includes('Global')
-    ? ['US', 'EU5', 'Japan', 'China', 'Canada', 'Australia', 'RoW']
+    ? ['US', 'EU5', 'Japan', 'China', 'Canada', 'Australia', 'South Korea', 'Brazil', 'India', 'Mexico', 'Taiwan', 'Saudi Arabia', 'Israel', 'RoW']
     : geographies;
 
   return expandedGeos
@@ -729,6 +729,13 @@ function buildDeviceGeographyBreakdown(
           'NMPA approved; provincial reimbursement catalog listing required; centralized volume-based procurement (VBP)',
         Canada: 'Provincial health authority procurement; CADTH device HTA; group purchasing organizations (GPOs)',
         Australia: 'TGA device registration; MSAC HTA for prostheses list; PBS equivalent for implantables',
+        'South Korea': 'MFDS device approval; NHI reimbursement with HIRA HTA; Korean New Health Technology Assessment',
+        Brazil: 'ANVISA device registration; SUS public procurement; ANS private insurance coverage; CONITEC HTA',
+        India: 'CDSCO device regulation; NPPA price controls; state-level procurement; rapidly growing private sector',
+        Mexico: 'COFEPRIS device registration; IMSS/ISSSTE public hospital procurement; UNOPS centralized purchasing',
+        Taiwan: 'TFDA device approval; NHI coverage with PBRS agreements; high medtech adoption rate',
+        'Saudi Arabia': 'SFDA device registration; MOH hospital procurement; NUPCO centralized purchasing; Vision 2030 investment',
+        Israel: 'MOH device regulation; HMO (kupot holim) procurement; strong medtech early adopter market',
         RoW: 'Variable; tender-based procurement in many markets; WHO prequalification for some device classes',
       };
 

@@ -9,7 +9,8 @@ import { z } from 'zod';
 
 import * as Sentry from '@sentry/nextjs';
 import { createClient } from '@/lib/supabase/server';
-import { checkUsage, recordUsage } from '@/lib/usage';
+import { checkUsage, checkAndRecordUsageAtomic, recordUsage } from '@/lib/usage';
+import type { PlanKey } from '@/lib/subscription';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, withTiming, logApiRequest, logApiResponse, logBusinessEvent } from '@/lib/logger';
 import { redis } from '@/lib/redis';
@@ -116,8 +117,9 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
         );
       }
 
-      // ── Usage limit check ─────────────────────────────────
+      // ── Usage limit check (pre-flight — fast rejection) ──
       const usage = await checkUsage(user.id, config.feature);
+      const userPlanKey = usage.plan as PlanKey;
 
       Sentry.setTag('plan', usage.plan);
       Sentry.setTag('feature', config.feature);
@@ -226,9 +228,26 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
         }
       }
 
-      // ── Record usage ──────────────────────────────────────
+      // ── Record usage (atomic check+insert to prevent TOCTOU race) ──
       const usageMeta = config.extractUsageMeta?.(validatedBody) ?? {};
-      await recordUsage(user.id, config.feature, indication, usageMeta);
+      const atomicResult = await checkAndRecordUsageAtomic(user.id, config.feature, userPlanKey, indication, usageMeta);
+
+      // If the atomic check rejected (race condition caught), return 403
+      if (!atomicResult.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Monthly limit reached (${atomicResult.limit} analyses on ${atomicResult.plan} plan). Upgrade to Pro for unlimited access.`,
+            usage: {
+              feature: config.feature,
+              monthly_count: atomicResult.monthlyCount,
+              limit: atomicResult.limit,
+              remaining: 0,
+            },
+          } satisfies ApiResponse<never> & { usage: unknown },
+          { status: 403 },
+        );
+      }
 
       // ── Save report (only when explicitly requested) ───
       let reportId: string | undefined;

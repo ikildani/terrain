@@ -38,6 +38,16 @@ async function isDuplicate(eventId: string, supabase: ReturnType<typeof createSe
       logger.warn('stripe_dedup_insert_error', { eventId, error: error.message });
       return false;
     }
+
+    // Opportunistic cleanup: delete events older than 7 days (fire and forget)
+    supabase
+      .from('stripe_events')
+      .delete()
+      .lt('processed_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      .then(({ error: cleanupErr }) => {
+        if (cleanupErr) logger.warn('stripe_events_cleanup_error', { error: cleanupErr.message });
+      });
+
     return false;
   } catch {
     // DB unavailable — allow through
@@ -129,6 +139,17 @@ export async function POST(request: NextRequest) {
       error: err instanceof Error ? err.message : 'Unknown error',
     });
     return NextResponse.json({ error: 'Invalid signature.' }, { status: 400 });
+  }
+
+  // ── Reject stale events (older than 24 hours) ────────────
+  const eventAgeSeconds = Date.now() / 1000 - event.created;
+  if (eventAgeSeconds > 24 * 60 * 60) {
+    logger.warn('webhook_stale_event_rejected', {
+      eventId: event.id,
+      type: event.type,
+      ageHours: Math.round(eventAgeSeconds / 3600),
+    });
+    return NextResponse.json({ received: true, stale: true });
   }
 
   // ── Handle event ───────────────────────────────────────────

@@ -157,6 +157,13 @@ export type GeographyCode =
   | 'China'
   | 'Canada'
   | 'Australia'
+  | 'South Korea'
+  | 'Brazil'
+  | 'India'
+  | 'Mexico'
+  | 'Taiwan'
+  | 'Saudi Arabia'
+  | 'Israel'
   | 'RoW'
   | 'Global';
 

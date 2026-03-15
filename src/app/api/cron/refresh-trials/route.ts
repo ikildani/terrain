@@ -201,6 +201,34 @@ export async function GET(request: NextRequest) {
   // Count total records in cache
   const { count } = await supabase.from('clinical_trials_cache').select('nct_id', { count: 'exact', head: true });
 
+  // Stale data detection
+  const { data: prevStatus } = await supabase
+    .from('data_source_status')
+    .select('records_count')
+    .eq('id', 'clinicaltrials')
+    .single();
+
+  const prevCount = prevStatus?.records_count ?? 0;
+  const newCount = count ?? 0;
+  let status = errors.length > 0 ? 'error' : 'success';
+
+  if (totalFetched === 0 && errors.length === 0) {
+    status = 'warning';
+    logger.warn('cron_stale_data_warning', {
+      source: 'clinicaltrials',
+      reason: 'Zero records fetched from upstream API',
+      prevCount,
+    });
+  } else if (prevCount > 0 && newCount < prevCount * 0.5) {
+    status = 'warning';
+    logger.warn('cron_stale_data_warning', {
+      source: 'clinicaltrials',
+      reason: 'Record count dropped >50%',
+      prevCount,
+      newCount,
+    });
+  }
+
   // Update source status
   await supabase.from('data_source_status').upsert({
     id: 'clinicaltrials',
@@ -209,8 +237,8 @@ export async function GET(request: NextRequest) {
     refresh_frequency: 'weekly',
     last_refreshed_at: new Date().toISOString(),
     next_refresh_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    records_count: count ?? 0,
-    status: errors.length > 0 ? 'error' : 'success',
+    records_count: newCount,
+    status,
     last_error: errors.length > 0 ? errors.join('; ') : null,
     updated_at: new Date().toISOString(),
   });

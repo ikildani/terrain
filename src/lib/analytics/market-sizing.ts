@@ -2974,7 +2974,7 @@ function buildGeographyBreakdown(
   let resolvedGeos: string[];
 
   if (geographies.includes('Global')) {
-    resolvedGeos = ['US', 'EU5', 'Japan', 'China', 'Canada', 'Australia', 'RoW'];
+    resolvedGeos = ['US', 'EU5', 'Japan', 'China', 'Canada', 'Australia', 'South Korea', 'Brazil', 'India', 'Mexico', 'Taiwan', 'Saudi Arabia', 'Israel', 'RoW'];
   } else {
     const hasEU5 = geographies.includes('EU5');
     const hasIndividualEU = geographies.some((g) => EU5_COUNTRIES.includes(g));

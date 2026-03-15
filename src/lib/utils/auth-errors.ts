@@ -7,7 +7,7 @@ export function getFriendlyAuthError(message: string): string {
     'Invalid login credentials': 'Incorrect email or password. Please try again or reset your password.',
     'Email not confirmed':
       'Please verify your email address before signing in. Check your inbox for a confirmation link.',
-    'User already registered': 'An account with this email already exists. Try signing in instead.',
+    'User already registered': 'If this email is not already registered, you will receive a verification link shortly.',
     'Signup requires a valid password': 'Please enter a password with at least 8 characters.',
     'Email rate limit exceeded': 'Too many attempts. Please wait a few minutes and try again.',
     'For security purposes, you can only request this after': 'Please wait before requesting another email.',
