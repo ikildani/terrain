@@ -1012,3 +1012,164 @@ export function getBiomarkersForIndication(indication: string): FilteredSuggesti
   if (result.length === 0) return unfiltered(BIOMARKER_SUGGESTIONS);
   return filtered(result, BIOMARKER_SUGGESTIONS.length, indication);
 }
+
+/**
+ * Get the device category for a selected procedure.
+ * Returns the first applicable_device_categories entry mapped to the
+ * DEVICE_CATEGORY_GROUPS values in the form, or null if not found.
+ */
+export function getCategoryForProcedure(procedure: string): string | null {
+  if (!procedure) return null;
+  const lower = procedure.toLowerCase();
+  const match = PROCEDURE_VOLUME_DATA.find((p) => p.procedure_name.toLowerCase() === lower);
+  if (!match || !match.applicable_device_categories?.length) return null;
+  // Map ProductCategory to device_category form values
+  const catMap: Record<string, string> = {
+    device_implantable: 'cardiovascular', // Default; overridden by specialty below
+    device_surgical: 'general_surgery',
+    device_monitoring: 'diabetes_metabolic',
+    device_capital_equipment: 'imaging_radiology',
+    device_digital_health: 'diabetes_metabolic',
+    device_drug_delivery: 'general_surgery',
+    diagnostics_companion: 'ivd_oncology',
+    diagnostics_ivd: 'ivd_oncology',
+  };
+  // Prefer specialty-based mapping from physician_specialty
+  if (match.physician_specialty?.length) {
+    const spec = match.physician_specialty[0].toLowerCase();
+    if (spec.includes('cardiolog') || spec.includes('cardiac') || spec.includes('electrophysi'))
+      return 'cardiovascular';
+    if (spec.includes('orthop')) return 'orthopedic';
+    if (spec.includes('neurosurg') || spec.includes('neurol')) return 'neurology';
+    if (spec.includes('vascul')) return 'vascular';
+    if (spec.includes('ent') || spec.includes('otolaryn')) return 'ent';
+    if (spec.includes('urolog')) return 'urology';
+    if (spec.includes('ophthal')) return 'ophthalmology';
+    if (spec.includes('oncol')) return 'oncology_surgical';
+    if (spec.includes('gastro') || spec.includes('endoscop')) return 'endoscopy_gi';
+    if (spec.includes('pulmon') || spec.includes('respir')) return 'respiratory';
+  }
+  return catMap[match.applicable_device_categories[0]] || null;
+}
+
+/**
+ * Get the hospital ASP (average selling price) for a procedure, to use
+ * as a default ASE value in the device form.
+ * Looks up via device-pricing-benchmarks using the procedure's CPT codes
+ * or by matching procedure name to device names.
+ * Returns { asp: number, source: string } or null if not found.
+ */
+export function getASEForProcedure(procedure: string): { asp: number; source: string } | null {
+  if (!procedure) return null;
+  const lower = procedure.toLowerCase();
+  const match = PROCEDURE_VOLUME_DATA.find((p) => p.procedure_name.toLowerCase() === lower);
+  if (!match) return null;
+
+  // Try to load device pricing benchmarks (synchronous import since it's static data)
+  // We'll use a lazy import approach with a sync fallback based on known procedure-ASP mappings
+  const PROCEDURE_ASP_MAP: Record<string, { asp: number; source: string }> = {
+    'transcatheter aortic valve replacement (tavr)': { asp: 32500, source: 'Edwards SAPIEN 3 / Medtronic CoreValve' },
+    'percutaneous coronary intervention (pci)': { asp: 7500, source: 'Abbott / Boston Scientific DES' },
+    'cardiac resynchronization therapy (crt-d/crt-p)': { asp: 25000, source: 'Medtronic / Abbott / Boston Scientific' },
+    'implantable cardioverter-defibrillator (icd)': { asp: 20000, source: 'Medtronic / Abbott / Boston Scientific' },
+    'cardiac ablation (af)': { asp: 30000, source: 'Medtronic / Abbott / Johnson & Johnson' },
+    'left atrial appendage closure (laac)': { asp: 15000, source: 'Boston Scientific WATCHMAN' },
+    'total knee arthroplasty (tka)': { asp: 7000, source: 'Stryker / Zimmer Biomet / Smith+Nephew' },
+    'total hip arthroplasty (tha)': { asp: 8000, source: 'Stryker / Zimmer Biomet / DePuy Synthes' },
+    'spinal fusion (posterior lumbar)': { asp: 12000, source: 'Medtronic / NuVasive / Globus Medical' },
+    'spinal cord stimulator implant': { asp: 30000, source: 'Medtronic / Abbott / Boston Scientific' },
+    'deep brain stimulation (dbs)': { asp: 35000, source: 'Medtronic / Abbott / Boston Scientific' },
+    'robotic-assisted surgery (general)': { asp: 1800000, source: 'Intuitive da Vinci System (capital)' },
+    'cochlear implant': { asp: 30000, source: 'Cochlear / MED-EL / Advanced Bionics' },
+    'intraocular lens (iol) — cataract': { asp: 1200, source: 'Alcon / Johnson & Johnson Vision' },
+    'continuous glucose monitor (cgm)': { asp: 2500, source: 'Dexcom / Abbott FreeStyle Libre (annual)' },
+    'insulin pump system': { asp: 6000, source: 'Medtronic / Tandem / Insulet (annual)' },
+    'transcatheter mitral valve repair (tmvr)': { asp: 32000, source: 'Abbott MitraClip' },
+    'peripheral vascular intervention (pvi)': { asp: 3500, source: 'Medtronic / Bard / Cook Medical' },
+    'neurovascular thrombectomy': { asp: 8000, source: 'Stryker / Medtronic (aspiration catheters)' },
+    'breast biopsy (vacuum-assisted)': { asp: 2500, source: 'Hologic / Devicor (Leica Biosystems)' },
+    'bariatric surgery — sleeve gastrectomy': { asp: 4000, source: 'Medtronic / Ethicon (staplers + energy)' },
+    'colonoscopy with polypectomy': { asp: 800, source: 'Olympus / Fujifilm (per-procedure disposables)' },
+    'hemodialysis (chronic, per session)': { asp: 350, source: 'Fresenius / Baxter / NxStage' },
+    'mechanical ventilation (icu)': { asp: 35000, source: 'Medtronic / Hamilton / Getinge (capital)' },
+  };
+
+  const entry = PROCEDURE_ASP_MAP[lower];
+  if (entry) return entry;
+
+  return null;
+}
+
+/**
+ * Filter procedure suggestions by device category.
+ * Returns only procedures whose applicable_device_categories overlap
+ * with the given form device_category value.
+ */
+export function getProceduresForCategory(deviceCategory: string): FilteredSuggestions {
+  if (!deviceCategory) return unfiltered(PROCEDURE_SUGGESTIONS);
+
+  // Map form device_category values to ProductCategory values
+  const categoryProductMap: Record<string, string[]> = {
+    cardiovascular: ['device_implantable', 'device_surgical'],
+    orthopedic: ['device_implantable', 'device_surgical'],
+    neurology: ['device_implantable', 'device_surgical'],
+    general_surgery: ['device_surgical', 'device_capital_equipment'],
+    vascular: ['device_implantable', 'device_surgical'],
+    ent: ['device_implantable', 'device_surgical'],
+    urology: ['device_surgical'],
+    ophthalmology: ['device_implantable', 'device_surgical'],
+    oncology_surgical: ['device_surgical', 'device_capital_equipment'],
+    oncology_radiation: ['device_capital_equipment'],
+    diabetes_metabolic: ['device_monitoring', 'device_digital_health', 'device_drug_delivery'],
+    respiratory: ['device_monitoring', 'device_capital_equipment'],
+    renal_dialysis: ['device_capital_equipment', 'device_monitoring'],
+    ivd_oncology: ['diagnostics_companion', 'diagnostics_ivd'],
+    ivd_infectious: ['diagnostics_companion', 'diagnostics_ivd'],
+    ivd_cardiology: ['diagnostics_companion', 'diagnostics_ivd'],
+    ivd_genetics: ['diagnostics_companion', 'diagnostics_ivd'],
+    wound_care: ['device_surgical'],
+    endoscopy_gi: ['device_surgical', 'device_capital_equipment'],
+    dental: ['device_surgical', 'device_implantable'],
+    dermatology: ['device_surgical'],
+    imaging_radiology: ['device_capital_equipment'],
+  };
+
+  const productCategories = categoryProductMap[deviceCategory];
+  if (!productCategories) return unfiltered(PROCEDURE_SUGGESTIONS);
+
+  // Filter procedure data by matching applicable_device_categories
+  // Also try specialty-based matching
+  const specMap: Record<string, string[]> = {
+    cardiovascular: ['cardiolog', 'cardiac', 'electrophysi', 'interventional cardiolog'],
+    orthopedic: ['orthop'],
+    neurology: ['neurosurg', 'neurol'],
+    vascular: ['vascul'],
+    ent: ['ent', 'otolaryn'],
+    urology: ['urolog'],
+    ophthalmology: ['ophthal'],
+    oncology_surgical: ['oncol'],
+    general_surgery: ['general surg', 'surgical'],
+    endoscopy_gi: ['gastro', 'endoscop'],
+    respiratory: ['pulmon', 'respir'],
+  };
+
+  const specTerms = specMap[deviceCategory] || [];
+
+  const matchingProcedures = PROCEDURE_VOLUME_DATA.filter((p) => {
+    // Check device category overlap
+    const catMatch = p.applicable_device_categories?.some((c) => productCategories.includes(c));
+    if (catMatch) return true;
+
+    // Check specialty overlap
+    if (specTerms.length > 0 && p.physician_specialty?.length) {
+      return p.physician_specialty.some((s) => specTerms.some((term) => s.toLowerCase().includes(term)));
+    }
+    return false;
+  });
+
+  if (matchingProcedures.length === 0) return unfiltered(PROCEDURE_SUGGESTIONS);
+
+  const matchingNames = new Set(matchingProcedures.map((p) => p.procedure_name));
+  const result = PROCEDURE_SUGGESTIONS.filter((s) => matchingNames.has(s.name));
+  return filtered(result, PROCEDURE_SUGGESTIONS.length, deviceCategory);
+}

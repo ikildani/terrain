@@ -40,8 +40,8 @@ function ActivityContent() {
     );
   }
 
-  // ── No workspace (free/pro plan) ────────────────────────
-  if (!hasWorkspace || !activeWorkspace || !activeWorkspaceId) {
+  // ── No workspace plan (free/pro) ────────────────────────
+  if (!hasWorkspace) {
     return (
       <>
         <PageHeader title="Activity" subtitle="Track workspace activity and changes." />
@@ -62,10 +62,32 @@ function ActivityContent() {
     );
   }
 
+  // ── Has plan but no workspace created yet ─────────────────
+  if (!activeWorkspace || !activeWorkspaceId) {
+    return (
+      <>
+        <PageHeader title="Activity" subtitle="Track workspace activity and changes." />
+        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+          <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
+            <Building2 className="w-7 h-7 text-teal-500" />
+          </div>
+          <h3 className="font-display text-lg text-white mb-2">Create your workspace</h3>
+          <p className="text-sm text-slate-400 leading-relaxed mb-6">Set up your workspace to get started.</p>
+          <Link href="/settings/team" className="btn btn-primary btn-sm inline-flex items-center gap-2">
+            Set Up Workspace
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </>
+    );
+  }
+
   // ── Workspace exists ────────────────────────────────────
+  const planBadge = activeWorkspace.plan === 'enterprise' ? 'Enterprise' : 'Team';
+
   return (
     <>
-      <PageHeader title="Activity" subtitle={activeWorkspace.name} badge="Team" />
+      <PageHeader title="Activity" subtitle={activeWorkspace.name} badge={planBadge} />
       <ActivityFeed workspaceId={activeWorkspaceId} />
     </>
   );

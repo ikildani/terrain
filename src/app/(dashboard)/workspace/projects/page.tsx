@@ -19,7 +19,7 @@ interface ProjectWithCounts extends WorkspaceProject {
 }
 
 function ProjectsContent() {
-  const { isLoading: subLoading, hasWorkspace } = useSubscription();
+  const { isLoading: subLoading, hasWorkspace, isEnterprise: isEnterprisePlan } = useSubscription();
   const { activeWorkspace, activeWorkspaceId, myRole, isLoading: wsLoading } = useWorkspace();
 
   const [projects, setProjects] = useState<ProjectWithCounts[]>([]);
@@ -111,21 +111,22 @@ function ProjectsContent() {
     );
   }
 
-  // ── No workspace ────────────────────────────────────────
-  if (!hasWorkspace || !activeWorkspace || !activeWorkspaceId) {
+  // ── No enterprise plan ──────────────────────────────────
+  if (!isEnterprisePlan) {
     return (
       <>
         <PageHeader title="Projects" subtitle="Organize deal rooms with information barriers." />
         <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
-          <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
-            <Building2 className="w-7 h-7 text-teal-500" />
+          <div className="w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center mb-5">
+            <ShieldCheck className="w-7 h-7 text-amber-400" />
           </div>
-          <h3 className="font-display text-lg text-white mb-2">Team workspaces</h3>
+          <h3 className="font-display text-lg text-white mb-2">Upgrade to Enterprise</h3>
           <p className="text-sm text-slate-400 leading-relaxed mb-6">
-            Upgrade to the Team plan to access shared workspaces with projects, collaboration, and team analytics.
+            Projects with information barriers are available on the Enterprise plan. Organize deal rooms with restricted
+            visibility and fine-grained access control.
           </p>
           <Link href="/settings/billing" className="btn btn-primary btn-sm inline-flex items-center gap-2">
-            View Plans
+            Upgrade to Enterprise
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -133,7 +134,27 @@ function ProjectsContent() {
     );
   }
 
-  // ── Enterprise gate ─────────────────────────────────────
+  // ── Has enterprise plan but no workspace created yet ──────
+  if (!activeWorkspace || !activeWorkspaceId) {
+    return (
+      <>
+        <PageHeader title="Projects" subtitle="Organize deal rooms with information barriers." />
+        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+          <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
+            <Building2 className="w-7 h-7 text-teal-500" />
+          </div>
+          <h3 className="font-display text-lg text-white mb-2">Create your workspace</h3>
+          <p className="text-sm text-slate-400 leading-relaxed mb-6">Set up your workspace to get started.</p>
+          <Link href="/settings/team" className="btn btn-primary btn-sm inline-flex items-center gap-2">
+            Set Up Workspace
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </>
+    );
+  }
+
+  // ── Enterprise gate (workspace exists but on team plan) ───
   if (!isEnterprise) {
     return (
       <>

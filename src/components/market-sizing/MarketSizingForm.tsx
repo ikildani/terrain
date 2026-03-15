@@ -26,6 +26,9 @@ import {
   getSpecialtiesForProcedure,
   getSettingForProcedure,
   getBiomarkersForIndication,
+  getASEForProcedure,
+  getCategoryForProcedure,
+  getProceduresForCategory,
 } from '@/lib/data/suggestion-lists';
 import type { FilteredSuggestions } from '@/lib/data/suggestion-lists';
 import {
@@ -43,6 +46,7 @@ import type { SuggestionItem } from '@/components/ui/FuzzyAutocomplete';
 // Constants
 // ────────────────────────────────────────────────────────────
 
+const EU5_COUNTRIES = ['Germany', 'France', 'Italy', 'Spain', 'UK'] as const;
 const GEOGRAPHIES = [
   { code: 'Global', label: 'Global (All Markets)' },
   { code: 'US', label: 'US' },
@@ -283,17 +287,71 @@ function SectionDivider() {
   return <div className="border-t border-navy-700" />;
 }
 
-function CheckboxItem({ checked, label, onToggle }: { checked: boolean; label: string; onToggle: () => void }) {
+function FieldDescription({ children }: { children: React.ReactNode }) {
+  return <p className="text-2xs text-slate-500 mt-0.5">{children}</p>;
+}
+
+function ValidationMessage({ missingFields }: { missingFields: string[] }) {
+  if (missingFields.length === 0) return null;
+  return <p className="text-2xs text-amber-400/80 mt-1.5">Fill in required fields: {missingFields.join(', ')}</p>;
+}
+
+/** Returns the minimum sensible launch year for a given development stage */
+function getMinLaunchYear(stage: string): number {
+  switch (stage) {
+    case 'preclinical':
+    case 'concept':
+      return 2032;
+    case 'phase1':
+    case 'discovery':
+      return 2030;
+    case 'phase2':
+    case 'clinical_trial':
+    case 'analytical_validation':
+    case 'clinical_validation':
+      return 2028;
+    case 'phase3':
+    case 'fda_submitted':
+    case 'pma_submitted':
+      return 2026;
+    case 'approved':
+    case 'cleared_approved':
+    case 'commercial':
+    case 'market_ready':
+      return 2025;
+    default:
+      return 2025;
+  }
+}
+
+const PRICING_HINTS: Record<string, string> = {
+  conservative: '25th percentile of comparable pricing',
+  base: 'Median of comparable pricing',
+  premium: '75th percentile of comparable pricing',
+};
+
+function CheckboxItem({
+  checked,
+  label,
+  onToggle,
+  disabled,
+}: {
+  checked: boolean;
+  label: string;
+  onToggle: () => void;
+  disabled?: boolean;
+}) {
   return (
     <label
       className={cn(
-        'flex items-center gap-2 px-2.5 py-1.5 rounded cursor-pointer text-xs transition-colors',
+        'flex items-center gap-2 px-2.5 py-1.5 rounded text-xs transition-colors',
+        disabled ? 'cursor-default opacity-60' : 'cursor-pointer',
         checked
           ? 'bg-teal-500/10 text-teal-400 border border-teal-500/30'
           : 'bg-navy-800 text-slate-400 border border-transparent hover:border-navy-600',
       )}
     >
-      <input type="checkbox" checked={checked} onChange={onToggle} className="sr-only" />
+      <input type="checkbox" checked={checked} onChange={onToggle} disabled={disabled} className="sr-only" />
       <div
         className={cn(
           'w-3 h-3 rounded-sm border flex items-center justify-center flex-shrink-0',
@@ -320,19 +378,39 @@ function GeographyGrid({
   onToggle: (code: string) => void;
   error?: string;
 }) {
+  const isGlobal = selected.includes('Global');
+  const hasEU5 = selected.includes('EU5');
   return (
     <div>
       <label className="input-label">Geographies</label>
+      <FieldDescription>Markets to include in the revenue projection</FieldDescription>
       <div className="grid grid-cols-2 gap-1.5 mt-1">
-        {GEOGRAPHIES.map((geo) => (
-          <CheckboxItem
-            key={geo.code}
-            checked={selected.includes(geo.code)}
-            label={geo.label}
-            onToggle={() => onToggle(geo.code)}
-          />
-        ))}
+        {GEOGRAPHIES.map((geo) => {
+          // If Global is selected, all individual geos are checked and disabled
+          const isIndividual = geo.code !== 'Global' && geo.code !== 'EU5' && geo.code !== 'RoW';
+          const isEU5Member = (EU5_COUNTRIES as readonly string[]).includes(geo.code);
+          const forceChecked = isGlobal && isIndividual;
+          const forceDisabled = isGlobal && isIndividual;
+          // If EU5 is checked, its member countries are auto-checked and disabled
+          const eu5Forced = hasEU5 && isEU5Member && !isGlobal;
+          return (
+            <CheckboxItem
+              key={geo.code}
+              checked={forceChecked || eu5Forced || selected.includes(geo.code)}
+              label={geo.label}
+              onToggle={() => {
+                if (forceDisabled || eu5Forced) return;
+                onToggle(geo.code);
+              }}
+              disabled={forceDisabled || eu5Forced}
+            />
+          );
+        })}
       </div>
+      {isGlobal && <p className="text-2xs text-teal-500/70 mt-1">All markets included with Global selection.</p>}
+      {hasEU5 && !isGlobal && (
+        <p className="text-2xs text-teal-500/70 mt-1">EU5 includes Germany, France, Italy, Spain, and UK.</p>
+      )}
       {error && <p className="text-xs text-signal-red mt-1">{error}</p>}
     </div>
   );
@@ -408,6 +486,7 @@ function PricingAssumptionCards({ value, onChange }: { value: string; onChange: 
   return (
     <div>
       <label className="input-label">Pricing Assumption</label>
+      <FieldDescription>Pricing scenario relative to comparable therapies</FieldDescription>
       <div className="grid grid-cols-3 gap-1.5 mt-1">
         {PRICING_OPTIONS.map((opt) => (
           <button
@@ -425,6 +504,7 @@ function PricingAssumptionCards({ value, onChange }: { value: string; onChange: 
           </button>
         ))}
       </div>
+      {PRICING_HINTS[value] && <p className="text-2xs text-slate-500 mt-1">{PRICING_HINTS[value]}</p>}
     </div>
   );
 }
@@ -495,6 +575,10 @@ function PharmaForm({
   const geography = watch('geography');
   const developmentStage = watch('development_stage');
   const pricingAssumption = watch('pricing_assumption');
+  const launchYear = watch('launch_year');
+
+  const isApproved = developmentStage === 'approved';
+  const minLaunchYear = getMinLaunchYear(developmentStage);
 
   // Indication-aware filtered suggestions (lazy-loaded from competitor-database)
   const [filteredSubtypes, setFilteredSubtypes] = useState<FilteredSuggestions>({
@@ -539,15 +623,44 @@ function PharmaForm({
     }
   }, [indication, setValue]);
 
+  // Adjust launch year when development stage changes
+  const prevStageRef = useRef(developmentStage);
+  useEffect(() => {
+    if (developmentStage !== prevStageRef.current) {
+      prevStageRef.current = developmentStage;
+      const min = getMinLaunchYear(developmentStage);
+      if (launchYear < min) {
+        setValue('launch_year', min);
+      }
+    }
+  }, [developmentStage, launchYear, setValue]);
+
   const toggleGeo = useCallback(
     (code: string) => {
       let next: string[];
       if (code === 'Global') {
         // Toggle Global: if already selected, deselect; otherwise select only Global
         next = geography.includes('Global') ? [] : ['Global'];
+      } else if (code === 'EU5') {
+        if (geography.includes('EU5')) {
+          // Deselect EU5 and its member countries
+          next = geography.filter((g) => g !== 'EU5' && !(EU5_COUNTRIES as readonly string[]).includes(g));
+        } else {
+          // Select EU5 and remove individual EU5 countries (they're included)
+          const withoutEU5Members = geography.filter(
+            (g) => !(EU5_COUNTRIES as readonly string[]).includes(g) && g !== 'Global',
+          );
+          next = [...withoutEU5Members, 'EU5'];
+        }
       } else {
         // Toggle individual territory: remove Global if present
         const withoutGlobal = geography.filter((g) => g !== 'Global');
+        // If selecting an EU5 member and EU5 is already selected, don't double-add
+        const isEU5Member = (EU5_COUNTRIES as readonly string[]).includes(code);
+        if (isEU5Member && withoutGlobal.includes('EU5')) {
+          // EU5 already covers this — ignore
+          return;
+        }
         next = withoutGlobal.includes(code) ? withoutGlobal.filter((g) => g !== code) : [...withoutGlobal, code];
       }
       setValue('geography', next, { shouldValidate: true });
@@ -555,29 +668,43 @@ function PharmaForm({
     [geography, setValue],
   );
 
+  // Compute missing required fields for validation message
+  const missingFields = useMemo(() => {
+    const missing: string[] = [];
+    if (!indication) missing.push('Indication');
+    if (!geography.length) missing.push('Geography');
+    return missing;
+  }, [indication, geography]);
+
   const doSubmit = handleSubmit((data) => {
     onSubmit(productCategory, data as Record<string, unknown>);
   });
 
   return (
     <form onSubmit={doSubmit} className="space-y-5">
-      <IndicationAutocomplete
-        label="Indication"
-        value={watch('indication')}
-        onChange={(v) => setValue('indication', v, { shouldValidate: true })}
-        error={errors.indication?.message}
-      />
+      <div>
+        <IndicationAutocomplete
+          label="Indication"
+          value={watch('indication')}
+          onChange={(v) => setValue('indication', v, { shouldValidate: true })}
+          error={errors.indication?.message}
+        />
+        <FieldDescription>The target indication for your therapeutic candidate</FieldDescription>
+      </div>
 
-      <FuzzyAutocomplete
-        label="Subtype / Specifics"
-        value={watch('subtype') || ''}
-        onChange={(v) => setValue('subtype', v)}
-        items={filteredSubtypes.items}
-        popularItems={filteredSubtypes.isFiltered ? undefined : POPULAR_SUBTYPES}
-        storageKey="terrain:recent-subtypes"
-        placeholder={indication ? `Subtypes for ${indication}` : 'Select indication first'}
-        filterHint={toFilterHint(filteredSubtypes)}
-      />
+      <div>
+        <FuzzyAutocomplete
+          label="Subtype / Specifics"
+          value={watch('subtype') || ''}
+          onChange={(v) => setValue('subtype', v)}
+          items={filteredSubtypes.items}
+          popularItems={filteredSubtypes.isFiltered ? undefined : POPULAR_SUBTYPES}
+          storageKey="terrain:recent-subtypes"
+          placeholder={indication ? `Subtypes for ${indication}` : 'Select indication first'}
+          filterHint={toFilterHint(filteredSubtypes)}
+        />
+        <FieldDescription>Molecular or clinical subtype (e.g., EGFR+ Stage III/IV)</FieldDescription>
+      </div>
 
       <SectionDivider />
 
@@ -585,53 +712,82 @@ function PharmaForm({
 
       <SectionDivider />
 
-      <PillSelector
-        label="Development Stage"
-        options={PHARMA_STAGES}
-        value={developmentStage as (typeof PHARMA_STAGES)[number]['value']}
-        onChange={(v) => setValue('development_stage', v)}
-      />
+      <div>
+        <PillSelector
+          label="Development Stage"
+          options={PHARMA_STAGES}
+          value={developmentStage as (typeof PHARMA_STAGES)[number]['value']}
+          onChange={(v) => setValue('development_stage', v)}
+        />
+        <FieldDescription>Current clinical development phase of your asset</FieldDescription>
+      </div>
 
-      <FuzzyAutocomplete
-        label="Mechanism of Action"
-        value={watch('mechanism') || ''}
-        onChange={(v) => setValue('mechanism', v)}
-        items={filteredMechanisms.items}
-        popularItems={filteredMechanisms.isFiltered ? undefined : POPULAR_MECHANISMS}
-        storageKey="terrain:recent-mechanisms"
-        placeholder={indication ? `Mechanisms for ${indication}` : 'e.g., KRAS G12C inhibitor'}
-        filterHint={toFilterHint(filteredMechanisms)}
-      />
+      <div>
+        <FuzzyAutocomplete
+          label="Mechanism of Action"
+          value={watch('mechanism') || ''}
+          onChange={(v) => setValue('mechanism', v)}
+          items={filteredMechanisms.items}
+          popularItems={filteredMechanisms.isFiltered ? undefined : POPULAR_MECHANISMS}
+          storageKey="terrain:recent-mechanisms"
+          placeholder={indication ? `Mechanisms for ${indication}` : 'e.g., KRAS G12C inhibitor'}
+          filterHint={toFilterHint(filteredMechanisms)}
+        />
+        <FieldDescription>Drug mechanism or target class</FieldDescription>
+      </div>
 
-      <FuzzyAutocomplete
-        label="Patient Segment"
-        value={watch('patient_segment') || ''}
-        onChange={(v) => setValue('patient_segment', v)}
-        items={PATIENT_SEGMENT_SUGGESTIONS}
-        popularItems={POPULAR_SEGMENTS}
-        storageKey="terrain:recent-segments"
-        placeholder="e.g., 2L+ after platinum-based chemo"
-      />
+      <div>
+        <FuzzyAutocomplete
+          label="Patient Segment"
+          value={watch('patient_segment') || ''}
+          onChange={(v) => setValue('patient_segment', v)}
+          items={PATIENT_SEGMENT_SUGGESTIONS}
+          popularItems={POPULAR_SEGMENTS}
+          storageKey="terrain:recent-segments"
+          placeholder="e.g., 2L+ after platinum-based chemo"
+        />
+        <FieldDescription>Line of therapy, biomarker selection, or population subset</FieldDescription>
+      </div>
 
       <SectionDivider />
 
       <PricingAssumptionCards value={pricingAssumption} onChange={(v) => setValue('pricing_assumption', v)} />
 
-      <Input
-        label="Expected Launch Year"
-        type="number"
-        {...register('launch_year')}
-        min={2025}
-        max={2040}
-        step={1}
-        error={errors.launch_year?.message}
-      />
+      {!isApproved && (
+        <div>
+          <Input
+            label="Expected Launch Year"
+            type="number"
+            {...register('launch_year')}
+            min={minLaunchYear}
+            max={2040}
+            step={1}
+            error={errors.launch_year?.message}
+          />
+          <FieldDescription>
+            Expected year of first commercial launch
+            {developmentStage === 'preclinical' && ' (preclinical assets typically launch 2032+)'}
+            {developmentStage === 'phase1' && ' (Phase 1 assets typically launch 2030+)'}
+          </FieldDescription>
+        </div>
+      )}
+      {isApproved && <p className="text-2xs text-teal-500/70">Launch year not required for approved products.</p>}
 
       <SectionDivider />
 
-      <Button type="submit" variant="primary" size="lg" isLoading={isLoading} className="w-full">
-        Generate Analysis
-      </Button>
+      <div>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          isLoading={isLoading}
+          className="w-full"
+          disabled={missingFields.length > 0 && !isLoading}
+        >
+          Generate Analysis
+        </Button>
+        <ValidationMessage missingFields={missingFields} />
+      </div>
     </form>
   );
 }
@@ -676,14 +832,25 @@ function DeviceForm({
   });
 
   const procedureOrCondition = watch('procedure_or_condition');
+  const deviceCategory = watch('device_category');
   const geography = watch('geography');
   const targetSetting = watch('target_setting');
   const developmentStage = watch('development_stage');
+  const launchYear = watch('launch_year');
+
+  const isCommercial = developmentStage === 'cleared_approved' || developmentStage === 'commercial';
+  const minLaunchYear = getMinLaunchYear(developmentStage);
 
   // Procedure-aware filtered specialties
   const filteredSpecialties = useMemo(() => getSpecialtiesForProcedure(procedureOrCondition), [procedureOrCondition]);
 
-  // Auto-set target setting when procedure changes
+  // Category-aware filtered procedures
+  const filteredProcedures = useMemo(() => getProceduresForCategory(deviceCategory), [deviceCategory]);
+
+  // ASE auto-populate state
+  const [aseAutoFill, setAseAutoFill] = useState<{ asp: number; source: string } | null>(null);
+
+  // Auto-set target setting, device category, and ASE when procedure changes
   const prevProcedureRef = useRef(procedureOrCondition);
   useEffect(() => {
     if (procedureOrCondition !== prevProcedureRef.current) {
@@ -693,18 +860,54 @@ function DeviceForm({
       if (defaultSetting) {
         setValue('target_setting', [defaultSetting], { shouldValidate: true });
       }
+      // Auto-set device category from procedure data
+      const category = getCategoryForProcedure(procedureOrCondition);
+      if (category) {
+        setValue('device_category', category);
+      }
+      // Auto-populate ASE from procedure ASP data
+      const aseData = getASEForProcedure(procedureOrCondition);
+      if (aseData) {
+        setValue('unit_ase', aseData.asp);
+        setAseAutoFill(aseData);
+      } else {
+        setAseAutoFill(null);
+      }
       // Clear specialty (may no longer be relevant)
       setValue('physician_specialty', []);
     }
   }, [procedureOrCondition, setValue]);
+
+  // Adjust launch year when development stage changes
+  const prevDevStageRef = useRef(developmentStage);
+  useEffect(() => {
+    if (developmentStage !== prevDevStageRef.current) {
+      prevDevStageRef.current = developmentStage;
+      const min = getMinLaunchYear(developmentStage);
+      if (launchYear < min) {
+        setValue('launch_year', min);
+      }
+    }
+  }, [developmentStage, launchYear, setValue]);
 
   const toggleGeo = useCallback(
     (code: string) => {
       let next: string[];
       if (code === 'Global') {
         next = geography.includes('Global') ? [] : ['Global'];
+      } else if (code === 'EU5') {
+        if (geography.includes('EU5')) {
+          next = geography.filter((g) => g !== 'EU5' && !(EU5_COUNTRIES as readonly string[]).includes(g));
+        } else {
+          const withoutEU5Members = geography.filter(
+            (g) => !(EU5_COUNTRIES as readonly string[]).includes(g) && g !== 'Global',
+          );
+          next = [...withoutEU5Members, 'EU5'];
+        }
       } else {
         const withoutGlobal = geography.filter((g) => g !== 'Global');
+        const isEU5Member = (EU5_COUNTRIES as readonly string[]).includes(code);
+        if (isEU5Member && withoutGlobal.includes('EU5')) return;
         next = withoutGlobal.includes(code) ? withoutGlobal.filter((g) => g !== code) : [...withoutGlobal, code];
       }
       setValue('geography', next, { shouldValidate: true });
@@ -720,72 +923,109 @@ function DeviceForm({
     [targetSetting, setValue],
   );
 
+  // Compute missing required fields for validation message
+  const missingFields = useMemo(() => {
+    const missing: string[] = [];
+    if (!procedureOrCondition) missing.push('Procedure');
+    if (!targetSetting.length) missing.push('Target Setting');
+    if (!geography.length) missing.push('Geography');
+    return missing;
+  }, [procedureOrCondition, targetSetting, geography]);
+
   const doSubmit = handleSubmit((data) => {
     onSubmit(productCategory, data as Record<string, unknown>);
   });
 
   return (
     <form onSubmit={doSubmit} className="space-y-5">
-      <FuzzyAutocomplete
-        label="Procedure or Condition"
-        value={procedureOrCondition}
-        onChange={(v) => setValue('procedure_or_condition', v, { shouldValidate: true })}
-        items={PROCEDURE_SUGGESTIONS}
-        popularItems={POPULAR_PROCEDURES}
-        storageKey="terrain:recent-procedures"
-        placeholder="e.g., Total knee replacement"
-        error={errors.procedure_or_condition?.message}
-      />
+      <div>
+        <FuzzyAutocomplete
+          label="Procedure or Condition"
+          value={procedureOrCondition}
+          onChange={(v) => setValue('procedure_or_condition', v, { shouldValidate: true })}
+          items={filteredProcedures.isFiltered ? filteredProcedures.items : PROCEDURE_SUGGESTIONS}
+          popularItems={filteredProcedures.isFiltered ? undefined : POPULAR_PROCEDURES}
+          storageKey="terrain:recent-procedures"
+          placeholder="e.g., Total knee replacement"
+          error={errors.procedure_or_condition?.message}
+          filterHint={toFilterHint(filteredProcedures)}
+        />
+        <FieldDescription>The primary procedure or clinical condition addressed by the device</FieldDescription>
+      </div>
 
-      <Select
-        label="Device Category"
-        groups={DEVICE_CATEGORY_GROUPS}
-        {...register('device_category')}
-        error={errors.device_category?.message}
-      />
-
-      <SectionDivider />
-
-      <MultiCheckboxGrid
-        label="Target Setting"
-        options={DEVICE_SETTINGS}
-        selected={targetSetting}
-        onToggle={toggleSetting}
-        error={errors.target_setting?.message}
-      />
-
-      <FuzzyAutocomplete
-        label="Physician Specialty"
-        value={(watch('physician_specialty') as string[] | undefined)?.[0] || ''}
-        onChange={(v) => setValue('physician_specialty', v ? [v] : [])}
-        items={filteredSpecialties.items}
-        storageKey="terrain:recent-specialties"
-        placeholder={procedureOrCondition ? `Specialties for ${procedureOrCondition}` : 'e.g., Orthopedic surgeon'}
-        filterHint={toFilterHint(filteredSpecialties)}
-      />
+      <div>
+        <Select
+          label="Device Category"
+          groups={DEVICE_CATEGORY_GROUPS}
+          {...register('device_category')}
+          error={errors.device_category?.message}
+        />
+        <FieldDescription>Clinical specialty and device classification</FieldDescription>
+      </div>
 
       <SectionDivider />
 
-      <PillSelector
-        label="Development Stage"
-        options={DEVICE_STAGES}
-        value={developmentStage as (typeof DEVICE_STAGES)[number]['value']}
-        onChange={(v) => setValue('development_stage', v)}
-      />
+      <div>
+        <MultiCheckboxGrid
+          label="Target Setting"
+          options={DEVICE_SETTINGS}
+          selected={targetSetting}
+          onToggle={toggleSetting}
+          error={errors.target_setting?.message}
+        />
+        <FieldDescription>Where the device will be primarily used</FieldDescription>
+      </div>
+
+      <div>
+        <FuzzyAutocomplete
+          label="Physician Specialty"
+          value={(watch('physician_specialty') as string[] | undefined)?.[0] || ''}
+          onChange={(v) => setValue('physician_specialty', v ? [v] : [])}
+          items={filteredSpecialties.items}
+          storageKey="terrain:recent-specialties"
+          placeholder={procedureOrCondition ? `Specialties for ${procedureOrCondition}` : 'e.g., Orthopedic surgeon'}
+          filterHint={toFilterHint(filteredSpecialties)}
+        />
+        <FieldDescription>Primary physician specialty performing the procedure</FieldDescription>
+      </div>
 
       <SectionDivider />
 
-      <Select label="Pricing Model" options={PRICING_MODEL_OPTIONS} {...register('pricing_model')} />
+      <div>
+        <PillSelector
+          label="Development Stage"
+          options={DEVICE_STAGES}
+          value={developmentStage as (typeof DEVICE_STAGES)[number]['value']}
+          onChange={(v) => setValue('development_stage', v)}
+        />
+        <FieldDescription>Current regulatory and development phase</FieldDescription>
+      </div>
 
-      <Input
-        label="Unit ASE ($)"
-        type="number"
-        {...register('unit_ase')}
-        step="1"
-        min={0}
-        placeholder="0"
-        error={errors.unit_ase?.message}
-      />
+      <SectionDivider />
+
+      <div>
+        <Select label="Pricing Model" options={PRICING_MODEL_OPTIONS} {...register('pricing_model')} />
+        <FieldDescription>Revenue model: per-procedure, capital, bundle, or subscription</FieldDescription>
+      </div>
+
+      <div>
+        <Input
+          label="Unit ASE ($)"
+          type="number"
+          {...register('unit_ase')}
+          step="1"
+          min={0}
+          placeholder="0"
+          error={errors.unit_ase?.message}
+        />
+        {aseAutoFill ? (
+          <p className="text-2xs text-teal-500/70 mt-0.5">
+            Auto-filled from {aseAutoFill.source} (${aseAutoFill.asp.toLocaleString()}). Adjust as needed.
+          </p>
+        ) : (
+          <FieldDescription>Average selling price per unit or procedure</FieldDescription>
+        )}
+      </div>
 
       <Input
         label="Disposables per Procedure"
@@ -816,25 +1056,50 @@ function DeviceForm({
 
       <SectionDivider />
 
-      <Select label="Reimbursement Status" options={REIMBURSEMENT_OPTIONS} {...register('reimbursement_status')} />
+      <div>
+        <Select label="Reimbursement Status" options={REIMBURSEMENT_OPTIONS} {...register('reimbursement_status')} />
+        <FieldDescription>Current CMS/commercial coverage status for this device</FieldDescription>
+      </div>
 
       <GeographyGrid selected={geography} onToggle={toggleGeo} error={errors.geography?.message} />
 
-      <Input
-        label="Expected Launch Year"
-        type="number"
-        {...register('launch_year')}
-        min={2025}
-        max={2040}
-        step={1}
-        error={errors.launch_year?.message}
-      />
+      {!isCommercial && (
+        <div>
+          <Input
+            label="Expected Launch Year"
+            type="number"
+            {...register('launch_year')}
+            min={minLaunchYear}
+            max={2040}
+            step={1}
+            error={errors.launch_year?.message}
+          />
+          <FieldDescription>
+            Expected year of first commercial launch
+            {developmentStage === 'concept' && ' (concept-stage devices typically launch 2032+)'}
+            {developmentStage === 'preclinical' && ' (preclinical devices typically launch 2032+)'}
+          </FieldDescription>
+        </div>
+      )}
+      {isCommercial && (
+        <p className="text-2xs text-teal-500/70">Launch year not required for cleared/commercial devices.</p>
+      )}
 
       <SectionDivider />
 
-      <Button type="submit" variant="primary" size="lg" isLoading={isLoading} className="w-full">
-        Generate Analysis
-      </Button>
+      <div>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          isLoading={isLoading}
+          className="w-full"
+          disabled={missingFields.length > 0 && !isLoading}
+        >
+          Generate Analysis
+        </Button>
+        <ValidationMessage missingFields={missingFields} />
+      </div>
     </form>
   );
 }
@@ -879,8 +1144,14 @@ function CdxForm({
   const geography = watch('geography');
   const testSetting = watch('test_setting');
   const drugStage = watch('drug_development_stage');
+  const cdxStage = watch('cdx_development_stage');
   const biomarker = watch('biomarker');
   const prevalence = watch('biomarker_prevalence_pct');
+  const launchYear = watch('launch_year');
+
+  const isApproved = cdxStage === 'approved';
+  // Use the later of drug stage and CDx stage for launch year minimum
+  const minLaunchYear = Math.max(getMinLaunchYear(drugStage), getMinLaunchYear(cdxStage));
 
   // Indication-aware filtered biomarkers
   const filteredBiomarkers = useMemo(() => getBiomarkersForIndication(drugIndication), [drugIndication]);
@@ -907,17 +1178,40 @@ function CdxForm({
     }
   }, [biomarker, prevalence, setValue]);
 
+  // Adjust launch year when development stages change
+  const prevDrugStageRef = useRef(drugStage);
+  const prevCdxStageRef = useRef(cdxStage);
+  useEffect(() => {
+    if (drugStage !== prevDrugStageRef.current || cdxStage !== prevCdxStageRef.current) {
+      prevDrugStageRef.current = drugStage;
+      prevCdxStageRef.current = cdxStage;
+      const min = Math.max(getMinLaunchYear(drugStage), getMinLaunchYear(cdxStage));
+      if (launchYear < min) {
+        setValue('launch_year', min);
+      }
+    }
+  }, [drugStage, cdxStage, launchYear, setValue]);
+
   const autoFilledContext = biomarker && BIOMARKER_PREVALENCE[biomarker]?.context;
 
   const toggleGeo = useCallback(
     (code: string) => {
       let next: string[];
       if (code === 'Global') {
-        // Toggle Global: if already selected, deselect; otherwise select only Global
         next = geography.includes('Global') ? [] : ['Global'];
+      } else if (code === 'EU5') {
+        if (geography.includes('EU5')) {
+          next = geography.filter((g) => g !== 'EU5' && !(EU5_COUNTRIES as readonly string[]).includes(g));
+        } else {
+          const withoutEU5Members = geography.filter(
+            (g) => !(EU5_COUNTRIES as readonly string[]).includes(g) && g !== 'Global',
+          );
+          next = [...withoutEU5Members, 'EU5'];
+        }
       } else {
-        // Toggle individual territory: remove Global if present
         const withoutGlobal = geography.filter((g) => g !== 'Global');
+        const isEU5Member = (EU5_COUNTRIES as readonly string[]).includes(code);
+        if (isEU5Member && withoutGlobal.includes('EU5')) return;
         next = withoutGlobal.includes(code) ? withoutGlobal.filter((g) => g !== code) : [...withoutGlobal, code];
       }
       setValue('geography', next, { shouldValidate: true });
@@ -933,31 +1227,47 @@ function CdxForm({
     [testSetting, setValue],
   );
 
+  // Compute missing required fields for validation message
+  const missingFields = useMemo(() => {
+    const missing: string[] = [];
+    if (!drugIndication) missing.push('Drug Indication');
+    if (!biomarker) missing.push('Biomarker');
+    if (!testSetting.length) missing.push('Test Setting');
+    if (!geography.length) missing.push('Geography');
+    return missing;
+  }, [drugIndication, biomarker, testSetting, geography]);
+
   const doSubmit = handleSubmit((data) => {
     onSubmit(productCategory, data as Record<string, unknown>);
   });
 
   return (
     <form onSubmit={doSubmit} className="space-y-5">
-      <IndicationAutocomplete
-        label="Drug Indication"
-        value={watch('drug_indication')}
-        onChange={(v) => setValue('drug_indication', v, { shouldValidate: true })}
-        placeholder="e.g., NSCLC EGFR+"
-        error={errors.drug_indication?.message}
-      />
+      <div>
+        <IndicationAutocomplete
+          label="Drug Indication"
+          value={watch('drug_indication')}
+          onChange={(v) => setValue('drug_indication', v, { shouldValidate: true })}
+          placeholder="e.g., NSCLC EGFR+"
+          error={errors.drug_indication?.message}
+        />
+        <FieldDescription>The therapeutic indication for the companion drug</FieldDescription>
+      </div>
 
-      <FuzzyAutocomplete
-        label="Biomarker"
-        value={watch('biomarker')}
-        onChange={(v) => setValue('biomarker', v, { shouldValidate: true })}
-        items={filteredBiomarkers.items}
-        popularItems={filteredBiomarkers.isFiltered ? undefined : POPULAR_BIOMARKERS}
-        storageKey="terrain:recent-biomarkers"
-        placeholder={drugIndication ? `Biomarkers for ${drugIndication}` : 'e.g., EGFR exon 19/21 deletion'}
-        error={errors.biomarker?.message}
-        filterHint={toFilterHint(filteredBiomarkers)}
-      />
+      <div>
+        <FuzzyAutocomplete
+          label="Biomarker"
+          value={watch('biomarker')}
+          onChange={(v) => setValue('biomarker', v, { shouldValidate: true })}
+          items={filteredBiomarkers.items}
+          popularItems={filteredBiomarkers.isFiltered ? undefined : POPULAR_BIOMARKERS}
+          storageKey="terrain:recent-biomarkers"
+          placeholder={drugIndication ? `Biomarkers for ${drugIndication}` : 'e.g., EGFR exon 19/21 deletion'}
+          error={errors.biomarker?.message}
+          filterHint={toFilterHint(filteredBiomarkers)}
+        />
+        <FieldDescription>Target biomarker the diagnostic will detect</FieldDescription>
+      </div>
 
       <div>
         <Input
@@ -970,63 +1280,96 @@ function CdxForm({
           placeholder="1-100"
           error={errors.biomarker_prevalence_pct?.message}
         />
-        {autoFilledContext && prevalence && (
+        {autoFilledContext && prevalence ? (
           <p className="text-2xs text-teal-500/70 mt-1">Auto-filled from {autoFilledContext}. Adjust as needed.</p>
+        ) : (
+          <FieldDescription>Percentage of the indication population expressing this biomarker</FieldDescription>
         )}
       </div>
 
       <SectionDivider />
 
-      <Select label="Test Type" options={TEST_TYPE_OPTIONS} {...register('test_type')} />
+      <div>
+        <Select label="Test Type" options={TEST_TYPE_OPTIONS} {...register('test_type')} />
+        <FieldDescription>Analytical methodology (IHC, NGS, PCR, etc.)</FieldDescription>
+      </div>
 
-      <MultiCheckboxGrid
-        label="Test Setting"
-        options={CDX_TEST_SETTINGS}
-        selected={testSetting}
-        onToggle={toggleTestSetting}
-        error={errors.test_setting?.message}
-      />
+      <div>
+        <MultiCheckboxGrid
+          label="Test Setting"
+          options={CDX_TEST_SETTINGS}
+          selected={testSetting}
+          onToggle={toggleTestSetting}
+          error={errors.test_setting?.message}
+        />
+        <FieldDescription>Where the test will be performed</FieldDescription>
+      </div>
 
-      <Input
-        label="Test ASE ($)"
-        type="number"
-        {...register('test_ase')}
-        step="1"
-        min={0}
-        placeholder="0"
-        error={errors.test_ase?.message}
-      />
+      <div>
+        <Input
+          label="Test ASE ($)"
+          type="number"
+          {...register('test_ase')}
+          step="1"
+          min={0}
+          placeholder="0"
+          error={errors.test_ase?.message}
+        />
+        <FieldDescription>Average selling price per test (CMS/commercial blended)</FieldDescription>
+      </div>
 
       <SectionDivider />
 
-      <PillSelector
-        label="Drug Development Stage"
-        options={PHARMA_STAGES}
-        value={drugStage as (typeof PHARMA_STAGES)[number]['value']}
-        onChange={(v) => setValue('drug_development_stage', v)}
-      />
+      <div>
+        <PillSelector
+          label="Drug Development Stage"
+          options={PHARMA_STAGES}
+          value={drugStage as (typeof PHARMA_STAGES)[number]['value']}
+          onChange={(v) => setValue('drug_development_stage', v)}
+        />
+        <FieldDescription>Development phase of the companion drug</FieldDescription>
+      </div>
 
-      <Select label="CDx Development Stage" options={CDX_STAGE_OPTIONS} {...register('cdx_development_stage')} />
+      <div>
+        <Select label="CDx Development Stage" options={CDX_STAGE_OPTIONS} {...register('cdx_development_stage')} />
+        <FieldDescription>Development phase of the companion diagnostic</FieldDescription>
+      </div>
 
       <SectionDivider />
 
       <GeographyGrid selected={geography} onToggle={toggleGeo} error={errors.geography?.message} />
 
-      <Input
-        label="Expected Launch Year"
-        type="number"
-        {...register('launch_year')}
-        min={2025}
-        max={2040}
-        step={1}
-        error={errors.launch_year?.message}
-      />
+      {!isApproved && (
+        <div>
+          <Input
+            label="Expected Launch Year"
+            type="number"
+            {...register('launch_year')}
+            min={minLaunchYear}
+            max={2040}
+            step={1}
+            error={errors.launch_year?.message}
+          />
+          <FieldDescription>Expected year of CDx commercial availability</FieldDescription>
+        </div>
+      )}
+      {isApproved && <p className="text-2xs text-teal-500/70">Launch year not required for approved diagnostics.</p>}
 
       <SectionDivider />
 
-      <Button type="submit" variant="primary" size="lg" isLoading={isLoading} className="w-full">
-        Generate Analysis
-      </Button>
+      <div>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          isLoading={isLoading}
+          className="w-full"
+          disabled={missingFields.length > 0 && !isLoading}
+        >
+          Generate Analysis
+        </Button>
+        <ValidationMessage missingFields={missingFields} />
+      </div>
     </form>
   );
 }
@@ -1072,11 +1415,16 @@ function NutraForm({
   });
 
   const primaryIngredient = watch('primary_ingredient');
+  const healthFocus = watch('health_focus');
   const geography = watch('geography');
   const channels = watch('channels');
   const developmentStage = watch('development_stage');
   const hasClinicalData = watch('has_clinical_data');
   const patentProtected = watch('patent_protected');
+  const launchYear = watch('launch_year');
+
+  const isMarketReady = developmentStage === 'market_ready';
+  const minLaunchYear = getMinLaunchYear(developmentStage);
 
   // Ingredient-aware filtered health focus suggestions
   const filteredHealthFocus = useMemo((): FilteredSuggestions => {
@@ -1130,13 +1478,36 @@ function NutraForm({
     }
   }, [primaryIngredient, setValue]);
 
+  // Adjust launch year when development stage changes
+  const prevNutraStageRef = useRef(developmentStage);
+  useEffect(() => {
+    if (developmentStage !== prevNutraStageRef.current) {
+      prevNutraStageRef.current = developmentStage;
+      const min = getMinLaunchYear(developmentStage);
+      if (launchYear < min) {
+        setValue('launch_year', min);
+      }
+    }
+  }, [developmentStage, launchYear, setValue]);
+
   const toggleGeo = useCallback(
     (code: string) => {
       let next: string[];
       if (code === 'Global') {
         next = geography.includes('Global') ? [] : ['Global'];
+      } else if (code === 'EU5') {
+        if (geography.includes('EU5')) {
+          next = geography.filter((g) => g !== 'EU5' && !(EU5_COUNTRIES as readonly string[]).includes(g));
+        } else {
+          const withoutEU5Members = geography.filter(
+            (g) => !(EU5_COUNTRIES as readonly string[]).includes(g) && g !== 'Global',
+          );
+          next = [...withoutEU5Members, 'EU5'];
+        }
       } else {
         const withoutGlobal = geography.filter((g) => g !== 'Global');
+        const isEU5Member = (EU5_COUNTRIES as readonly string[]).includes(code);
+        if (isEU5Member && withoutGlobal.includes('EU5')) return;
         next = withoutGlobal.includes(code) ? withoutGlobal.filter((g) => g !== code) : [...withoutGlobal, code];
       }
       setValue('geography', next, { shouldValidate: true });
@@ -1152,94 +1523,136 @@ function NutraForm({
     [channels, setValue],
   );
 
+  // Compute missing required fields for validation message
+  const missingFields = useMemo(() => {
+    const missing: string[] = [];
+    if (!primaryIngredient) missing.push('Primary Ingredient');
+    if (!healthFocus) missing.push('Health Focus');
+    if (!channels.length) missing.push('Distribution Channels');
+    if (!geography.length) missing.push('Geography');
+    return missing;
+  }, [primaryIngredient, healthFocus, channels, geography]);
+
   const doSubmit = handleSubmit((data) => {
     onSubmit(productCategory, data as Record<string, unknown>);
   });
 
   return (
     <form onSubmit={doSubmit} className="space-y-5">
-      <FuzzyAutocomplete
-        label="Primary Ingredient / Product"
-        value={primaryIngredient}
-        onChange={(v) => setValue('primary_ingredient', v, { shouldValidate: true })}
-        items={INGREDIENT_SUGGESTIONS as SuggestionItem[]}
-        popularItems={POPULAR_INGREDIENTS}
-        storageKey="terrain:recent-ingredients"
-        placeholder="e.g., NMN, Creatine, Probiotics"
-        error={errors.primary_ingredient?.message}
-      />
+      <div>
+        <FuzzyAutocomplete
+          label="Primary Ingredient / Product"
+          value={primaryIngredient}
+          onChange={(v) => setValue('primary_ingredient', v, { shouldValidate: true })}
+          items={INGREDIENT_SUGGESTIONS as SuggestionItem[]}
+          popularItems={POPULAR_INGREDIENTS}
+          storageKey="terrain:recent-ingredients"
+          placeholder="e.g., NMN, Creatine, Probiotics"
+          error={errors.primary_ingredient?.message}
+        />
+        <FieldDescription>The primary active ingredient or compound</FieldDescription>
+      </div>
 
-      <FuzzyAutocomplete
-        label="Health Focus / Category"
-        value={watch('health_focus')}
-        onChange={(v) => setValue('health_focus', v, { shouldValidate: true })}
-        items={filteredHealthFocus.items}
-        storageKey="terrain:recent-health-focus"
-        placeholder={primaryIngredient ? `Health focus for ${primaryIngredient}` : 'e.g., Longevity / NAD+ restoration'}
-        error={errors.health_focus?.message}
-        filterHint={toFilterHint(filteredHealthFocus)}
-      />
+      <div>
+        <FuzzyAutocomplete
+          label="Health Focus / Category"
+          value={healthFocus}
+          onChange={(v) => setValue('health_focus', v, { shouldValidate: true })}
+          items={filteredHealthFocus.items}
+          storageKey="terrain:recent-health-focus"
+          placeholder={
+            primaryIngredient ? `Health focus for ${primaryIngredient}` : 'e.g., Longevity / NAD+ restoration'
+          }
+          error={errors.health_focus?.message}
+          filterHint={toFilterHint(filteredHealthFocus)}
+        />
+        <FieldDescription>Target health category or consumer benefit claim</FieldDescription>
+      </div>
 
-      <Select label="Product Type" options={NUTRACEUTICAL_CATEGORY_OPTIONS} {...register('nutraceutical_category')} />
+      <div>
+        <Select label="Product Type" options={NUTRACEUTICAL_CATEGORY_OPTIONS} {...register('nutraceutical_category')} />
+        <FieldDescription>Product classification for regulatory and market sizing</FieldDescription>
+      </div>
 
-      <Input
-        label="Target Demographic"
-        {...register('target_demographic')}
-        placeholder="e.g., Adults 40-65, health-optimizers"
-      />
-
-      <SectionDivider />
-
-      <Select label="Claim Type" options={CLAIM_TYPE_OPTIONS} {...register('claim_type')} />
-
-      <MultiCheckboxGrid
-        label="Distribution Channels"
-        options={NUTRACEUTICAL_CHANNEL_OPTIONS}
-        selected={channels}
-        onToggle={toggleChannel}
-        error={errors.channels?.message}
-      />
-
-      <SectionDivider />
-
-      <Input
-        label="Unit Retail Price ($)"
-        type="number"
-        {...register('unit_price')}
-        step="0.01"
-        min={0}
-        placeholder="e.g., 49.99"
-        error={errors.unit_price?.message}
-      />
-
-      <Input
-        label="Units per Customer per Year"
-        type="number"
-        {...register('units_per_year_per_customer')}
-        step="1"
-        min={1}
-        max={24}
-        placeholder="12"
-      />
-
-      <Input
-        label="COGS (% of retail)"
-        type="number"
-        {...register('cogs_pct')}
-        step="1"
-        min={1}
-        max={99}
-        placeholder="30"
-      />
+      <div>
+        <Input
+          label="Target Demographic"
+          {...register('target_demographic')}
+          placeholder="e.g., Adults 40-65, health-optimizers"
+        />
+        <FieldDescription>Primary consumer demographic for market sizing</FieldDescription>
+      </div>
 
       <SectionDivider />
 
-      <PillSelector
-        label="Development Stage"
-        options={NUTRACEUTICAL_STAGES}
-        value={developmentStage as (typeof NUTRACEUTICAL_STAGES)[number]['value']}
-        onChange={(v) => setValue('development_stage', v)}
-      />
+      <div>
+        <Select label="Claim Type" options={CLAIM_TYPE_OPTIONS} {...register('claim_type')} />
+        <FieldDescription>Regulatory claim type (structure/function, health, or disease risk)</FieldDescription>
+      </div>
+
+      <div>
+        <MultiCheckboxGrid
+          label="Distribution Channels"
+          options={NUTRACEUTICAL_CHANNEL_OPTIONS}
+          selected={channels}
+          onToggle={toggleChannel}
+          error={errors.channels?.message}
+        />
+        <FieldDescription>Planned retail and distribution channels</FieldDescription>
+      </div>
+
+      <SectionDivider />
+
+      <div>
+        <Input
+          label="Unit Retail Price ($)"
+          type="number"
+          {...register('unit_price')}
+          step="0.01"
+          min={0}
+          placeholder="e.g., 49.99"
+          error={errors.unit_price?.message}
+        />
+        <FieldDescription>Retail price per unit (bottle, box, subscription month)</FieldDescription>
+      </div>
+
+      <div>
+        <Input
+          label="Units per Customer per Year"
+          type="number"
+          {...register('units_per_year_per_customer')}
+          step="1"
+          min={1}
+          max={24}
+          placeholder="12"
+        />
+        <FieldDescription>Expected annual purchase frequency per customer</FieldDescription>
+      </div>
+
+      <div>
+        <Input
+          label="COGS (% of retail)"
+          type="number"
+          {...register('cogs_pct')}
+          step="1"
+          min={1}
+          max={99}
+          placeholder="30"
+        />
+        <FieldDescription>Cost of goods sold as a percentage of retail price</FieldDescription>
+      </div>
+
+      <SectionDivider />
+
+      <div>
+        <PillSelector
+          label="Development Stage"
+          options={NUTRACEUTICAL_STAGES}
+          value={developmentStage as (typeof NUTRACEUTICAL_STAGES)[number]['value']}
+          onChange={(v) => setValue('development_stage', v)}
+        />
+        <FieldDescription>Current development and commercialization phase</FieldDescription>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <label
@@ -1317,21 +1730,39 @@ function NutraForm({
 
       <GeographyGrid selected={geography} onToggle={toggleGeo} error={errors.geography?.message} />
 
-      <Input
-        label="Expected Launch Year"
-        type="number"
-        {...register('launch_year')}
-        min={2025}
-        max={2040}
-        step={1}
-        error={errors.launch_year?.message}
-      />
+      {!isMarketReady && (
+        <div>
+          <Input
+            label="Expected Launch Year"
+            type="number"
+            {...register('launch_year')}
+            min={minLaunchYear}
+            max={2040}
+            step={1}
+            error={errors.launch_year?.message}
+          />
+          <FieldDescription>Expected year of first commercial availability</FieldDescription>
+        </div>
+      )}
+      {isMarketReady && (
+        <p className="text-2xs text-teal-500/70">Launch year not required for market-ready products.</p>
+      )}
 
       <SectionDivider />
 
-      <Button type="submit" variant="primary" size="lg" isLoading={isLoading} className="w-full">
-        Generate Analysis
-      </Button>
+      <div>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          isLoading={isLoading}
+          className="w-full"
+          disabled={missingFields.length > 0 && !isLoading}
+        >
+          Generate Analysis
+        </Button>
+        <ValidationMessage missingFields={missingFields} />
+      </div>
     </form>
   );
 }
