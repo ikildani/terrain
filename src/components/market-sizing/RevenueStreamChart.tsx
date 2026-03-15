@@ -33,8 +33,8 @@ export default function RevenueStreamChart({ streams }: RevenueStreamChartProps)
     <div className="chart-container noise">
       <div className="chart-title">Revenue Streams Breakdown</div>
 
-      <div role="img" aria-label="Revenue stream chart" style={{ width: '100%', minHeight: 120 }}>
-        <ResponsiveContainer width="100%" height={120}>
+      <div role="img" aria-label="Revenue stream chart" style={{ width: '100%', height: 120 }}>
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 10 }}>
             <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="rgba(100,116,139,0.08)" />
             <XAxis

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Building2, ArrowRight, Plus, ShieldCheck } from 'lucide-react';
+import { Building2, ArrowRight, Plus, ShieldCheck, Info, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -32,7 +32,6 @@ function ProjectsContent() {
 
   const isLoading = subLoading || wsLoading;
   const canManage = myRole === 'owner' || myRole === 'admin';
-  const isEnterprise = activeWorkspace?.plan === 'enterprise';
 
   const fetchProjects = useCallback(async () => {
     if (!activeWorkspaceId) return;
@@ -111,24 +110,48 @@ function ProjectsContent() {
     );
   }
 
-  // ── No enterprise plan ──────────────────────────────────
-  if (!isEnterprisePlan) {
+  // ── No workspace plan (free/pro) ────────────────────────
+  if (!hasWorkspace) {
     return (
       <>
         <PageHeader title="Projects" subtitle="Organize deal rooms with information barriers." />
         <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
-          <div className="w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center mb-5">
-            <ShieldCheck className="w-7 h-7 text-amber-400" />
+          <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
+            <Building2 className="w-7 h-7 text-teal-500" />
           </div>
-          <h3 className="font-display text-lg text-white mb-2">Upgrade to Enterprise</h3>
+          <h3 className="font-display text-lg text-white mb-2">Team workspaces</h3>
           <p className="text-sm text-slate-400 leading-relaxed mb-6">
-            Projects with information barriers are available on the Enterprise plan. Organize deal rooms with restricted
-            visibility and fine-grained access control.
+            This feature requires a Team or Enterprise plan. Projects with information barriers help you organize deal
+            rooms with restricted visibility and fine-grained access control.
           </p>
           <Link href="/settings/billing" className="btn btn-primary btn-sm inline-flex items-center gap-2">
-            Upgrade to Enterprise
+            View Plans
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
+        </div>
+      </>
+    );
+  }
+
+  // ── Team user viewing enterprise feature ───────────────────
+  if (!isEnterprisePlan) {
+    return (
+      <>
+        <PageHeader title="Projects" subtitle="Organize deal rooms with information barriers." />
+        <div className="card noise p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
+          <div className="w-10 h-10 rounded-lg bg-slate-500/10 flex items-center justify-center mb-4">
+            <Info className="w-5 h-5 text-slate-400" />
+          </div>
+          <p className="text-sm text-slate-400 leading-relaxed mb-4">
+            This feature is available on the Enterprise plan. Contact our team to learn more.
+          </p>
+          <a
+            href="mailto:team@ambrosiaventures.co"
+            className="text-sm text-teal-400 hover:text-teal-300 transition-colors inline-flex items-center gap-1.5"
+          >
+            <Mail className="w-3.5 h-3.5" />
+            team@ambrosiaventures.co
+          </a>
         </div>
       </>
     );
@@ -147,29 +170,6 @@ function ProjectsContent() {
           <p className="text-sm text-slate-400 leading-relaxed mb-6">Set up your workspace to get started.</p>
           <Link href="/settings/team" className="btn btn-primary btn-sm inline-flex items-center gap-2">
             Set Up Workspace
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      </>
-    );
-  }
-
-  // ── Enterprise gate (workspace exists but on team plan) ───
-  if (!isEnterprise) {
-    return (
-      <>
-        <PageHeader title="Projects" subtitle={activeWorkspace.name} badge="Team" />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
-          <div className="w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center mb-5">
-            <ShieldCheck className="w-7 h-7 text-amber-400" />
-          </div>
-          <h3 className="font-display text-lg text-white mb-2">Enterprise feature</h3>
-          <p className="text-sm text-slate-400 leading-relaxed mb-6">
-            Projects with information barriers are available on the Enterprise plan. Organize deal rooms with restricted
-            visibility and fine-grained access control.
-          </p>
-          <Link href="/settings/billing" className="btn btn-primary btn-sm inline-flex items-center gap-2">
-            View Plans
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

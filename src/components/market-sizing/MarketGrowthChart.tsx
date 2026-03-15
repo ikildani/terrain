@@ -41,8 +41,8 @@ export default function MarketGrowthChart({ projections, peakSales }: MarketGrow
         ))}
       </div>
 
-      <div role="img" aria-label="Market growth projection chart" style={{ width: '100%', minHeight: 320 }}>
-        <ResponsiveContainer width="100%" height={320}>
+      <div role="img" aria-label="Market growth projection chart" style={{ width: '100%', height: 320 }}>
+        <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={projections} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
             <defs>
               <linearGradient id="rangeGradient" x1="0" y1="0" x2="0" y2="1">

@@ -110,9 +110,9 @@ export default function RevenueWaterfallChart(props: RevenueWaterfallChartProps)
       <div
         role="img"
         aria-label="Revenue waterfall chart from TAM to peak sales"
-        style={{ width: '100%', minHeight: 260 }}
+        style={{ width: '100%', height: 260 }}
       >
-        <ResponsiveContainer width="100%" height={260}>
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 20, right: 40, left: 20, bottom: 10 }}>
             <XAxis
               dataKey="name"

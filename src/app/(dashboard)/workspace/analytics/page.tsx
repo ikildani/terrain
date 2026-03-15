@@ -76,8 +76,8 @@ function AnalyticsContent() {
           </div>
           <h3 className="font-display text-lg text-white mb-2">Team workspaces</h3>
           <p className="text-sm text-slate-400 leading-relaxed mb-6">
-            Upgrade to the Team plan to access shared workspaces with team analytics, activity tracking, and usage
-            insights.
+            This feature requires a Team or Enterprise plan. Shared workspaces include team analytics, activity
+            tracking, and usage insights.
           </p>
           <Link href="/settings/billing" className="btn btn-primary btn-sm inline-flex items-center gap-2">
             View Plans

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, ShieldCheck, Pencil, Trash2, FileText } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Pencil, Trash2, FileText, Building2, ArrowRight, Info, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -22,7 +22,7 @@ function ProjectDetailContent() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.projectId as string;
-  const { isLoading: subLoading } = useSubscription();
+  const { isLoading: subLoading, hasWorkspace, isEnterprise: isEnterprisePlan } = useSubscription();
   const {
     activeWorkspace,
     activeWorkspaceId,
@@ -151,6 +151,44 @@ function ProjectDetailContent() {
           </div>
         </div>
       </>
+    );
+  }
+
+  // ── No workspace plan (free/pro) ────────────────────────
+  if (!hasWorkspace) {
+    return (
+      <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
+          <Building2 className="w-7 h-7 text-teal-500" />
+        </div>
+        <h3 className="font-display text-lg text-white mb-2">Team workspaces</h3>
+        <p className="text-sm text-slate-400 leading-relaxed mb-6">This feature requires a Team or Enterprise plan.</p>
+        <Link href="/settings/billing" className="btn btn-primary btn-sm inline-flex items-center gap-2">
+          View Plans
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+    );
+  }
+
+  // ── Team user viewing enterprise feature ───────────────────
+  if (!isEnterprisePlan) {
+    return (
+      <div className="card noise p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
+        <div className="w-10 h-10 rounded-lg bg-slate-500/10 flex items-center justify-center mb-4">
+          <Info className="w-5 h-5 text-slate-400" />
+        </div>
+        <p className="text-sm text-slate-400 leading-relaxed mb-4">
+          This feature is available on the Enterprise plan. Contact our team to learn more.
+        </p>
+        <a
+          href="mailto:team@ambrosiaventures.co"
+          className="text-sm text-teal-400 hover:text-teal-300 transition-colors inline-flex items-center gap-1.5"
+        >
+          <Mail className="w-3.5 h-3.5" />
+          team@ambrosiaventures.co
+        </a>
+      </div>
     );
   }
 

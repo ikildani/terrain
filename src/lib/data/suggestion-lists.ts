@@ -11,6 +11,7 @@
 import type { SuggestionItem } from '@/components/ui/FuzzyAutocomplete';
 import type { CompetitorRecord } from './competitor-database';
 import { PROCEDURE_VOLUME_DATA } from './device-indications';
+import { findProcedureByName } from './procedure-map';
 
 // ── Lazy Competitor Database Loader ──────────────────────────
 // Dynamic import() ensures webpack/Next.js code-splits this module
@@ -1020,9 +1021,19 @@ export function getBiomarkersForIndication(indication: string): FilteredSuggesti
  */
 export function getCategoryForProcedure(procedure: string): string | null {
   if (!procedure) return null;
+
+  // 1. First try procedure-map.ts which has explicit device_category and synonym matching.
+  //    This correctly maps "vertebroplasty" -> orthopedic, "TAVR" -> cardiovascular, etc.
+  const procedureMapMatch = findProcedureByName(procedure);
+  if (procedureMapMatch) {
+    return procedureMapMatch.device_category;
+  }
+
+  // 2. Fall back to PROCEDURE_VOLUME_DATA (device-indications.ts) with specialty-based inference
   const lower = procedure.toLowerCase();
   const match = PROCEDURE_VOLUME_DATA.find((p) => p.procedure_name.toLowerCase() === lower);
   if (!match || !match.applicable_device_categories?.length) return null;
+
   // Map ProductCategory to device_category form values
   const catMap: Record<string, string> = {
     device_implantable: 'cardiovascular', // Default; overridden by specialty below
@@ -1034,20 +1045,27 @@ export function getCategoryForProcedure(procedure: string): string | null {
     diagnostics_companion: 'ivd_oncology',
     diagnostics_ivd: 'ivd_oncology',
   };
-  // Prefer specialty-based mapping from physician_specialty
+
+  // Prefer specialty-based mapping from physician_specialty.
+  // Check ALL specialties (not just first) and use word-boundary-aware matching
+  // to avoid false positives like "Interventional" matching "ent".
   if (match.physician_specialty?.length) {
-    const spec = match.physician_specialty[0].toLowerCase();
-    if (spec.includes('cardiolog') || spec.includes('cardiac') || spec.includes('electrophysi'))
-      return 'cardiovascular';
-    if (spec.includes('orthop')) return 'orthopedic';
-    if (spec.includes('neurosurg') || spec.includes('neurol')) return 'neurology';
-    if (spec.includes('vascul')) return 'vascular';
-    if (spec.includes('ent') || spec.includes('otolaryn')) return 'ent';
-    if (spec.includes('urolog')) return 'urology';
-    if (spec.includes('ophthal')) return 'ophthalmology';
-    if (spec.includes('oncol')) return 'oncology_surgical';
-    if (spec.includes('gastro') || spec.includes('endoscop')) return 'endoscopy_gi';
-    if (spec.includes('pulmon') || spec.includes('respir')) return 'respiratory';
+    for (const rawSpec of match.physician_specialty) {
+      const spec = rawSpec.toLowerCase();
+      if (spec.includes('cardiolog') || spec.includes('cardiac') || spec.includes('electrophysi'))
+        return 'cardiovascular';
+      if (spec.includes('orthop') || spec.includes('spine')) return 'orthopedic';
+      if (spec.includes('neurosurg') || spec.includes('neurol')) return 'neurology';
+      if (spec.includes('vascul')) return 'vascular';
+      // Use word-boundary match for ENT to avoid "interventional" false positive
+      if (spec === 'ent' || spec.includes('otolaryn') || /\bent\b/.test(spec)) return 'ent';
+      if (spec.includes('urolog')) return 'urology';
+      if (spec.includes('ophthal')) return 'ophthalmology';
+      if (spec.includes('oncol')) return 'oncology_surgical';
+      if (spec.includes('gastro') || spec.includes('endoscop')) return 'endoscopy_gi';
+      if (spec.includes('pulmon') || spec.includes('respir')) return 'respiratory';
+      if (spec.includes('pain manage')) return 'orthopedic'; // Pain management procedures are typically musculoskeletal
+    }
   }
   return catMap[match.applicable_device_categories[0]] || null;
 }

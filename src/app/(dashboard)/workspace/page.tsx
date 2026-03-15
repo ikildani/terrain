@@ -54,8 +54,8 @@ function WorkspaceContent() {
           </div>
           <h3 className="font-display text-lg text-white mb-2">Team workspaces</h3>
           <p className="text-sm text-slate-400 leading-relaxed mb-6">
-            Upgrade to the Team plan to access shared workspaces with report libraries, folder organization, and team
-            collaboration features.
+            This feature requires a Team or Enterprise plan. Shared workspaces include report libraries, folder
+            organization, and team collaboration features.
           </p>
           <Link href="/settings/billing" className="btn btn-primary btn-sm inline-flex items-center gap-2">
             View Plans

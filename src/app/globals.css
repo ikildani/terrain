@@ -537,6 +537,11 @@ body {
 }
 
 /* Recharts custom overrides */
+.recharts-wrapper,
+.recharts-surface {
+  overflow: visible !important;
+}
+
 .recharts-cartesian-grid-horizontal line,
 .recharts-cartesian-grid-vertical line {
   stroke: rgba(100, 116, 139, 0.08) !important;

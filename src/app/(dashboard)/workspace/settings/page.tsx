@@ -179,7 +179,8 @@ function SettingsContent() {
           </div>
           <h3 className="font-display text-lg text-white mb-2">Team workspaces</h3>
           <p className="text-sm text-slate-400 leading-relaxed mb-6">
-            Upgrade to the Team plan to access workspace settings, branding, and team management.
+            This feature requires a Team or Enterprise plan. Shared workspaces include workspace settings, branding, and
+            team management.
           </p>
           <Link href="/settings/billing" className="btn btn-primary btn-sm inline-flex items-center gap-2">
             View Plans

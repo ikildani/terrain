@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { BarChart3, Loader2, Download, ArrowLeft } from 'lucide-react';
+import { BarChart3, Loader2, Download, ArrowLeft, Building2, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils/cn';
 import { useWorkspace } from '@/hooks/useWorkspace';
+import { useSubscription } from '@/hooks/useSubscription';
 import { ComparisonSelector } from '@/components/workspace/ComparisonSelector';
 import { ComparisonTable } from '@/components/workspace/ComparisonTable';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -25,6 +27,7 @@ interface ComparisonResult {
 // ────────────────────────────────────────────────────────────
 
 export default function ComparePage() {
+  const { isLoading: subLoading, hasWorkspace } = useSubscription();
   const { activeWorkspaceId, isLoading: wsLoading } = useWorkspace();
 
   const [reports, setReports] = useState<Report[]>([]);
@@ -116,8 +119,10 @@ export default function ComparePage() {
     toast.success('Comparison exported');
   }, [comparison]);
 
+  const isLoading = subLoading || wsLoading;
+
   // ── Loading state ─────────────────────────────────────────
-  if (wsLoading || reportsLoading) {
+  if (isLoading || reportsLoading) {
     return (
       <div className="p-6 space-y-6">
         <div className="space-y-4">
@@ -133,12 +138,42 @@ export default function ComparePage() {
     );
   }
 
+  // ── No workspace plan (free/pro) ────────────────────────
+  if (!hasWorkspace) {
+    return (
+      <div className="p-6">
+        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+          <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
+            <Building2 className="w-7 h-7 text-teal-500" />
+          </div>
+          <h3 className="font-display text-lg text-white mb-2">Team workspaces</h3>
+          <p className="text-sm text-slate-400 leading-relaxed mb-6">
+            This feature requires a Team or Enterprise plan. Compare reports side by side with shared workspace access.
+          </p>
+          <Link href="/settings/billing" className="btn btn-primary btn-sm inline-flex items-center gap-2">
+            View Plans
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Has plan but no workspace created yet ─────────────────
   if (!activeWorkspaceId) {
     return (
-      <div className="p-6 flex flex-col items-center justify-center py-24 text-center">
-        <BarChart3 className="w-10 h-10 text-slate-600 mb-4" />
-        <p className="text-sm text-slate-400 mb-1">No active workspace</p>
-        <p className="text-2xs text-slate-600">Join or create a workspace to compare reports.</p>
+      <div className="p-6">
+        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+          <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
+            <Building2 className="w-7 h-7 text-teal-500" />
+          </div>
+          <h3 className="font-display text-lg text-white mb-2">Create your workspace</h3>
+          <p className="text-sm text-slate-400 leading-relaxed mb-6">Set up your workspace to get started.</p>
+          <Link href="/settings/team" className="btn btn-primary btn-sm inline-flex items-center gap-2">
+            Set Up Workspace
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
     );
   }

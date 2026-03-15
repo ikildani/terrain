@@ -30,8 +30,8 @@ export default function PatientFunnelChart({ funnel }: PatientFunnelChartProps) 
   return (
     <div className="chart-container noise">
       <div className="chart-title">Patient Population Funnel (US)</div>
-      <div role="img" aria-label="Patient population funnel chart" style={{ width: '100%', minHeight: 300 }}>
-        <ResponsiveContainer width="100%" height={300}>
+      <div role="img" aria-label="Patient population funnel chart" style={{ width: '100%', height: 300 }}>
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(16,34,54,0.8)" />
             <XAxis
