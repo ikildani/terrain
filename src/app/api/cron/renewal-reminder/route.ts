@@ -1,44 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
 import { sendEmail } from '@/lib/email';
 import { RenewalReminderEmail } from '@/emails/RenewalReminderEmail';
 import { logger } from '@/lib/logger';
 import { captureApiError } from '@/lib/utils/sentry';
-import { timingSafeEqual } from 'crypto';
-
-function createServiceClient() {
-  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
-    cookies: {
-      get: () => undefined,
-      set: () => {},
-      remove: () => {},
-    },
-  });
-}
-
-function isAuthorized(request: NextRequest): boolean {
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (!cronSecret || !authHeader) return false;
-
-  const token = authHeader.replace('Bearer ', '');
-
-  try {
-    const a = Buffer.from(token);
-    const b = Buffer.from(cronSecret);
-    return a.length === b.length && timingSafeEqual(a, b);
-  } catch {
-    return false;
-  }
-}
+import { isAuthorized } from '@/lib/cron-auth';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const supabase = createServiceClient();
+  const supabase = createAdminClient();
 
   // Find subscriptions renewing in 3 days (±12h window to avoid duplicates)
   // Cron runs daily at 14:00 UTC — this targets renewals between 2.5 and 3.5 days out

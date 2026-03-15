@@ -24,6 +24,13 @@ export async function GET() {
     });
   }
 
+  const rl = await rateLimit(`team:${user.id}`, { limit: 60, windowMs: 60 * 1000 });
+  if (!rl.success) {
+    return NextResponse.json({ success: false, error: 'Rate limit exceeded.' } satisfies ApiResponse<never>, {
+      status: 429,
+    });
+  }
+
   // Get team members (profiles linked to this user as team owner)
   const { data: members } = await supabase
     .from('profiles')

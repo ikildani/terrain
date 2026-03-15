@@ -1,8 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { redis } from '@/lib/redis';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { rateLimit } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/api/client-ip';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const ip = getClientIp(request);
+  const rl = await rateLimit(`health:${ip}`, { limit: 30, windowMs: 60 * 1000 });
+  if (!rl.success) {
+    return NextResponse.json({ status: 'rate_limited' }, { status: 429 });
+  }
   let redisOk = true;
   let supabaseOk = true;
 
@@ -33,11 +40,9 @@ export async function GET() {
   return NextResponse.json(
     {
       status: allOk ? 'healthy' : 'degraded',
-      redis: redisOk ? 'ok' : 'error',
-      supabase: supabaseOk ? 'ok' : 'error',
     },
     {
-      status: 200,
+      status: allOk ? 200 : 503,
       headers: { 'Cache-Control': 'no-store' },
     },
   );

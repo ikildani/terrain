@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { stripe } from '@/lib/stripe';
+import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { captureApiError } from '@/lib/utils/sentry';
 
@@ -14,6 +15,11 @@ export async function POST() {
 
     if (authError || !user) {
       return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
+    }
+
+    const rl = await rateLimit(`portal:${user.id}`, { limit: 10, windowMs: 60 * 1000 });
+    if (!rl.success) {
+      return NextResponse.json({ success: false, error: 'Rate limit exceeded.' }, { status: 429 });
     }
 
     const { data: subscription } = await supabase

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { stripe } from '@/lib/stripe';
 import { STRIPE_PRICES } from '@/lib/subscription';
+import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 import { logger } from '@/lib/logger';
 import { captureApiError } from '@/lib/utils/sentry';
@@ -33,6 +34,11 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ success: false, error: 'Authentication required.' }, { status: 401 });
+    }
+
+    const rl = await rateLimit(`checkout:${user.id}`, { limit: 10, windowMs: 60 * 1000 });
+    if (!rl.success) {
+      return NextResponse.json({ success: false, error: 'Rate limit exceeded.' }, { status: 429 });
     }
 
     const body = await request.json();
