@@ -9,6 +9,8 @@ import { StatCard } from '@/components/shared/StatCard';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import { ConfidentialFooter } from '@/components/shared/ConfidentialFooter';
 import { ExportButton } from '@/components/shared/ExportButton';
+import { UpgradeGate } from '@/components/shared/UpgradeGate';
+import { useSubscription } from '@/hooks/useSubscription';
 import TAMChart from './TAMChart';
 import PatientFunnelChart from './PatientFunnelChart';
 import GeographyBreakdown from './GeographyBreakdown';
@@ -67,6 +69,7 @@ function flattenForCSV(data: MarketSizingOutput): Record<string, unknown>[] {
 
 export default function MarketSizingReport({ data, input, previewMode, onPdfExport }: MarketSizingReportProps) {
   const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
+  const { isPro } = useSubscription();
   const { summary } = data;
 
   return (
@@ -162,8 +165,19 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
         />
       )}
 
+      {/* ──────────────────────── PRO ANALYTICS ──────────────────────── */}
+      {!isPro && !previewMode && (
+        <UpgradeGate feature="Advanced analytics (sensitivity analysis, payer-tier pricing, regulatory pathway, label expansion, manufacturing constraints, and pricing comparables)">
+          <div className="space-y-6 opacity-50 pointer-events-none select-none">
+            <div className="chart-container noise h-[200px]" />
+            <div className="chart-container noise h-[300px]" />
+            <div className="chart-container noise h-[200px]" />
+          </div>
+        </UpgradeGate>
+      )}
+
       {/* Sensitivity Analysis */}
-      {data.patient_funnel.addressable > 0 && (
+      {(isPro || previewMode) && data.patient_funnel.addressable > 0 && (
         <SensitivityTable
           addressablePatients={data.patient_funnel.addressable}
           netPrice={
@@ -174,7 +188,7 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
       )}
 
       {/* Pricing Comparables */}
-      {data.pricing_analysis.comparable_drugs.length > 0 && (
+      {(isPro || previewMode) && data.pricing_analysis.comparable_drugs.length > 0 && (
         <div className="chart-container noise">
           <div className="chart-title">Pricing Comparables</div>
           <div className="overflow-x-auto">
@@ -220,7 +234,7 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
       )}
 
       {/* ──────────────────────── Regulatory Pathway Analysis ──────────────────────── */}
-      {data.regulatory_pathway_analysis && (
+      {(isPro || previewMode) && data.regulatory_pathway_analysis && (
         <div className="chart-container noise">
           <div className="chart-title">Regulatory Pathway Analysis</div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
@@ -271,7 +285,7 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
       )}
 
       {/* ──────────────────────── Payer-Tier Pricing ──────────────────────── */}
-      {data.payer_tier_pricing && data.payer_tier_pricing.length > 0 && (
+      {(isPro || previewMode) && data.payer_tier_pricing && data.payer_tier_pricing.length > 0 && (
         <div className="chart-container noise">
           <div className="chart-title">Payer-Tier Pricing Analysis</div>
           {/* Year 1 tier breakdown */}
@@ -349,87 +363,93 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
       )}
 
       {/* ──────────────────────── Label Expansion Opportunities ──────────────────────── */}
-      {data.label_expansion_opportunities && data.label_expansion_opportunities.length > 0 && (
-        <div className="chart-container noise">
-          <div className="chart-title">Label Expansion Opportunities</div>
-          <div className="space-y-4">
-            {data.label_expansion_opportunities.map((exp) => (
-              <div key={exp.indication} className="p-4 bg-navy-800/50 rounded-md border border-navy-700">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <span className="text-sm text-white font-medium">{exp.indication}</span>
-                    <span className="text-2xs text-slate-500 ml-2">({exp.therapy_area})</span>
+      {(isPro || previewMode) &&
+        data.label_expansion_opportunities &&
+        data.label_expansion_opportunities.length > 0 && (
+          <div className="chart-container noise">
+            <div className="chart-title">Label Expansion Opportunities</div>
+            <div className="space-y-4">
+              {data.label_expansion_opportunities.map((exp) => (
+                <div key={exp.indication} className="p-4 bg-navy-800/50 rounded-md border border-navy-700">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <span className="text-sm text-white font-medium">{exp.indication}</span>
+                      <span className="text-2xs text-slate-500 ml-2">({exp.therapy_area})</span>
+                    </div>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-teal-500/12 text-teal-400 border border-teal-500/20">
+                      {formatPercent(exp.probability * 100, 0)} probability
+                    </span>
                   </div>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-teal-500/12 text-teal-400 border border-teal-500/20">
-                    {formatPercent(exp.probability * 100, 0)} probability
-                  </span>
+                  <div className="grid grid-cols-3 gap-4 mb-3">
+                    <div>
+                      <div className="text-2xs text-slate-500 uppercase tracking-wider">Additional Patients</div>
+                      <div className="metric text-sm text-white">
+                        {formatNumber(exp.additional_addressable_patients)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-2xs text-slate-500 uppercase tracking-wider">Expected Approval</div>
+                      <div className="metric text-sm text-white">{exp.expected_approval_year}</div>
+                    </div>
+                    <div>
+                      <div className="text-2xs text-slate-500 uppercase tracking-wider">Incremental Peak Revenue</div>
+                      <div className="metric text-sm text-teal-400">${exp.incremental_peak_revenue_m}M</div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">{exp.rationale}</p>
                 </div>
-                <div className="grid grid-cols-3 gap-4 mb-3">
-                  <div>
-                    <div className="text-2xs text-slate-500 uppercase tracking-wider">Additional Patients</div>
-                    <div className="metric text-sm text-white">{formatNumber(exp.additional_addressable_patients)}</div>
-                  </div>
-                  <div>
-                    <div className="text-2xs text-slate-500 uppercase tracking-wider">Expected Approval</div>
-                    <div className="metric text-sm text-white">{exp.expected_approval_year}</div>
-                  </div>
-                  <div>
-                    <div className="text-2xs text-slate-500 uppercase tracking-wider">Incremental Peak Revenue</div>
-                    <div className="metric text-sm text-teal-400">${exp.incremental_peak_revenue_m}M</div>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-500 leading-relaxed">{exp.rationale}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* ──────────────────────── Manufacturing Constraints ──────────────────────── */}
-      {data.manufacturing_constraint && data.manufacturing_constraint.constrained_years.length > 0 && (
-        <div className="chart-container noise">
-          <div className="chart-title">Manufacturing Capacity Constraints</div>
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-xs text-slate-400">Product Type:</span>
-            <span
-              className={cn(
-                'inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono uppercase tracking-wider',
-                data.manufacturing_constraint.product_type === 'cell_gene_therapy'
-                  ? 'bg-red-500/12 text-red-400 border border-red-500/20'
-                  : data.manufacturing_constraint.product_type === 'biologic'
-                    ? 'bg-amber-500/12 text-amber-400 border border-amber-500/20'
-                    : 'bg-emerald-500/12 text-emerald-400 border border-emerald-500/20',
-              )}
-            >
-              {data.manufacturing_constraint.product_type.replace(/_/g, ' ')}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            {data.manufacturing_constraint.constrained_years.map((yr) => (
-              <div key={yr.year} className="p-3 bg-navy-800/50 rounded-md">
-                <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Year {yr.year}</div>
-                <div className="flex items-baseline gap-2">
-                  <span
-                    className={cn(
-                      'metric text-lg',
-                      yr.capacity_pct < 50
-                        ? 'text-red-400'
-                        : yr.capacity_pct < 80
-                          ? 'text-amber-400'
-                          : 'text-emerald-400',
-                    )}
-                  >
-                    {yr.capacity_pct}%
-                  </span>
-                  <span className="text-2xs text-slate-500">capacity</span>
+      {(isPro || previewMode) &&
+        data.manufacturing_constraint &&
+        data.manufacturing_constraint.constrained_years.length > 0 && (
+          <div className="chart-container noise">
+            <div className="chart-title">Manufacturing Capacity Constraints</div>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-xs text-slate-400">Product Type:</span>
+              <span
+                className={cn(
+                  'inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono uppercase tracking-wider',
+                  data.manufacturing_constraint.product_type === 'cell_gene_therapy'
+                    ? 'bg-red-500/12 text-red-400 border border-red-500/20'
+                    : data.manufacturing_constraint.product_type === 'biologic'
+                      ? 'bg-amber-500/12 text-amber-400 border border-amber-500/20'
+                      : 'bg-emerald-500/12 text-emerald-400 border border-emerald-500/20',
+                )}
+              >
+                {data.manufacturing_constraint.product_type.replace(/_/g, ' ')}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+              {data.manufacturing_constraint.constrained_years.map((yr) => (
+                <div key={yr.year} className="p-3 bg-navy-800/50 rounded-md">
+                  <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Year {yr.year}</div>
+                  <div className="flex items-baseline gap-2">
+                    <span
+                      className={cn(
+                        'metric text-lg',
+                        yr.capacity_pct < 50
+                          ? 'text-red-400'
+                          : yr.capacity_pct < 80
+                            ? 'text-amber-400'
+                            : 'text-emerald-400',
+                      )}
+                    >
+                      {yr.capacity_pct}%
+                    </span>
+                    <span className="text-2xs text-slate-500">capacity</span>
+                  </div>
+                  <div className="text-2xs font-mono text-slate-500 mt-1">Cap: ${yr.revenue_cap_m}M</div>
                 </div>
-                <div className="text-2xs font-mono text-slate-500 mt-1">Cap: ${yr.revenue_cap_m}M</div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed">{data.manufacturing_constraint.narrative}</p>
           </div>
-          <p className="text-xs text-slate-500 leading-relaxed">{data.manufacturing_constraint.narrative}</p>
-        </div>
-      )}
+        )}
 
       {/* Methodology */}
       <div className="chart-container noise">

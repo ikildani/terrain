@@ -9,6 +9,8 @@ import { StatCard } from '@/components/shared/StatCard';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import { ConfidentialFooter } from '@/components/shared/ConfidentialFooter';
 import { ExportButton } from '@/components/shared/ExportButton';
+import { UpgradeGate } from '@/components/shared/UpgradeGate';
+import { useSubscription } from '@/hooks/useSubscription';
 import TAMChart from './TAMChart';
 import ProcedureVolumeChart from './ProcedureVolumeChart';
 import RevenueStreamChart from './RevenueStreamChart';
@@ -123,6 +125,7 @@ export default function DeviceMarketSizingReport({
   onPdfExport,
 }: DeviceMarketSizingReportProps) {
   const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
+  const { isPro } = useSubscription();
   const { summary } = data;
 
   // Compute peak sales from revenue projection for MarketGrowthChart
@@ -425,8 +428,19 @@ export default function DeviceMarketSizingReport({
         </div>
       </div>
 
+      {/* ──────────────────────── PRO ANALYTICS ──────────────────────── */}
+      {!isPro && !previewMode && (
+        <UpgradeGate feature="Advanced device analytics (NTAP economics, competitive share distribution, deal benchmarking, evidence gaps, pricing pressure, technology readiness, clinical superiority, surgeon switching costs, and sensitivity analysis)">
+          <div className="space-y-6 opacity-50 pointer-events-none select-none">
+            <div className="chart-container noise h-[200px]" />
+            <div className="chart-container noise h-[300px]" />
+            <div className="chart-container noise h-[200px]" />
+          </div>
+        </UpgradeGate>
+      )}
+
       {/* ──────────────────────── A. NTAP & Reimbursement Economics ──────────────────────── */}
-      {data.reimbursement_analytics && (
+      {(isPro || previewMode) && data.reimbursement_analytics && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">NTAP &amp; Reimbursement Economics</div>
           <div className="space-y-4">
@@ -617,7 +631,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── B. Competitive Share Distribution ──────────────────────── */}
-      {data.competitive_share_distribution && (
+      {(isPro || previewMode) && data.competitive_share_distribution && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Competitive Share Distribution</div>
           <div className="space-y-4">
@@ -682,7 +696,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── C. Evidence Gap Analysis ──────────────────────── */}
-      {data.evidence_gap_analysis && (
+      {(isPro || previewMode) && data.evidence_gap_analysis && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Evidence Gap Analysis</div>
           <div className="space-y-4">
@@ -742,7 +756,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── D. Pricing Pressure Model ──────────────────────── */}
-      {data.pricing_pressure && (
+      {(isPro || previewMode) && data.pricing_pressure && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Pricing Pressure Model</div>
           <div className="space-y-4">
@@ -861,7 +875,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── E. Deal Benchmarking ──────────────────────── */}
-      {data.deal_benchmark && (
+      {(isPro || previewMode) && data.deal_benchmark && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Deal Benchmarking</div>
           <div className="space-y-4">
@@ -947,7 +961,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── F. Technology Readiness ──────────────────────── */}
-      {data.technology_readiness && (
+      {(isPro || previewMode) && data.technology_readiness && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Technology Readiness</div>
           <div className="space-y-4">
@@ -1048,7 +1062,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── G. Clinical Superiority Matrix ──────────────────────── */}
-      {data.clinical_superiority && (
+      {(isPro || previewMode) && data.clinical_superiority && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Clinical Superiority Matrix</div>
           <div className="space-y-4">
@@ -1136,7 +1150,7 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── H. Surgeon Switching Cost ──────────────────────── */}
-      {data.surgeon_switching_cost && (
+      {(isPro || previewMode) && data.surgeon_switching_cost && (
         <div className="chart-container noise" data-report-content>
           <div className="chart-title">Surgeon Switching Cost Analysis</div>
           <div className="space-y-4">
@@ -1266,68 +1280,69 @@ export default function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── I. Device Sensitivity Analysis ──────────────────────── */}
-      {(() => {
-        const somBase = data.summary.us_som.value;
-        const somUnit = data.summary.us_som.unit;
-        const volumeMultipliers = [0.8, 1.0, 1.2] as const;
-        const shareMultipliers = [0.7, 1.0, 1.3] as const;
-        const volumeLabels = ['80%', '100%', '120%'];
-        const shareLabels = ['0.7x', '1.0x', '1.3x'];
+      {(isPro || previewMode) &&
+        (() => {
+          const somBase = data.summary.us_som.value;
+          const somUnit = data.summary.us_som.unit;
+          const volumeMultipliers = [0.8, 1.0, 1.2] as const;
+          const shareMultipliers = [0.7, 1.0, 1.3] as const;
+          const volumeLabels = ['80%', '100%', '120%'];
+          const shareLabels = ['0.7x', '1.0x', '1.3x'];
 
-        return (
-          <div className="chart-container noise" data-report-content>
-            <div className="chart-title">Device Sensitivity Analysis</div>
-            <p className="text-xs text-slate-500 mb-4">
-              3x3 matrix showing SOM sensitivity to procedure volume and market share assumptions. Base case
-              highlighted.
-            </p>
-            <div className="overflow-x-auto">
-              <table className="w-full text-center">
-                <thead>
-                  <tr>
-                    <th className="text-2xs text-slate-500 uppercase tracking-wider pb-2 pr-3 text-left" rowSpan={2}>
-                      Procedure Volume
-                    </th>
-                    <th className="text-2xs text-slate-500 uppercase tracking-wider pb-1" colSpan={3}>
-                      Market Share Multiplier
-                    </th>
-                  </tr>
-                  <tr>
-                    {shareLabels.map((label) => (
-                      <th key={label} className="text-2xs text-slate-400 font-mono pb-2 px-3">
-                        {label}
+          return (
+            <div className="chart-container noise" data-report-content>
+              <div className="chart-title">Device Sensitivity Analysis</div>
+              <p className="text-xs text-slate-500 mb-4">
+                3x3 matrix showing SOM sensitivity to procedure volume and market share assumptions. Base case
+                highlighted.
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-center">
+                  <thead>
+                    <tr>
+                      <th className="text-2xs text-slate-500 uppercase tracking-wider pb-2 pr-3 text-left" rowSpan={2}>
+                        Procedure Volume
                       </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {volumeMultipliers.map((vm, vi) => (
-                    <tr key={`vol-${vi}`} className="border-t border-navy-700/50">
-                      <td className="text-xs text-slate-400 font-mono py-2 pr-3 text-left">{volumeLabels[vi]}</td>
-                      {shareMultipliers.map((sm, si) => {
-                        const isBase = vm === 1.0 && sm === 1.0;
-                        const val = somBase * vm * sm;
-                        return (
-                          <td
-                            key={`cell-${vi}-${si}`}
-                            className={cn(
-                              'metric text-sm py-2 px-3',
-                              isBase ? 'text-teal-400 bg-teal-500/8 font-semibold' : 'text-white',
-                            )}
-                          >
-                            {formatMetric(parseFloat(val.toFixed(2)), somUnit)}
-                            {isBase && <div className="text-2xs text-teal-500 font-normal mt-0.5">Base</div>}
-                          </td>
-                        );
-                      })}
+                      <th className="text-2xs text-slate-500 uppercase tracking-wider pb-1" colSpan={3}>
+                        Market Share Multiplier
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                    <tr>
+                      {shareLabels.map((label) => (
+                        <th key={label} className="text-2xs text-slate-400 font-mono pb-2 px-3">
+                          {label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {volumeMultipliers.map((vm, vi) => (
+                      <tr key={`vol-${vi}`} className="border-t border-navy-700/50">
+                        <td className="text-xs text-slate-400 font-mono py-2 pr-3 text-left">{volumeLabels[vi]}</td>
+                        {shareMultipliers.map((sm, si) => {
+                          const isBase = vm === 1.0 && sm === 1.0;
+                          const val = somBase * vm * sm;
+                          return (
+                            <td
+                              key={`cell-${vi}-${si}`}
+                              className={cn(
+                                'metric text-sm py-2 px-3',
+                                isBase ? 'text-teal-400 bg-teal-500/8 font-semibold' : 'text-white',
+                              )}
+                            >
+                              {formatMetric(parseFloat(val.toFixed(2)), somUnit)}
+                              {isBase && <div className="text-2xs text-teal-500 font-normal mt-0.5">Base</div>}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
 
       {/* ──────────────────────── 11. Methodology ──────────────────────── */}
       <div className="chart-container noise">
