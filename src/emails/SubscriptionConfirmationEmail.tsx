@@ -34,9 +34,7 @@ export function SubscriptionConfirmationEmail({
         ];
 
   return (
-    <EmailLayout
-      preview={`Your Terrain ${planName} plan is now active`}
-    >
+    <EmailLayout preview={`Your Terrain ${planName} plan is now active`}>
       <Text style={headingStyle}>
         Your {planName} plan is active{userName ? `, ${userName}` : ''}.
       </Text>
@@ -46,9 +44,7 @@ export function SubscriptionConfirmationEmail({
       </Text>
 
       <Section style={{ margin: '24px 0' }}>
-        <Text style={featureHeaderStyle}>
-          What&apos;s included in {planName}:
-        </Text>
+        <Text style={featureHeaderStyle}>What&apos;s included in {planName}:</Text>
         {features.map((feature) => (
           <Text key={feature} style={listItemStyle}>
             {feature}
@@ -66,20 +62,16 @@ export function SubscriptionConfirmationEmail({
       </Section>
 
       <Section style={{ textAlign: 'center' as const, margin: '32px 0' }}>
-        <EmailCTAButton href="https://terrain.ambrosiaventures.co/dashboard">
-          Explore your new features
-        </EmailCTAButton>
+        <EmailCTAButton href="https://terrain.ambrosiaventures.co/dashboard">Explore your new features</EmailCTAButton>
       </Section>
 
-      <Text style={mutedTextStyle}>
-        You can manage your subscription anytime from Settings &gt; Billing.
-      </Text>
+      <Text style={mutedTextStyle}>You can manage your subscription anytime from Settings &gt; Billing.</Text>
     </EmailLayout>
   );
 }
 
 const headingStyle: React.CSSProperties = {
-  fontFamily: '"DM Serif Display", Georgia, serif',
+  fontFamily: '"Playfair Display", Georgia, serif',
   fontSize: '22px',
   color: '#F0F4F8',
   margin: '0 0 16px',
@@ -129,7 +121,7 @@ const billingLabelStyle: React.CSSProperties = {
 const billingValueStyle: React.CSSProperties = {
   color: '#F0F4F8',
   fontSize: '14px',
-  fontFamily: '"DM Mono", monospace',
+  fontFamily: '"JetBrains Mono", monospace',
   margin: '0 0 12px',
 };
 

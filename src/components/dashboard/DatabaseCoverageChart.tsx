@@ -84,7 +84,7 @@ export default function DatabaseCoverageChart() {
             <XAxis
               type="number"
               allowDecimals={false}
-              tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
+              tick={{ fontSize: 10, fontFamily: '"JetBrains Mono"', fill: COLORS.text }}
               axisLine={false}
               tickLine={false}
             />
@@ -92,7 +92,7 @@ export default function DatabaseCoverageChart() {
               type="category"
               dataKey="label"
               width={140}
-              tick={{ fontSize: 11, fontFamily: '"Sora"', fill: COLORS.text }}
+              tick={{ fontSize: 11, fontFamily: '"Inter"', fill: COLORS.text }}
               axisLine={false}
               tickLine={false}
             />
@@ -116,7 +116,7 @@ export default function DatabaseCoverageChart() {
                 dataKey="count"
                 position="right"
                 style={{
-                  fontFamily: '"DM Mono"',
+                  fontFamily: '"JetBrains Mono"',
                   fontSize: 11,
                   fill: '#94A3B8',
                   fontWeight: 400,

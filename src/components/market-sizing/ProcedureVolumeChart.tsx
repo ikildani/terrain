@@ -54,7 +54,7 @@ export default function ProcedureVolumeChart({ procedureVolume, peakSharePct }: 
         <span className="badge badge-teal">{formatPercent(procedureVolume.growth_rate_pct, 1)} CAGR</span>
       </div>
 
-      <div role="img" aria-label="Procedure volume chart">
+      <div role="img" aria-label="Procedure volume chart" style={{ width: '100%', minHeight: 200 }}>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart layout="vertical" data={data} margin={{ top: 10, right: 100, left: 10, bottom: 10 }}>
             <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="rgba(100,116,139,0.08)" />
@@ -63,7 +63,7 @@ export default function ProcedureVolumeChart({ procedureVolume, peakSharePct }: 
               type="category"
               dataKey="stage"
               width={160}
-              tick={{ fontSize: 11, fontFamily: 'Sora', fill: '#94A3B8' }}
+              tick={{ fontSize: 11, fontFamily: 'Inter', fill: '#94A3B8' }}
               axisLine={false}
               tickLine={false}
             />
@@ -90,7 +90,7 @@ export default function ProcedureVolumeChart({ procedureVolume, peakSharePct }: 
                 position="right"
                 formatter={(val: number) => formatNumber(val)}
                 style={{
-                  fontFamily: '"DM Mono"',
+                  fontFamily: '"JetBrains Mono"',
                   fontSize: 12,
                   fill: '#F0F4F8',
                   fontWeight: 500,

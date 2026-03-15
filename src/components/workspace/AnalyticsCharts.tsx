@@ -58,17 +58,23 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
                 }}
                 stroke="#64748B"
                 fontSize={10}
-                fontFamily="DM Mono"
+                fontFamily="JetBrains Mono"
                 tickLine={false}
               />
-              <YAxis stroke="#64748B" fontSize={10} fontFamily="DM Mono" tickLine={false} allowDecimals={false} />
+              <YAxis
+                stroke="#64748B"
+                fontSize={10}
+                fontFamily="JetBrains Mono"
+                tickLine={false}
+                allowDecimals={false}
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#0D1B2E',
                   border: '1px solid #102236',
                   borderRadius: '8px',
                   fontSize: '12px',
-                  fontFamily: 'DM Mono',
+                  fontFamily: 'JetBrains Mono',
                   color: '#F0F4F8',
                 }}
                 labelFormatter={(label: string) =>
@@ -116,7 +122,7 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
                     border: '1px solid #102236',
                     borderRadius: '8px',
                     fontSize: '12px',
-                    fontFamily: 'DM Mono',
+                    fontFamily: 'JetBrains Mono',
                     color: '#F0F4F8',
                   }}
                   formatter={(value: number, _name: string, props: { payload?: { type?: string } }) => [
@@ -158,7 +164,7 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
                   type="number"
                   stroke="#64748B"
                   fontSize={10}
-                  fontFamily="DM Mono"
+                  fontFamily="JetBrains Mono"
                   tickLine={false}
                   allowDecimals={false}
                 />
@@ -167,7 +173,7 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
                   dataKey="indication"
                   stroke="#64748B"
                   fontSize={9}
-                  fontFamily="Sora"
+                  fontFamily="Inter"
                   tickLine={false}
                   width={120}
                   tick={{ fill: '#94A3B8' }}
@@ -178,7 +184,7 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
                     border: '1px solid #102236',
                     borderRadius: '8px',
                     fontSize: '12px',
-                    fontFamily: 'DM Mono',
+                    fontFamily: 'JetBrains Mono',
                     color: '#F0F4F8',
                   }}
                 />

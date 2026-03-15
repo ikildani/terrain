@@ -114,19 +114,30 @@ export function ExportButton({
     }
   }
 
+  const Icon = format === 'email' ? Mail : Download;
+  const label = format === 'email' ? 'Email Report' : `Export ${formatLabels[format]}`;
+  const loadingLabel = format === 'email' ? 'Sending...' : 'Generating...';
+
   if (!canExport) {
     return (
-      <button className={cn('btn btn-secondary opacity-50 cursor-not-allowed', className)} disabled>
-        <Lock className="w-3.5 h-3.5" />
-        {format === 'email' ? 'Email Report' : `Export ${formatLabels[format]}`}
+      <button
+        className={cn('btn btn-secondary', className)}
+        onClick={() => {
+          toast('Upgrade to Pro to export reports', {
+            description: 'PDF, CSV, Excel, and email exports are available on the Pro plan.',
+            action: {
+              label: 'Upgrade',
+              onClick: () => window.location.assign('/pricing'),
+            },
+          });
+        }}
+      >
+        <Icon className="w-3.5 h-3.5" />
+        {label}
         <span className="badge-pro text-[8px] px-1 py-0">PRO</span>
       </button>
     );
   }
-
-  const Icon = format === 'email' ? Mail : Download;
-  const label = format === 'email' ? 'Email Report' : `Export ${formatLabels[format]}`;
-  const loadingLabel = format === 'email' ? 'Sending...' : 'Generating...';
 
   return (
     <button

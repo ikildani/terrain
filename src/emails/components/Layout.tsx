@@ -1,15 +1,4 @@
-import {
-  Html,
-  Head,
-  Preview,
-  Body,
-  Container,
-  Section,
-  Text,
-  Hr,
-  Link,
-  Font,
-} from '@react-email/components';
+import { Html, Head, Preview, Body, Container, Section, Text, Hr, Link, Font } from '@react-email/components';
 import * as React from 'react';
 
 interface EmailLayoutProps {
@@ -28,7 +17,7 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
     <Html lang="en">
       <Head>
         <Font
-          fontFamily="Sora"
+          fontFamily="Inter"
           fallbackFontFamily="Helvetica"
           webFont={{
             url: 'https://fonts.gstatic.com/s/sora/v12/xMQbuFFYT72X5wkB_18qmnndmSdSnk-DKQJRBg.woff2',
@@ -52,16 +41,9 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
 
           <Hr style={footerLineStyle} />
           <Section style={footerStyle}>
-            <Text style={footerTextStyle}>
-              Terrain by Ambrosia Ventures
-            </Text>
-            <Text style={footerTextStyle}>
-              Market Opportunity Intelligence for Life Sciences
-            </Text>
-            <Link
-              href="https://terrain.ambrosiaventures.co"
-              style={footerLinkStyle}
-            >
+            <Text style={footerTextStyle}>Terrain by Ambrosia Ventures</Text>
+            <Text style={footerTextStyle}>Market Opportunity Intelligence for Life Sciences</Text>
+            <Link href="https://terrain.ambrosiaventures.co" style={footerLinkStyle}>
               terrain.ambrosiaventures.co
             </Link>
           </Section>
@@ -73,7 +55,7 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
 
 const bodyStyle: React.CSSProperties = {
   backgroundColor: NAVY_950,
-  fontFamily: 'Sora, Helvetica, Arial, sans-serif',
+  fontFamily: 'Inter, Helvetica, Arial, sans-serif',
   margin: '0',
   padding: '0',
 };

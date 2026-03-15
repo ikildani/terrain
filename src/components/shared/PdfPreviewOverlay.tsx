@@ -322,7 +322,7 @@ export function PdfPreviewOverlay({
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: 11,
-                      fontFamily: '"DM Mono", monospace',
+                      fontFamily: '"JetBrains Mono", monospace',
                       cursor: 'pointer',
                       transition: 'all 0.15s',
                       border: '1px solid',

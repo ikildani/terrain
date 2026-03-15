@@ -21,15 +21,13 @@ export function ReportEmail({
       <Text style={headingStyle}>Your report is ready.</Text>
 
       <Text style={bodyTextStyle}>
-        {userName ? `Hi ${userName}, your` : 'Your'} Terrain intelligence report
-        has been generated and is ready to view.
+        {userName ? `Hi ${userName}, your` : 'Your'} Terrain intelligence report has been generated and is ready to
+        view.
       </Text>
 
       <Section style={reportCardStyle}>
         <Text style={reportTitleStyle}>{reportTitle}</Text>
-        {reportSubtitle && (
-          <Text style={reportSubtitleStyle}>{reportSubtitle}</Text>
-        )}
+        {reportSubtitle && <Text style={reportSubtitleStyle}>{reportSubtitle}</Text>}
       </Section>
 
       <Section style={{ textAlign: 'center' as const, margin: '32px 0' }}>
@@ -37,15 +35,14 @@ export function ReportEmail({
       </Section>
 
       <Text style={mutedTextStyle}>
-        For the full interactive experience including charts and export
-        options, view your report in Terrain.
+        For the full interactive experience including charts and export options, view your report in Terrain.
       </Text>
     </EmailLayout>
   );
 }
 
 const headingStyle: React.CSSProperties = {
-  fontFamily: '"DM Serif Display", Georgia, serif',
+  fontFamily: '"Playfair Display", Georgia, serif',
   fontSize: '22px',
   color: '#F0F4F8',
   margin: '0 0 16px',
@@ -68,7 +65,7 @@ const reportCardStyle: React.CSSProperties = {
 };
 
 const reportTitleStyle: React.CSSProperties = {
-  fontFamily: '"DM Serif Display", Georgia, serif',
+  fontFamily: '"Playfair Display", Georgia, serif',
   fontSize: '16px',
   color: '#F0F4F8',
   margin: '0',

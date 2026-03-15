@@ -72,7 +72,7 @@ export default function ActivityTrendChart({ data }: ActivityTrendChartProps) {
               <XAxis
                 dataKey="date"
                 tickFormatter={formatDayLabel}
-                tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
+                tick={{ fontSize: 10, fontFamily: '"JetBrains Mono"', fill: COLORS.text }}
                 axisLine={false}
                 tickLine={false}
                 interval="preserveStartEnd"
@@ -80,7 +80,7 @@ export default function ActivityTrendChart({ data }: ActivityTrendChartProps) {
               />
               <YAxis
                 allowDecimals={false}
-                tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
+                tick={{ fontSize: 10, fontFamily: '"JetBrains Mono"', fill: COLORS.text }}
                 axisLine={false}
                 tickLine={false}
                 width={32}
@@ -110,7 +110,7 @@ export default function ActivityTrendChart({ data }: ActivityTrendChartProps) {
                     position: 'right',
                     fill: '#64748B',
                     fontSize: 9,
-                    fontFamily: '"DM Mono"',
+                    fontFamily: '"JetBrains Mono"',
                   }}
                 />
               )}

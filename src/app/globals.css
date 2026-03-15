@@ -68,7 +68,7 @@ html {
 body {
   background-color: var(--bg-page);
   color: var(--text-primary);
-  font-family: 'Sora', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.6;
   min-height: 100vh;
@@ -104,23 +104,23 @@ body {
    ============================================ */
 
 .font-display {
-  font-family: 'DM Serif Display', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
 }
 
 .font-mono {
-  font-family: 'DM Mono', 'Fira Code', monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 /* All metric/number values should use this class */
 .metric {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
 
 /* Section labels — uppercase, tracked, muted */
 .label {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -214,7 +214,7 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: 6px;
   color: var(--text-primary);
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   padding: 9px 12px;
   outline: none;
@@ -251,7 +251,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 500;
   border-radius: 6px;
@@ -397,7 +397,7 @@ body {
 
 /* Phase badges — for clinical trial phases */
 .phase-badge {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   font-weight: 500;
   padding: 2px 7px;
@@ -467,7 +467,7 @@ body {
 }
 
 .data-table thead th {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.06em;
@@ -502,7 +502,7 @@ body {
 
 /* Numeric cells use mono font */
 .data-table tbody td.numeric {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
   text-align: right;
   color: var(--text-primary);
@@ -517,6 +517,12 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
   padding: 20px;
+  overflow: visible;
+}
+
+/* Ensure recharts ResponsiveContainer parents have layout */
+.chart-container .recharts-responsive-container {
+  min-height: inherit;
 }
 
 .chart-title {
@@ -536,7 +542,7 @@ body {
 
 .recharts-text {
   fill: var(--text-muted) !important;
-  font-family: 'DM Mono', monospace !important;
+  font-family: 'JetBrains Mono', monospace !important;
   font-size: 11px !important;
 }
 
@@ -690,7 +696,7 @@ body {
 }
 
 .page-title {
-  font-family: 'DM Serif Display', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 26px;
   font-weight: 400;
   color: var(--text-primary);
@@ -805,7 +811,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   font-weight: 500;
 }
@@ -859,7 +865,7 @@ body {
   body {
     background: white !important;
     color: #1a1a1a !important;
-    font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     line-height: 1.5;
   }
 
@@ -901,13 +907,13 @@ body {
   .font-display,
   .page-title {
     color: #000 !important;
-    font-family: 'DM Serif Display', Georgia, serif;
+    font-family: 'Playfair Display', Georgia, serif;
   }
 
   /* Mono font for data */
   .font-mono,
   .metric {
-    font-family: 'DM Mono', 'Courier New', monospace;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
   }
 
   /* ── Cards & Surfaces ────────────────────── */

@@ -38,7 +38,7 @@ export function WelcomeEmail({ userName }: WelcomeEmailProps) {
 }
 
 const headingStyle: React.CSSProperties = {
-  fontFamily: '"DM Serif Display", Georgia, serif',
+  fontFamily: '"Playfair Display", Georgia, serif',
   fontSize: '22px',
   color: '#F0F4F8',
   margin: '0 0 16px',

@@ -28,7 +28,7 @@ export default function GeographyBreakdown({ data }: GeographyBreakdownProps) {
             type="category"
             dataKey="territory"
             width={110}
-            tick={{ fontSize: 11, fontFamily: 'Sora', fill: '#94A3B8' }}
+            tick={{ fontSize: 11, fontFamily: 'Inter', fill: '#94A3B8' }}
             axisLine={false}
             tickLine={false}
           />

@@ -46,9 +46,22 @@ const REPORT_TYPE_ROUTES: Record<string, string> = {
 const NAV_COMMANDS: CommandItem[] = [
   { id: 'nav-dashboard', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, category: 'Navigation' },
   { id: 'nav-market', label: 'Market Sizing', href: '/market-sizing', icon: BarChart3, category: 'Navigation' },
-  { id: 'nav-competitive', label: 'Competitive Landscape', href: '/competitive', icon: Network, category: 'Navigation' },
+  {
+    id: 'nav-competitive',
+    label: 'Competitive Landscape',
+    href: '/competitive',
+    icon: Network,
+    category: 'Navigation',
+  },
   { id: 'nav-partners', label: 'Partner Discovery', href: '/partners', icon: Users, category: 'Navigation', pro: true },
-  { id: 'nav-regulatory', label: 'Regulatory Intel', href: '/regulatory', icon: Shield, category: 'Navigation', pro: true },
+  {
+    id: 'nav-regulatory',
+    label: 'Regulatory Intel',
+    href: '/regulatory',
+    icon: Shield,
+    category: 'Navigation',
+    pro: true,
+  },
   { id: 'nav-reports', label: 'Saved Reports', href: '/reports', icon: FileText, category: 'Navigation' },
   { id: 'nav-settings', label: 'Settings', href: '/settings', icon: Settings, category: 'Navigation' },
   { id: 'nav-billing', label: 'Billing', href: '/settings/billing', icon: CreditCard, category: 'Navigation' },
@@ -89,9 +102,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
   const filtered = useMemo(() => {
     if (!query.trim()) return allItems;
     return allItems.filter(
-      (item) =>
-        fuzzyMatch(query, item.label) ||
-        (item.subtitle && fuzzyMatch(query, item.subtitle))
+      (item) => fuzzyMatch(query, item.label) || (item.subtitle && fuzzyMatch(query, item.subtitle)),
     );
   }, [query, allItems]);
 
@@ -112,7 +123,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       onClose();
       router.push(item.href);
     },
-    [onClose, router]
+    [onClose, router],
   );
 
   useEffect(() => {
@@ -161,7 +172,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
         >
           <div className="absolute inset-0 bg-navy-950/80 backdrop-blur-sm" />
 
@@ -188,7 +201,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                 aria-autocomplete="list"
                 aria-controls="command-palette-results"
                 className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-500 outline-none"
-                style={{ fontFamily: 'Sora, sans-serif' }}
+                style={{ fontFamily: 'Inter, sans-serif' }}
               />
               <kbd className="text-2xs font-mono text-slate-600 bg-navy-800 border border-navy-700 px-1.5 py-0.5 rounded">
                 ESC
@@ -196,7 +209,12 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             </div>
 
             {/* Results */}
-            <div id="command-palette-results" role="listbox" aria-label="Search results" className="max-h-[320px] overflow-y-auto py-2">
+            <div
+              id="command-palette-results"
+              role="listbox"
+              aria-label="Search results"
+              className="max-h-[320px] overflow-y-auto py-2"
+            >
               {filtered.length === 0 ? (
                 <div className="px-4 py-8 text-center">
                   <p className="text-sm text-slate-500">No results found</p>
@@ -206,9 +224,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                 Array.from(grouped.entries()).map(([category, items]) => (
                   <div key={category}>
                     <div className="px-4 py-1.5">
-                      <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">
-                        {category}
-                      </span>
+                      <span className="text-2xs font-mono text-slate-600 uppercase tracking-wider">{category}</span>
                     </div>
                     {items.map((item) => {
                       flatIndex++;
@@ -224,18 +240,14 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                           onMouseEnter={() => setSelectedIndex(idx)}
                           className={cn(
                             'flex items-center gap-3 w-full px-4 py-2.5 text-left transition-colors',
-                            isSelected
-                              ? 'bg-navy-800 text-white'
-                              : 'text-slate-400 hover:bg-navy-800/50'
+                            isSelected ? 'bg-navy-800 text-white' : 'text-slate-400 hover:bg-navy-800/50',
                           )}
                         >
                           <Icon className="w-4 h-4 flex-shrink-0" />
                           <div className="flex-1 min-w-0">
                             <span className="text-sm truncate block">{item.label}</span>
                             {item.subtitle && (
-                              <span className="text-xs text-slate-600 truncate block">
-                                {item.subtitle}
-                              </span>
+                              <span className="text-xs text-slate-600 truncate block">{item.subtitle}</span>
                             )}
                           </div>
                           {item.pro && !isPro && (
@@ -244,9 +256,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                               PRO
                             </span>
                           )}
-                          {isSelected && (
-                            <ArrowRight className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
-                          )}
+                          {isSelected && <ArrowRight className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />}
                         </button>
                       );
                     })}
@@ -258,16 +268,13 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             {/* Footer hints */}
             <div className="flex items-center gap-4 px-4 py-2 border-t border-navy-700 text-2xs font-mono text-slate-600">
               <span>
-                <kbd className="bg-navy-800 border border-navy-700 px-1 py-0.5 rounded">↑↓</kbd>{' '}
-                Navigate
+                <kbd className="bg-navy-800 border border-navy-700 px-1 py-0.5 rounded">↑↓</kbd> Navigate
               </span>
               <span>
-                <kbd className="bg-navy-800 border border-navy-700 px-1 py-0.5 rounded">↵</kbd>{' '}
-                Open
+                <kbd className="bg-navy-800 border border-navy-700 px-1 py-0.5 rounded">↵</kbd> Open
               </span>
               <span>
-                <kbd className="bg-navy-800 border border-navy-700 px-1 py-0.5 rounded">esc</kbd>{' '}
-                Close
+                <kbd className="bg-navy-800 border border-navy-700 px-1 py-0.5 rounded">esc</kbd> Close
               </span>
             </div>
           </motion.div>

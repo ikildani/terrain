@@ -9,34 +9,25 @@ interface PaymentFailedEmailProps {
   billingPortalUrl: string;
 }
 
-export function PaymentFailedEmail({
-  userName,
-  invoiceAmount,
-  billingPortalUrl,
-}: PaymentFailedEmailProps) {
+export function PaymentFailedEmail({ userName, invoiceAmount, billingPortalUrl }: PaymentFailedEmailProps) {
   return (
     <EmailLayout preview="Action required: your Terrain payment could not be processed">
-      <Text style={headingStyle}>
-        Action required: payment failed.
-      </Text>
+      <Text style={headingStyle}>Action required: payment failed.</Text>
       <Text style={bodyTextStyle}>
-        {userName ? `Hi ${userName}, ` : ''}We were unable to process your
-        payment{invoiceAmount ? ` of ${invoiceAmount}` : ''} for your Terrain
-        subscription. Please update your payment method to maintain access.
+        {userName ? `Hi ${userName}, ` : ''}We were unable to process your payment
+        {invoiceAmount ? ` of ${invoiceAmount}` : ''} for your Terrain subscription. Please update your payment method
+        to maintain access.
       </Text>
 
       <Section style={alertBoxStyle}>
         <Text style={alertTextStyle}>
-          If your payment is not resolved within 7 days, your account will be
-          downgraded to the Free plan and you will lose access to Pro features
-          including partner discovery, regulatory intelligence, and PDF exports.
+          If your payment is not resolved within 7 days, your account will be downgraded to the Free plan and you will
+          lose access to Pro features including partner discovery, regulatory intelligence, and PDF exports.
         </Text>
       </Section>
 
       <Section style={{ textAlign: 'center' as const, margin: '32px 0' }}>
-        <EmailCTAButton href={billingPortalUrl}>
-          Update payment method
-        </EmailCTAButton>
+        <EmailCTAButton href={billingPortalUrl}>Update payment method</EmailCTAButton>
       </Section>
 
       <Text style={mutedTextStyle}>
@@ -51,7 +42,7 @@ export function PaymentFailedEmail({
 }
 
 const headingStyle: React.CSSProperties = {
-  fontFamily: '"DM Serif Display", Georgia, serif',
+  fontFamily: '"Playfair Display", Georgia, serif',
   fontSize: '22px',
   color: '#F0F4F8',
   margin: '0 0 16px',

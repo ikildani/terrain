@@ -16,14 +16,11 @@ export function CancellationConfirmationEmail({
 }: CancellationConfirmationEmailProps) {
   return (
     <EmailLayout preview="Your Terrain subscription has been cancelled">
-      <Text style={headingStyle}>
-        Your cancellation has been confirmed.
-      </Text>
+      <Text style={headingStyle}>Your cancellation has been confirmed.</Text>
       <Text style={bodyTextStyle}>
-        {userName ? `Hi ${userName}, ` : ''}Your Terrain {planName} subscription
-        has been cancelled. You will retain {planName} access until{' '}
-        <strong style={{ color: '#F0F4F8' }}>{accessEndDate}</strong>, after
-        which your account will revert to the Free plan.
+        {userName ? `Hi ${userName}, ` : ''}Your Terrain {planName} subscription has been cancelled. You will retain{' '}
+        {planName} access until <strong style={{ color: '#F0F4F8' }}>{accessEndDate}</strong>, after which your account
+        will revert to the Free plan.
       </Text>
 
       <Section style={{ margin: '24px 0' }}>
@@ -42,21 +39,18 @@ export function CancellationConfirmationEmail({
       </Section>
 
       <Section style={{ textAlign: 'center' as const, margin: '32px 0' }}>
-        <EmailCTAButton href="https://terrain.ambrosiaventures.co/settings/billing">
-          Re-subscribe
-        </EmailCTAButton>
+        <EmailCTAButton href="https://terrain.ambrosiaventures.co/settings/billing">Re-subscribe</EmailCTAButton>
       </Section>
 
       <Text style={mutedTextStyle}>
-        Changed your mind? You can re-subscribe anytime before {accessEndDate}{' '}
-        to keep uninterrupted access.
+        Changed your mind? You can re-subscribe anytime before {accessEndDate} to keep uninterrupted access.
       </Text>
     </EmailLayout>
   );
 }
 
 const headingStyle: React.CSSProperties = {
-  fontFamily: '"DM Serif Display", Georgia, serif',
+  fontFamily: '"Playfair Display", Georgia, serif',
   fontSize: '22px',
   color: '#F0F4F8',
   margin: '0 0 16px',

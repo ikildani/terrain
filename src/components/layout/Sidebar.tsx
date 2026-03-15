@@ -30,6 +30,7 @@ interface NavItem {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   pro?: boolean;
+  enterprise?: boolean;
   tourId?: string;
 }
 
@@ -65,11 +66,12 @@ const WORKSPACE_ITEMS: NavItem[] = [
   { label: 'Activity', href: '/workspace/activity', icon: Activity },
   { label: 'Analytics', href: '/workspace/analytics', icon: BarChart2 },
   { label: 'Templates', href: '/workspace/templates', icon: FileStack },
+  { label: 'Projects', href: '/workspace/projects', icon: Shield, enterprise: true },
 ];
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { plan, isPro, hasWorkspace } = useSubscription();
+  const { plan, isPro, isEnterprise, hasWorkspace } = useSubscription();
   const settingsActive = pathname.startsWith('/settings');
 
   function isActive(href: string) {
@@ -173,6 +175,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   >
                     <Icon />
                     <span className="flex-1">{item.label}</span>
+                    {item.enterprise && !isEnterprise && (
+                      <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded border bg-amber-500/10 text-amber-400 border-amber-500/20 flex items-center gap-1">
+                        <Lock className="w-2.5 h-2.5" />
+                        ENT
+                      </span>
+                    )}
                   </Link>
                 );
               })}

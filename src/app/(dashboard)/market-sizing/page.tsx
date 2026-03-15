@@ -12,14 +12,18 @@ import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { Skeleton, SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
 
 // Dynamic imports — heavy report components loaded on demand
-const MarketSizingReport = dynamic(() => import('@/components/market-sizing/MarketSizingReport'));
-const DeviceMarketSizingReport = dynamic(() => import('@/components/market-sizing/DeviceMarketSizingReport'));
-const CDxMarketSizingReport = dynamic(() => import('@/components/market-sizing/CDxMarketSizingReport'));
+const MarketSizingReport = dynamic(() => import('@/components/market-sizing/MarketSizingReport'), { ssr: false });
+const DeviceMarketSizingReport = dynamic(() => import('@/components/market-sizing/DeviceMarketSizingReport'), {
+  ssr: false,
+});
+const CDxMarketSizingReport = dynamic(() => import('@/components/market-sizing/CDxMarketSizingReport'), { ssr: false });
 const NutraceuticalMarketSizingReport = dynamic(
   () => import('@/components/market-sizing/NutraceuticalMarketSizingReport'),
+  { ssr: false },
 );
-const PdfPreviewOverlay = dynamic(() =>
-  import('@/components/shared/PdfPreviewOverlay').then((mod) => ({ default: mod.PdfPreviewOverlay })),
+const PdfPreviewOverlay = dynamic(
+  () => import('@/components/shared/PdfPreviewOverlay').then((mod) => ({ default: mod.PdfPreviewOverlay })),
+  { ssr: false },
 );
 import type {
   MarketSizingOutput,

@@ -49,7 +49,7 @@ export default function ModuleBreakdownChart({ data }: ModuleBreakdownChartProps
               <XAxis
                 type="number"
                 allowDecimals={false}
-                tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
+                tick={{ fontSize: 10, fontFamily: '"JetBrains Mono"', fill: COLORS.text }}
                 axisLine={false}
                 tickLine={false}
               />
@@ -57,7 +57,7 @@ export default function ModuleBreakdownChart({ data }: ModuleBreakdownChartProps
                 type="category"
                 dataKey="label"
                 width={120}
-                tick={{ fontSize: 11, fontFamily: '"Sora"', fill: COLORS.text }}
+                tick={{ fontSize: 11, fontFamily: '"Inter"', fill: COLORS.text }}
                 axisLine={false}
                 tickLine={false}
               />

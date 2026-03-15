@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Cell,
-  LabelList,
-  CartesianGrid,
-  Tooltip,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList, CartesianGrid, Tooltip } from 'recharts';
 import { formatNumber, formatPercent } from '@/lib/utils/format';
 
 interface CDxTestingFunnelChartProps {
@@ -39,9 +29,7 @@ interface FunnelStage {
 export default function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartProps) {
   // Compute conversion rates between stages
   const treatedRate =
-    funnel.biomarker_positive_patients > 0
-      ? funnel.treated_on_linked_drug / funnel.biomarker_positive_patients
-      : 0;
+    funnel.biomarker_positive_patients > 0 ? funnel.treated_on_linked_drug / funnel.biomarker_positive_patients : 0;
 
   const data: FunnelStage[] = [
     {
@@ -96,7 +84,7 @@ export default function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartP
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(16,34,54,0.8)" />
           <XAxis
             dataKey="stage"
-            tick={{ fontSize: 10, fontFamily: 'Sora', fill: '#94A3B8' }}
+            tick={{ fontSize: 10, fontFamily: 'Inter', fill: '#94A3B8' }}
             axisLine={false}
             tickLine={false}
             interval={0}
@@ -104,7 +92,7 @@ export default function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartP
           />
           <YAxis
             tickFormatter={(val) => formatNumber(val)}
-            tick={{ fontSize: 11, fontFamily: '"DM Mono"', fill: '#64748B' }}
+            tick={{ fontSize: 11, fontFamily: '"JetBrains Mono"', fill: '#64748B' }}
             axisLine={false}
             tickLine={false}
           />
@@ -117,14 +105,10 @@ export default function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartP
                   <div className="text-slate-300 font-medium mb-1">{d.stage}</div>
                   <div className="metric text-white">{formatNumber(d.count)}</div>
                   {d.rate !== null && d.rate < 1 && (
-                    <div className="text-slate-500 mt-1">
-                      {formatPercent(d.rate * 100, 0)} of prior stage
-                    </div>
+                    <div className="text-slate-500 mt-1">{formatPercent(d.rate * 100, 0)} of prior stage</div>
                   )}
                   {d.isSeparate && (
-                    <div className="text-slate-500 mt-1 italic">
-                      Monitoring / resistance retests (additive)
-                    </div>
+                    <div className="text-slate-500 mt-1 italic">Monitoring / resistance retests (additive)</div>
                   )}
                 </div>
               );
@@ -144,7 +128,7 @@ export default function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartP
               dataKey="count"
               position="top"
               formatter={(val: number) => formatNumber(val)}
-              style={{ fontFamily: '"DM Mono"', fontSize: 11, fill: '#94A3B8' }}
+              style={{ fontFamily: '"JetBrains Mono"', fontSize: 11, fill: '#94A3B8' }}
             />
           </Bar>
         </BarChart>
@@ -156,21 +140,15 @@ export default function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartP
         <div className="text-center flex-1" />
         {/* Diagnosed & Tested rate */}
         <div className="text-center flex-1">
-          <span className="text-2xs font-mono text-teal-500">
-            {formatPercent(funnel.diagnosed_and_tested_pct, 0)}
-          </span>
+          <span className="text-2xs font-mono text-teal-500">{formatPercent(funnel.diagnosed_and_tested_pct, 0)}</span>
         </div>
         {/* Biomarker Positive rate */}
         <div className="text-center flex-1">
-          <span className="text-2xs font-mono text-teal-500">
-            {formatPercent(funnel.biomarker_positive_pct, 0)}
-          </span>
+          <span className="text-2xs font-mono text-teal-500">{formatPercent(funnel.biomarker_positive_pct, 0)}</span>
         </div>
         {/* On Linked Drug rate */}
         <div className="text-center flex-1">
-          <span className="text-2xs font-mono text-teal-500">
-            {formatPercent(treatedRate * 100, 0)}
-          </span>
+          <span className="text-2xs font-mono text-teal-500">{formatPercent(treatedRate * 100, 0)}</span>
         </div>
         {/* Monitoring Retests — no conversion (additive) */}
         <div className="text-center flex-1">
@@ -185,8 +163,8 @@ export default function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartP
       {/* Legend note for monitoring retests */}
       <div className="mt-4 px-2">
         <span className="text-2xs text-slate-500">
-          Monitoring Retests represent annual repeat testing for treatment monitoring and resistance,
-          added to newly tested patients to derive Total Annual Tests.
+          Monitoring Retests represent annual repeat testing for treatment monitoring and resistance, added to newly
+          tested patients to derive Total Annual Tests.
         </span>
       </div>
     </div>

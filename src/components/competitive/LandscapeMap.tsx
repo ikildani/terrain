@@ -132,9 +132,9 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
               offset: -10,
               fill: '#64748B',
               fontSize: 11,
-              fontFamily: 'DM Mono, monospace',
+              fontFamily: 'JetBrains Mono, monospace',
             }}
-            tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'DM Mono, monospace' }}
+            tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
             stroke="rgba(100, 116, 139, 0.15)"
           />
           <YAxis
@@ -150,9 +150,9 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
               offset: 5,
               fill: '#64748B',
               fontSize: 11,
-              fontFamily: 'DM Mono, monospace',
+              fontFamily: 'JetBrains Mono, monospace',
             }}
-            tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'DM Mono, monospace' }}
+            tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
             stroke="rgba(100, 116, 139, 0.15)"
           />
           <ReferenceLine
@@ -160,14 +160,26 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
             stroke="rgba(100, 116, 139, 0.25)"
             strokeDasharray="6 4"
             strokeWidth={1}
-            label={{ value: '5', position: 'top', fill: '#64748B', fontSize: 9, fontFamily: 'DM Mono, monospace' }}
+            label={{
+              value: '5',
+              position: 'top',
+              fill: '#64748B',
+              fontSize: 9,
+              fontFamily: 'JetBrains Mono, monospace',
+            }}
           />
           <ReferenceLine
             y={5}
             stroke="rgba(100, 116, 139, 0.25)"
             strokeDasharray="6 4"
             strokeWidth={1}
-            label={{ value: '5', position: 'right', fill: '#64748B', fontSize: 9, fontFamily: 'DM Mono, monospace' }}
+            label={{
+              value: '5',
+              position: 'right',
+              fill: '#64748B',
+              fontSize: 9,
+              fontFamily: 'JetBrains Mono, monospace',
+            }}
           />
           <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#102236' }} />
           <Scatter data={scatterData} isAnimationActive={true}>

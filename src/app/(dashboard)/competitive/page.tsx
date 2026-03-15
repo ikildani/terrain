@@ -15,23 +15,27 @@ import { SkeletonMetric, SkeletonCard } from '@/components/ui/Skeleton';
 
 // Dynamic imports — heavy report components loaded only when results arrive
 const CompetitiveLandscapeReport = dynamic(() => import('@/components/competitive/CompetitiveLandscapeReport'), {
+  ssr: false,
   loading: () => <ResultsSkeleton />,
 });
 const DeviceCompetitiveLandscapeReport = dynamic(
   () => import('@/components/competitive/DeviceCompetitiveLandscapeReport'),
-  { loading: () => <ResultsSkeleton /> },
+  { ssr: false, loading: () => <ResultsSkeleton /> },
 );
 const CDxCompetitiveLandscapeReport = dynamic(() => import('@/components/competitive/CDxCompetitiveLandscapeReport'), {
+  ssr: false,
   loading: () => <ResultsSkeleton />,
 });
 const NutraceuticalCompetitiveLandscapeReport = dynamic(
   () => import('@/components/competitive/NutraceuticalCompetitiveLandscapeReport'),
-  { loading: () => <ResultsSkeleton /> },
+  { ssr: false, loading: () => <ResultsSkeleton /> },
 );
-const PdfPreviewOverlay = dynamic(() =>
-  import('@/components/shared/PdfPreviewOverlay').then((mod) => ({ default: mod.PdfPreviewOverlay })),
+const PdfPreviewOverlay = dynamic(
+  () => import('@/components/shared/PdfPreviewOverlay').then((mod) => ({ default: mod.PdfPreviewOverlay })),
+  { ssr: false },
 );
 const OpportunityScreener = dynamic(() => import('@/components/competitive/OpportunityScreener'), {
+  ssr: false,
   loading: () => (
     <div className="space-y-4">
       <SkeletonCard className="h-[80px]" />

@@ -15,7 +15,7 @@ export function EmailCTAButton({ href, children }: EmailCTAButtonProps) {
         borderRadius: '6px',
         color: '#04080F',
         display: 'inline-block',
-        fontFamily: 'Sora, Helvetica, sans-serif',
+        fontFamily: 'Inter, Helvetica, sans-serif',
         fontSize: '13px',
         fontWeight: 600,
         padding: '12px 24px',

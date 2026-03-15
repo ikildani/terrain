@@ -30,19 +30,19 @@ export default function PatientFunnelChart({ funnel }: PatientFunnelChartProps) 
   return (
     <div className="chart-container noise">
       <div className="chart-title">Patient Population Funnel (US)</div>
-      <div role="img" aria-label="Patient population funnel chart">
+      <div role="img" aria-label="Patient population funnel chart" style={{ width: '100%', minHeight: 300 }}>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data} margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(16,34,54,0.8)" />
             <XAxis
               dataKey="stage"
-              tick={{ fontSize: 11, fontFamily: 'Sora', fill: '#94A3B8' }}
+              tick={{ fontSize: 11, fontFamily: 'Inter', fill: '#94A3B8' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               tickFormatter={(val) => formatNumber(val)}
-              tick={{ fontSize: 11, fontFamily: '"DM Mono"', fill: '#64748B' }}
+              tick={{ fontSize: 11, fontFamily: '"JetBrains Mono"', fill: '#64748B' }}
               axisLine={false}
               tickLine={false}
             />
@@ -69,7 +69,7 @@ export default function PatientFunnelChart({ funnel }: PatientFunnelChartProps) 
                 dataKey="count"
                 position="top"
                 formatter={(val: number) => formatNumber(val)}
-                style={{ fontFamily: '"DM Mono"', fontSize: 11, fill: '#94A3B8' }}
+                style={{ fontFamily: '"JetBrains Mono"', fontSize: 11, fill: '#94A3B8' }}
               />
             </Bar>
           </BarChart>

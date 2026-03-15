@@ -1,26 +1,26 @@
 import type { Metadata } from 'next';
-import { DM_Serif_Display, Sora, DM_Mono } from 'next/font/google';
+import { Playfair_Display, Inter, JetBrains_Mono } from 'next/font/google';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Providers } from './providers';
 import './globals.css';
 
-const dmSerif = DM_Serif_Display({
+const playfair = Playfair_Display({
   subsets: ['latin'],
-  weight: ['400'],
+  weight: ['400', '700'],
   variable: '--font-display',
   display: 'swap',
 });
 
-const sora = Sora({
+const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600'],
   variable: '--font-body',
   display: 'swap',
 });
 
-const dmMono = DM_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  weight: ['300', '400', '500'],
+  weight: ['400', '500'],
   variable: '--font-mono',
   display: 'swap',
 });
@@ -86,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const supabaseHost = supabaseUrl ? new URL(supabaseUrl).origin : null;
 
   return (
-    <html lang="en" className={`${dmSerif.variable} ${sora.variable} ${dmMono.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
         <script
           type="application/ld+json"

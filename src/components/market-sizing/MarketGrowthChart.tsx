@@ -41,7 +41,7 @@ export default function MarketGrowthChart({ projections, peakSales }: MarketGrow
         ))}
       </div>
 
-      <div role="img" aria-label="Market growth projection chart">
+      <div role="img" aria-label="Market growth projection chart" style={{ width: '100%', minHeight: 320 }}>
         <ResponsiveContainer width="100%" height={320}>
           <ComposedChart data={projections} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
             <defs>
@@ -53,13 +53,13 @@ export default function MarketGrowthChart({ projections, peakSales }: MarketGrow
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(16,34,54,0.8)" />
             <XAxis
               dataKey="year"
-              tick={{ fontSize: 11, fontFamily: '"DM Mono"', fill: '#64748B' }}
+              tick={{ fontSize: 11, fontFamily: '"JetBrains Mono"', fill: '#64748B' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               tickFormatter={(v) => formatValue(v)}
-              tick={{ fontSize: 11, fontFamily: '"DM Mono"', fill: '#64748B' }}
+              tick={{ fontSize: 11, fontFamily: '"JetBrains Mono"', fill: '#64748B' }}
               axisLine={false}
               tickLine={false}
             />
@@ -102,7 +102,7 @@ export default function MarketGrowthChart({ projections, peakSales }: MarketGrow
               dot={false}
               name="Bull Case"
             />
-            <Legend wrapperStyle={{ fontSize: 11, fontFamily: 'Sora' }} iconType="line" />
+            <Legend wrapperStyle={{ fontSize: 11, fontFamily: 'Inter' }} iconType="line" />
           </ComposedChart>
         </ResponsiveContainer>
       </div>

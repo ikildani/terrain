@@ -128,14 +128,14 @@ export default function PipelineDistributionChart({ competitors }: PipelineDistr
               <XAxis
                 type="number"
                 allowDecimals={false}
-                tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'DM Mono, monospace' }}
+                tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
                 stroke="rgba(100, 116, 139, 0.15)"
               />
               <YAxis
                 type="category"
                 dataKey="name"
                 width={90}
-                tick={{ fill: '#94A3B8', fontSize: 11, fontFamily: 'DM Mono, monospace' }}
+                tick={{ fill: '#94A3B8', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
                 stroke="none"
               />
               <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(16, 34, 54, 0.4)' }} />
@@ -157,14 +157,14 @@ export default function PipelineDistributionChart({ competitors }: PipelineDistr
               <XAxis
                 type="number"
                 allowDecimals={false}
-                tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'DM Mono, monospace' }}
+                tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
                 stroke="rgba(100, 116, 139, 0.15)"
               />
               <YAxis
                 type="category"
                 dataKey="name"
                 width={140}
-                tick={{ fill: '#94A3B8', fontSize: 11, fontFamily: 'DM Mono, monospace' }}
+                tick={{ fill: '#94A3B8', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
                 stroke="none"
               />
               <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(16, 34, 54, 0.4)' }} />

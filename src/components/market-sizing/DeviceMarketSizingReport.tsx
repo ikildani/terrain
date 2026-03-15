@@ -17,6 +17,7 @@ import ProcedureVolumeChart from './ProcedureVolumeChart';
 import RevenueStreamChart from './RevenueStreamChart';
 import DeviceGeographyTable from './DeviceGeographyTable';
 import MarketGrowthChart from './MarketGrowthChart';
+import RevenueWaterfallChart from './RevenueWaterfallChart';
 import type { DeviceMarketSizingOutput, DeviceMarketSizingInput } from '@/types/devices-diagnostics';
 
 // ────────────────────────────────────────────────────────────
@@ -227,6 +228,22 @@ export default function DeviceMarketSizingReport({
           range: summary.us_som.range,
         }}
       />
+
+      {/* ──────────────────────── 3b. Revenue Waterfall: TAM → Peak Sales ──────────────────────── */}
+      {data.revenue_projection.length > 0 && (
+        <RevenueWaterfallChart
+          tam_value={summary.us_tam.value}
+          tam_unit={summary.us_tam.unit as 'B' | 'M'}
+          addressability_factor={
+            data.procedure_volume.us_addressable_procedures > 0 && data.procedure_volume.us_annual_procedures > 0
+              ? data.procedure_volume.us_addressable_procedures / data.procedure_volume.us_annual_procedures
+              : 0.4
+          }
+          peak_share={data.adoption_model.peak_market_share.base}
+          gtn_discount={0.15}
+          peak_sales_m={Math.max(...data.revenue_projection.map((r) => r.base))}
+        />
+      )}
 
       {/* ──────────────────────── 4. Procedure Volume ──────────────────────── */}
       <ProcedureVolumeChart

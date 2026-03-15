@@ -36,7 +36,7 @@ export default function TopIndicationsChart({ data }: TopIndicationsChartProps) 
               <XAxis
                 type="number"
                 allowDecimals={false}
-                tick={{ fontSize: 10, fontFamily: '"DM Mono"', fill: COLORS.text }}
+                tick={{ fontSize: 10, fontFamily: '"JetBrains Mono"', fill: COLORS.text }}
                 axisLine={false}
                 tickLine={false}
               />
@@ -44,7 +44,7 @@ export default function TopIndicationsChart({ data }: TopIndicationsChartProps) 
                 type="category"
                 dataKey="indication"
                 width={160}
-                tick={{ fontSize: 11, fontFamily: '"Sora"', fill: COLORS.text }}
+                tick={{ fontSize: 11, fontFamily: '"Inter"', fill: COLORS.text }}
                 axisLine={false}
                 tickLine={false}
               />

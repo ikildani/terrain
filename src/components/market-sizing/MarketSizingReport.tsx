@@ -17,6 +17,7 @@ import PatientFunnelChart from './PatientFunnelChart';
 import GeographyBreakdown from './GeographyBreakdown';
 import MarketGrowthChart from './MarketGrowthChart';
 import SensitivityTable from './SensitivityTable';
+import RevenueWaterfallChart from './RevenueWaterfallChart';
 import type { MarketSizingOutput, MarketSizingInput } from '@/types';
 
 interface MarketSizingReportProps {
@@ -125,6 +126,36 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
 
   return (
     <div className="space-y-6 animate-fade-in" data-report-content>
+      {/* Top Action Bar — prominent export buttons */}
+      {!previewMode && (
+        <div className="flex items-center justify-between gap-3 pb-4 border-b border-navy-700" data-no-print>
+          <div className="flex items-center gap-2 text-xs text-emerald-400/80 font-medium">
+            <BookmarkCheck className="w-3.5 h-3.5" />
+            Auto-saved
+          </div>
+          <div className="flex items-center gap-2">
+            <ExportButton
+              format="pdf"
+              onPdfExport={onPdfExport}
+              reportTitle={`${input.indication} — Market Sizing`}
+              reportSubtitle={[input.subtype, input.mechanism].filter(Boolean).join(' — ') || undefined}
+              filename={`terrain-${input.indication.toLowerCase().replace(/\s+/g, '-')}-market-sizing`}
+              className="btn-primary"
+            />
+            <ExportButton
+              format="xlsx"
+              data={flattenForCSV(data)}
+              filename={`terrain-${input.indication.toLowerCase().replace(/\s+/g, '-')}-market-sizing`}
+            />
+            <ExportButton
+              format="csv"
+              data={flattenForCSV(data)}
+              filename={`terrain-${input.indication.toLowerCase().replace(/\s+/g, '-')}-market-sizing`}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Executive Summary */}
       <div className="card noise">
         <h3 className="chart-title">Executive Summary</h3>
@@ -197,6 +228,22 @@ export default function MarketSizingReport({ data, input, previewMode, onPdfExpo
 
       {/* TAM Chart */}
       <TAMChart tam={summary.tam_us} sam={summary.sam_us} som={summary.som_us} />
+
+      {/* Revenue Waterfall: TAM → Peak Sales */}
+      {summary.peak_sales_estimate?.base > 0 && (
+        <RevenueWaterfallChart
+          tam_value={summary.tam_us.value}
+          tam_unit={summary.tam_us.unit as 'B' | 'M'}
+          addressability_factor={
+            data.patient_funnel.addressable > 0 && data.patient_funnel.us_prevalence > 0
+              ? data.patient_funnel.addressable / data.patient_funnel.us_prevalence
+              : 0.4
+          }
+          peak_share={data.patient_funnel.capturable_rate > 0 ? data.patient_funnel.capturable_rate / 100 : 0.15}
+          gtn_discount={data.pricing_analysis.gross_to_net_estimate || 0.3}
+          peak_sales_m={summary.peak_sales_estimate.base}
+        />
+      )}
 
       {/* Patient Funnel */}
       <PatientFunnelChart funnel={data.patient_funnel} />

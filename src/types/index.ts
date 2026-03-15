@@ -1685,3 +1685,29 @@ export interface ApiKey {
   revoked_at: string | null;
   created_at: string;
 }
+
+// ────────────────────────────────────────────────────────────
+// WORKSPACE PROJECTS (Information Barriers)
+// ────────────────────────────────────────────────────────────
+
+export interface WorkspaceProject {
+  id: string;
+  workspace_id: string;
+  name: string;
+  description: string | null;
+  created_by: string | null;
+  is_restricted: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectMember {
+  id: string;
+  project_id: string;
+  user_id: string;
+  role: 'lead' | 'member';
+  joined_at: string;
+  // Joined
+  email?: string;
+  full_name?: string | null;
+}

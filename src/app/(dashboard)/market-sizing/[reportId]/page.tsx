@@ -3,10 +3,17 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { PageHeader } from '@/components/layout/PageHeader';
-import MarketSizingReport from '@/components/market-sizing/MarketSizingReport';
-import DeviceMarketSizingReport from '@/components/market-sizing/DeviceMarketSizingReport';
-import CDxMarketSizingReport from '@/components/market-sizing/CDxMarketSizingReport';
-import { PdfPreviewOverlay } from '@/components/shared/PdfPreviewOverlay';
+import dynamic from 'next/dynamic';
+
+const MarketSizingReport = dynamic(() => import('@/components/market-sizing/MarketSizingReport'), { ssr: false });
+const DeviceMarketSizingReport = dynamic(() => import('@/components/market-sizing/DeviceMarketSizingReport'), {
+  ssr: false,
+});
+const CDxMarketSizingReport = dynamic(() => import('@/components/market-sizing/CDxMarketSizingReport'), { ssr: false });
+const PdfPreviewOverlay = dynamic(
+  () => import('@/components/shared/PdfPreviewOverlay').then((mod) => ({ default: mod.PdfPreviewOverlay })),
+  { ssr: false },
+);
 import { SkeletonCard, SkeletonMetric } from '@/components/ui/Skeleton';
 import { Button } from '@/components/ui/Button';
 import { apiGet } from '@/lib/utils/api';

@@ -10,6 +10,8 @@ interface ExportBranding {
   logoUrl?: string | null;
   primaryColor?: string | null;
   footerText?: string | null;
+  /** When true, removes all Terrain/Ambrosia references (enterprise white-label). */
+  whiteLabel?: boolean;
 }
 
 interface ExportExcelOptions {
@@ -44,14 +46,17 @@ const WHITE = 'FFF0F4F8';
 export async function exportToExcel(data: Record<string, unknown>[], options: ExportExcelOptions): Promise<void> {
   const ExcelJS = await import('exceljs');
   const { title, subtitle, filename = 'terrain-export', branding } = options;
+  const isWhiteLabel = branding?.whiteLabel === true;
   const accentColor = hexToArgb(branding?.primaryColor, TEAL);
-  const footerLabel = branding?.footerText || 'terrain.ambrosiaventures.co  |  Ambrosia Ventures  |  CONFIDENTIAL';
-  const brandHeader = branding?.logoUrl ? 'TERRAIN' : 'TERRAIN by Ambrosia Ventures';
+  const footerLabel = isWhiteLabel
+    ? branding?.footerText || 'CONFIDENTIAL'
+    : branding?.footerText || 'terrain.ambrosiaventures.co  |  Ambrosia Ventures  |  CONFIDENTIAL';
+  const brandHeader = isWhiteLabel ? title || 'Report' : branding?.logoUrl ? 'TERRAIN' : 'TERRAIN by Ambrosia Ventures';
 
   if (!data.length) return;
 
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'Terrain by Ambrosia Ventures';
+  wb.creator = isWhiteLabel ? 'Intelligence Platform' : 'Terrain by Ambrosia Ventures';
   wb.created = new Date();
 
   const sheetName = (title || 'Report').slice(0, 31).replace(/[[\]*?/\\]/g, '');

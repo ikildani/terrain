@@ -41,9 +41,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ['var(--font-display)', '"DM Serif Display"', 'Georgia', 'serif'],
-        sans: ['var(--font-body)', 'Sora', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-mono)', '"DM Mono"', '"Fira Code"', 'monospace'],
+        display: ['var(--font-display)', '"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['var(--font-body)', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', '"JetBrains Mono"', '"Fira Code"', 'monospace'],
       },
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '0.875rem' }],
