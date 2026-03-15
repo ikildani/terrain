@@ -14,16 +14,17 @@ Sentry.init({
 
   integrations: [
     // Web Vitals (LCP, FID, CLS, TTFB, INP)
-    Sentry.browserTracingIntegration({
-      enableInp: true,
-    }),
+    ...(typeof Sentry.browserTracingIntegration === 'function'
+      ? [Sentry.browserTracingIntegration({ enableInp: true })]
+      : []),
     // Capture console.error as breadcrumbs
-    Sentry.captureConsoleIntegration({ levels: ['error'] }),
+    ...(typeof Sentry.captureConsoleIntegration === 'function'
+      ? [Sentry.captureConsoleIntegration({ levels: ['error'] })]
+      : []),
     // Session replay on errors
-    Sentry.replayIntegration({
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
+    ...(typeof Sentry.replayIntegration === 'function'
+      ? [Sentry.replayIntegration({ maskAllText: true, blockAllMedia: true })]
+      : []),
   ],
 
   // ── Error filtering ─────────────────────────────────────────
