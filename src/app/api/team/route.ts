@@ -73,10 +73,13 @@ export async function POST(request: NextRequest) {
   // Verify user has a team plan
   const { data: sub } = await supabase.from('subscriptions').select('plan').eq('user_id', user.id).single();
 
-  if (!sub || sub.plan !== 'team') {
-    return NextResponse.json({ success: false, error: 'Team plan required.' } satisfies ApiResponse<never>, {
-      status: 403,
-    });
+  if (!sub || (sub.plan !== 'team' && sub.plan !== 'enterprise')) {
+    return NextResponse.json(
+      { success: false, error: 'Team or Enterprise plan required.' } satisfies ApiResponse<never>,
+      {
+        status: 403,
+      },
+    );
   }
 
   // Rate limit invites per user

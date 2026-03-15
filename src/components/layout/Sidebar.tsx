@@ -220,8 +220,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           ambrosiaventures.co
         </a>
 
-        {/* Upgrade card — hidden for team plan */}
-        {plan !== 'team' && (
+        {/* Upgrade card — hidden for team/enterprise plans */}
+        {plan !== 'team' && plan !== 'enterprise' && (
           <div className="sidebar-upgrade-card">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-teal-400" />

@@ -85,9 +85,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   // Verify team plan
   const { data: sub } = await supabase.from('subscriptions').select('plan, status').eq('user_id', user.id).single();
-  if (!sub || sub.plan !== 'team' || !['active', 'trialing'].includes(sub.status)) {
+  if (!sub || (sub.plan !== 'team' && sub.plan !== 'enterprise') || !['active', 'trialing'].includes(sub.status)) {
     return NextResponse.json(
-      { success: false, error: 'Team plan required for public sharing.' } satisfies ApiResponse<never>,
+      { success: false, error: 'Team or Enterprise plan required for public sharing.' } satisfies ApiResponse<never>,
       { status: 403 },
     );
   }

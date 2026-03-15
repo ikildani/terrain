@@ -82,7 +82,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     }
 
     // Only compute signals for team-plan workspaces
-    if (workspace?.plan !== 'team') {
+    if (workspace?.plan !== 'team' && workspace?.plan !== 'enterprise') {
       return NextResponse.json({
         success: true,
         data: {

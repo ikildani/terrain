@@ -212,10 +212,12 @@ export function ShareModal({ isOpen, onClose, reportId, reportTitle, isPro }: Sh
               {!isPro ? (
                 <div className="text-center py-8">
                   <Lock className="w-8 h-8 text-slate-600 mx-auto mb-3" />
-                  <p className="text-sm text-slate-400 mb-1">Team plan required</p>
-                  <p className="text-xs text-slate-500 mb-4">Upgrade to Team to share reports with your team.</p>
+                  <p className="text-sm text-slate-400 mb-1">Team or Enterprise plan required</p>
+                  <p className="text-xs text-slate-500 mb-4">
+                    Upgrade to share reports with your team and collaborate on analyses.
+                  </p>
                   <a href="/settings/billing" className="btn btn-primary text-xs px-4 py-2">
-                    Upgrade to Team
+                    View Plans
                   </a>
                 </div>
               ) : tab === 'team' ? (
