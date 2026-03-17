@@ -1711,3 +1711,22 @@ export interface ProjectMember {
   email?: string;
   full_name?: string | null;
 }
+
+// ────────────────────────────────────────────────────────────
+// Live Market Intelligence (real-time signals)
+// ────────────────────────────────────────────────────────────
+
+export interface LiveIntelligenceItem {
+  headline: string;
+  detail: string;
+  source: string;
+  source_url?: string;
+  date_approximate?: string;
+  signal_type: 'competitive' | 'regulatory' | 'clinical' | 'deal' | 'market';
+}
+
+export interface LiveIntelligence {
+  items: LiveIntelligenceItem[];
+  query_context: string;
+  fetched_at: string;
+}

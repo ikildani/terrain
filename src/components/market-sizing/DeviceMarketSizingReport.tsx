@@ -18,7 +18,9 @@ import RevenueStreamChart from './RevenueStreamChart';
 import DeviceGeographyTable from './DeviceGeographyTable';
 import MarketGrowthChart from './MarketGrowthChart';
 import RevenueWaterfallChart from './RevenueWaterfallChart';
+import { LiveIntelligencePanel } from '@/components/shared/LiveIntelligencePanel';
 import type { DeviceMarketSizingOutput, DeviceMarketSizingInput } from '@/types/devices-diagnostics';
+import type { LiveIntelligence } from '@/types';
 
 // ────────────────────────────────────────────────────────────
 // Props
@@ -29,6 +31,7 @@ interface DeviceMarketSizingReportProps {
   input: DeviceMarketSizingInput;
   previewMode?: boolean;
   onPdfExport?: () => void;
+  liveIntelligence?: LiveIntelligence | null;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -121,7 +124,13 @@ function riskBadgeClass(risk: 'low' | 'moderate' | 'high'): string {
 // Component
 // ────────────────────────────────────────────────────────────
 
-function DeviceMarketSizingReport({ data, input, previewMode, onPdfExport }: DeviceMarketSizingReportProps) {
+function DeviceMarketSizingReport({
+  data,
+  input,
+  previewMode,
+  onPdfExport,
+  liveIntelligence,
+}: DeviceMarketSizingReportProps) {
   const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
   const { isPro } = useSubscription();
   const { role } = useProfile();
@@ -166,6 +175,9 @@ function DeviceMarketSizingReport({ data, input, previewMode, onPdfExport }: Dev
           addressable for the target device profile.
         </p>
       </div>
+
+      {/* ──────────────────────── 1b. Live Market Intelligence ──────────────────────── */}
+      <LiveIntelligencePanel intelligence={liveIntelligence} />
 
       {/* ──────────────────────── 2. Summary Metrics ──────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

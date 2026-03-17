@@ -12,6 +12,8 @@ import { sanitizePostgrestValue, sanitizePostgrestSearch } from '@/lib/utils/san
 import { getClientIp } from '@/lib/api/client-ip';
 import { parseBodyWithLimit, BodyTooLargeError } from '@/lib/api/parse-body';
 import { captureApiError } from '@/lib/utils/sentry';
+import { fetchLiveIntelligence } from '@/lib/intelligence/live-research';
+import type { LiveIntelligence } from '@/types';
 import type { ApiResponse } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -407,6 +409,32 @@ export async function POST(request: NextRequest) {
       // Continue with static data only — live data is supplementary
     }
 
+    // ── Fetch live intelligence (non-blocking) ────────────────
+    let live_intelligence: LiveIntelligence | null = null;
+    try {
+      const intelligencePromise = fetchLiveIntelligence({
+        indication,
+        therapeuticArea: isPharma(product_category)
+          ? 'pharma'
+          : isDevice(product_category)
+            ? 'device'
+            : isCDx(product_category)
+              ? 'diagnostics'
+              : isNutraceutical(product_category)
+                ? 'nutraceutical'
+                : 'pharma',
+        mechanism: input.mechanism ?? undefined,
+        competitors: [],
+      });
+      // Race against a timeout — don't block the response
+      live_intelligence = await Promise.race([
+        intelligencePromise,
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 10000)),
+      ]);
+    } catch {
+      // Non-critical — continue without live intelligence
+    }
+
     // ── Record usage (skip for demo) ─────────────────────────
     if (!isDemo && user) {
       await recordUsage(user.id, 'market_sizing', indication, { product_category });
@@ -454,6 +482,7 @@ export async function POST(request: NextRequest) {
         success: true,
         data: result,
         live_data,
+        live_intelligence,
         report_id: reportId,
         usage: {
           feature: 'market_sizing',
@@ -461,7 +490,12 @@ export async function POST(request: NextRequest) {
           limit: usage.limit,
           remaining: usage.remaining === -1 ? -1 : Math.max(0, usage.remaining - 1),
         },
-      } satisfies ApiResponse<typeof result> & { usage: unknown; report_id?: string; live_data: unknown },
+      } satisfies ApiResponse<typeof result> & {
+        usage: unknown;
+        report_id?: string;
+        live_data: unknown;
+        live_intelligence: LiveIntelligence | null;
+      },
       { status: 200, headers: { 'Cache-Control': 'private, no-store' } },
     );
   } catch (error: unknown) {

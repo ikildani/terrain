@@ -18,13 +18,15 @@ import GeographyBreakdown from './GeographyBreakdown';
 import MarketGrowthChart from './MarketGrowthChart';
 import SensitivityTable from './SensitivityTable';
 import RevenueWaterfallChart from './RevenueWaterfallChart';
-import type { MarketSizingOutput, MarketSizingInput } from '@/types';
+import { LiveIntelligencePanel } from '@/components/shared/LiveIntelligencePanel';
+import type { MarketSizingOutput, MarketSizingInput, LiveIntelligence } from '@/types';
 
 interface MarketSizingReportProps {
   data: MarketSizingOutput;
   input: MarketSizingInput;
   previewMode?: boolean;
   onPdfExport?: () => void;
+  liveIntelligence?: LiveIntelligence | null;
 }
 
 function flattenForCSV(data: MarketSizingOutput): Record<string, unknown>[] {
@@ -112,7 +114,7 @@ function flattenForCSV(data: MarketSizingOutput): Record<string, unknown>[] {
   return rows;
 }
 
-function MarketSizingReport({ data, input, previewMode, onPdfExport }: MarketSizingReportProps) {
+function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelligence }: MarketSizingReportProps) {
   const [methodologyOpen, setMethodologyOpen] = useState(previewMode ?? false);
   const { isPro } = useSubscription();
   const { role } = useProfile();
@@ -180,6 +182,9 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport }: MarketSiz
             in the US form the basis of this analysis.`}
         </p>
       </div>
+
+      {/* Live Market Intelligence */}
+      <LiveIntelligencePanel intelligence={liveIntelligence} />
 
       {/* Summary Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

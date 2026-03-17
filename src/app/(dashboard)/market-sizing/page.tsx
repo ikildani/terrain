@@ -33,9 +33,15 @@ import type {
   NutraceuticalMarketSizingOutput,
   DeviceMarketSizingInput,
   CDxMarketSizingInput,
+  LiveIntelligence,
 } from '@/types';
 
 type MarketSizingResult = MarketSizingOutput | DeviceMarketSizingOutput | CDxOutput | NutraceuticalMarketSizingOutput;
+
+interface MutationResult {
+  data: MarketSizingResult;
+  liveIntelligence: LiveIntelligence | null;
+}
 
 function isPharma(category: string): boolean {
   return category === 'pharmaceutical' || category.startsWith('pharma');
@@ -153,7 +159,7 @@ export default function MarketSizingPage() {
     }: {
       productCategory: string;
       formData: Record<string, unknown>;
-    }) => {
+    }): Promise<MutationResult> => {
       const response = await fetch('/api/analyze/market', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -161,7 +167,10 @@ export default function MarketSizingPage() {
       });
       const json = await response.json();
       if (!json.success) throw new Error(json.error || 'Analysis failed');
-      return json.data as MarketSizingResult;
+      return {
+        data: json.data as MarketSizingResult,
+        liveIntelligence: (json.live_intelligence as LiveIntelligence | null) ?? null,
+      };
     },
     onSuccess: () => {
       toast.success('Market analysis complete');
@@ -176,7 +185,8 @@ export default function MarketSizingPage() {
     },
   });
 
-  const results = mutation.data ?? null;
+  const results = mutation.data?.data ?? null;
+  const liveIntelligence = mutation.data?.liveIntelligence ?? null;
   const isLoading = mutation.isPending;
   const error = mutation.error ? (mutation.error as Error).message : null;
 
@@ -200,6 +210,7 @@ export default function MarketSizingPage() {
           input={formInput as unknown as DeviceMarketSizingInput}
           previewMode={preview}
           onPdfExport={pdfExport}
+          liveIntelligence={liveIntelligence}
         />
       );
     }
@@ -233,6 +244,7 @@ export default function MarketSizingPage() {
         input={formInput as unknown as MarketSizingInput}
         previewMode={preview}
         onPdfExport={pdfExport}
+        liveIntelligence={liveIntelligence}
       />
     );
   }
