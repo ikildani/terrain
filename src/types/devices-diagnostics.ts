@@ -212,7 +212,7 @@ export interface DeviceMarketSizingOutput {
   };
 
   methodology: string;
-  data_sources: { name: string; type: 'public' | 'proprietary' | 'licensed'; url?: string }[];
+  data_sources: { name: string; type: 'public' | 'proprietary' | 'licensed'; url?: string; last_updated?: string }[];
   generated_at: string;
 }
 
@@ -304,7 +304,7 @@ export interface CDxOutput {
   };
 
   methodology: string;
-  data_sources: { name: string; type: string }[];
+  data_sources: { name: string; type: string; last_updated?: string }[];
   generated_at: string;
 }
 
@@ -385,7 +385,7 @@ export interface DeviceRegulatoryOutput {
   indication_scope_scenarios?: DeviceIndicationScopeScenario[];
   device_manufacturing_risk?: DeviceManufacturingRisk;
 
-  data_sources: { name: string; type: string }[];
+  data_sources: { name: string; type: string; last_updated?: string }[];
   generated_at: string;
 }
 
@@ -985,7 +985,7 @@ export interface NutraceuticalMarketSizingOutput {
   acquisition_attractiveness?: NutraceuticalAcquisitionAttractiveness;
 
   methodology: string;
-  data_sources: { name: string; type: 'public' | 'proprietary' | 'licensed'; url?: string }[];
+  data_sources: { name: string; type: 'public' | 'proprietary' | 'licensed'; url?: string; last_updated?: string }[];
   generated_at: string;
 }
 

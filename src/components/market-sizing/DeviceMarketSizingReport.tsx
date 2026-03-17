@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { BookmarkCheck } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { formatMetric, formatCompact, formatCurrency, formatPercent, formatNumber } from '@/lib/utils/format';
@@ -12,6 +12,7 @@ import { ExportButton } from '@/components/shared/ExportButton';
 import { UpgradeGate } from '@/components/shared/UpgradeGate';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useProfile } from '@/hooks/useProfile';
+import { getSourceFreshness, isSourceStale } from '@/lib/data/data-freshness';
 import TAMChart from './TAMChart';
 import ProcedureVolumeChart from './ProcedureVolumeChart';
 import RevenueStreamChart from './RevenueStreamChart';
@@ -150,8 +151,40 @@ function DeviceMarketSizingReport({
   const peakBear = Math.max(0, ...data.revenue_projection.map((r) => r.bear ?? 0));
   const peakBull = Math.max(0, ...data.revenue_projection.map((r) => r.bull ?? 0));
 
+  // ── Data freshness check ─────────────────────────────────
+  const staleSourcesExist = useMemo(() => {
+    return data.data_sources.some((source) => {
+      const freshness = source.last_updated ?? getSourceFreshness(source.name);
+      return freshness ? isSourceStale(freshness) : false;
+    });
+  }, [data.data_sources]);
+
+  // ── Peak year & revenue from projections ─────────────────
+  const peakProjection = useMemo(() => {
+    if (!data.revenue_projection || data.revenue_projection.length === 0) return { year: 0, value: 0 };
+    let peakYear = 0;
+    let peakValue = 0;
+    for (const yr of data.revenue_projection) {
+      if ((yr.base ?? 0) > peakValue) {
+        peakValue = yr.base ?? 0;
+        peakYear = yr.year;
+      }
+    }
+    return { year: peakYear, value: peakValue };
+  }, [data.revenue_projection]);
+
   return (
-    <div className="space-y-6 animate-fade-in" data-report-content>
+    <div className="space-y-4 animate-fade-in" data-report-content>
+      {/* Data Freshness Warning */}
+      {staleSourcesExist && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-md">
+          <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <p className="text-2xs text-amber-400">
+            Some data sources are older than 6 months. Results should be validated against current market conditions.
+          </p>
+        </div>
+      )}
+
       {/* ──────────────────────── 1. Executive Summary ──────────────────────── */}
       <div className="card noise">
         <h3 className="chart-title">Executive Summary</h3>
@@ -179,25 +212,25 @@ function DeviceMarketSizingReport({
       {/* ──────────────────────── 1b. Live Market Intelligence ──────────────────────── */}
       <LiveIntelligencePanel intelligence={liveIntelligence} />
 
-      {/* ──────────────────────── 2. Summary Metrics ──────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ──────────────────────── 2. Summary Metrics — Bloomberg-grade density ──────────────────────── */}
+      <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard
           label="US TAM"
           value={formatMetric(summary.us_tam.value, summary.us_tam.unit)}
           confidence={summary.us_tam.confidence}
-          source="Terrain Analysis"
+          className="!p-3"
         />
         <StatCard
           label="US SAM"
           value={formatMetric(summary.us_sam.value, summary.us_sam.unit)}
           confidence="medium"
-          source="Terrain Analysis"
+          className="!p-3"
         />
         <StatCard
           label="US SOM"
           value={formatMetric(summary.us_som.value, summary.us_som.unit)}
           confidence="medium"
-          source="Terrain Analysis"
+          className="!p-3"
           range={
             summary.us_som.range
               ? {
@@ -210,10 +243,32 @@ function DeviceMarketSizingReport({
         <StatCard
           label="Global TAM"
           value={formatMetric(summary.global_tam.value, summary.global_tam.unit)}
-          trend={`${summary.cagr_5yr}% CAGR`}
-          trendDirection="up"
-          source="Terrain Analysis + Territory Multipliers"
+          className="!p-3"
         />
+        <StatCard label="5yr CAGR" value={`${summary.cagr_5yr}%`} trendDirection="up" className="!p-3" />
+        <StatCard
+          label={`Peak (${peakProjection.year || '—'})`}
+          value={peakProjection.value > 0 ? formatCompact(peakProjection.value) : '—'}
+          className="!p-3"
+        />
+      </div>
+
+      {/* Key Assumptions Strip */}
+      <div className="px-3 py-1.5 bg-navy-800/80 border border-navy-700 rounded-md font-mono text-2xs text-teal-400 flex items-center gap-1 flex-wrap">
+        <span className="text-slate-500 mr-1">ASSUMPTIONS</span>
+        <span>Procedure: {input.procedure_or_condition?.split(' ').slice(0, 3).join(' ') || '—'}</span>
+        <span className="text-navy-600">|</span>
+        <span>Category: {input.device_category || '—'}</span>
+        <span className="text-navy-600">|</span>
+        <span>Geography: {input.geography?.join(' + ') || '—'}</span>
+        <span className="text-navy-600">|</span>
+        <span>Launch: {input.launch_year || '—'}</span>
+        {input.pricing_model && (
+          <>
+            <span className="text-navy-600">|</span>
+            <span>Pricing: {input.pricing_model}</span>
+          </>
+        )}
       </div>
 
       {/* ──────────────────────── 3. TAM Chart ──────────────────────── */}
@@ -1404,8 +1459,47 @@ function DeviceMarketSizingReport({
       {/* ──────────────────────── 12. Data Sources ──────────────────────── */}
       <div className="flex flex-wrap gap-3">
         {data.data_sources.map((source) => (
-          <DataSourceBadge key={source.name} source={source.name} type={source.type} url={source.url} />
+          <DataSourceBadge
+            key={source.name}
+            source={source.name}
+            type={source.type}
+            url={source.url}
+            lastUpdated={source.last_updated ?? getSourceFreshness(source.name)}
+          />
         ))}
+      </div>
+
+      {/* Micro-Summary Footer */}
+      <div className="px-3 py-2 bg-navy-800/60 border border-navy-700 rounded-md">
+        <div className="font-mono text-2xs text-slate-400 flex items-center gap-2 flex-wrap">
+          <span>
+            TAM <span className="text-white">{formatMetric(summary.us_tam.value, summary.us_tam.unit)}</span>
+          </span>
+          <span className="text-navy-600">|</span>
+          <span>
+            SAM <span className="text-white">{formatMetric(summary.us_sam.value, summary.us_sam.unit)}</span>
+          </span>
+          <span className="text-navy-600">|</span>
+          <span>
+            SOM <span className="text-white">{formatMetric(summary.us_som.value, summary.us_som.unit)}</span>
+          </span>
+          <span className="text-navy-600">|</span>
+          <span>
+            Peak{' '}
+            <span className="text-teal-400">
+              {peakProjection.value > 0 ? formatCompact(peakProjection.value) : '—'}
+            </span>
+            {peakProjection.year > 0 ? ` (${peakProjection.year})` : ''}
+          </span>
+          <span className="text-navy-600">|</span>
+          <span>
+            CAGR <span className="text-white">{summary.cagr_5yr}%</span>
+          </span>
+          <span className="text-navy-600">|</span>
+          <span>
+            Procedures <span className="text-white">{formatNumber(data.procedure_volume.us_annual_procedures)}</span>/yr
+          </span>
+        </div>
       </div>
 
       {/* ──────────────────────── 13. Action Bar ──────────────────────── */}

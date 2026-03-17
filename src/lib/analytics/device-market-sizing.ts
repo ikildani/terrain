@@ -35,6 +35,7 @@ import { TERRITORY_MULTIPLIERS } from '@/lib/data/territory-multipliers';
 import { DEVICE_PRICING_BENCHMARKS } from '@/lib/data/device-pricing-benchmarks';
 import { CDX_DEAL_DATABASE } from '@/lib/data/cdx-deals';
 import { MEDTECH_DEAL_DATABASE, getDealsByCategory, getMedianDealValue } from '@/lib/data/medtech-deal-database';
+import { getSourceFreshness } from '@/lib/data/data-freshness';
 
 // ────────────────────────────────────────────────────────────
 // DEVICE STAGE MARKET SHARE RANGES
@@ -277,16 +278,34 @@ export async function calculateDeviceMarketSizing(input: DeviceMarketSizingInput
       name: `CMS Medicare Fee Schedule ${currentYear}`,
       type: 'public' as const,
       url: 'https://www.cms.gov/medicare/payment',
+      last_updated: getSourceFreshness('CMS Medicare Fee Schedule'),
     },
-    { name: `AHA Annual Survey of Hospitals ${currentYear}`, type: 'licensed' as const },
+    {
+      name: `AHA Annual Survey of Hospitals ${currentYear}`,
+      type: 'licensed' as const,
+      last_updated: getSourceFreshness('AHA Annual Survey of Hospitals'),
+    },
     {
       name: 'FDA 510(k) / PMA Database',
       type: 'public' as const,
       url: 'https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm',
+      last_updated: getSourceFreshness('FDA 510(k) / PMA Database'),
     },
-    { name: 'Definitive Healthcare Procedure Volume Data', type: 'licensed' as const },
-    { name: `Ambrosia Ventures Medtech Deal Database (2020-${currentYear})`, type: 'proprietary' as const },
-    { name: `ASC Association Annual Survey ${currentYear}`, type: 'public' as const },
+    {
+      name: 'Definitive Healthcare Procedure Volume Data',
+      type: 'licensed' as const,
+      last_updated: getSourceFreshness('Definitive Healthcare Procedure Volume Data'),
+    },
+    {
+      name: `Ambrosia Ventures Medtech Deal Database (2020-${currentYear})`,
+      type: 'proprietary' as const,
+      last_updated: getSourceFreshness('Ambrosia Ventures Medtech Deal Database'),
+    },
+    {
+      name: `ASC Association Annual Survey ${currentYear}`,
+      type: 'public' as const,
+      last_updated: getSourceFreshness('ASC Association Annual Survey'),
+    },
   ];
 
   return {
@@ -442,10 +461,26 @@ export async function calculateCDxMarketSizing(rawInput: CDxMarketSizingInput): 
     competitive_cdx_landscape: buildCDxCompetitiveLandscape(input),
     methodology: buildCDxMethodology(input, us_incidence),
     data_sources: [
-      { name: 'FDA Companion Diagnostics Database', type: 'public' },
-      { name: 'CMS Clinical Laboratory Fee Schedule 2024', type: 'public' },
-      { name: 'Ambrosia Ventures CDx Deal Database', type: 'proprietary' },
-      { name: 'NCCN Biomarker Testing Guidelines', type: 'public' },
+      {
+        name: 'FDA Companion Diagnostics Database',
+        type: 'public',
+        last_updated: getSourceFreshness('FDA Companion Diagnostics Database'),
+      },
+      {
+        name: 'CMS Clinical Laboratory Fee Schedule 2024',
+        type: 'public',
+        last_updated: getSourceFreshness('CMS Clinical Laboratory Fee Schedule 2024'),
+      },
+      {
+        name: 'Ambrosia Ventures CDx Deal Database',
+        type: 'proprietary',
+        last_updated: getSourceFreshness('Ambrosia Ventures CDx Deal Database'),
+      },
+      {
+        name: 'NCCN Biomarker Testing Guidelines',
+        type: 'public',
+        last_updated: getSourceFreshness('NCCN Biomarker Testing Guidelines'),
+      },
     ],
     generated_at: new Date().toISOString(),
   };

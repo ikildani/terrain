@@ -66,6 +66,7 @@ import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
 import { getLikelihoodOfApproval } from '@/lib/data/loa-tables';
 import { BIOMARKER_DATA } from '@/lib/data/biomarker-prevalence';
 import { filterDealComps } from '@/lib/data/pharma-deal-comps';
+import { getSourceFreshness } from '@/lib/data/data-freshness';
 
 // ────────────────────────────────────────────────────────────
 // STAGE-BASED PEAK MARKET SHARE RANGES
@@ -5952,7 +5953,7 @@ function buildEfficacyShareModifier(
 // DATA SOURCES
 // ────────────────────────────────────────────────────────────
 function buildDataSources(indication: NonNullable<ReturnType<typeof findIndicationByName>>): DataSource[] {
-  return [
+  const sources: DataSource[] = [
     { name: indication.prevalence_source.split(';')[0].trim(), type: 'public' },
     { name: 'WHO Global Burden of Disease 2024', type: 'public' },
     { name: 'Terrain Drug Pricing Database', type: 'proprietary' },
@@ -5960,4 +5961,5 @@ function buildDataSources(indication: NonNullable<ReturnType<typeof findIndicati
     { name: 'Ambrosia Ventures Transaction Database', type: 'proprietary' },
     { name: 'CMS Medicare Spending Data', type: 'public' },
   ];
+  return sources.map((s) => ({ ...s, last_updated: getSourceFreshness(s.name) }));
 }

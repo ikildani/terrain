@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { BookmarkCheck } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { formatMetric, formatCompact, formatCurrency, formatPercent, formatNumber } from '@/lib/utils/format';
@@ -12,6 +12,7 @@ import { ExportButton } from '@/components/shared/ExportButton';
 import { UpgradeGate } from '@/components/shared/UpgradeGate';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useProfile } from '@/hooks/useProfile';
+import { getSourceFreshness, isSourceStale } from '@/lib/data/data-freshness';
 import TAMChart from './TAMChart';
 import PatientFunnelChart from './PatientFunnelChart';
 import GeographyBreakdown from './GeographyBreakdown';
@@ -126,8 +127,34 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
   const showDealSections = fullDepth || ['bd_executive', 'corp_dev', 'consultant'].includes(role!);
   const showManufacturing = fullDepth || ['founder', 'consultant'].includes(role!);
 
+  // ── Data freshness check ─────────────────────────────────
+  const staleSourcesExist = useMemo(() => {
+    return data.data_sources.some((source) => {
+      const freshness = source.last_updated ?? getSourceFreshness(source.name);
+      return freshness ? isSourceStale(freshness) : false;
+    });
+  }, [data.data_sources]);
+
+  // ── Peak year & revenue from projections ─────────────────
+  const peakProjection = useMemo(() => {
+    if (!data.revenue_projection || data.revenue_projection.length === 0) return { year: 0, value: 0 };
+    let peakYear = 0;
+    let peakValue = 0;
+    for (const yr of data.revenue_projection) {
+      if (yr.base > peakValue) {
+        peakValue = yr.base;
+        peakYear = yr.year;
+      }
+    }
+    return { year: peakYear, value: peakValue };
+  }, [data.revenue_projection]);
+
+  // ── Competitor count ─────────────────────────────────────
+  const competitorCount =
+    (data.competitive_context?.approved_products ?? 0) + (data.competitive_context?.phase3_programs ?? 0);
+
   return (
-    <div className="space-y-6 animate-fade-in" data-report-content>
+    <div className="space-y-4 animate-fade-in" data-report-content>
       {/* Top Action Bar — prominent export buttons */}
       {!previewMode && (
         <div className="flex items-center justify-between gap-3 pb-4 border-b border-navy-700" data-no-print>
@@ -155,6 +182,16 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
               filename={`terrain-${input.indication.toLowerCase().replace(/\s+/g, '-')}-market-sizing`}
             />
           </div>
+        </div>
+      )}
+
+      {/* Data Freshness Warning */}
+      {staleSourcesExist && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-md">
+          <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <p className="text-2xs text-amber-400">
+            Some data sources are older than 6 months. Results should be validated against current market conditions.
+          </p>
         </div>
       )}
 
@@ -186,33 +223,25 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
       {/* Live Market Intelligence */}
       <LiveIntelligencePanel intelligence={liveIntelligence} />
 
-      {/* Summary Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Summary Metrics — Bloomberg-grade density */}
+      <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard
           label="US TAM"
           value={formatMetric(summary.tam_us.value, summary.tam_us.unit)}
           confidence={summary.tam_us.confidence}
-          source="Terrain Analysis"
-          range={
-            summary.tam_us.range
-              ? {
-                  low: formatMetric(summary.tam_us.range[0], summary.tam_us.unit),
-                  high: formatMetric(summary.tam_us.range[1], summary.tam_us.unit),
-                }
-              : undefined
-          }
+          className="!p-3"
         />
         <StatCard
           label="US SAM"
           value={formatMetric(summary.sam_us.value, summary.sam_us.unit)}
           confidence={summary.sam_us.confidence}
-          source="Terrain Analysis"
+          className="!p-3"
         />
         <StatCard
           label="US SOM"
           value={formatMetric(summary.som_us.value, summary.som_us.unit)}
           confidence={summary.som_us.confidence}
-          source="Terrain Analysis"
+          className="!p-3"
           range={
             summary.som_us.range
               ? {
@@ -225,10 +254,36 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
         <StatCard
           label="Global TAM"
           value={formatMetric(summary.global_tam.value, summary.global_tam.unit)}
-          trend={`${summary.cagr_5yr}% CAGR`}
-          trendDirection="up"
-          source="Terrain Analysis + Territory Multipliers"
+          className="!p-3"
         />
+        <StatCard label="5yr CAGR" value={`${summary.cagr_5yr}%`} trendDirection="up" className="!p-3" />
+        <StatCard
+          label={`Peak (${peakProjection.year || '—'})`}
+          value={peakProjection.value > 0 ? formatCompact(peakProjection.value) : '—'}
+          className="!p-3"
+        />
+      </div>
+
+      {/* Key Assumptions Strip */}
+      <div className="px-3 py-1.5 bg-navy-800/80 border border-navy-700 rounded-md font-mono text-2xs text-teal-400 flex items-center gap-1 flex-wrap">
+        <span className="text-slate-500 mr-1">ASSUMPTIONS</span>
+        <span>TA: {input.indication?.split(' ').slice(0, 3).join(' ') || '—'}</span>
+        <span className="text-navy-600">|</span>
+        <span>Stage: {input.development_stage || '—'}</span>
+        <span className="text-navy-600">|</span>
+        <span>Mechanism: {input.mechanism || '—'}</span>
+        <span className="text-navy-600">|</span>
+        <span>Geography: {input.geography?.join(' + ') || '—'}</span>
+        <span className="text-navy-600">|</span>
+        <span>Launch: {input.launch_year || '—'}</span>
+        <span className="text-navy-600">|</span>
+        <span>Pricing: {input.pricing_assumption || 'base'}</span>
+        {competitorCount > 0 && (
+          <>
+            <span className="text-navy-600">|</span>
+            <span>{competitorCount} competitors</span>
+          </>
+        )}
       </div>
 
       {/* TAM Chart */}
@@ -1261,8 +1316,66 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
       {/* Data Sources */}
       <div className="flex flex-wrap gap-3">
         {data.data_sources.map((source) => (
-          <DataSourceBadge key={source.name} source={source.name} type={source.type} url={source.url} />
+          <DataSourceBadge
+            key={source.name}
+            source={source.name}
+            type={source.type}
+            url={source.url}
+            lastUpdated={source.last_updated ?? getSourceFreshness(source.name)}
+          />
         ))}
+      </div>
+
+      {/* Micro-Summary Footer */}
+      <div className="px-3 py-2 bg-navy-800/60 border border-navy-700 rounded-md">
+        <div className="font-mono text-2xs text-slate-400 flex items-center gap-2 flex-wrap">
+          <span>
+            TAM <span className="text-white">{formatMetric(summary.tam_us.value, summary.tam_us.unit)}</span>
+          </span>
+          <span className="text-navy-600">|</span>
+          <span>
+            SAM <span className="text-white">{formatMetric(summary.sam_us.value, summary.sam_us.unit)}</span>
+          </span>
+          <span className="text-navy-600">|</span>
+          <span>
+            SOM <span className="text-white">{formatMetric(summary.som_us.value, summary.som_us.unit)}</span>
+          </span>
+          <span className="text-navy-600">|</span>
+          <span>
+            Peak{' '}
+            <span className="text-teal-400">
+              {peakProjection.value > 0 ? formatCompact(peakProjection.value) : '—'}
+            </span>
+            {peakProjection.year > 0 ? ` (${peakProjection.year})` : ''}
+          </span>
+          {data.dcf_waterfall?.enterprise_value_m != null && (
+            <>
+              <span className="text-navy-600">|</span>
+              <span>
+                rNPV <span className="text-teal-400">{formatCompact(data.dcf_waterfall.enterprise_value_m)}</span>
+              </span>
+            </>
+          )}
+          {data.regulatory_pathway_analysis?.adjusted_loa != null && (
+            <>
+              <span className="text-navy-600">|</span>
+              <span>
+                LoA{' '}
+                <span className="text-white">
+                  {formatPercent(data.regulatory_pathway_analysis.adjusted_loa * 100, 0)}
+                </span>
+              </span>
+            </>
+          )}
+          {competitorCount > 0 && (
+            <>
+              <span className="text-navy-600">|</span>
+              <span>
+                <span className="text-white">{competitorCount}</span> competitors
+              </span>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Action Bar */}
