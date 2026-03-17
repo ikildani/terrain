@@ -2,7 +2,7 @@
 // TERRAIN — Pharma M&A Deal Comps Database
 // lib/data/pharma-deal-comps.ts
 //
-// 200+ real biotech M&A / licensing transactions (2017-2026)
+// 415+ real biotech M&A / licensing transactions (2017-2026)
 // sourced from SEC filings, press releases, and public databases.
 // Used to derive implied valuations via EV/Peak Sales multiples.
 // ============================================================
