@@ -37,6 +37,14 @@ export function formatDate(dateString: string): string {
   });
 }
 
+/**
+ * Convert underscore-separated enum values to human-readable Title Case.
+ * e.g. "co_development" → "Co Development", "cell_gene_therapy" → "Cell Gene Therapy"
+ */
+export function humanize(str: string): string {
+  return str.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export function formatRelativeDate(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();

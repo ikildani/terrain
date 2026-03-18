@@ -3906,7 +3906,14 @@ export const INDICATION_DATA: IndicationData[] = [
   // ──────────────────────────────────────────
   {
     name: 'Neovascular Age-Related Macular Degeneration',
-    synonyms: ['wet AMD', 'nAMD', 'neovascular AMD', 'exudative AMD', 'wet macular degeneration'],
+    synonyms: [
+      'wet AMD',
+      'nAMD',
+      'neovascular AMD',
+      'exudative AMD',
+      'wet macular degeneration',
+      'wet age-related macular degeneration',
+    ],
     icd10_codes: ['H35.31', 'H35.32'],
     therapy_area: 'ophthalmology',
     us_prevalence: 1800000,
@@ -6822,15 +6829,127 @@ export const INDICATION_DATA: IndicationData[] = [
 ];
 
 // Export helper for lookup
+// Common aliases for fuzzy matching — maps alternate terms to canonical terms
+const INDICATION_ALIASES: Record<string, string> = {
+  wet: 'neovascular',
+  dry: 'geographic atrophy',
+  nash: 'nonalcoholic steatohepatitis',
+  nafld: 'nonalcoholic fatty liver disease',
+  nsclc: 'non-small cell lung cancer',
+  sclc: 'small cell lung cancer',
+  cll: 'chronic lymphocytic leukemia',
+  aml: 'acute myeloid leukemia',
+  all: 'acute lymphoblastic leukemia',
+  dlbcl: 'diffuse large b-cell lymphoma',
+  hcc: 'hepatocellular carcinoma',
+  rcc: 'renal cell carcinoma',
+  crpc: 'castration-resistant prostate cancer',
+  tnbc: 'triple-negative breast cancer',
+  ibs: 'irritable bowel syndrome',
+  ibd: 'inflammatory bowel disease',
+  uc: 'ulcerative colitis',
+  cd: "crohn's disease",
+  ms: 'multiple sclerosis',
+  ra: 'rheumatoid arthritis',
+  sle: 'systemic lupus erythematosus',
+  lupus: 'systemic lupus erythematosus',
+  als: 'amyotrophic lateral sclerosis',
+  copd: 'chronic obstructive pulmonary disease',
+  ckd: 'chronic kidney disease',
+  t1d: 'type 1 diabetes',
+  t2d: 'type 2 diabetes',
+  pad: 'peripheral artery disease',
+  af: 'atrial fibrillation',
+  afib: 'atrial fibrillation',
+  mdd: 'major depressive disorder',
+  ptsd: 'post-traumatic stress disorder',
+  adhd: 'attention deficit hyperactivity disorder',
+  ocd: 'obsessive-compulsive disorder',
+  gist: 'gastrointestinal stromal tumor',
+};
+
+/**
+ * Expand aliases in a query string so that e.g. "wet" becomes "neovascular".
+ */
+function expandAliases(input: string): string {
+  const words = input.toLowerCase().split(/\s+/);
+  return words.map((w) => INDICATION_ALIASES[w] ?? w).join(' ');
+}
+
+/**
+ * Token-based overlap score: returns the fraction of query tokens found in the candidate string.
+ */
+function tokenOverlap(query: string, candidate: string): number {
+  const queryTokens = query
+    .toLowerCase()
+    .split(/[\s\-\/,]+/)
+    .filter((t) => t.length > 1);
+  if (queryTokens.length === 0) return 0;
+  const candidateTokens = new Set(
+    candidate
+      .toLowerCase()
+      .split(/[\s\-\/,]+/)
+      .filter((t) => t.length > 1),
+  );
+  let matches = 0;
+  for (const qt of queryTokens) {
+    for (const ct of candidateTokens) {
+      if (ct.includes(qt) || qt.includes(ct)) {
+        matches++;
+        break;
+      }
+    }
+  }
+  return matches / queryTokens.length;
+}
+
 export function findIndicationByName(name: string): IndicationData | undefined {
   const normalized = name.toLowerCase().trim();
-  return INDICATION_DATA.find(
-    (i) =>
-      i.name.toLowerCase() === normalized ||
-      i.synonyms.some((s) => s.toLowerCase() === normalized) ||
-      normalized.includes(i.name.toLowerCase()) ||
-      i.name.toLowerCase().includes(normalized),
+
+  // 1. Exact match on name or synonyms
+  const exact = INDICATION_DATA.find(
+    (i) => i.name.toLowerCase() === normalized || i.synonyms.some((s) => s.toLowerCase() === normalized),
   );
+  if (exact) return exact;
+
+  // 2. Substring containment (original logic)
+  const substring = INDICATION_DATA.find(
+    (i) =>
+      normalized.includes(i.name.toLowerCase()) ||
+      i.name.toLowerCase().includes(normalized) ||
+      i.synonyms.some((s) => normalized.includes(s.toLowerCase()) || s.toLowerCase().includes(normalized)),
+  );
+  if (substring) return substring;
+
+  // 3. Alias expansion — try again after replacing common abbreviations
+  const expanded = expandAliases(normalized);
+  if (expanded !== normalized) {
+    const aliasMatch = INDICATION_DATA.find(
+      (i) =>
+        i.name.toLowerCase() === expanded ||
+        i.synonyms.some((s) => s.toLowerCase() === expanded) ||
+        expanded.includes(i.name.toLowerCase()) ||
+        i.name.toLowerCase().includes(expanded) ||
+        i.synonyms.some((s) => expanded.includes(s.toLowerCase()) || s.toLowerCase().includes(expanded)),
+    );
+    if (aliasMatch) return aliasMatch;
+  }
+
+  // 4. Token-based fuzzy matching — find the best match with >50% token overlap
+  let bestScore = 0;
+  let bestMatch: IndicationData | undefined;
+
+  for (const ind of INDICATION_DATA) {
+    const nameScore = tokenOverlap(expanded, ind.name);
+    const synonymScores = ind.synonyms.map((s) => tokenOverlap(expanded, s));
+    const maxScore = Math.max(nameScore, ...synonymScores);
+    if (maxScore > bestScore) {
+      bestScore = maxScore;
+      bestMatch = ind;
+    }
+  }
+
+  return bestScore > 0.5 ? bestMatch : undefined;
 }
 
 export function getIndicationNames(): string[] {

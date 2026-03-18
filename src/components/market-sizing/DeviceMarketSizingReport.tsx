@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { BookmarkCheck } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
-import { formatMetric, formatCompact, formatCurrency, formatPercent, formatNumber } from '@/lib/utils/format';
+import { formatMetric, formatCompact, formatCurrency, formatPercent, formatNumber, humanize } from '@/lib/utils/format';
 import { StatCard } from '@/components/shared/StatCard';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import { ConfidentialFooter } from '@/components/shared/ConfidentialFooter';
@@ -96,7 +96,7 @@ function flattenDeviceForCSV(data: DeviceMarketSizingOutput): Record<string, unk
       median_deal_value_m: data.deal_benchmark.median_deal_value_m,
       median_revenue_multiple: data.deal_benchmark.median_revenue_multiple ?? '',
       deal_count_last_3yr: data.deal_benchmark.deal_count_last_3yr,
-      hottest_categories: data.deal_benchmark.hottest_categories.join(', '),
+      hottest_categories: data.deal_benchmark.hottest_categories.map(humanize).join(', '),
     });
   }
 
@@ -293,7 +293,7 @@ function DeviceMarketSizingReport({
         <span className="text-slate-500 mr-1">ASSUMPTIONS</span>
         <span>Procedure: {input.procedure_or_condition?.split(' ').slice(0, 3).join(' ') || '—'}</span>
         <span className="text-navy-600">|</span>
-        <span>Category: {input.device_category || '—'}</span>
+        <span>Category: {input.device_category ? humanize(input.device_category) : '—'}</span>
         <span className="text-navy-600">|</span>
         <span>Geography: {input.geography?.join(' + ') || '—'}</span>
         <span className="text-navy-600">|</span>
@@ -301,7 +301,7 @@ function DeviceMarketSizingReport({
         {input.pricing_model && (
           <>
             <span className="text-navy-600">|</span>
-            <span>Pricing: {input.pricing_model}</span>
+            <span>Pricing: {humanize(input.pricing_model)}</span>
           </>
         )}
       </div>
@@ -1034,7 +1034,7 @@ function DeviceMarketSizingReport({
                       key={cat}
                       className="inline-flex items-center px-1.5 py-0.5 rounded bg-teal-500/12 text-teal-400 border border-teal-500/20 text-2xs font-mono"
                     >
-                      {cat}
+                      {humanize(cat)}
                     </span>
                   ))}
                 </div>
@@ -1064,14 +1064,14 @@ function DeviceMarketSizingReport({
                         <td className="text-xs text-slate-300 py-2 pr-3">{d.target}</td>
                         <td className="py-2 pr-3">
                           <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-navy-800 border border-navy-700 text-2xs font-mono text-slate-400">
-                            {d.deal_type}
+                            {humanize(d.deal_type)}
                           </span>
                         </td>
                         <td className="metric text-xs text-white py-2 pr-3 text-right">
                           {d.value_m != null ? formatCurrency(d.value_m) : '--'}
                         </td>
                         <td className="text-xs text-slate-400 py-2 pr-3">{d.announced_date}</td>
-                        <td className="text-xs text-slate-500 py-2 max-w-48 truncate" title={d.rationale}>
+                        <td className="text-xs text-slate-500 py-2 max-w-[300px] whitespace-normal leading-relaxed">
                           {d.rationale}
                         </td>
                       </tr>
@@ -1548,7 +1548,11 @@ function DeviceMarketSizingReport({
             format="pdf"
             onPdfExport={onPdfExport}
             reportTitle={`${input.procedure_or_condition} — Device Market Assessment`}
-            reportSubtitle={[input.device_category, input.product_name].filter(Boolean).join(' — ') || undefined}
+            reportSubtitle={
+              [input.device_category ? humanize(input.device_category) : '', input.product_name]
+                .filter(Boolean)
+                .join(' — ') || undefined
+            }
             filename={`terrain-${input.procedure_or_condition.toLowerCase().replace(/\s+/g, '-')}-device-market-sizing`}
           />
           <ExportButton
@@ -1564,7 +1568,11 @@ function DeviceMarketSizingReport({
           <ExportButton
             format="email"
             reportTitle={`${input.procedure_or_condition} — Device Market Assessment`}
-            reportSubtitle={[input.device_category, input.product_name].filter(Boolean).join(' — ') || undefined}
+            reportSubtitle={
+              [input.device_category ? humanize(input.device_category) : '', input.product_name]
+                .filter(Boolean)
+                .join(' — ') || undefined
+            }
           />
         </div>
       )}

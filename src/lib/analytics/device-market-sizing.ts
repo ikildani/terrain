@@ -1846,19 +1846,61 @@ function buildDealBenchmark(input: DeviceMarketSizingInput): MedTechDealBenchmar
   const values = dealsWithValue.map((d) => d.value_m!).sort((a, b) => a - b);
   const medianValue = values.length > 0 ? values[Math.floor(values.length / 2)] : 0;
 
-  // Find hottest categories by deal count
-  const allDeals = MEDTECH_DEAL_DATABASE;
+  // Find hottest categories — scoped to user's category and related categories
+  const RELATED_CATEGORIES: Record<string, string[]> = {
+    orthopedic: ['orthopedic', 'general_surgery', 'wound_care'],
+    cardiovascular: ['cardiovascular', 'vascular', 'ivd_cardiology'],
+    neurology: ['neurology', 'ophthalmology'],
+    ophthalmology: ['ophthalmology', 'neurology'],
+    general_surgery: ['general_surgery', 'orthopedic', 'endoscopy_gi'],
+    vascular: ['vascular', 'cardiovascular'],
+    endoscopy_gi: ['endoscopy_gi', 'general_surgery'],
+    wound_care: ['wound_care', 'orthopedic', 'dermatology'],
+    diabetes_metabolic: ['diabetes_metabolic', 'ivd_genetics'],
+    oncology_surgical: ['oncology_surgical', 'oncology_radiation', 'ivd_oncology'],
+    oncology_radiation: ['oncology_radiation', 'oncology_surgical', 'ivd_oncology'],
+    ivd_oncology: ['ivd_oncology', 'oncology_surgical', 'oncology_radiation'],
+    ivd_infectious: ['ivd_infectious', 'ivd_genetics'],
+    ivd_cardiology: ['ivd_cardiology', 'cardiovascular'],
+    ivd_genetics: ['ivd_genetics', 'ivd_oncology', 'ivd_infectious'],
+    imaging_radiology: ['imaging_radiology', 'oncology_radiation'],
+    renal_dialysis: ['renal_dialysis', 'vascular'],
+    respiratory: ['respiratory', 'general_surgery'],
+    dental: ['dental'],
+    ent: ['ent'],
+    urology: ['urology', 'general_surgery'],
+    dermatology: ['dermatology', 'wound_care'],
+  };
+
+  const userCategory = input.device_category;
+  const relatedSet = new Set(RELATED_CATEGORIES[userCategory] ?? [userCategory]);
+
+  // Count deals only within the user's category and related categories
+  const relevantDeals = MEDTECH_DEAL_DATABASE.filter((d) => relatedSet.has(d.device_category));
   const categoryCounts: Record<string, number> = {};
-  allDeals.forEach((d) => {
+  relevantDeals.forEach((d) => {
     categoryCounts[d.device_category] = (categoryCounts[d.device_category] || 0) + 1;
   });
+
+  // If fewer than 3 related categories have deals, still show what we have
   const hottest = Object.entries(categoryCounts)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 3)
     .map(([cat]) => cat);
 
+  // Deduplicate by acquirer — keep only the most recent deal per acquirer
+  const acquirerBest = new Map<string, (typeof categoryDeals)[number]>();
+  for (const d of categoryDeals) {
+    const key = d.acquirer.toLowerCase();
+    const existing = acquirerBest.get(key);
+    if (!existing || d.announced_date > existing.announced_date) {
+      acquirerBest.set(key, d);
+    }
+  }
+  const dedupedDeals = [...acquirerBest.values()].sort((a, b) => b.announced_date.localeCompare(a.announced_date));
+
   return {
-    comparable_deals: categoryDeals.slice(0, 8),
+    comparable_deals: dedupedDeals.slice(0, 8),
     median_deal_value_m: medianValue,
     deal_count_last_3yr: recentDeals.length,
     hottest_categories: hottest,

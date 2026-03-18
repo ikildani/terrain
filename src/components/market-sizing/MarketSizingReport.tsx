@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { BookmarkCheck } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
-import { formatMetric, formatCompact, formatCurrency, formatPercent, formatNumber } from '@/lib/utils/format';
+import { formatMetric, formatCompact, formatCurrency, formatPercent, formatNumber, humanize } from '@/lib/utils/format';
 import { StatCard } from '@/components/shared/StatCard';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import { ConfidentialFooter } from '@/components/shared/ConfidentialFooter';
@@ -238,8 +238,8 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
         )}
         {data.patent_cliff_analysis && (
           <p className="text-sm text-slate-300 leading-relaxed mt-2">
-            Post-LOE dynamics suggest a {data.patent_cliff_analysis.product_type.replace(/_/g, ' ')} erosion profile
-            with <span className="metric text-white">{data.patent_cliff_analysis.peak_to_trough_decline_pct}%</span>{' '}
+            Post-LOE dynamics suggest a {humanize(data.patent_cliff_analysis.product_type)} erosion profile with{' '}
+            <span className="metric text-white">{data.patent_cliff_analysis.peak_to_trough_decline_pct}%</span>{' '}
             peak-to-trough decline.
           </p>
         )}
@@ -606,7 +606,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
                       : 'bg-emerald-500/12 text-emerald-400 border border-emerald-500/20',
                 )}
               >
-                {data.manufacturing_constraint.product_type.replace(/_/g, ' ')}
+                {humanize(data.manufacturing_constraint.product_type)}
               </span>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
@@ -733,9 +733,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div className="p-3 bg-navy-800/50 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Product Type</div>
-              <div className="text-sm text-white font-medium">
-                {data.patent_cliff_analysis.product_type.replace(/_/g, ' ')}
-              </div>
+              <div className="text-sm text-white font-medium">{humanize(data.patent_cliff_analysis.product_type)}</div>
             </div>
             <div className="p-3 bg-navy-800/50 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Estimated LOE Year</div>

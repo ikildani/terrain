@@ -1652,8 +1652,19 @@ function buildDealCompsAnalysis(
 ): DealCompsAnalysis {
   const comps = filterDealComps(therapyArea, developmentStage);
 
+  // Deduplicate by acquirer — keep only the most recent deal per acquirer
+  const acquirerBest = new Map<string, (typeof comps)[number]>();
+  for (const d of comps) {
+    const key = d.acquirer.toLowerCase();
+    const existing = acquirerBest.get(key);
+    if (!existing || d.year > existing.year) {
+      acquirerBest.set(key, d);
+    }
+  }
+  const dedupedComps = [...acquirerBest.values()].sort((a, b) => b.year - a.year);
+
   // Map to analysis entry type
-  const comparableDeals: DealCompsAnalysisEntry[] = comps.slice(0, 10).map((d) => ({
+  const comparableDeals: DealCompsAnalysisEntry[] = dedupedComps.slice(0, 10).map((d) => ({
     acquirer: d.acquirer,
     target: d.target,
     asset_or_indication: d.asset_or_indication,
@@ -2701,7 +2712,35 @@ function buildPricingAnalysis(input: MarketSizingInput, therapyArea: string): Pr
 
   // Sort by recency
   comparables.sort((a, b) => b.launch_year - a.launch_year);
-  const topComparables = comparables.slice(0, 8);
+
+  // Deduplicate by company — keep most relevant per company (first match after sorting by recency)
+  // If the user specified a mechanism, prefer the entry whose mechanism matches
+  const seenCompanies = new Set<string>();
+  const dedupedComparables = comparables.filter((c) => {
+    const key = c.company.toLowerCase();
+    if (seenCompanies.has(key)) return false;
+    seenCompanies.add(key);
+    return true;
+  });
+
+  // If mechanism-matching entries were filtered out by dedup, re-sort to prefer mechanism matches
+  if (input.mechanism) {
+    const mechLower = input.mechanism.toLowerCase();
+    dedupedComparables.sort((a, b) => {
+      const aMatch =
+        a.mechanism_class.toLowerCase().includes(mechLower) || mechLower.includes(a.mechanism_class.toLowerCase())
+          ? 1
+          : 0;
+      const bMatch =
+        b.mechanism_class.toLowerCase().includes(mechLower) || mechLower.includes(b.mechanism_class.toLowerCase())
+          ? 1
+          : 0;
+      if (bMatch !== aMatch) return bMatch - aMatch;
+      return b.launch_year - a.launch_year;
+    });
+  }
+
+  const topComparables = dedupedComparables.slice(0, 8);
 
   // Percentile-based pricing
   const wacs = comparables.map((c) => c.us_launch_wac_annual).sort((a, b) => a - b);
@@ -5559,12 +5598,41 @@ function buildCompetitiveMechanismAnalysis(
     };
   }
 
+  // Deduplicate competitors by company — keep the one with the highest mechanism similarity.
+  // Competitor format: "DrugName (genericName, Company)" — extract company from last token before ')'.
+  const extractCompany = (c: string): string => {
+    const parenContent = c.match(/\(([^)]+)\)/);
+    if (parenContent) {
+      const parts = parenContent[1].split(',').map((s) => s.trim());
+      return parts[parts.length - 1].toLowerCase();
+    }
+    return c.split('(')[0].trim().toLowerCase();
+  };
+
+  // Pre-score all competitors for dedup prioritization
+  const scored = competitors.map((comp) => {
+    const compMechanism = extractCompetitorMechanism(comp);
+    const similarity =
+      compMechanism && userMechanism ? scoreMechanismSimilarity(userMechanism, compMechanism).similarity : 0;
+    return { comp, company: extractCompany(comp), similarity };
+  });
+
+  // Keep only the highest-similarity entry per company
+  const companyBest = new Map<string, (typeof scored)[number]>();
+  for (const entry of scored) {
+    const existing = companyBest.get(entry.company);
+    if (!existing || entry.similarity > existing.similarity) {
+      companyBest.set(entry.company, entry);
+    }
+  }
+  const dedupedCompetitors = [...companyBest.values()].map((e) => e.comp);
+
   const analyzed: CompetitiveMechanismAnalysis['competitors'] = [];
   let cumulativeErosion = 0;
   let sameMechCount = 0;
   let sameTargetCount = 0;
 
-  for (const comp of competitors) {
+  for (const comp of dedupedCompetitors) {
     const compMechanism = extractCompetitorMechanism(comp);
     if (!compMechanism) {
       // Unknown mechanism — treat as different mechanism with minimal erosion
