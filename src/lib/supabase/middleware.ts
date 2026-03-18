@@ -101,6 +101,7 @@ export async function updateSession(request: NextRequest) {
       '/api/health', // Health check
       '/api/share/', // Public shared report access
       '/api/v1/', // v1 public API (uses API key auth, not session)
+      '/api/admin/', // Admin routes (use ADMIN_API_KEY/CRON_SECRET bearer auth)
     ];
 
     const isPublicApi = PUBLIC_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
