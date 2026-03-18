@@ -5,8 +5,18 @@
 
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/v1/responses';
 
+interface PerplexityOutputItem {
+  type: string;
+  // search_results type
+  queries?: string[];
+  results?: { url: string; title: string; snippet: string }[];
+  // message type
+  content?: { text: string; type: string }[];
+  role?: string;
+}
+
 interface PerplexityResponse {
-  output: { content: string; citations?: { url: string; title?: string }[] }[];
+  output: PerplexityOutputItem[];
 }
 
 export async function queryPerplexity(
@@ -36,17 +46,27 @@ export async function queryPerplexity(
     if (!response.ok) return null;
     const data = (await response.json()) as PerplexityResponse;
 
-    // Extract content and citations from response
-    const output = data.output?.[0];
-    if (!output) return null;
+    // Extract content from the message output (type: "message")
+    const messageOutput = data.output?.find((o) => o.type === 'message');
+    const searchOutput = data.output?.find((o) => o.type === 'search_results');
 
-    return {
-      content: output.content || '',
-      citations: (output.citations || []).map((c) => ({
-        url: c.url,
-        title: c.title || new URL(c.url).hostname,
-      })),
-    };
+    // Content is an array of { text, type } objects
+    const contentText =
+      messageOutput?.content
+        ?.filter((c) => c.type === 'output_text')
+        .map((c) => c.text)
+        .join('\n') || '';
+
+    if (!contentText) return null;
+
+    // Extract citations from search results
+    const citations =
+      searchOutput?.results?.map((r) => ({
+        url: r.url,
+        title: r.title || new URL(r.url).hostname,
+      })) || [];
+
+    return { content: contentText, citations };
   } catch {
     return null; // Never crash the main analysis if Perplexity fails
   }
