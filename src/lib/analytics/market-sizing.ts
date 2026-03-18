@@ -61,6 +61,7 @@ import type {
 } from '@/types';
 
 import { findIndicationByName, INDICATION_DATA } from '@/lib/data/indication-map';
+import { findEnrichedIndicationByName, isEnrichedIndication } from '@/lib/data/enriched-data-loader';
 import { TERRITORY_MULTIPLIERS } from '@/lib/data/territory-multipliers';
 import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
 import { getLikelihoodOfApproval } from '@/lib/data/loa-tables';
@@ -2172,13 +2173,27 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
     launch_year: rawInput.launch_year ?? new Date().getFullYear() + 2,
   };
 
-  // Step 1: Indication lookup
-  const indication = findIndicationByName(input.indication);
+  // Step 1: Indication lookup — static first, then enriched (dynamic) data
+  let indication = findIndicationByName(input.indication);
+  let indicationIsEnriched = false;
+
+  if (!indication) {
+    // Fall back to enriched (dynamic) indications from Supabase
+    try {
+      indication = await findEnrichedIndicationByName(input.indication);
+      if (indication) {
+        indicationIsEnriched = true;
+      }
+    } catch {
+      // Continue without enriched data
+    }
+  }
+
   if (!indication) {
     throw new Error(
       `Indication not found: "${input.indication}". ` +
         `Try a more common name or check spelling. ` +
-        `Terrain covers ${INDICATION_DATA.length} indications across oncology, neurology, immunology, rare disease, and more.`,
+        `Terrain covers ${INDICATION_DATA.length}+ indications across oncology, neurology, immunology, rare disease, and more.`,
     );
   }
 
@@ -2555,9 +2570,19 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
       isBiologic,
     ),
     assumptions: buildAssumptions(input, indication, addressabilityFactor, therapyGTN, loa),
-    data_sources: buildDataSources(indication),
+    data_sources: indicationIsEnriched
+      ? [
+          ...buildDataSources(indication),
+          {
+            name: 'Live enrichment (Perplexity AI)',
+            type: 'proprietary' as const,
+            last_updated: new Date().toISOString(),
+          },
+        ]
+      : buildDataSources(indication),
     generated_at: new Date().toISOString(),
     indication_validated: true,
+    indication_enriched: indicationIsEnriched,
     risk_adjustment: riskAdjustment,
     sensitivity_analysis: sensitivityAnalysis,
     ira_impact: iraImpact,

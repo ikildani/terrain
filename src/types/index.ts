@@ -1033,6 +1033,8 @@ export interface MarketSizingOutput {
   data_sources: DataSource[];
   generated_at: string;
   indication_validated: boolean;
+  /** True when the indication was resolved from dynamic enrichment data, not static */
+  indication_enriched?: boolean;
   risk_adjustment?: RiskAdjustment;
   sensitivity_analysis?: SensitivityDriver[];
   ira_impact?: IRAImpact;

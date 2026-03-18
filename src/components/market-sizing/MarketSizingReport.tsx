@@ -1314,7 +1314,12 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
       </div>
 
       {/* Data Sources */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3 items-center">
+        {data.indication_enriched && (
+          <span className="text-2xs text-teal-500 bg-teal-500/10 px-1.5 py-0.5 rounded border border-teal-500/20 font-mono">
+            Live enriched
+          </span>
+        )}
         {data.data_sources.map((source) => (
           <DataSourceBadge
             key={source.name}
