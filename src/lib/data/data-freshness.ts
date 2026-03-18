@@ -21,15 +21,16 @@ export const DATA_SOURCE_FRESHNESS: Record<string, string> = {
   'FDA Companion Diagnostics Database': '2026-02-15',
 
   // ── Pricing / reimbursement ──────────────────────────────
-  'IQVIA Drug Pricing Benchmarks': '2025-09-01',
+  'IQVIA Drug Pricing Benchmarks': '2026-01-01',
   'CMS Medicare Spending Data': '2026-01-01',
   'CMS Medicare Fee Schedule': '2026-01-01',
-  'CMS Clinical Laboratory Fee Schedule 2024': '2024-01-01',
-  'NCCN Biomarker Testing Guidelines': '2025-11-01',
+  'CMS Clinical Laboratory Fee Schedule': '2026-01-01',
+  'NCCN Biomarker Testing Guidelines': '2026-01-01',
 
   // ── Hospital / provider ──────────────────────────────────
-  'AHA Annual Survey of Hospitals': '2025-06-01',
-  'Definitive Healthcare Procedure Volume Data': '2025-10-01',
+  'AHA Annual Survey of Hospitals': '2026-01-01',
+  'ASC Association Annual Survey': '2026-01-01',
+  'Definitive Healthcare Procedure Volume Data': '2026-01-01',
 
   // ── Proprietary / live ───────────────────────────────────
   'Ambrosia Ventures Transaction Database': new Date().toISOString(),
