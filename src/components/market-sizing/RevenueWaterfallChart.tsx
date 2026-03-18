@@ -108,7 +108,7 @@ function RevenueWaterfallChart(props: RevenueWaterfallChartProps) {
       </div>
 
       <div role="img" aria-label="Revenue waterfall chart from TAM to peak sales" style={{ overflowX: 'auto' }}>
-        <BarChart width={600} height={260} data={data} margin={{ top: 20, right: 40, left: 20, bottom: 10 }}>
+        <BarChart width={700} height={320} data={data} margin={{ top: 20, right: 40, left: 20, bottom: 10 }}>
           <XAxis
             dataKey="name"
             axisLine={false}

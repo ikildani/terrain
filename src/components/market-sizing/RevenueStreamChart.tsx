@@ -36,7 +36,7 @@ function RevenueStreamChart({ streams }: RevenueStreamChartProps) {
       <div role="img" aria-label="Revenue stream chart" style={{ overflowX: 'auto' }}>
         <BarChart
           width={600}
-          height={120}
+          height={180}
           data={data}
           layout="vertical"
           margin={{ top: 10, right: 20, left: 20, bottom: 10 }}

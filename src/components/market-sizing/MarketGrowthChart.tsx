@@ -42,7 +42,7 @@ function MarketGrowthChart({ projections, peakSales }: MarketGrowthChartProps) {
       </div>
 
       <div role="img" aria-label="Market growth projection chart" style={{ overflowX: 'auto' }}>
-        <ComposedChart width={700} height={320} data={projections} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
+        <ComposedChart width={800} height={420} data={projections} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
           <defs>
             <linearGradient id="rangeGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#00C9A7" stopOpacity={0.12} />

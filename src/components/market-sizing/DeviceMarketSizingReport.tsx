@@ -140,7 +140,7 @@ function DeviceMarketSizingReport({
   // Role-based section visibility for Pro users
   // Investors and analysts see everything — full diligence depth for any niche market
   // Other roles see sections relevant to their function to avoid overload
-  const fullDepth = !role || ['investor', 'analyst'].includes(role);
+  const fullDepth = role === 'investor' || role === 'analyst';
   const showDealSections = fullDepth || ['bd_executive', 'corp_dev', 'consultant'].includes(role!);
   const showClinicalSections = fullDepth || ['founder', 'consultant'].includes(role!);
   const showReimbursementDepth = fullDepth || ['founder', 'bd_executive', 'corp_dev'].includes(role!);
@@ -188,11 +188,14 @@ function DeviceMarketSizingReport({
       {/* ──────────────────────── 1. Executive Summary ──────────────────────── */}
       <div className="card noise">
         <h3 className="chart-title">Executive Summary</h3>
-        <p className="text-xs text-slate-400 leading-relaxed">
+        <p className="text-sm text-slate-300 leading-relaxed">
           The <span className="text-white font-medium">{input.procedure_or_condition}</span> device market represents a
           US total addressable market of{' '}
-          <span className="metric text-teal-400">{formatMetric(summary.us_tam.value, summary.us_tam.unit)}</span>, with
-          a serviceable addressable market of{' '}
+          <span className="metric text-teal-400">{formatMetric(summary.us_tam.value, summary.us_tam.unit)}</span>
+          {summary.global_tam
+            ? `, representing ${summary.us_tam.unit === summary.global_tam.unit ? ((summary.us_tam.value / summary.global_tam.value) * 100).toFixed(0) : summary.us_tam.unit === 'M' && summary.global_tam.unit === 'B' ? ((summary.us_tam.value / (summary.global_tam.value * 1000)) * 100).toFixed(0) : '—'}% of the global ${input.procedure_or_condition} market`
+            : ''}
+          , with a serviceable addressable market of{' '}
           <span className="metric text-white">{formatMetric(summary.us_sam.value, summary.us_sam.unit)}</span> and a
           serviceable obtainable market of{' '}
           <span className="metric text-white">{formatMetric(summary.us_som.value, summary.us_som.unit)}</span>
@@ -200,20 +203,52 @@ function DeviceMarketSizingReport({
             ? ` (range: ${formatMetric(summary.us_som.range[0], summary.us_som.unit)}--${formatMetric(summary.us_som.range[1], summary.us_som.unit)})`
             : ''}
           . The market is growing at <span className="metric text-white">{summary.cagr_5yr}%</span> CAGR over the next
-          five years, driven by <span className="text-slate-300">{summary.market_growth_driver}</span>. Procedure volume
-          stands at{' '}
+          five years, driven by <span className="text-white font-medium">{summary.market_growth_driver}</span>.
+          Procedure volume stands at{' '}
           <span className="metric text-white">{formatNumber(data.procedure_volume.us_annual_procedures)}</span> annual
           US procedures, of which{' '}
           <span className="metric text-white">{formatNumber(data.procedure_volume.us_addressable_procedures)}</span> are
           addressable for the target device profile.
         </p>
+        {data.clinical_superiority && (
+          <p className="text-sm text-slate-300 leading-relaxed mt-2">
+            Competitive positioning indicates a{' '}
+            <span className="text-white font-medium">
+              {data.clinical_superiority.user_device_position.replace(/_/g, ' ')}
+            </span>{' '}
+            market stance, with key differentiation in{' '}
+            <span className="text-teal-400">{data.clinical_superiority.key_differentiator}</span>
+            {data.clinical_superiority.entries?.length > 0
+              ? ` across ${data.clinical_superiority.entries.length} competitive devices evaluated`
+              : ''}
+            .
+          </p>
+        )}
+        {data.reimbursement_analysis && (
+          <p className="text-sm text-slate-300 leading-relaxed mt-2">
+            Reimbursement risk is{' '}
+            <span
+              className={
+                data.reimbursement_analysis.reimbursement_risk === 'low'
+                  ? 'text-signal-green font-medium'
+                  : data.reimbursement_analysis.reimbursement_risk === 'moderate'
+                    ? 'text-signal-amber font-medium'
+                    : 'text-signal-red font-medium'
+              }
+            >
+              {data.reimbursement_analysis.reimbursement_risk}
+            </span>{' '}
+            with current US coverage status of{' '}
+            <span className="text-white font-medium">{data.reimbursement_analysis.us_coverage_status}</span>.
+          </p>
+        )}
       </div>
 
       {/* ──────────────────────── 1b. Live Market Intelligence ──────────────────────── */}
       <LiveIntelligencePanel intelligence={liveIntelligence} />
 
       {/* ──────────────────────── 2. Summary Metrics — Bloomberg-grade density ──────────────────────── */}
-      <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           label="US TAM"
           value={formatMetric(summary.us_tam.value, summary.us_tam.unit)}

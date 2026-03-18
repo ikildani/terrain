@@ -31,7 +31,7 @@ function PatientFunnelChart({ funnel }: PatientFunnelChartProps) {
     <div className="chart-container noise">
       <div className="chart-title">Patient Population Funnel (US)</div>
       <div role="img" aria-label="Patient population funnel chart" style={{ overflowX: 'auto' }}>
-        <BarChart width={600} height={300} data={data} margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>
+        <BarChart width={700} height={350} data={data} margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(16,34,54,0.8)" />
           <XAxis
             dataKey="stage"

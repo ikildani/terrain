@@ -75,8 +75,8 @@ function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
         <BarChart
           layout="vertical"
           data={data}
-          width={600}
-          height={200}
+          width={700}
+          height={320}
           margin={{ top: 10, right: 80, left: 10, bottom: 10 }}
         >
           <XAxis type="number" hide />

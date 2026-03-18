@@ -56,8 +56,8 @@ function ProcedureVolumeChart({ procedureVolume, peakSharePct }: ProcedureVolume
 
       <div role="img" aria-label="Procedure volume chart" style={{ overflowX: 'auto' }}>
         <BarChart
-          width={600}
-          height={200}
+          width={700}
+          height={280}
           layout="vertical"
           data={data}
           margin={{ top: 10, right: 100, left: 10, bottom: 10 }}

@@ -123,7 +123,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
   // Role-based section visibility for Pro users
   // Investors and analysts see everything — full diligence depth for any niche market
-  const fullDepth = !role || ['investor', 'analyst'].includes(role);
+  const fullDepth = role === 'investor' || role === 'analyst';
   const showDealSections = fullDepth || ['bd_executive', 'corp_dev', 'consultant'].includes(role!);
   const showManufacturing = fullDepth || ['founder', 'consultant'].includes(role!);
 
@@ -198,33 +198,58 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
       {/* Executive Summary */}
       <div className="card noise">
         <h3 className="chart-title">Executive Summary</h3>
-        <p className="text-xs text-slate-400 leading-relaxed">
+        <p className="text-sm text-slate-300 leading-relaxed">
           The <span className="text-white font-medium">{input.indication}</span> market
           {input.subtype ? ` (${input.subtype})` : ''} represents a US total addressable market of{' '}
-          <span className="metric text-teal-400">{formatMetric(summary.tam_us.value, summary.tam_us.unit)}</span>, with
-          a serviceable addressable market of{' '}
+          <span className="metric text-teal-400">{formatMetric(summary.tam_us.value, summary.tam_us.unit)}</span>
+          {summary.global_tam
+            ? `, representing ${summary.tam_us.unit === summary.global_tam.unit ? ((summary.tam_us.value / summary.global_tam.value) * 100).toFixed(0) : summary.tam_us.unit === 'M' && summary.global_tam.unit === 'B' ? ((summary.tam_us.value / (summary.global_tam.value * 1000)) * 100).toFixed(0) : '—'}% of the global ${input.indication} market`
+            : ''}
+          , with a serviceable addressable market of{' '}
           <span className="metric text-white">{formatMetric(summary.sam_us.value, summary.sam_us.unit)}</span> and a
           serviceable obtainable market of{' '}
           <span className="metric text-white">{formatMetric(summary.som_us.value, summary.som_us.unit)}</span>
           {summary.som_us.range
             ? ` (range: ${formatMetric(summary.som_us.range[0], summary.som_us.unit)}–${formatMetric(summary.som_us.range[1], summary.som_us.unit)})`
             : ''}
-          . The market is growing at <span className="metric text-white">{summary.cagr_5yr}%</span> CAGR over the next
-          five years. Peak sales are estimated at{' '}
-          <span className="metric text-white">{formatCompact(summary.peak_sales_estimate.base)}</span> (base case), with
-          a range of {formatCompact(summary.peak_sales_estimate.low)} to{' '}
-          {formatCompact(summary.peak_sales_estimate.high)}.
+          . Our base case models{' '}
+          <span className="metric text-white">{formatCompact(summary.peak_sales_estimate.base)}</span> peak sales
+          {summary.som_us.value > 0 && summary.tam_us.value > 0
+            ? `, reflecting ${summary.tam_us.unit === summary.som_us.unit ? ((summary.som_us.value / summary.tam_us.value) * 100).toFixed(1) : '—'}% peak market share`
+            : ''}
+          {input.development_stage ? ` — consistent with ${input.development_stage} assets in ${input.indication}` : ''}
+          , with a bear-to-bull range of {formatCompact(summary.peak_sales_estimate.low)} to{' '}
+          {formatCompact(summary.peak_sales_estimate.high)}
+          {summary.market_growth_driver ? `, driven by ${summary.market_growth_driver}` : ''}. The market is growing at{' '}
+          <span className="metric text-white">{summary.cagr_5yr}%</span> CAGR over the next five years.
           {data.patient_funnel.addressable > 0 &&
-            ` Approximately ${data.patient_funnel.addressable.toLocaleString()} addressable patients
-            in the US form the basis of this analysis.`}
+            ` Approximately ${data.patient_funnel.addressable.toLocaleString()} addressable patients in the US form the basis of this analysis.`}
         </p>
+        {data.competitive_mechanism_analysis && (
+          <p className="text-sm text-slate-300 leading-relaxed mt-2">
+            The {data.competitive_mechanism_analysis.competitors?.[0]?.mechanism ?? input.mechanism} mechanism faces{' '}
+            <span className="text-white font-medium">
+              {data.competitive_mechanism_analysis.overall_mechanism_crowding}
+            </span>{' '}
+            competitive crowding with{' '}
+            <span className="metric text-white">{data.competitive_mechanism_analysis.competitors?.length ?? 0}</span>{' '}
+            programs in development.
+          </p>
+        )}
+        {data.patent_cliff_analysis && (
+          <p className="text-sm text-slate-300 leading-relaxed mt-2">
+            Post-LOE dynamics suggest a {data.patent_cliff_analysis.product_type.replace(/_/g, ' ')} erosion profile
+            with <span className="metric text-white">{data.patent_cliff_analysis.peak_to_trough_decline_pct}%</span>{' '}
+            peak-to-trough decline.
+          </p>
+        )}
       </div>
 
       {/* Live Market Intelligence */}
       <LiveIntelligencePanel intelligence={liveIntelligence} />
 
       {/* Summary Metrics — Bloomberg-grade density */}
-      <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           label="US TAM"
           value={formatMetric(summary.tam_us.value, summary.tam_us.unit)}

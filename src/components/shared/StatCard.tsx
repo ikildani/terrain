@@ -33,7 +33,7 @@ export function StatCard({
   return (
     <div className={cn('stat-card noise', className)}>
       <div className="flex items-center justify-between mb-1">
-        <span className="label">{label}</span>
+        <span className="label font-medium">{label}</span>
         {confidence && (
           <span
             className={cn(

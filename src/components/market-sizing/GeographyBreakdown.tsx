@@ -24,7 +24,7 @@ function GeographyBreakdown({ data }: GeographyBreakdownProps) {
       <div style={{ overflowX: 'auto' }}>
         <BarChart
           width={600}
-          height={data.length * 38 + 40}
+          height={Math.max(350, data.length * 38 + 40)}
           layout="vertical"
           data={chartData}
           margin={{ top: 5, right: 70, left: 10, bottom: 5 }}
