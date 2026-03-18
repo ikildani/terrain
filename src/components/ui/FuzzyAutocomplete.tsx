@@ -404,7 +404,7 @@ export function FuzzyAutocomplete({
       <div className="relative mt-1">
         <Search
           className={cn(
-            'absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none transition-colors duration-150',
+            'absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-colors duration-150',
             open ? 'text-teal-500' : 'text-slate-500',
           )}
           aria-hidden="true"
@@ -414,7 +414,7 @@ export function FuzzyAutocomplete({
         <AnimatePresence>
           {ghostText && open && (
             <motion.div
-              className="absolute inset-0 flex items-center pointer-events-none pl-9 pr-9"
+              className="absolute inset-0 flex items-center pointer-events-none pl-10 pr-9"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -449,7 +449,7 @@ export function FuzzyAutocomplete({
           placeholder={placeholder}
           disabled={disabled}
           className={cn(
-            'input pl-9',
+            'input pl-10',
             hasValue && !disabled && 'pr-8',
             open && 'border-teal-500/40 ring-1 ring-teal-500/20',
             error && 'border-signal-red focus:ring-signal-red/30',
