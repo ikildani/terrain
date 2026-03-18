@@ -33,6 +33,11 @@ import type {
   NegotiationLeverage,
   NegotiationLeverageFactor,
   LOEGapAnalysis,
+  LicensingTermsEstimate,
+  NegotiationPlaybook,
+  NegotiationKeyPoint,
+  DealStructureRecommendation,
+  PartnerRedFlag,
 } from '@/types';
 
 import type {
@@ -53,6 +58,7 @@ import type {
 } from '@/types';
 
 import { PHARMA_PARTNER_DATABASE, type PharmaPartnerProfile } from '@/lib/data/partner-database';
+import { PHARMA_DEAL_COMPS, type PharmaDealComp } from '@/lib/data/pharma-deal-comps';
 
 import {
   DEVICE_PARTNER_DATABASE_FULL as RAW_DEVICE_PARTNERS,
@@ -4191,6 +4197,729 @@ export async function analyzeDevicePartners(input: DevicePartnerDiscoveryInput):
   };
 }
 
+// ════════════════════════════════════════════════════════════
+// LICENSING TERMS CALCULATOR
+// Estimates deal terms for user's asset based on comps
+// ════════════════════════════════════════════════════════════
+
+/** Stage multipliers for upfront as % of total deal value */
+const STAGE_UPFRONT_PCT: Record<DevelopmentStage, number> = {
+  preclinical: 0.06,
+  phase1: 0.1,
+  phase2: 0.15,
+  phase3: 0.25,
+  approved: 0.45,
+};
+
+/** Novelty premium multiplier: first-in-class commands higher terms */
+function detectMechanismNovelty(mechanism?: string): 'first_in_class' | 'best_in_class' | 'follow_on' {
+  if (!mechanism) return 'follow_on';
+  const m = mechanism.toLowerCase();
+  if (
+    m.includes('first-in-class') ||
+    m.includes('first in class') ||
+    m.includes('novel target') ||
+    m.includes('new mechanism')
+  )
+    return 'first_in_class';
+  if (
+    m.includes('best-in-class') ||
+    m.includes('best in class') ||
+    m.includes('differentiated') ||
+    m.includes('selective')
+  )
+    return 'best_in_class';
+  return 'follow_on';
+}
+
+const NOVELTY_MULTIPLIER: Record<string, number> = {
+  first_in_class: 1.4,
+  best_in_class: 1.15,
+  follow_on: 0.85,
+};
+
+/** Territory scope multiplier (global rights = 1.0, US-only = 0.55) */
+function territoryMultiplier(geos: string[]): number {
+  if (geos.includes('Global')) return 1.0;
+  let m = 0;
+  if (geos.includes('US')) m += 0.55;
+  if (geos.includes('EU5')) m += 0.25;
+  if (geos.includes('Japan')) m += 0.1;
+  if (geos.includes('China')) m += 0.08;
+  for (const g of geos) {
+    if (!['US', 'EU5', 'Japan', 'China', 'Global'].includes(g)) m += 0.02;
+  }
+  return Math.min(m, 1.0) || 0.55;
+}
+
+/** Competitive density discount: more competitors = lower terms */
+function competitiveDensityFactor(indication: string): number {
+  const data = findIndicationByName(indication);
+  const competitorCount = data?.major_competitors?.length ?? 5;
+  if (competitorCount <= 2) return 1.2; // low competition premium
+  if (competitorCount <= 5) return 1.0;
+  if (competitorCount <= 8) return 0.85;
+  return 0.7; // very crowded
+}
+
+export function calculateLicensingTerms(
+  developmentStage: DevelopmentStage,
+  therapyArea: string,
+  mechanism: string | undefined,
+  indication: string,
+  geographyRights: string[],
+): LicensingTermsEstimate {
+  const taKey = therapyArea.toLowerCase().replace(/[\s\-]+/g, '_');
+  const taBenchmarks = THERAPY_AREA_DEAL_BENCHMARKS[taKey] ?? THERAPY_AREA_DEAL_BENCHMARKS.default;
+  const stageBench = taBenchmarks[developmentStage];
+
+  const novelty = detectMechanismNovelty(mechanism);
+  const noveltyMult = NOVELTY_MULTIPLIER[novelty];
+  const terMult = territoryMultiplier(geographyRights);
+  const compFactor = competitiveDensityFactor(indication);
+
+  // Base values from TA benchmarks
+  const baseUpfront = stageBench.avg_upfront_m;
+  const baseTotal = stageBench.avg_total_m;
+
+  // Apply multipliers
+  const adjustedUpfront = Math.round(baseUpfront * noveltyMult * terMult * compFactor);
+  const adjustedTotal = Math.round(baseTotal * noveltyMult * terMult * compFactor);
+
+  // Milestone allocation based on stage
+  const milestonePool = adjustedTotal - adjustedUpfront;
+  const devMilestonePct: Record<DevelopmentStage, number> = {
+    preclinical: 0.5,
+    phase1: 0.45,
+    phase2: 0.35,
+    phase3: 0.2,
+    approved: 0.1,
+  };
+  const regMilestonePct: Record<DevelopmentStage, number> = {
+    preclinical: 0.25,
+    phase1: 0.25,
+    phase2: 0.3,
+    phase3: 0.35,
+    approved: 0.2,
+  };
+
+  const devMilestones = Math.round(milestonePool * devMilestonePct[developmentStage]);
+  const regMilestones = Math.round(milestonePool * regMilestonePct[developmentStage]);
+  const commMilestones = Math.round(milestonePool - devMilestones - regMilestones);
+
+  // Parse royalty range from benchmark string like "12-20% tiered"
+  const royaltyMatch = stageBench.royalty.match(/(\d+)-(\d+)%/);
+  const royaltyLow = royaltyMatch ? parseInt(royaltyMatch[1]) : 5;
+  const royaltyHigh = royaltyMatch ? parseInt(royaltyMatch[2]) : 15;
+  // Adjust royalties for novelty
+  const adjRoyaltyLow = Math.round(
+    royaltyLow * (novelty === 'first_in_class' ? 1.15 : novelty === 'follow_on' ? 0.85 : 1.0),
+  );
+  const adjRoyaltyHigh = Math.round(
+    royaltyHigh * (novelty === 'first_in_class' ? 1.15 : novelty === 'follow_on' ? 0.85 : 1.0),
+  );
+
+  // Low/high ranges: -30% / +30% around base
+  const range = (base: number) => ({
+    low: Math.round(base * 0.7),
+    base,
+    high: Math.round(base * 1.3),
+  });
+
+  const upfrontPctOfTotal = adjustedTotal > 0 ? Math.round((adjustedUpfront / adjustedTotal) * 100) : 0;
+
+  // Find comparable deals from PHARMA_DEAL_COMPS
+  const comparableDeals = findComparableDeals(developmentStage, taKey, novelty, indication);
+
+  // Generate rationale
+  const rationale = buildLicensingRationale(
+    developmentStage,
+    therapyArea,
+    novelty,
+    adjustedUpfront,
+    adjustedTotal,
+    comparableDeals.length,
+    geographyRights,
+    compFactor,
+  );
+
+  return {
+    upfront: range(adjustedUpfront),
+    development_milestones: range(devMilestones),
+    regulatory_milestones: range(regMilestones),
+    commercial_milestones: range(commMilestones),
+    royalty_range: { low: adjRoyaltyLow, high: adjRoyaltyHigh },
+    total_deal_value: range(adjustedTotal),
+    upfront_as_pct_of_total: upfrontPctOfTotal,
+    comparable_deals: comparableDeals,
+    rationale,
+  };
+}
+
+function findComparableDeals(stage: DevelopmentStage, taKey: string, novelty: string, indication: string): string[] {
+  const stageMap: Record<DevelopmentStage, string[]> = {
+    preclinical: ['Preclinical'],
+    phase1: ['Phase 1', 'Phase 1/2'],
+    phase2: ['Phase 2', 'Phase 1/2', 'Phase 2/3'],
+    phase3: ['Phase 3', 'Phase 2/3'],
+    approved: ['Approved'],
+  };
+  const stageLabels = stageMap[stage];
+  const indicationLower = indication.toLowerCase();
+
+  // Score each deal by relevance
+  const scored = PHARMA_DEAL_COMPS.map((deal) => {
+    let score = 0;
+    // Stage match
+    if (stageLabels.some((s) => deal.development_stage.toLowerCase().includes(s.toLowerCase()))) score += 3;
+    // TA match
+    const dealTa = deal.therapy_area.toLowerCase().replace(/[\s\-]+/g, '_');
+    if (dealTa === taKey || dealTa.includes(taKey) || taKey.includes(dealTa)) score += 3;
+    // Indication keyword match
+    const dealAsset = deal.asset_or_indication.toLowerCase();
+    if (tokenize(indicationLower).some((t) => dealAsset.includes(t))) score += 2;
+    // Deal type match (prefer licensing over acquisition for licensing terms)
+    if (deal.deal_type === 'licensing' || deal.deal_type === 'co_development') score += 1;
+    // Recency bonus
+    if (deal.year >= 2022) score += 1;
+    return { deal, score };
+  })
+    .filter((s) => s.score >= 3)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
+  return scored.map(
+    (s) =>
+      `${s.deal.acquirer}/${s.deal.target} (${s.deal.development_stage}, ${s.deal.year}) — $${s.deal.total_deal_value_m >= 1000 ? (s.deal.total_deal_value_m / 1000).toFixed(1) + 'B' : s.deal.total_deal_value_m + 'M'}`,
+  );
+}
+
+function buildLicensingRationale(
+  stage: DevelopmentStage,
+  therapyArea: string,
+  novelty: string,
+  upfront: number,
+  total: number,
+  compCount: number,
+  geos: string[],
+  compFactor: number,
+): string {
+  const stageLabel =
+    stage === 'phase1'
+      ? 'Phase 1'
+      : stage === 'phase2'
+        ? 'Phase 2'
+        : stage === 'phase3'
+          ? 'Phase 3'
+          : stage.charAt(0).toUpperCase() + stage.slice(1);
+  const noveltyLabel =
+    novelty === 'first_in_class' ? 'first-in-class' : novelty === 'best_in_class' ? 'best-in-class' : 'follow-on';
+  const geoLabel = geos.includes('Global') ? 'global' : geos.join(', ');
+  const parts: string[] = [];
+  parts.push(`Estimated terms for a ${stageLabel}, ${noveltyLabel} ${therapyArea} asset with ${geoLabel} rights.`);
+  if (novelty === 'first_in_class') parts.push('First-in-class premium of ~40% applied to reflect mechanism scarcity.');
+  else if (novelty === 'follow_on')
+    parts.push('Follow-on discount of ~15% applied given existing competitive mechanisms.');
+  if (compFactor < 0.9)
+    parts.push(`Competitive density discount applied — multiple clinical-stage competitors reduce pricing power.`);
+  else if (compFactor > 1.1)
+    parts.push(`Low competitive density premium applied — limited competitive alternatives increase deal leverage.`);
+  parts.push(`Calibrated against ${compCount} comparable transactions from the Ambrosia deal database.`);
+  return parts.join(' ');
+}
+
+// ════════════════════════════════════════════════════════════
+// NEGOTIATION PLAYBOOK
+// Generates strategic negotiation guidance
+// ════════════════════════════════════════════════════════════
+
+export function buildNegotiationPlaybook(
+  input: PartnerDiscoveryInput,
+  licensingTerms: LicensingTermsEstimate,
+  leverage: NegotiationLeverage,
+  qualifiedPartnerCount: number,
+): NegotiationPlaybook {
+  const stage = input.development_stage;
+  const novelty = detectMechanismNovelty(input.mechanism);
+  const leverageScore = leverage.leverage_score;
+
+  // Build leverage assessment narrative
+  const leverageAssessment = buildLeverageAssessment(
+    stage,
+    novelty,
+    leverageScore,
+    qualifiedPartnerCount,
+    input.indication,
+  );
+
+  // Build key negotiation points
+  const keyPoints = buildNegotiationPoints(stage, novelty, licensingTerms, leverageScore, input.geography_rights);
+
+  // Build deal structure recommendation
+  const dealRec = buildDealStructureRecommendation(stage, novelty, licensingTerms, leverageScore);
+
+  // Build red lines
+  const redLines = buildRedLines(stage, novelty, licensingTerms);
+
+  // Build BATNA
+  const batna = buildBATNA(stage, qualifiedPartnerCount, input.indication, novelty);
+
+  return {
+    leverage_score: leverageScore,
+    leverage_assessment: leverageAssessment,
+    key_negotiation_points: keyPoints,
+    deal_structure_recommendation: dealRec,
+    red_lines: redLines,
+    batna,
+  };
+}
+
+function buildLeverageAssessment(
+  stage: DevelopmentStage,
+  novelty: string,
+  leverageScore: number,
+  partnerCount: number,
+  indication: string,
+): string {
+  const stageLabel =
+    stage === 'phase1'
+      ? 'Phase 1'
+      : stage === 'phase2'
+        ? 'Phase 2'
+        : stage === 'phase3'
+          ? 'Phase 3'
+          : stage.charAt(0).toUpperCase() + stage.slice(1);
+  const noveltyLabel =
+    novelty === 'first_in_class' ? 'first-in-class' : novelty === 'best_in_class' ? 'best-in-class' : 'follow-on';
+  const leverageLabel = leverageScore > 6.5 ? 'strong' : leverageScore >= 4 ? 'moderate' : 'limited';
+
+  const parts: string[] = [];
+  parts.push(
+    `Your ${stageLabel} ${noveltyLabel} asset in ${indication} gives you ${leverageLabel} leverage (${leverageScore.toFixed(1)}/10).`,
+  );
+
+  if (partnerCount > 10)
+    parts.push(
+      `With ${partnerCount} qualified partners identified, you can create meaningful competitive tension through a structured process.`,
+    );
+  else if (partnerCount >= 5)
+    parts.push(
+      `${partnerCount} qualified partners provide enough options to run a targeted outreach, though a full auction may not be warranted.`,
+    );
+  else
+    parts.push(
+      `Limited partner pool (${partnerCount} qualified matches) suggests bilateral discussions may be more effective than a broad process.`,
+    );
+
+  if (novelty === 'first_in_class')
+    parts.push(
+      'First-in-class mechanism significantly strengthens your position — emphasize the differentiated biology in all discussions.',
+    );
+  if (stage === 'phase3' || stage === 'approved')
+    parts.push('Late-stage de-risking supports premium upfront percentages.');
+  if (stage === 'preclinical')
+    parts.push(
+      'Early-stage assets typically require creative deal structures to bridge the valuation gap — consider option deals or co-development.',
+    );
+
+  return parts.join(' ');
+}
+
+function buildNegotiationPoints(
+  stage: DevelopmentStage,
+  novelty: string,
+  terms: LicensingTermsEstimate,
+  leverageScore: number,
+  geos: string[],
+): NegotiationKeyPoint[] {
+  const points: NegotiationKeyPoint[] = [];
+
+  // 1. Upfront payment
+  const upfrontAsk = leverageScore > 6 ? terms.upfront.high : terms.upfront.base;
+  const upfrontFloor = leverageScore > 6 ? terms.upfront.base : terms.upfront.low;
+  points.push({
+    point: 'Upfront payment',
+    rationale: `${stage === 'phase3' || stage === 'approved' ? 'Late-stage de-risking' : stage === 'phase2' ? 'Proof-of-concept data' : 'Early-stage valuation'} ${leverageScore > 6 ? 'and strong competitive tension support' : 'warrants'} a meaningful upfront.`,
+    ask: `$${upfrontAsk}M upfront (${terms.upfront_as_pct_of_total + (leverageScore > 6 ? 5 : 0)}% of total deal value)`,
+    fallback: `$${upfrontFloor}M upfront with enhanced near-term milestones to compensate`,
+  });
+
+  // 2. Royalty structure
+  points.push({
+    point: 'Royalty rate',
+    rationale: `${novelty === 'first_in_class' ? 'First-in-class' : novelty === 'best_in_class' ? 'Differentiated' : 'Follow-on'} mechanisms in this therapeutic area typically command ${terms.royalty_range.low}-${terms.royalty_range.high}% tiered royalties.`,
+    ask: `${terms.royalty_range.high}% tiered royalties with escalation on sales tiers above $500M and $1B`,
+    fallback: `${terms.royalty_range.low}% base royalty with reasonable step-downs post-genericization`,
+  });
+
+  // 3. Territory rights
+  const isGlobal = geos.includes('Global');
+  points.push({
+    point: 'Territory scope',
+    rationale: isGlobal
+      ? 'Global rights command premium terms but limit optionality for future regional deals.'
+      : 'Regional rights preserve flexibility to run separate processes for remaining territories.',
+    ask: isGlobal
+      ? 'Global rights at full premium valuation; no territory-by-territory discounts'
+      : `Retain rights to non-offered territories and negotiate independently`,
+    fallback: isGlobal
+      ? 'Global rights with opt-in provisions for key territories (e.g., China opt-in within 18 months)'
+      : 'Include option for additional territories at pre-agreed terms',
+  });
+
+  // 4. Development milestones
+  points.push({
+    point: 'Development milestone structure',
+    rationale:
+      'Milestone payments should reflect meaningful value inflection points (Ph2 data readout, Phase 3 initiation, pivotal data).',
+    ask: `$${terms.development_milestones.high}M in development milestones, front-loaded around near-term data readouts`,
+    fallback: `$${terms.development_milestones.low}M with acceleration clauses if specific clinical benchmarks are met`,
+  });
+
+  // 5. Diligence obligations
+  points.push({
+    point: 'Diligence and reversion rights',
+    rationale:
+      'Protection against partner deprioritization — ensure development timeline commitments with reversion triggers.',
+    ask: 'Mandatory development timelines with automatic reversion of rights if missed by >12 months, plus annual development plans',
+    fallback: 'Diligence milestones with cure periods (6-9 months) before reversion triggers activate',
+  });
+
+  return points;
+}
+
+function buildDealStructureRecommendation(
+  stage: DevelopmentStage,
+  novelty: string,
+  terms: LicensingTermsEstimate,
+  leverageScore: number,
+): DealStructureRecommendation {
+  let recommended_type: 'licensing' | 'co-development' | 'option';
+  let rationale: string;
+  let upfront_strategy: string;
+  let milestone_strategy: string;
+  let royalty_strategy: string;
+
+  if (stage === 'preclinical' || stage === 'phase1') {
+    if (leverageScore > 6 && novelty === 'first_in_class') {
+      recommended_type = 'option';
+      rationale =
+        'An option deal preserves upside while securing non-dilutive funding. Strong leverage and novel mechanism justify holding out for better terms at a later inflection point.';
+      upfront_strategy = `Secure $${terms.upfront.base}M option fee with exercise price locked at current valuation + modest premium.`;
+    } else {
+      recommended_type = 'co-development';
+      rationale =
+        'Co-development aligns incentives and reduces cash burn while sharing risk. Early-stage assets benefit from partner expertise and development capabilities.';
+      upfront_strategy = `Push for $${terms.upfront.base}M upfront to fund your share of co-development costs for 18-24 months.`;
+    }
+    milestone_strategy =
+      'Front-load milestones around IND filing, Phase 2 initiation, and first patient dosed. These are controllable events.';
+    royalty_strategy = `Negotiate ${terms.royalty_range.low}-${terms.royalty_range.high}% tiered royalties with floor protection (minimum royalty per year post-launch).`;
+  } else if (stage === 'phase2') {
+    recommended_type = 'licensing';
+    rationale =
+      'Proof-of-concept data enables a traditional licensing deal. Phase 2 assets with clinical data offer the best risk-reward for partners.';
+    upfront_strategy = `Target $${terms.upfront.base}-${terms.upfront.high}M upfront (${terms.upfront_as_pct_of_total}% of total). If data is strong, push toward the high end.`;
+    milestone_strategy = `$${terms.regulatory_milestones.base}M in regulatory milestones (Phase 3 start, NDA filing, approval) plus $${terms.commercial_milestones.base}M in commercial milestones tied to sales tiers.`;
+    royalty_strategy = `${terms.royalty_range.low}-${terms.royalty_range.high}% tiered royalties. Negotiate escalation above $1B annual net sales and anti-stacking provisions.`;
+  } else {
+    recommended_type = 'licensing';
+    rationale = `${stage === 'approved' ? 'Approved' : 'Phase 3'} assets command premium terms with high upfront percentages. De-risked assets should maximize upfront cash.`;
+    upfront_strategy = `Push for $${terms.upfront.high}M upfront (${terms.upfront_as_pct_of_total + 5}%+ of total). ${stage === 'approved' ? 'Approved products' : 'Late-stage assets'} justify premium upfront payments.`;
+    milestone_strategy = `Focus commercial milestones on aggressive but achievable sales targets: $${terms.commercial_milestones.base}M across $250M, $500M, $1B, and $2B annual sales tiers.`;
+    royalty_strategy = `${terms.royalty_range.high}% royalties on net sales with limited step-downs. ${stage === 'approved' ? 'Resist' : 'Push back on'} royalty reductions prior to patent expiry.`;
+  }
+
+  return { recommended_type, rationale, upfront_strategy, milestone_strategy, royalty_strategy };
+}
+
+function buildRedLines(stage: DevelopmentStage, novelty: string, terms: LicensingTermsEstimate): string[] {
+  const lines: string[] = [];
+
+  // Minimum upfront
+  lines.push(
+    `Do not accept upfront below $${terms.upfront.low}M — this is the floor for ${stage} assets in this therapeutic area.`,
+  );
+
+  // Royalty floor
+  const minRoyalty = Math.max(terms.royalty_range.low - 2, 1);
+  lines.push(`Do not accept royalty rates below ${minRoyalty}% — below-market royalties destroy long-term value.`);
+
+  // Reversion rights
+  lines.push(
+    'Insist on reversion rights if development milestones are missed — without reversion, you lose control of the asset permanently.',
+  );
+
+  // Anti-shelving
+  lines.push(
+    'Require annual development plans with binding diligence obligations — prevent the partner from shelving the asset to protect their own pipeline.',
+  );
+
+  // Stage-specific
+  if (stage === 'approved') {
+    lines.push(
+      `Do not accept less than ${terms.upfront_as_pct_of_total - 5}% upfront for an approved product — approved assets carry minimal development risk.`,
+    );
+  }
+
+  if (novelty === 'first_in_class') {
+    lines.push(
+      'Do not accept "me-too" pricing benchmarks as comparables — first-in-class mechanisms command premium valuations.',
+    );
+  }
+
+  // Patent protection
+  lines.push(
+    'Require strong anti-stacking provisions — royalty reductions from third-party licenses should be capped at 50% reduction.',
+  );
+
+  return lines;
+}
+
+function buildBATNA(stage: DevelopmentStage, partnerCount: number, indication: string, novelty: string): string {
+  const parts: string[] = [];
+
+  if (partnerCount > 8) {
+    parts.push(`Strong BATNA: ${partnerCount} qualified partners identified, enabling a competitive process.`);
+    parts.push('If primary negotiations stall, pivot to next-ranked partners within 2-4 weeks.');
+  } else if (partnerCount >= 4) {
+    parts.push(`Moderate BATNA: ${partnerCount} qualified partners provide alternatives.`);
+    parts.push('Maintain parallel discussions with 2-3 backup partners to preserve optionality.');
+  } else {
+    parts.push(`Limited BATNA: Only ${partnerCount} qualified partners identified.`);
+    parts.push('Consider expanding geography rights or broadening deal type criteria to increase the partner pool.');
+  }
+
+  if (stage === 'preclinical' || stage === 'phase1') {
+    parts.push(
+      'Alternative: Continue self-funded development to the next value inflection point (IND filing or Phase 1 data) to strengthen future negotiating position.',
+    );
+  } else if (stage === 'phase2') {
+    parts.push(
+      'Alternative: Run a Phase 2b expansion or initiate a registrational study to further de-risk the asset before re-engaging partners at higher valuations.',
+    );
+  }
+
+  if (novelty === 'first_in_class') {
+    parts.push(
+      'First-in-class assets retain strategic value even in delayed timelines — do not accept below-market terms under time pressure.',
+    );
+  }
+
+  parts.push(
+    'Consider regional deal splits as an alternative to a single global deal — US rights alone can fund continued development for other territories.',
+  );
+
+  return parts.join(' ');
+}
+
+// ════════════════════════════════════════════════════════════
+// PARTNER RED FLAGS
+// Identifies risk signals for each matched partner
+// ════════════════════════════════════════════════════════════
+
+/** Known terminated partnerships by company — based on public data */
+const TERMINATED_PARTNERSHIPS: Record<string, { partner: string; indication: string; year: number; reason: string }[]> =
+  {
+    pfizer: [
+      { partner: 'CytoDyn', indication: 'HIV/oncology', year: 2020, reason: 'Lack of clinical progress' },
+      { partner: 'Akeso', indication: 'Oncology (PD-1)', year: 2023, reason: 'Strategic reprioritization' },
+    ],
+    novartis: [{ partner: 'Ionis', indication: 'Cardiovascular', year: 2022, reason: 'Pipeline reprioritization' }],
+    'bristol-myers squibb': [
+      { partner: 'Dragonfly Therapeutics', indication: 'Oncology', year: 2023, reason: 'Clinical setback' },
+    ],
+    bms: [{ partner: 'Dragonfly Therapeutics', indication: 'Oncology', year: 2023, reason: 'Clinical setback' }],
+    roche: [{ partner: 'Sarepta', indication: 'Neuromuscular', year: 2020, reason: 'Regulatory uncertainty' }],
+    merck: [
+      { partner: 'Moderna', indication: 'Personalized cancer vaccines', year: 2024, reason: 'Restructured terms' },
+    ],
+    astrazeneca: [
+      {
+        partner: 'Innate Pharma',
+        indication: 'Oncology (NKp46)',
+        year: 2023,
+        reason: 'Insufficient clinical differentiation',
+      },
+    ],
+    sanofi: [
+      {
+        partner: 'Principia Biopharma',
+        indication: 'Immunology (BTK)',
+        year: 2021,
+        reason: 'Post-acquisition pipeline review',
+      },
+    ],
+    'johnson & johnson': [
+      { partner: 'Arrowhead', indication: 'Cardiovascular', year: 2023, reason: 'Portfolio prioritization' },
+    ],
+    janssen: [{ partner: 'Arrowhead', indication: 'Cardiovascular', year: 2023, reason: 'Portfolio prioritization' }],
+  };
+
+/** Known restructuring / financial stress signals */
+const FINANCIAL_STRESS_SIGNALS: Record<string, { signal: string; year: number; detail: string }[]> = {
+  'bristol-myers squibb': [
+    {
+      signal: 'Major layoffs',
+      year: 2024,
+      detail: 'Announced ~2,200 job cuts as part of cost restructuring following Celgene integration challenges',
+    },
+  ],
+  bms: [{ signal: 'Major layoffs', year: 2024, detail: 'Announced ~2,200 job cuts as part of cost restructuring' }],
+  pfizer: [
+    {
+      signal: 'Revenue decline / restructuring',
+      year: 2024,
+      detail: 'Post-COVID revenue cliff led to $3.5B cost-cutting program and workforce reductions',
+    },
+  ],
+  novartis: [
+    {
+      signal: 'Spin-off / restructuring',
+      year: 2023,
+      detail: 'Sandoz spin-off created uncertainty in generics/biosimilar business; refocused on innovative medicines',
+    },
+  ],
+  biogen: [
+    {
+      signal: 'Leadership turnover',
+      year: 2023,
+      detail: 'CEO transition amid Lecanemab launch challenges and strategic pivot',
+    },
+  ],
+  viatris: [
+    {
+      signal: 'Financial distress',
+      year: 2024,
+      detail: 'Debt burden from Mylan/Upjohn merger, multiple asset divestitures',
+    },
+  ],
+  bausch: [{ signal: 'Financial distress', year: 2024, detail: 'Heavy debt load, delayed Bausch + Lomb separation' }],
+  teva: [
+    {
+      signal: 'Restructuring',
+      year: 2024,
+      detail: 'Ongoing Pivot to Growth restructuring, legal settlement costs from opioid litigation',
+    },
+  ],
+};
+
+export function assessPartnerRedFlags(
+  partner: PharmaPartnerProfile,
+  indication: string,
+  userTherapyAreas: string[],
+  geographyRights: string[],
+): PartnerRedFlag[] {
+  const flags: PartnerRedFlag[] = [];
+  const companyLower = partner.company.toLowerCase();
+
+  // 1. Terminated partnerships in same TA
+  const terminated = TERMINATED_PARTNERSHIPS[companyLower];
+  if (terminated) {
+    const indicationLower = indication.toLowerCase();
+    for (const t of terminated) {
+      const termIndLower = t.indication.toLowerCase();
+      const taOverlap = userTherapyAreas.some((ua) => termIndLower.includes(ua.toLowerCase()));
+      const indOverlap = tokenize(indicationLower).some((tok) => termIndLower.includes(tok));
+      if (taOverlap || indOverlap) {
+        flags.push({
+          flag: 'Terminated partnership in same TA',
+          severity: 'high',
+          detail: `Terminated partnership with ${t.partner} in ${t.indication} (${t.year}). Reason: ${t.reason}. This signals potential execution risk or strategic deprioritization in this area.`,
+          source: 'SEC filings, press releases',
+        });
+      }
+    }
+    // Even in a different TA, a pattern of terminations is a signal
+    if (terminated.length >= 2 && flags.length === 0) {
+      flags.push({
+        flag: 'Pattern of terminated partnerships',
+        severity: 'medium',
+        detail: `${partner.company} has terminated ${terminated.length} partnerships in recent years across different TAs. This may indicate execution challenges or strategic instability.`,
+        source: 'Public filings',
+      });
+    }
+  }
+
+  // 2. Financial distress signals
+  const stressSignals = FINANCIAL_STRESS_SIGNALS[companyLower];
+  if (stressSignals) {
+    for (const s of stressSignals) {
+      flags.push({
+        flag: s.signal,
+        severity: s.signal.includes('Financial distress') ? 'high' : 'medium',
+        detail: `${s.detail} (${s.year}). Financial pressure may lead to aggressive deal terms but introduces counterparty risk.`,
+        source: 'Public filings, press releases',
+      });
+    }
+  }
+
+  // 3. Patent cliff urgency (desperation signal)
+  const loeEvents = MAJOR_LOE_EVENTS[companyLower];
+  if (loeEvents) {
+    const currentYear = 2026;
+    const nearTermLOEs = loeEvents.filter((e) => e.loe_year >= currentYear && e.loe_year <= currentYear + 2);
+    const totalRevenueAtRisk = nearTermLOEs.reduce((s, e) => s + e.revenue_b, 0);
+    if (totalRevenueAtRisk > 10) {
+      flags.push({
+        flag: 'Severe patent cliff pressure',
+        severity: 'medium',
+        detail: `$${totalRevenueAtRisk}B in revenue at risk from LOE within 2 years (${nearTermLOEs.map((e) => `${e.drug} in ${e.loe_year}`).join(', ')}). Desperation may yield aggressive upfront offers but creates risk of future deprioritization once pipeline gap is filled.`,
+        source: 'Company 10-K, analyst consensus',
+      });
+    } else if (totalRevenueAtRisk > 5) {
+      flags.push({
+        flag: 'Patent cliff pressure',
+        severity: 'low',
+        detail: `$${totalRevenueAtRisk}B revenue at risk from near-term LOE events. Creates acquisition urgency that may benefit sellers.`,
+        source: 'Company 10-K',
+      });
+    }
+  }
+
+  // 4. Geographic mismatch
+  if (geographyRights.length > 0 && !geographyRights.includes('Global')) {
+    const partnerGeos = partner.geography_footprint.map((g) => g.toUpperCase());
+    const offeredGeos = geographyRights.map((g) => g.toUpperCase());
+    const mismatches = offeredGeos.filter((g) => !partnerGeos.some((pg) => pg.includes(g) || g.includes(pg)));
+    if (mismatches.length > 0) {
+      flags.push({
+        flag: 'Geographic footprint gap',
+        severity: mismatches.length > 1 ? 'medium' : 'low',
+        detail: `${partner.company} may lack commercial infrastructure in ${mismatches.join(', ')}. This could lead to sub-licensing or slower launch timelines in those territories.`,
+        source: 'Company annual report',
+      });
+    }
+  }
+
+  // 5. Small financial capacity relative to deal size
+  if (partner.market_cap_b < 5 && partner.company_type !== 'biotech') {
+    flags.push({
+      flag: 'Limited financial capacity',
+      severity: 'low',
+      detail: `Market cap of $${partner.market_cap_b.toFixed(1)}B may constrain ability to fund large upfront payments or late-stage development costs.`,
+      source: 'Market data',
+    });
+  }
+
+  // 6. Regulatory issues — check if partner has known regulatory setbacks
+  const recentDeals = partner.recent_deals;
+  const failedDeals = recentDeals.filter((d) => {
+    const asset = d.asset?.toLowerCase() || '';
+    return asset.includes('withdraw') || asset.includes('reject') || asset.includes('crl');
+  });
+  if (failedDeals.length > 0) {
+    flags.push({
+      flag: 'Recent regulatory setbacks',
+      severity: 'medium',
+      detail: `${partner.company} has experienced regulatory setbacks in recent filings. This may indicate challenges with their regulatory capabilities or strategy.`,
+      source: 'FDA/EMA public records',
+    });
+  }
+
+  return flags;
+}
+
 // ────────────────────────────────────────────────────────────
 // MAIN EXPORT: analyzePartners()
 // ────────────────────────────────────────────────────────────
@@ -4379,6 +5108,7 @@ export async function analyzePartners(input: PartnerDiscoveryInput): Promise<Par
       deal_structure_model: dealStructure,
       phase_success_rates: phaseSuccessRates,
       loe_gap_analysis: loeGap,
+      red_flags: assessPartnerRedFlags(partner, indication, userTherapyAreas, geographyRights),
     };
   });
 
@@ -4426,6 +5156,18 @@ export async function analyzePartners(input: PartnerDiscoveryInput): Promise<Par
     { name: 'Ambrosia Ventures Proprietary Deal Intelligence', type: 'proprietary' },
   ];
 
+  // ── Licensing Terms Calculator ─────────────────────────────
+  const licensing_terms = calculateLicensingTerms(
+    developmentStage,
+    therapyAreaForScoring,
+    input.mechanism,
+    indication,
+    geographyRights,
+  );
+
+  // ── Negotiation Playbook ─────────────────────────────────
+  const negotiation_playbook = buildNegotiationPlaybook(input, licensing_terms, negotiation_leverage, qualified.length);
+
   return {
     ranked_partners: rankedPartners,
     deal_benchmarks: dealBenchmarks,
@@ -4441,6 +5183,8 @@ export async function analyzePartners(input: PartnerDiscoveryInput): Promise<Par
     data_sources: dataSources,
     generated_at: new Date().toISOString(),
     negotiation_leverage,
+    licensing_terms,
+    negotiation_playbook,
   };
 }
 

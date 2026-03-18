@@ -7,10 +7,26 @@ import { Progress } from '@/components/ui/Progress';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useUser } from '@/hooks/useUser';
 import { createClient } from '@/lib/supabase/client';
-import { PLAN_DISPLAY, PLAN_LIMITS } from '@/lib/subscription';
+import { PLAN_DISPLAY, PLAN_LIMITS, ENTERPRISE_FEATURES } from '@/lib/subscription';
 import { toast } from 'sonner';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
-import { CreditCard, Crown, Zap, Check, ArrowRight, Loader2 } from 'lucide-react';
+import {
+  CreditCard,
+  Crown,
+  Zap,
+  Check,
+  ArrowRight,
+  Loader2,
+  Building2,
+  Key,
+  ShieldCheck,
+  ScrollText,
+  Users,
+  FileText,
+  Lock,
+  Shield,
+  Headphones,
+} from 'lucide-react';
 import type { Plan } from '@/types';
 
 function PlanCard({
@@ -48,24 +64,55 @@ function PlanCard({
         </div>
       </div>
       <p className="text-xs text-slate-400 mb-4">{display.tagline}</p>
-      {!isCurrent && !isDowngrade && (
+      {!isCurrent && !isDowngrade && plan !== 'enterprise' && (
         <Button variant="primary" size="sm" className="w-full" onClick={() => onUpgrade(plan)} isLoading={upgrading}>
           <Zap className="w-3.5 h-3.5" />
           Upgrade to {display.name}
         </Button>
       )}
-      {isCurrent && currentPlan !== 'free' && (
+      {!isCurrent && plan === 'enterprise' && (
+        <a
+          href="mailto:enterprise@ambrosiaventures.co?subject=Enterprise%20Plan%20Inquiry"
+          className="btn btn-primary btn-sm w-full inline-flex items-center justify-center gap-2"
+        >
+          <Building2 className="w-3.5 h-3.5" />
+          Contact Sales
+        </a>
+      )}
+      {isCurrent && currentPlan !== 'free' && currentPlan !== 'enterprise' && (
         <Button variant="ghost" size="sm" className="w-full" onClick={onManage} isLoading={managingPortal}>
           {managingPortal ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CreditCard className="w-3.5 h-3.5" />}
           {managingPortal ? 'Opening...' : 'Manage Subscription'}
         </Button>
       )}
+      {isCurrent && currentPlan === 'enterprise' && (
+        <a
+          href="mailto:enterprise@ambrosiaventures.co?subject=Enterprise%20Account%20Management"
+          className="btn btn-ghost btn-sm w-full inline-flex items-center justify-center gap-2"
+        >
+          <Headphones className="w-3.5 h-3.5" />
+          Contact Account Manager
+        </a>
+      )}
     </div>
   );
 }
 
+/** Enterprise feature icon mapping */
+const ENTERPRISE_FEATURE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  'Unlimited seats': Users,
+  'REST API access': Key,
+  'SSO / SAML': ShieldCheck,
+  'Audit log': ScrollText,
+  'Role-based access control': Shield,
+  'Information barriers': Lock,
+  'White-label reports': FileText,
+  'SLA & security review': Headphones,
+  'All Pro features': Crown,
+};
+
 export default function BillingPage() {
-  const { plan, isPro, cancelAtPeriodEnd, currentPeriodEnd } = useSubscription();
+  const { plan, isPro, isEnterprise, cancelAtPeriodEnd, currentPeriodEnd } = useSubscription();
   const { user } = useUser();
   const [upgrading, setUpgrading] = useState(false);
   const [managingPortal, setManagingPortal] = useState(false);
@@ -117,7 +164,7 @@ export default function BillingPage() {
   }, [user]);
 
   async function handleUpgrade(targetPlan: Plan) {
-    if (targetPlan === 'free') return;
+    if (targetPlan === 'free' || targetPlan === 'enterprise') return;
     setUpgrading(true);
     try {
       const res = await fetch('/api/stripe/checkout', {
@@ -136,7 +183,11 @@ export default function BillingPage() {
 
   return (
     <ErrorBoundary>
-      <PageHeader title="Billing" subtitle="Manage your subscription and payment methods." />
+      <PageHeader
+        title="Billing"
+        subtitle="Manage your subscription and payment methods."
+        badge={isEnterprise ? 'Enterprise' : undefined}
+      />
 
       <div className="space-y-6 max-w-2xl">
         {/* Current Plan Status */}
@@ -149,10 +200,59 @@ export default function BillingPage() {
           </div>
         )}
 
+        {/* Enterprise Plan Feature Card — shown to enterprise users at the top */}
+        {isEnterprise && (
+          <div className="card noise p-6 border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-transparent">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-medium text-white">Enterprise Plan</h3>
+                  <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded border bg-purple-500/10 text-purple-400 border-purple-500/20">
+                    ACTIVE
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Full institutional-grade intelligence with security and compliance controls
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {ENTERPRISE_FEATURES.map((feature) => {
+                const Icon = ENTERPRISE_FEATURE_ICONS[feature.label] ?? Check;
+                return (
+                  <div key={feature.label} className="flex items-start gap-3 p-3 rounded-lg bg-navy-900/40">
+                    <div className="w-7 h-7 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Icon className="w-3.5 h-3.5 text-purple-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-white">{feature.label}</p>
+                      <p className="text-2xs text-slate-500 leading-relaxed">{feature.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-5 pt-4 border-t border-navy-700/40">
+              <p className="text-2xs text-slate-500">
+                Need to adjust your plan or have questions?{' '}
+                <a
+                  href="mailto:enterprise@ambrosiaventures.co"
+                  className="text-purple-400 hover:text-purple-300 transition-colors"
+                >
+                  Contact your account manager
+                </a>
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Plan Cards */}
         <div className="space-y-3">
           <h3 className="text-xs font-mono text-slate-400 uppercase tracking-wider">Plans</h3>
-          {(['free', 'pro', 'team'] as Plan[]).map((p) => (
+          {(['free', 'pro', 'team', 'enterprise'] as Plan[]).map((p) => (
             <PlanCard
               key={p}
               plan={p}
@@ -191,7 +291,7 @@ export default function BillingPage() {
           </div>
         </div>
 
-        {/* Pro Features */}
+        {/* Pro Features — shown only to non-Pro users */}
         {!isPro && (
           <div className="card noise p-6 border-teal-500/20 bg-gradient-to-br from-teal-500/5 to-transparent">
             <div className="flex items-start gap-3">

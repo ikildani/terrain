@@ -515,6 +515,7 @@ export function OpportunityTable({ rows, sortBy, sortOrder, onSort, isLoading, w
                     dealActivity={row.deal_activity}
                     catalystSignals={row.catalyst_signals}
                     investmentThesis={row.investment_thesis}
+                    structuredThesis={row.structured_thesis}
                     whiteSpaceHints={row.white_space_hints}
                     topCompetitors={row.top_competitors}
                     crowdingScore={row.crowding_score}

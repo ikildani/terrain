@@ -20,6 +20,9 @@ import {
   Activity,
   BarChart2,
   FileStack,
+  Key,
+  ShieldCheck,
+  ScrollText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -67,6 +70,12 @@ const WORKSPACE_ITEMS: NavItem[] = [
   { label: 'Analytics', href: '/workspace/analytics', icon: BarChart2 },
   { label: 'Templates', href: '/workspace/templates', icon: FileStack },
   { label: 'Projects', href: '/workspace/projects', icon: Shield, enterprise: true },
+];
+
+const ENTERPRISE_ITEMS: NavItem[] = [
+  { label: 'API Keys', href: '/settings/api-keys', icon: Key, enterprise: true },
+  { label: 'SSO / SAML', href: '/settings/sso', icon: ShieldCheck, enterprise: true },
+  { label: 'Audit Log', href: '/settings/audit-log', icon: ScrollText, enterprise: true },
 ];
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
@@ -181,6 +190,41 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                         ENT
                       </span>
                     )}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Enterprise Controls — visible only for enterprise plan */}
+          {isEnterprise && (
+            <div>
+              <div
+                className={cn(
+                  'sidebar-section-label',
+                  ENTERPRISE_ITEMS.some((item) => isActive(item.href)) && 'text-slate-300',
+                )}
+              >
+                <span className="flex items-center gap-1.5">
+                  Enterprise
+                  <span className="text-[7px] font-mono uppercase px-1 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 leading-none">
+                    ENT
+                  </span>
+                </span>
+              </div>
+              {ENTERPRISE_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onClose}
+                    className={cn('sidebar-nav-item', active && 'active')}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    <Icon />
+                    <span className="flex-1">{item.label}</span>
                   </Link>
                 );
               })}

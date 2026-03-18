@@ -30,6 +30,10 @@ import type {
   CompetitorSuccessProbability,
   DosingConvenience,
   DevelopmentStage,
+  PatientSegmentation,
+  PatientSegment,
+  CompetitorScenario,
+  PricingPressure,
 } from '@/types';
 
 import { findIndicationByName } from '@/lib/data/indication-map';
@@ -2434,6 +2438,536 @@ function buildLOTCrowding(competitorRecords: CompetitorRecord[]): {
   return result;
 }
 
+// ════════════════════════════════════════════════════════════
+// STRATEGIC INTELLIGENCE LAYER
+// ════════════════════════════════════════════════════════════
+
+// ────────────────────────────────────────────────────────────
+// 1. PATIENT POPULATION SEGMENTATION
+//
+// Breaks the total patient population into clinically
+// meaningful segments by therapy area. Each segment is
+// scored for competitive density and unmet need.
+// ────────────────────────────────────────────────────────────
+
+interface SegmentTemplate {
+  name: string;
+  share: number; // fraction of total patients
+  soc_default: string;
+}
+
+const ONCOLOGY_SEGMENTS: SegmentTemplate[] = [
+  { name: '1L, PD-L1 High (TPS >= 50%)', share: 0.15, soc_default: 'Pembrolizumab monotherapy' },
+  { name: '1L, PD-L1 Low/Negative', share: 0.2, soc_default: 'Chemo + checkpoint inhibitor' },
+  { name: '1L, EGFR+ / ALK+', share: 0.12, soc_default: 'Osimertinib / Alectinib' },
+  { name: '2L, Post-IO Progression', share: 0.18, soc_default: 'Docetaxel +/- ramucirumab' },
+  { name: '3L+, Heavily Pretreated', share: 0.1, soc_default: 'Best supportive care / clinical trial' },
+  { name: 'Early Stage (I-IIIA), Adjuvant', share: 0.15, soc_default: 'Surgery + adjuvant chemo +/- IO' },
+  { name: 'Neoadjuvant Setting', share: 0.05, soc_default: 'Neoadjuvant chemoimmunotherapy' },
+  { name: 'Rare Histology / NOS', share: 0.05, soc_default: 'Platinum doublet' },
+];
+
+const NEUROLOGY_SEGMENTS: SegmentTemplate[] = [
+  { name: 'Mild Severity', share: 0.35, soc_default: 'Cholinesterase inhibitors / symptomatic' },
+  { name: 'Moderate Severity', share: 0.35, soc_default: 'Combination symptomatic therapy' },
+  { name: 'Severe / Advanced', share: 0.15, soc_default: 'Memantine / supportive care' },
+  { name: 'Early-Onset (< 65y)', share: 0.05, soc_default: 'Disease-modifying therapy (if available)' },
+  { name: 'Late-Onset (>= 65y)', share: 0.05, soc_default: 'Symptom management + caregiver support' },
+  { name: 'Pediatric / Juvenile', share: 0.05, soc_default: 'Specialized pediatric protocols' },
+];
+
+const IMMUNOLOGY_SEGMENTS: SegmentTemplate[] = [
+  { name: 'Biologic-Naive, Moderate', share: 0.25, soc_default: 'Methotrexate / conventional DMARD' },
+  { name: 'Biologic-Naive, Severe', share: 0.15, soc_default: 'Anti-TNF (first biologic)' },
+  { name: 'Anti-TNF Failure (1 prior biologic)', share: 0.2, soc_default: 'IL-17 / IL-23 inhibitor' },
+  { name: 'Multi-Biologic Experienced (2+ failures)', share: 0.15, soc_default: 'JAK inhibitor / novel mechanism' },
+  { name: 'Mild / Topical-Manageable', share: 0.15, soc_default: 'Topical steroids / PDE4 inhibitor' },
+  { name: 'Pediatric / Adolescent', share: 0.1, soc_default: 'Pediatric-approved biologics' },
+];
+
+const RARE_DISEASE_SEGMENTS: SegmentTemplate[] = [
+  { name: 'Classic / Severe Genotype', share: 0.3, soc_default: 'Enzyme replacement therapy' },
+  { name: 'Attenuated / Mild Genotype', share: 0.2, soc_default: 'Substrate reduction / supportive care' },
+  { name: 'Infantile-Onset', share: 0.15, soc_default: 'ERT + supportive care' },
+  { name: 'Late-Onset (Adult)', share: 0.2, soc_default: 'Symptom management' },
+  { name: 'CNS-Involved', share: 0.1, soc_default: 'Limited options / clinical trial' },
+  { name: 'Non-CNS / Peripheral', share: 0.05, soc_default: 'Standard ERT' },
+];
+
+const DEFAULT_SEGMENTS: SegmentTemplate[] = [
+  { name: 'Mild Severity', share: 0.3, soc_default: 'First-line standard of care' },
+  { name: 'Moderate Severity', share: 0.35, soc_default: 'Combination therapy' },
+  { name: 'Severe / Refractory', share: 0.2, soc_default: 'Advanced therapy / clinical trial' },
+  { name: 'Treatment-Naive', share: 0.1, soc_default: 'Initial therapy' },
+  { name: 'Elderly / Comorbid', share: 0.05, soc_default: 'Dose-adjusted regimen' },
+];
+
+const SEGMENT_TEMPLATES: Record<string, SegmentTemplate[]> = {
+  oncology: ONCOLOGY_SEGMENTS,
+  neurology: NEUROLOGY_SEGMENTS,
+  immunology: IMMUNOLOGY_SEGMENTS,
+  rare_disease: RARE_DISEASE_SEGMENTS,
+};
+
+function buildPatientSegmentation(
+  competitors: Competitor[],
+  competitorRecords: CompetitorRecord[],
+  indicationData: {
+    name: string;
+    therapy_area: string;
+    us_prevalence: number;
+    us_incidence: number;
+    treatment_rate: number;
+  },
+): PatientSegmentation {
+  const ta = indicationData.therapy_area.toLowerCase();
+  const templates = SEGMENT_TEMPLATES[ta] ?? DEFAULT_SEGMENTS;
+  const totalPatients = Math.round(indicationData.us_prevalence * indicationData.treatment_rate);
+
+  const segments: PatientSegment[] = templates.map((template) => {
+    const estPatients = Math.round(totalPatients * template.share);
+
+    // Calculate competitive density for this segment by matching competitor
+    // indication_specifics and line_of_therapy to the segment name
+    const segLower = template.name.toLowerCase();
+    const matchingCompetitors = competitorRecords.filter((r) => {
+      const specLower = (r.indication_specifics + ' ' + (r.line_of_therapy ?? '')).toLowerCase();
+      // Check for line-of-therapy match
+      if (
+        segLower.includes('1l') &&
+        (specLower.includes('1l') || specLower.includes('first line') || specLower.includes('first-line'))
+      )
+        return true;
+      if (
+        segLower.includes('2l') &&
+        (specLower.includes('2l') || specLower.includes('second line') || specLower.includes('second-line'))
+      )
+        return true;
+      if (
+        segLower.includes('3l') &&
+        (specLower.includes('3l') || specLower.includes('third line') || specLower.includes('heavily pretreated'))
+      )
+        return true;
+      if (segLower.includes('adjuvant') && specLower.includes('adjuvant')) return true;
+      if (segLower.includes('neoadjuvant') && specLower.includes('neoadjuvant')) return true;
+      // Check for severity match
+      if (segLower.includes('mild') && specLower.includes('mild')) return true;
+      if (segLower.includes('moderate') && specLower.includes('moderate')) return true;
+      if (segLower.includes('severe') && (specLower.includes('severe') || specLower.includes('refractory')))
+        return true;
+      // Check for biologic experience match
+      if (segLower.includes('biologic-naive') && (specLower.includes('naive') || specLower.includes('naïve')))
+        return true;
+      if (segLower.includes('failure') && (specLower.includes('failure') || specLower.includes('inadequate response')))
+        return true;
+      // Biomarker match
+      if (segLower.includes('pd-l1') && (specLower.includes('pd-l1') || specLower.includes('pdl1'))) return true;
+      if (segLower.includes('egfr') && specLower.includes('egfr')) return true;
+      // Genotype match for rare disease
+      if (segLower.includes('classic') && specLower.includes('classic')) return true;
+      if (segLower.includes('attenuated') && specLower.includes('attenuated')) return true;
+      if (segLower.includes('infantile') && (specLower.includes('infantile') || specLower.includes('pediatric')))
+        return true;
+      // Default: check if any keyword from segment name appears
+      const segTokens = segLower.split(/[\s,/()]+/).filter((t) => t.length > 3);
+      return segTokens.some((t) => specLower.includes(t));
+    });
+
+    const approvedInSegment = matchingCompetitors.filter((r) => r.phase === 'Approved').length;
+    const totalInSegment = matchingCompetitors.length;
+
+    // Competitive density: 1-10
+    let competitiveDensity: number;
+    if (totalInSegment === 0) competitiveDensity = 1;
+    else if (totalInSegment <= 2) competitiveDensity = 3;
+    else if (totalInSegment <= 5) competitiveDensity = 5;
+    else if (totalInSegment <= 10) competitiveDensity = 7;
+    else competitiveDensity = 9;
+
+    if (approvedInSegment >= 3) competitiveDensity = Math.min(10, competitiveDensity + 1);
+
+    // Unmet need score: inverse of competitive density + adjustment for SOC quality
+    let unmetNeed = clamp(11 - competitiveDensity, 1, 10);
+    // Boost unmet need if SOC mentions "supportive care" or "clinical trial"
+    const socLower = template.soc_default.toLowerCase();
+    if (socLower.includes('supportive care') || socLower.includes('clinical trial') || socLower.includes('limited')) {
+      unmetNeed = Math.min(10, unmetNeed + 2);
+    }
+    // Reduce unmet need if multiple approved products exist
+    if (approvedInSegment >= 4) unmetNeed = Math.max(1, unmetNeed - 2);
+
+    // White space assessment
+    let whiteSpace: string;
+    if (competitiveDensity <= 2 && unmetNeed >= 7) {
+      whiteSpace = 'Strong white space — minimal competition with high unmet need. First-mover advantage available.';
+    } else if (competitiveDensity <= 4 && unmetNeed >= 5) {
+      whiteSpace =
+        'Moderate white space — limited competition with meaningful unmet need. Differentiated entrants can capture significant share.';
+    } else if (competitiveDensity >= 7 && unmetNeed <= 3) {
+      whiteSpace =
+        'Saturated — multiple approved options adequately address this segment. New entry requires transformative differentiation.';
+    } else if (competitiveDensity >= 5 && unmetNeed >= 6) {
+      whiteSpace =
+        'Competitive but underserved — existing options do not fully address patient needs despite available products.';
+    } else {
+      whiteSpace =
+        'Moderate opportunity — balanced competitive density with incremental unmet need. Target with differentiated profile.';
+    }
+
+    return {
+      name: template.name,
+      estimated_patients: estPatients,
+      current_soc: template.soc_default,
+      competitive_density: competitiveDensity,
+      unmet_need_score: unmetNeed,
+      white_space_assessment: whiteSpace,
+    };
+  });
+
+  // Sort by unmet need descending
+  segments.sort((a, b) => b.unmet_need_score - a.unmet_need_score);
+
+  const highOpportunity = segments.filter((s) => s.unmet_need_score >= 7);
+  const narrative =
+    highOpportunity.length > 0
+      ? `${highOpportunity.length} patient segment(s) identified with high unmet need (score >= 7/10) in ${indicationData.name}. ` +
+        `The highest-opportunity segment is "${highOpportunity[0].name}" with ~${highOpportunity[0].estimated_patients.toLocaleString()} ` +
+        `addressable patients and a competitive density of ${highOpportunity[0].competitive_density}/10. ` +
+        `Total addressable treated population: ${totalPatients.toLocaleString()} patients.`
+      : `Patient segmentation for ${indicationData.name} shows moderate competitive coverage across all segments. ` +
+        `Total addressable treated population: ${totalPatients.toLocaleString()} patients. ` +
+        `Focus on segments with the lowest competitive density for differentiated positioning.`;
+
+  return {
+    therapy_area: indicationData.therapy_area,
+    indication: indicationData.name,
+    total_addressable_patients: totalPatients,
+    segments,
+    narrative,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// 2. MULTI-COMPETITOR SCENARIO MODELING
+//
+// Models three strategic scenarios: simultaneous competitor
+// launch, market leader safety signal, and biosimilar/generic
+// entry. Each scenario produces bear/base/bull impact estimates.
+// ────────────────────────────────────────────────────────────
+
+function buildCompetitorScenarios(
+  competitors: Competitor[],
+  competitorRecords: CompetitorRecord[],
+  indicationData: { name: string; therapy_area: string; us_prevalence: number; treatment_rate: number },
+): CompetitorScenario[] {
+  const approved = competitors.filter((c) => c.phase === 'Approved');
+  const lateStage = competitors.filter((c) => c.phase === 'Phase 3' || c.phase === 'Phase 2/3');
+  const ta = indicationData.therapy_area.toLowerCase();
+
+  // Estimate baseline market size for SOM calculations
+  // Use prevalence * treatment rate * rough average annual therapy cost
+  const avgAnnualCost =
+    ta === 'oncology'
+      ? 180000
+      : ta === 'rare_disease'
+        ? 350000
+        : ta === 'neurology'
+          ? 60000
+          : ta === 'immunology'
+            ? 45000
+            : 80000;
+
+  const totalPatients = indicationData.us_prevalence * indicationData.treatment_rate;
+  // Assume a new entrant captures 5-15% of treated patients at peak
+  const baselineSOM = Math.round((totalPatients * 0.1 * avgAnnualCost) / 1_000_000); // $M
+  const baselinePeak = Math.round(baselineSOM * 1.4); // Peak ~40% above average SOM
+
+  const scenarios: CompetitorScenario[] = [];
+
+  // ── Scenario 1: Simultaneous Launch ──
+  const top3LateStage = lateStage
+    .sort((a, b) => (b.threat_assessment?.threat_score ?? 0) - (a.threat_assessment?.threat_score ?? 0))
+    .slice(0, 3);
+
+  if (top3LateStage.length >= 2) {
+    const competitorNames = top3LateStage.map((c) => `${c.company} (${c.asset_name})`).join(', ');
+    const erosionFactor = 0.15 * top3LateStage.length; // 15% erosion per simultaneous competitor
+
+    scenarios.push({
+      name: 'Simultaneous Competitor Launch',
+      type: 'simultaneous_launch',
+      probability_pct: top3LateStage.length >= 3 ? 15 : 25,
+      impact_on_som: {
+        bear: Math.round(-baselineSOM * (erosionFactor + 0.1)),
+        base: Math.round(-baselineSOM * erosionFactor),
+        bull: Math.round(-baselineSOM * (erosionFactor - 0.1)),
+      },
+      impact_on_peak_sales: {
+        bear: Math.round(-baselinePeak * (erosionFactor + 0.15)),
+        base: Math.round(-baselinePeak * erosionFactor),
+        bull: Math.round(-baselinePeak * (erosionFactor - 0.1)),
+      },
+      narrative:
+        `If ${competitorNames} all launch within the same 12-month window, ` +
+        `market share fragmentation could reduce your SOM by ${Math.round(erosionFactor * 100)}% (base case). ` +
+        `Mitigation: secure early formulary position, differentiate on efficacy/safety profile, ` +
+        `and establish KOL advocacy before competitor launches.`,
+    });
+  }
+
+  // ── Scenario 2: Market Leader Safety Signal ──
+  if (approved.length > 0) {
+    const leader = approved.sort((a, b) => b.evidence_strength - a.evidence_strength)[0];
+    const leaderSharePct = approved.length <= 2 ? 40 : approved.length <= 4 ? 25 : 15;
+    const gainFactor = leaderSharePct / 100;
+
+    scenarios.push({
+      name: 'Market Leader Safety Signal',
+      type: 'safety_signal',
+      probability_pct: 10,
+      impact_on_som: {
+        bear: Math.round(baselineSOM * (gainFactor * 0.3)),
+        base: Math.round(baselineSOM * (gainFactor * 0.6)),
+        bull: Math.round(baselineSOM * gainFactor),
+      },
+      impact_on_peak_sales: {
+        bear: Math.round(baselinePeak * (gainFactor * 0.3)),
+        base: Math.round(baselinePeak * (gainFactor * 0.6)),
+        bull: Math.round(baselinePeak * gainFactor),
+      },
+      narrative:
+        `If ${leader.company} (${leader.asset_name}) receives a safety signal or black box warning, ` +
+        `approximately ${leaderSharePct}% of their patient share could become available. ` +
+        `Your asset could capture ${Math.round(gainFactor * 60)}% (base case) of displaced patients, ` +
+        `assuming a differentiated safety profile and rapid payer response.`,
+    });
+  }
+
+  // ── Scenario 3: Biosimilar / Generic Entry ──
+  const biologicApproved = approved.filter((c) => {
+    const mech = c.mechanism.toLowerCase();
+    return (
+      mech.includes('antibody') || mech.includes('biologic') || mech.includes('adc') || mech.includes('bispecific')
+    );
+  });
+  const smallMolApproved = approved.filter((c) => {
+    const mech = c.mechanism.toLowerCase();
+    return mech.includes('small molecule') || mech.includes('inhibitor') || mech.includes('oral');
+  });
+
+  const hasGenericRisk = smallMolApproved.length > 0 || biologicApproved.length > 0;
+  if (hasGenericRisk) {
+    const isBiologic = biologicApproved.length >= smallMolApproved.length;
+    const pricingPressure = isBiologic ? 0.2 : 0.4; // Biosimilar = 20% price erosion, generic = 40%
+
+    scenarios.push({
+      name: isBiologic ? 'Biosimilar Market Entry' : 'Generic Competition',
+      type: 'biosimilar_entry',
+      probability_pct: isBiologic ? 30 : 45,
+      impact_on_som: {
+        bear: Math.round(-baselineSOM * pricingPressure * 0.5),
+        base: Math.round(-baselineSOM * pricingPressure * 0.3),
+        bull: Math.round(-baselineSOM * pricingPressure * 0.1),
+      },
+      impact_on_peak_sales: {
+        bear: Math.round(-baselinePeak * pricingPressure * 0.7),
+        base: Math.round(-baselinePeak * pricingPressure * 0.4),
+        bull: Math.round(-baselinePeak * pricingPressure * 0.15),
+      },
+      narrative: isBiologic
+        ? `Biosimilar entry for established biologics in ${indicationData.name} could trigger ~${Math.round(pricingPressure * 100)}% ` +
+          `price erosion across the class. Impact on your asset depends on mechanism differentiation — ` +
+          `novel mechanisms are insulated, while me-too biologics face direct competition.`
+        : `Generic entry for small molecule competitors in ${indicationData.name} could drive ~${Math.round(pricingPressure * 100)}% ` +
+          `price erosion in the oral therapy segment. Branded products must demonstrate clear efficacy advantages ` +
+          `or convenience benefits to justify premium pricing.`,
+    });
+  }
+
+  return scenarios;
+}
+
+// ────────────────────────────────────────────────────────────
+// 3. PRICING PRESSURE CALCULATOR
+//
+// Calculates market pricing range, competitive pressure score,
+// net price erosion forecast, and optimal pricing strategy
+// based on comparables, competitor density, and payer dynamics.
+// ────────────────────────────────────────────────────────────
+
+function buildPricingPressure(
+  competitors: Competitor[],
+  competitorRecords: CompetitorRecord[],
+  indicationData: { name: string; therapy_area: string },
+): PricingPressure {
+  const ta = indicationData.therapy_area.toLowerCase();
+  const approved = competitors.filter((c) => c.phase === 'Approved');
+  const lateStage = competitors.filter((c) => c.phase === 'Phase 3' || c.phase === 'Phase 2/3');
+
+  // ── Pricing Range from comparables ──
+  // Use therapy-area pricing benchmarks
+  const pricingByTA: Record<string, { low: number; median: number; high: number }> = {
+    oncology: { low: 80000, median: 180000, high: 350000 },
+    immunology: { low: 25000, median: 45000, high: 80000 },
+    neurology: { low: 20000, median: 55000, high: 120000 },
+    rare_disease: { low: 150000, median: 350000, high: 750000 },
+    cardiovascular: { low: 5000, median: 15000, high: 40000 },
+    metabolic: { low: 8000, median: 25000, high: 60000 },
+    hematology: { low: 50000, median: 150000, high: 400000 },
+    ophthalmology: { low: 10000, median: 40000, high: 100000 },
+    dermatology: { low: 15000, median: 35000, high: 70000 },
+    pulmonology: { low: 10000, median: 30000, high: 65000 },
+    gastroenterology: { low: 20000, median: 40000, high: 75000 },
+    psychiatry: { low: 3000, median: 12000, high: 35000 },
+    infectious_disease: { low: 5000, median: 25000, high: 80000 },
+    hepatology: { low: 20000, median: 50000, high: 100000 },
+    nephrology: { low: 15000, median: 40000, high: 80000 },
+    endocrinology: { low: 5000, median: 20000, high: 50000 },
+    musculoskeletal: { low: 15000, median: 35000, high: 65000 },
+    pain_management: { low: 2000, median: 8000, high: 25000 },
+  };
+
+  const priceRange = pricingByTA[ta] ?? { low: 20000, median: 60000, high: 150000 };
+
+  // ── Pricing Pressure Factors ──
+  const factors: PricingPressure['pressure_factors'] = [];
+  let totalPressure = 0;
+
+  // Factor 1: Number of competitors
+  const competitorCount = approved.length + lateStage.length;
+  let compPressure: number;
+  if (competitorCount <= 2) compPressure = 2;
+  else if (competitorCount <= 5) compPressure = 4;
+  else if (competitorCount <= 10) compPressure = 6;
+  else if (competitorCount <= 15) compPressure = 8;
+  else compPressure = 9;
+
+  factors.push({
+    factor: 'Competitor Density',
+    contribution: compPressure,
+    narrative: `${competitorCount} approved/late-stage competitors create ${compPressure >= 7 ? 'significant' : compPressure >= 4 ? 'moderate' : 'limited'} pricing pressure through formulary competition.`,
+  });
+  totalPressure += compPressure;
+
+  // Factor 2: Biosimilar / Generic Risk
+  const biologicCount = approved.filter((c) => {
+    const m = c.mechanism.toLowerCase();
+    return m.includes('antibody') || m.includes('biologic') || m.includes('adc');
+  }).length;
+  const genericRisk = biologicCount >= 2 ? 7 : biologicCount >= 1 ? 4 : 2;
+  factors.push({
+    factor: 'Biosimilar / Generic Risk',
+    contribution: genericRisk,
+    narrative:
+      biologicCount > 0
+        ? `${biologicCount} approved biologic(s) face potential biosimilar competition, creating downward pricing pressure across the class.`
+        : 'Limited biosimilar/generic risk currently — novel mechanisms provide pricing insulation.',
+  });
+  totalPressure += genericRisk;
+
+  // Factor 3: Payer Pushback
+  let payerPressure: number;
+  if (ta === 'oncology' && approved.length >= 5) payerPressure = 7;
+  else if (ta === 'rare_disease') payerPressure = 3;
+  else if (approved.length >= 4) payerPressure = 6;
+  else if (approved.length >= 2) payerPressure = 4;
+  else payerPressure = 2;
+
+  factors.push({
+    factor: 'Payer Pushback',
+    contribution: payerPressure,
+    narrative:
+      payerPressure >= 6
+        ? 'High payer scrutiny with step therapy requirements, prior authorization, and active rebate negotiations. Expect significant GTN discounts.'
+        : payerPressure >= 4
+          ? 'Moderate payer management. Formulary access achievable with clinical differentiation, but expect standard rebate expectations.'
+          : 'Limited payer resistance. Specialty pharmacy distribution and orphan/niche positioning support premium pricing.',
+  });
+  totalPressure += payerPressure;
+
+  // Factor 4: IRA / Government Pricing Impact
+  let iraPressure: number;
+  if (ta === 'oncology' || ta === 'immunology' || ta === 'cardiovascular') iraPressure = 6;
+  else if (ta === 'rare_disease') iraPressure = 2;
+  else iraPressure = 4;
+
+  factors.push({
+    factor: 'IRA / Government Pricing',
+    contribution: iraPressure,
+    narrative:
+      iraPressure >= 5
+        ? 'Inflation Reduction Act Medicare price negotiation likely applies to this therapy area. Plan for government price ceilings at launch + 9 years for small molecules, + 13 years for biologics.'
+        : 'IRA impact is limited for this therapy area due to orphan drug exemptions or niche population size.',
+  });
+  totalPressure += iraPressure;
+
+  // Calculate overall pressure score (normalize 4 factors to 0-10)
+  const pressureScore = clamp(Math.round((totalPressure / 4) * 10) / 10, 0, 10);
+
+  // ── Position Assessment ──
+  let position: PricingPressure['your_position'];
+  if (pressureScore <= 3) position = 'premium';
+  else if (pressureScore <= 6) position = 'parity';
+  else position = 'discount';
+
+  // ── Net Price Erosion Forecast (5 years) ──
+  const baseErosion = pressureScore >= 7 ? 5 : pressureScore >= 4 ? 3 : 1.5; // Annual % decline
+  const currentYear = new Date().getFullYear();
+  const erosionForecast = Array.from({ length: 5 }, (_, i) => ({
+    year: currentYear + i + 1,
+    erosion_pct: Math.round(baseErosion * (i + 1) * 10) / 10,
+  }));
+
+  // ── Optimal Strategy ──
+  let optimalStrategy: string;
+  if (pressureScore <= 3) {
+    optimalStrategy =
+      'Launch at premium pricing (top quartile of comparables). ' +
+      'Low competitive pressure supports premium positioning. ' +
+      'Focus value narrative on clinical differentiation and unmet need. ' +
+      'Expect minimal GTN erosion in years 1-3.';
+  } else if (pressureScore <= 5) {
+    optimalStrategy =
+      'Launch at market parity (median of comparables). ' +
+      'Moderate competitive pressure requires evidence-based value dossier. ' +
+      'Consider outcomes-based contracts to secure formulary access. ' +
+      'Budget for 3-5% annual net price erosion.';
+  } else if (pressureScore <= 7) {
+    optimalStrategy =
+      'Launch at competitive parity or slight discount to drive formulary access. ' +
+      'High competitive density means payers have alternatives — differentiation is critical. ' +
+      'Invest in health economics outcomes research (HEOR) to support value story. ' +
+      'Budget for 5-7% annual net price erosion and aggressive rebate expectations.';
+  } else {
+    optimalStrategy =
+      'Consider value-based pricing strategy with aggressive access programs. ' +
+      'Extreme competitive pressure and payer leverage will limit pricing power. ' +
+      'Explore co-pay assistance, patient access programs, and outcomes-based agreements. ' +
+      'Budget for 7-10% annual net price erosion.';
+  }
+
+  // ── Narrative ──
+  const narrative =
+    `Pricing pressure analysis for ${indicationData.name} yields a pressure score of ` +
+    `${pressureScore}/10, indicating ${pressureScore >= 7 ? 'high' : pressureScore >= 4 ? 'moderate' : 'low'} ` +
+    `downward pricing pressure. The market WAC range is $${(priceRange.low / 1000).toFixed(0)}K–$${(priceRange.high / 1000).toFixed(0)}K annually ` +
+    `(median $${(priceRange.median / 1000).toFixed(0)}K). Key drivers: ${factors
+      .sort((a, b) => b.contribution - a.contribution)
+      .slice(0, 2)
+      .map((f) => f.factor.toLowerCase())
+      .join(' and ')}.`;
+
+  return {
+    market_pricing_range: priceRange,
+    your_position: position,
+    pressure_score: pressureScore,
+    pressure_factors: factors,
+    net_price_erosion_forecast: erosionForecast,
+    optimal_strategy: optimalStrategy,
+    narrative,
+  };
+}
+
 // ────────────────────────────────────────────────────────────
 // MAIN FUNCTION: analyzeCompetitiveLandscape
 //
@@ -2576,7 +3110,14 @@ export async function analyzeCompetitiveLandscape(
   // ── Step 14d: Build LOT crowding segmentation ─────────────
   const lotCrowding = buildLOTCrowding(competitorRecords);
 
-  // ── Step 15: Assemble final output ────────────────────────
+  // ── Step 15: Build strategic intelligence layer ──────────
+  const patientSegmentation = buildPatientSegmentation(competitors, competitorRecords, indication);
+
+  const competitorScenarios = buildCompetitorScenarios(competitors, competitorRecords, indication);
+
+  const pricingPressure = buildPricingPressure(competitors, competitorRecords, indication);
+
+  // ── Step 16: Assemble final output ────────────────────────
   const summary: LandscapeSummary = {
     indication: indication.name,
     mechanism: input.mechanism,
@@ -2603,6 +3144,9 @@ export async function analyzeCompetitiveLandscape(
     competitor_success_probabilities: competitorSuccessProbabilities,
     patent_cliff_timeline: patentCliffTimeline.length > 0 ? patentCliffTimeline : undefined,
     lot_crowding: lotCrowding.length > 0 ? lotCrowding : undefined,
+    patient_segmentation: patientSegmentation,
+    competitor_scenarios: competitorScenarios.length > 0 ? competitorScenarios : undefined,
+    pricing_pressure: pricingPressure,
   };
 
   return output;

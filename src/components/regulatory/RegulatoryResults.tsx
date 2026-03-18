@@ -588,6 +588,246 @@ export default function RegulatoryResults({ data }: { data: RegulatoryOutput }) 
         </div>
       </div>
 
+      {/* Advisory Committee Prediction — Pro */}
+      {data.advisory_committee_model && (
+        <div className="chart-container noise">
+          <h3 className="chart-title">Advisory Committee Prediction</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Meeting Probability</span>
+              <span className="metric text-xl text-white">{data.advisory_committee_model.adcom_probability_pct}%</span>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Favorable Vote</span>
+              <span
+                className={cn(
+                  'metric text-xl',
+                  data.advisory_committee_model.favorable_vote_probability_pct >= 70
+                    ? 'text-signal-green'
+                    : data.advisory_committee_model.favorable_vote_probability_pct >= 50
+                      ? 'text-amber-400'
+                      : 'text-signal-red',
+                )}
+              >
+                {data.advisory_committee_model.favorable_vote_probability_pct}%
+              </span>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">CRL Risk</span>
+              <span
+                className={cn(
+                  'metric text-xl',
+                  data.advisory_committee_model.crl_probability_pct >= 25
+                    ? 'text-signal-red'
+                    : data.advisory_committee_model.crl_probability_pct >= 15
+                      ? 'text-amber-400'
+                      : 'text-signal-green',
+                )}
+              >
+                {data.advisory_committee_model.crl_probability_pct}%
+              </span>
+            </div>
+          </div>
+          {data.advisory_committee_model.historical_context && (
+            <p className="text-xs text-slate-400 leading-relaxed mb-3">
+              {data.advisory_committee_model.historical_context}
+            </p>
+          )}
+          {data.advisory_committee_model.risk_factors.length > 0 && (
+            <div>
+              <h4 className="text-xs text-slate-300 font-medium mb-2">Key Committee Questions & Risk Factors</h4>
+              <ul className="space-y-1">
+                {data.advisory_committee_model.risk_factors.map((factor, i) => (
+                  <li key={i} className="text-xs text-slate-500 flex items-start gap-2">
+                    <span className="w-1 h-1 rounded-full bg-amber-400/60 mt-1.5 flex-shrink-0" />
+                    {factor}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="p-3 bg-navy-800/30 rounded-md">
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">If Favorable</span>
+              <span className="metric text-sm text-signal-green">
+                +{data.advisory_committee_model.timeline_impact_months.if_favorable} months
+              </span>
+              <span className="text-2xs text-slate-500 ml-1">to approval</span>
+            </div>
+            <div className="p-3 bg-navy-800/30 rounded-md">
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">If Unfavorable</span>
+              <span className="metric text-sm text-signal-red">
+                +{data.advisory_committee_model.timeline_impact_months.if_unfavorable} months
+              </span>
+              <span className="text-2xs text-slate-500 ml-1">delay</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CMC Risk Assessment — Pro */}
+      {data.cmc_risk && (
+        <div className="chart-container noise">
+          <h3 className="chart-title">CMC Risk Assessment</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Complexity Score</span>
+              <span
+                className={cn(
+                  'metric text-xl',
+                  data.cmc_risk.modality_complexity_score >= 7
+                    ? 'text-signal-red'
+                    : data.cmc_risk.modality_complexity_score >= 4
+                      ? 'text-amber-400'
+                      : 'text-signal-green',
+                )}
+              >
+                {data.cmc_risk.modality_complexity_score}
+                <span className="text-sm text-slate-500">/10</span>
+              </span>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Inspection Risk</span>
+              <span
+                className={cn(
+                  'inline-block text-[10px] font-mono uppercase px-2 py-0.5 rounded mt-1',
+                  data.cmc_risk.pre_approval_inspection_risk === 'high'
+                    ? 'bg-signal-red/10 text-signal-red'
+                    : data.cmc_risk.pre_approval_inspection_risk === 'medium'
+                      ? 'bg-amber-400/10 text-amber-400'
+                      : 'bg-signal-green/10 text-signal-green',
+                )}
+              >
+                {data.cmc_risk.pre_approval_inspection_risk}
+              </span>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Process Validation</span>
+              <span className="metric text-xl text-white">
+                {data.cmc_risk.process_validation_months}
+                <span className="text-sm text-slate-400 ml-1">months</span>
+              </span>
+            </div>
+          </div>
+
+          {/* CMC Cost estimate */}
+          <div className="p-3 bg-navy-800/30 rounded-md mb-4">
+            <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-2">Estimated CMC Cost</span>
+            <div className="flex items-center gap-4">
+              <div className="text-center">
+                <span className="text-2xs text-slate-600 block">Low</span>
+                <span className="metric text-xs text-slate-400">${data.cmc_risk.estimated_cmc_cost_m.low}M</span>
+              </div>
+              <div className="flex-1 h-px bg-gradient-to-r from-slate-700 via-teal-500/40 to-slate-700" />
+              <div className="text-center">
+                <span className="text-2xs text-teal-500 block">Base</span>
+                <span className="metric text-sm text-white">${data.cmc_risk.estimated_cmc_cost_m.base}M</span>
+              </div>
+              <div className="flex-1 h-px bg-gradient-to-r from-slate-700 via-teal-500/40 to-slate-700" />
+              <div className="text-center">
+                <span className="text-2xs text-slate-600 block">High</span>
+                <span className="metric text-xs text-slate-400">${data.cmc_risk.estimated_cmc_cost_m.high}M</span>
+              </div>
+            </div>
+          </div>
+
+          {data.cmc_risk.key_cmc_risks.length > 0 && (
+            <div className="mb-3">
+              <h4 className="text-xs text-slate-300 font-medium mb-2">Key CMC Risks</h4>
+              <ul className="space-y-1">
+                {data.cmc_risk.key_cmc_risks.map((risk, i) => (
+                  <li key={i} className="text-xs text-slate-500 flex items-start gap-2">
+                    <AlertTriangle className="w-3 h-3 text-amber-400 mt-0.5 flex-shrink-0" />
+                    {risk}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {data.cmc_risk.de_risking_strategies.length > 0 && (
+            <div>
+              <h4 className="text-xs text-slate-300 font-medium mb-2">De-Risking Strategies</h4>
+              <ul className="space-y-1">
+                {data.cmc_risk.de_risking_strategies.map((strategy, i) => (
+                  <li key={i} className="text-xs text-slate-500 flex items-start gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-signal-green mt-0.5 flex-shrink-0" />
+                    {strategy}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {data.cmc_risk.narrative && (
+            <p className="text-xs text-slate-400 leading-relaxed mt-3 pt-3 border-t border-navy-700/40">
+              {data.cmc_risk.narrative}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Development Cost Integration — Pro */}
+      {data.cost_estimate && (
+        <div className="chart-container noise">
+          <h3 className="chart-title">Development Cost Estimate</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Remaining (Low)</span>
+              <span className="metric text-xl text-slate-400">${data.cost_estimate.remaining_cost_low_m}M</span>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md border-l-2 border-teal-500/50">
+              <span className="text-2xs text-teal-500 uppercase tracking-wider block mb-1">Remaining (Base)</span>
+              <span className="metric text-xl text-white">${data.cost_estimate.remaining_cost_base_m}M</span>
+            </div>
+            <div className="p-3 bg-navy-800/50 rounded-md">
+              <span className="text-2xs text-slate-600 uppercase tracking-wider block mb-1">Remaining (High)</span>
+              <span className="metric text-xl text-slate-400">${data.cost_estimate.remaining_cost_high_m}M</span>
+            </div>
+          </div>
+
+          {/* PDUFA Fee */}
+          <div className="p-3 bg-navy-800/30 rounded-md mb-4 flex items-center justify-between">
+            <span className="text-xs text-slate-500">PDUFA User Fee (included above)</span>
+            <span className="metric text-sm text-white">${data.cost_estimate.pdufa_fee_m}M</span>
+          </div>
+
+          {/* Timeline + Cost integration */}
+          {data.timeline_estimate && (
+            <div className="p-4 bg-teal-900/10 border border-teal-500/15 rounded-md mb-4">
+              <h4 className="text-xs font-medium text-teal-400 uppercase tracking-wider mb-2">
+                Integrated Timeline & Cost
+              </h4>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                Total time to approval:{' '}
+                <span className="metric text-white">
+                  {data.timeline_estimate.total_to_approval.optimistic}&ndash;
+                  {data.timeline_estimate.total_to_approval.realistic} months
+                </span>{' '}
+                ({(data.timeline_estimate.total_to_approval.optimistic / 12).toFixed(1)}&ndash;
+                {(data.timeline_estimate.total_to_approval.realistic / 12).toFixed(1)} years). Total remaining
+                investment: <span className="metric text-white">${data.cost_estimate.remaining_cost_base_m}M</span>{' '}
+                (base case).
+              </p>
+            </div>
+          )}
+
+          {data.cost_estimate.notes.length > 0 && (
+            <div>
+              <h4 className="text-xs text-slate-300 font-medium mb-2">Notes & Assumptions</h4>
+              <ul className="space-y-1">
+                {data.cost_estimate.notes.map((note, i) => (
+                  <li key={i} className="text-xs text-slate-500 flex items-start gap-2">
+                    <Info className="w-3 h-3 text-slate-600 mt-0.5 flex-shrink-0" />
+                    {note}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Comparable Approvals */}
       <ComparableApprovalsTable approvals={data.comparable_approvals} />
 

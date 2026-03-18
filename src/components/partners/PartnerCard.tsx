@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils/cn';
 import type { PartnerMatch } from '@/types';
 import PartnerMatchScore from './PartnerMatchScore';
 import DealHistoryTable from './DealHistoryTable';
+import PartnerRedFlagsBadges from './PartnerRedFlagsBadges';
 
 interface PartnerCardProps {
   partner: PartnerMatch;
@@ -71,6 +72,13 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
 
       {/* Rationale */}
       <p className="text-xs text-slate-400 mt-3 leading-relaxed">{partner.rationale}</p>
+
+      {/* Red Flag Badges (compact) */}
+      {partner.red_flags && partner.red_flags.length > 0 && (
+        <div className="mt-2">
+          <PartnerRedFlagsBadges flags={partner.red_flags} compact />
+        </div>
+      )}
 
       {/* Watch Signals */}
       {partner.watch_signals.length > 0 && (
@@ -163,6 +171,9 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
               <DealHistoryTable deals={partner.recent_deals} />
             </div>
           )}
+
+          {/* Red Flags (full detail) */}
+          {partner.red_flags && partner.red_flags.length > 0 && <PartnerRedFlagsBadges flags={partner.red_flags} />}
         </div>
       )}
     </div>

@@ -278,6 +278,15 @@ export interface OpportunityRow {
   deal_activity: DealActivity;
   catalyst_signals: CatalystSignal[];
   investment_thesis: string;
+  structured_thesis?: StructuredInvestmentThesis;
+}
+
+export interface StructuredInvestmentThesis {
+  thesis_summary: string;
+  bull_case: string;
+  bear_case: string;
+  recommended_action: 'License' | 'Develop internally' | 'Partner' | 'Monitor';
+  action_rationale: string;
 }
 
 export interface DealActivity {
@@ -1092,6 +1101,123 @@ function buildInvestmentThesis(
 }
 
 // ────────────────────────────────────────────────────────────
+// STRUCTURED INVESTMENT THESIS GENERATOR (Pro feature)
+// Produces a detailed bull/bear framing with recommended action
+// for each top-scored indication in the screener.
+// ────────────────────────────────────────────────────────────
+
+export function generateInvestmentThesis(
+  indication: IndicationData,
+  opportunityScore: number,
+  crowdingScore: number,
+  dealActivity: DealActivity,
+  loeImpact: { nearestCliffYear: number | null; totalRevenueAtRisk: number; cliffCount: number },
+  competitorCount: number,
+  catalysts: CatalystSignal[],
+  phaseDistribution: PhaseDistribution,
+): StructuredInvestmentThesis {
+  const tamB = (indication.us_prevalence * 0.0001).toFixed(1); // rough TAM proxy
+  const unmetNeedPct = Math.round((1 - indication.treatment_rate) * 100);
+  const phase2Plus = phaseDistribution.phase2 + phaseDistribution.phase3 + phaseDistribution.approved;
+
+  // Competition descriptor
+  const competitionLevel = crowdingScore >= 7 ? 'high' : crowdingScore >= 4 ? 'moderate' : 'low';
+
+  // Key catalyst identification
+  const topCatalyst = catalysts.find((c) => c.impact === 'high') ?? catalysts[0];
+  const catalystText = topCatalyst
+    ? topCatalyst.type === 'patent_cliff'
+      ? `patent cliff ($${loeImpact.totalRevenueAtRisk.toFixed(0)}B at risk by ${loeImpact.nearestCliffYear})`
+      : topCatalyst.type === 'regulatory_tailwind'
+        ? `regulatory tailwind (${topCatalyst.signal.toLowerCase().slice(0, 80)})`
+        : topCatalyst.type === 'deal_momentum'
+          ? `deal momentum (${dealActivity.recent_deal_count} recent transactions)`
+          : `${topCatalyst.type.replace(/_/g, ' ')} signal`
+    : 'steady market growth';
+
+  // Thesis summary (2-3 sentences)
+  const marketSizeLabel =
+    indication.us_prevalence >= 1_000_000
+      ? `${(indication.us_prevalence / 1_000_000).toFixed(1)}M`
+      : `${Math.round(indication.us_prevalence / 1_000)}K`;
+  const thesis_summary = `${indication.name} represents a $${tamB}B opportunity with ${unmetNeedPct}% unmet need (${marketSizeLabel} US patients, ${indication.cagr_5yr.toFixed(1)}% CAGR). Development-stage assets face ${competitionLevel} competition with ${phase2Plus} programs in Phase 2+. Key catalyst: ${catalystText}.`;
+
+  // Bull case
+  const bullParts: string[] = [];
+  if (crowdingScore < 4) {
+    bullParts.push('first-mover advantage in underserved segment');
+  } else if (loeImpact.cliffCount > 0) {
+    bullParts.push(
+      `$${loeImpact.totalRevenueAtRisk.toFixed(0)}B in incumbent revenue facing LOE — replacement cycle creates demand`,
+    );
+  } else {
+    bullParts.push('growing market with expanding addressable population');
+  }
+  if (indication.cagr_5yr >= 10) {
+    bullParts.push(`high-growth category at ${indication.cagr_5yr.toFixed(1)}% CAGR`);
+  }
+  if (dealActivity.recent_deal_count > 0) {
+    bullParts.push(`active acquirer interest (avg $${dealActivity.avg_deal_upfront_m}M upfront)`);
+  }
+  if (unmetNeedPct >= 50) {
+    bullParts.push(`significant clinical gap with ${unmetNeedPct}% untreated`);
+  }
+  const bull_case = `Bull case: ${bullParts.slice(0, 3).join('; ')}.`;
+
+  // Bear case
+  const bearParts: string[] = [];
+  if (crowdingScore >= 7) {
+    bearParts.push(`crowded pipeline with ${phase2Plus}+ Phase 2+ competitors`);
+  } else if (crowdingScore >= 4) {
+    bearParts.push(`${competitorCount} programs in development — differentiation is critical`);
+  }
+  if (indication.cagr_5yr < 5) {
+    bearParts.push('mature market with limited growth upside');
+  }
+  if (indication.treatment_rate > 0.8) {
+    bearParts.push('high treatment rate limits unmet need narrative');
+  }
+  if (indication.diagnosis_rate < 0.5) {
+    bearParts.push(
+      `low diagnosis rate (${Math.round(indication.diagnosis_rate * 100)}%) delays patient identification`,
+    );
+  }
+  if (bearParts.length === 0) {
+    bearParts.push('execution risk and potential regulatory hurdles');
+  }
+  const bear_case = `Bear case: ${bearParts.slice(0, 3).join('; ')}.`;
+
+  // Recommended action
+  let recommended_action: StructuredInvestmentThesis['recommended_action'];
+  let action_rationale: string;
+
+  if (opportunityScore >= 70 && crowdingScore < 5 && dealActivity.recent_deal_count > 0) {
+    recommended_action = 'Develop internally';
+    action_rationale = `High opportunity score (${opportunityScore.toFixed(0)}) with manageable competition and active deal environment supports internal development for maximum value capture.`;
+  } else if (opportunityScore >= 60 && crowdingScore >= 5) {
+    recommended_action = 'Partner';
+    action_rationale = `Strong market opportunity (score ${opportunityScore.toFixed(0)}) but competitive density (${crowdingScore.toFixed(1)}/10) favors risk-sharing through a partnership or co-development arrangement.`;
+  } else if (opportunityScore >= 55 && loeImpact.cliffCount > 0) {
+    recommended_action = 'License';
+    action_rationale = `Patent cliff dynamics create a licensing opportunity window. Target late-stage assets from companies managing LOE transitions. Timing: ${loeImpact.nearestCliffYear ? `before ${loeImpact.nearestCliffYear} cliff` : 'near-term'}.`;
+  } else if (opportunityScore >= 45) {
+    recommended_action = 'Monitor';
+    action_rationale = `Opportunity score (${opportunityScore.toFixed(0)}) is below the action threshold but shows potential. Monitor for pipeline readouts, regulatory developments, or competitive exits that could shift the thesis.`;
+  } else {
+    recommended_action = 'Monitor';
+    action_rationale = `Current opportunity profile (score ${opportunityScore.toFixed(0)}) does not warrant active pursuit. Re-evaluate upon material changes in the competitive or regulatory landscape.`;
+  }
+
+  return {
+    thesis_summary,
+    bull_case,
+    bear_case,
+    recommended_action,
+    action_rationale,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
 // COMPOSITE SCORE
 // ────────────────────────────────────────────────────────────
 
@@ -1287,6 +1413,17 @@ function scoreIndication(
     catalystSignals,
   );
 
+  const structuredThesis = generateInvestmentThesis(
+    indication,
+    opportunityScore,
+    crowdingScore,
+    dealActivity,
+    loeImpact,
+    competitorCount,
+    catalystSignals,
+    phaseDist,
+  );
+
   const row: OpportunityRow = {
     indication: indication.name,
     therapy_area: indication.therapy_area,
@@ -1338,6 +1475,7 @@ function scoreIndication(
     deal_activity: dealActivity,
     catalyst_signals: catalystSignals,
     investment_thesis: investmentThesis,
+    structured_thesis: structuredThesis,
   };
 
   return { row };

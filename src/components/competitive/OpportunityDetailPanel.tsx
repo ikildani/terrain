@@ -21,7 +21,12 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { ScoreBreakdownBar } from './OpportunityScoreBar';
-import type { OpportunityScoreBreakdown, DealActivity, CatalystSignal } from '@/lib/analytics/screener';
+import type {
+  OpportunityScoreBreakdown,
+  DealActivity,
+  CatalystSignal,
+  StructuredInvestmentThesis,
+} from '@/lib/analytics/screener';
 import { formatNumber, formatDate } from '@/lib/utils/format';
 
 // ── Detail API response types ──────────────────────────────
@@ -155,6 +160,7 @@ interface OpportunityDetailPanelProps {
   dealActivity?: DealActivity;
   catalystSignals?: CatalystSignal[];
   investmentThesis?: string;
+  structuredThesis?: StructuredInvestmentThesis;
   whiteSpaceHints?: string[];
   topCompetitors?: string[];
   crowdingScore?: number;
@@ -211,6 +217,7 @@ export function OpportunityDetailPanel({
   dealActivity,
   catalystSignals,
   investmentThesis,
+  structuredThesis,
   whiteSpaceHints = [],
   topCompetitors = [],
   crowdingScore = 0,
@@ -455,6 +462,55 @@ export function OpportunityDetailPanel({
                     Investment Thesis
                   </h4>
                   <p className="text-sm text-slate-300 leading-relaxed">{investmentThesis}</p>
+                </div>
+              )}
+
+              {/* Structured Investment Thesis — Pro feature */}
+              {structuredThesis && (
+                <div className="rounded-lg border border-navy-700/40 overflow-hidden">
+                  <div className="px-4 py-3 bg-navy-800/60 border-b border-navy-700/40 flex items-center justify-between">
+                    <h4 className="text-xs font-medium text-white uppercase tracking-wider flex items-center gap-1.5">
+                      <Crosshair className="w-3.5 h-3.5 text-teal-500" />
+                      Thesis Detail
+                    </h4>
+                    <span
+                      className={cn(
+                        'text-[10px] font-mono uppercase px-2 py-0.5 rounded',
+                        structuredThesis.recommended_action === 'Develop internally'
+                          ? 'bg-signal-green/10 text-signal-green border border-signal-green/20'
+                          : structuredThesis.recommended_action === 'License'
+                            ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
+                            : structuredThesis.recommended_action === 'Partner'
+                              ? 'bg-amber-400/10 text-amber-400 border border-amber-400/20'
+                              : 'bg-slate-500/10 text-slate-400 border border-slate-500/20',
+                      )}
+                    >
+                      {structuredThesis.recommended_action}
+                    </span>
+                  </div>
+                  <div className="p-4 space-y-4">
+                    <p className="text-xs text-slate-300 leading-relaxed">{structuredThesis.thesis_summary}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="p-3 rounded bg-signal-green/5 border border-signal-green/15">
+                        <div className="text-[10px] font-mono text-signal-green uppercase tracking-wider mb-1.5">
+                          Bull Case
+                        </div>
+                        <p className="text-xs text-slate-300 leading-relaxed">{structuredThesis.bull_case}</p>
+                      </div>
+                      <div className="p-3 rounded bg-signal-red/5 border border-signal-red/15">
+                        <div className="text-[10px] font-mono text-signal-red uppercase tracking-wider mb-1.5">
+                          Bear Case
+                        </div>
+                        <p className="text-xs text-slate-300 leading-relaxed">{structuredThesis.bear_case}</p>
+                      </div>
+                    </div>
+                    <div className="p-3 rounded bg-navy-800/30 border border-navy-700/30">
+                      <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1.5">
+                        Recommended Action Rationale
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">{structuredThesis.action_rationale}</p>
+                    </div>
+                  </div>
                 </div>
               )}
 

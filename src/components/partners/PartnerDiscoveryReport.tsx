@@ -5,6 +5,8 @@ import { Users, Building2, DollarSign, BarChart3, Database, FileText, BookmarkCh
 import type { PartnerDiscoveryOutput } from '@/types';
 import PartnerCard from './PartnerCard';
 import { ExportButton } from '@/components/shared/ExportButton';
+import LicensingTermsCard from './LicensingTermsCard';
+import NegotiationPlaybookCard from './NegotiationPlaybookCard';
 
 interface PartnerDiscoveryReportProps {
   data: PartnerDiscoveryOutput;
@@ -148,6 +150,14 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
           </div>
         </div>
       )}
+
+      {/* Licensing Terms Estimate */}
+      {data.licensing_terms && (
+        <LicensingTermsCard terms={data.licensing_terms} stage={data.summary.development_stage} />
+      )}
+
+      {/* Negotiation Playbook */}
+      {data.negotiation_playbook && <NegotiationPlaybookCard playbook={data.negotiation_playbook} />}
 
       {/* Action Bar */}
       <div className="flex items-center justify-between">

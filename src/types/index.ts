@@ -1260,6 +1260,61 @@ export interface CompetitiveLandscapeOutput {
     approved_count: number;
     crowding_intensity: 'low' | 'moderate' | 'high';
   }[];
+  patient_segmentation?: PatientSegmentation;
+  competitor_scenarios?: CompetitorScenario[];
+  pricing_pressure?: PricingPressure;
+}
+
+// ────────────────────────────────────────────────────────────
+// PATIENT POPULATION SEGMENTATION (Pro)
+// ────────────────────────────────────────────────────────────
+
+export interface PatientSegment {
+  name: string;
+  estimated_patients: number;
+  current_soc: string;
+  competitive_density: number; // 1-10
+  unmet_need_score: number; // 1-10 (10 = highest unmet need)
+  white_space_assessment: string;
+}
+
+export interface PatientSegmentation {
+  therapy_area: string;
+  indication: string;
+  total_addressable_patients: number;
+  segments: PatientSegment[];
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// MULTI-COMPETITOR SCENARIO MODELING (Pro)
+// ────────────────────────────────────────────────────────────
+
+export interface CompetitorScenario {
+  name: string;
+  type: 'simultaneous_launch' | 'safety_signal' | 'biosimilar_entry';
+  probability_pct: number;
+  impact_on_som: { bear: number; base: number; bull: number }; // $M
+  impact_on_peak_sales: { bear: number; base: number; bull: number }; // $M
+  narrative: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// PRICING PRESSURE CALCULATOR (Pro)
+// ────────────────────────────────────────────────────────────
+
+export interface PricingPressure {
+  market_pricing_range: { low: number; median: number; high: number }; // annual WAC $
+  your_position: 'premium' | 'parity' | 'discount';
+  pressure_score: number; // 0-10
+  pressure_factors: {
+    factor: string;
+    contribution: number; // 0-10 contribution to pressure score
+    narrative: string;
+  }[];
+  net_price_erosion_forecast: { year: number; erosion_pct: number }[];
+  optimal_strategy: string;
+  narrative: string;
 }
 
 export interface ComparisonAttribute {
@@ -1330,6 +1385,7 @@ export interface PartnerMatch {
   deal_structure_model?: DealStructureModel;
   phase_success_rates?: PartnerPhaseSuccessRates;
   loe_gap_analysis?: LOEGapAnalysis;
+  red_flags?: PartnerRedFlag[];
 }
 
 export interface DealBenchmark {
@@ -1344,6 +1400,61 @@ export interface DealBenchmark {
   therapy_area_context?: string;
   failure_adjusted_value_m?: number;
   failure_rate_pct?: number;
+}
+
+// ────────────────────────────────────────────────────────────
+// LICENSING TERMS CALCULATOR
+// ────────────────────────────────────────────────────────────
+
+export interface LicensingTermsEstimate {
+  upfront: { low: number; base: number; high: number }; // $M
+  development_milestones: { low: number; base: number; high: number };
+  regulatory_milestones: { low: number; base: number; high: number };
+  commercial_milestones: { low: number; base: number; high: number };
+  royalty_range: { low: number; high: number }; // %
+  total_deal_value: { low: number; base: number; high: number };
+  upfront_as_pct_of_total: number;
+  comparable_deals: string[]; // names of 3-5 similar deals
+  rationale: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// NEGOTIATION PLAYBOOK
+// ────────────────────────────────────────────────────────────
+
+export interface NegotiationKeyPoint {
+  point: string;
+  rationale: string;
+  ask: string; // what to ask for
+  fallback: string; // what to accept
+}
+
+export interface DealStructureRecommendation {
+  recommended_type: 'licensing' | 'co-development' | 'option';
+  rationale: string;
+  upfront_strategy: string;
+  milestone_strategy: string;
+  royalty_strategy: string;
+}
+
+export interface NegotiationPlaybook {
+  leverage_score: number; // 1-10
+  leverage_assessment: string;
+  key_negotiation_points: NegotiationKeyPoint[];
+  deal_structure_recommendation: DealStructureRecommendation;
+  red_lines: string[];
+  batna: string; // Best Alternative to Negotiated Agreement
+}
+
+// ────────────────────────────────────────────────────────────
+// PARTNER RED FLAGS
+// ────────────────────────────────────────────────────────────
+
+export interface PartnerRedFlag {
+  flag: string;
+  severity: 'high' | 'medium' | 'low';
+  detail: string;
+  source: string;
 }
 
 export interface PartnerDiscoveryOutput {
@@ -1361,6 +1472,8 @@ export interface PartnerDiscoveryOutput {
   data_sources: DataSource[];
   generated_at: string;
   negotiation_leverage?: NegotiationLeverage;
+  licensing_terms?: LicensingTermsEstimate;
+  negotiation_playbook?: NegotiationPlaybook;
 }
 
 // ────────────────────────────────────────────────────────────

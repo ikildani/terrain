@@ -123,5 +123,29 @@ export const PLAN_DISPLAY = {
     tagline: 'Unlimited seats, SSO, API, audit logs, and white-label',
     color: 'purple',
     badge: 'Contact Sales',
+    features: [
+      'All Pro and Team features included',
+      'Unlimited seats — add your entire organization',
+      'REST API access with key management',
+      'SSO / SAML (Okta, Azure AD, custom providers)',
+      'Comprehensive audit log for compliance',
+      'Role-based access control (Admin, Analyst, Viewer)',
+      'Information barriers — isolated deal rooms',
+      'White-label reports with custom branding',
+      'Enterprise SLA with dedicated support',
+      'Security review and custom data agreements',
+    ],
   },
 } as const;
+
+export const ENTERPRISE_FEATURES = [
+  { label: 'Unlimited seats', description: 'Add your entire team with no per-seat limits' },
+  { label: 'REST API access', description: 'Programmatic access with API key management' },
+  { label: 'SSO / SAML', description: 'Okta, Azure AD, and custom SAML providers' },
+  { label: 'Audit log', description: 'Comprehensive activity tracking for compliance' },
+  { label: 'Role-based access control', description: 'Admin, analyst, viewer permission levels' },
+  { label: 'Information barriers', description: 'Deal rooms with isolated data access' },
+  { label: 'White-label reports', description: 'Custom branding on all exported materials' },
+  { label: 'SLA & security review', description: 'Enterprise SLA with dedicated support' },
+  { label: 'All Pro features', description: 'Full access to every analytics module' },
+] as const;

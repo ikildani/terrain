@@ -4,11 +4,15 @@ import { useState, useMemo, useRef } from 'react';
 import { Sparkles, Database, TableProperties, Clock, ShieldAlert, Lightbulb, Target } from 'lucide-react';
 import type { CompetitiveLandscapeOutput, Competitor } from '@/types';
 import { cn } from '@/lib/utils/cn';
+import { useSubscription } from '@/hooks/useSubscription';
 import LandscapeMap from './LandscapeMap';
 import PipelineTable from './PipelineTable';
 import PipelineDistributionChart from './PipelineDistributionChart';
 import CompanyConcentrationChart from './CompanyConcentrationChart';
 import CompetitorCard from './CompetitorCard';
+import PatientSegmentationTable from './PatientSegmentationTable';
+import CompetitorScenarioTable from './CompetitorScenarioTable';
+import PricingPressureCard from './PricingPressureCard';
 import { BookmarkCheck } from 'lucide-react';
 import { ExportButton } from '@/components/shared/ExportButton';
 
@@ -43,6 +47,8 @@ export default function CompetitiveLandscapeReport({
   const [phaseFilter, setPhaseFilter] = useState<string>('all');
   const [moaFilter, setMoaFilter] = useState<string>('');
   const reportRef = useRef<HTMLDivElement>(null);
+  const { plan } = useSubscription();
+  const isPro = plan === 'pro' || plan === 'team';
 
   const allCompetitorsRaw = useMemo<Competitor[]>(() => {
     return [...data.approved_products, ...data.late_stage_pipeline, ...data.mid_stage_pipeline, ...data.early_pipeline];
@@ -310,7 +316,16 @@ export default function CompetitiveLandscapeReport({
         </div>
       </div>
 
-      {/* ─── 8. Comparison Matrix ─── */}
+      {/* ─── 8. Strategic Intelligence Layer (Pro) ─── */}
+      {data.patient_segmentation && <PatientSegmentationTable data={data.patient_segmentation} isPro={isPro} />}
+
+      {data.competitor_scenarios && data.competitor_scenarios.length > 0 && (
+        <CompetitorScenarioTable scenarios={data.competitor_scenarios} isPro={isPro} />
+      )}
+
+      {data.pricing_pressure && <PricingPressureCard data={data.pricing_pressure} isPro={isPro} />}
+
+      {/* ─── 9. Comparison Matrix ─── */}
       {data.comparison_matrix && data.comparison_matrix.length > 0 && matrixColumns.length > 0 && (
         <div className="card noise">
           <div className="flex items-center gap-2 mb-4">

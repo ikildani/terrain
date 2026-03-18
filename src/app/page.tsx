@@ -7,6 +7,8 @@ import { CredibilityStrip } from '@/components/landing/CredibilityStrip';
 import { ModulesSection } from '@/components/landing/ModulesSection';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { DemoSection } from '@/components/landing/DemoSection';
+import { InteractiveDemoSection } from '@/components/landing/InteractiveDemoSection';
+import { ConsultingComparisonSection } from '@/components/landing/ConsultingComparisonSection';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { ProductPreviewSection } from '@/components/landing/ProductPreviewSection';
 import { ValuePropsSection } from '@/components/landing/ValuePropsSection';
@@ -31,6 +33,8 @@ export default function HomePage() {
         <ModulesSection />
         <HowItWorksSection />
         <DemoSection />
+        <InteractiveDemoSection />
+        <ConsultingComparisonSection />
         <BeforeAfterSection />
         <ProductPreviewSection />
         <ValuePropsSection />

@@ -19,12 +19,21 @@ import {
   Zap,
   Target,
   Clock,
+  Building2,
+  Key,
+  ShieldCheck,
+  ScrollText,
+  Newspaper,
+  Globe,
+  Activity,
+  Lightbulb,
+  ChevronRight,
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
-import { PLAN_LIMITS } from '@/lib/subscription';
+import { PLAN_LIMITS, PLAN_DISPLAY } from '@/lib/subscription';
 // Pre-computed counts to avoid importing heavy data files into the client bundle.
 // INDICATION_DATA has 236 entries; PRICING_BENCHMARKS has 276 entries.
 const INDICATION_COUNT = 236;
@@ -100,11 +109,91 @@ function getGreeting() {
   return 'Good evening';
 }
 
+/** Role-specific suggestions for the getting-started section */
+const ROLE_SUGGESTIONS: Record<string, { title: string; items: { label: string; href: string; desc: string }[] }> = {
+  investor: {
+    title: 'Recommended for Investors',
+    items: [
+      { label: 'Size a target market', href: '/market-sizing', desc: 'TAM/SAM/SOM for due diligence' },
+      { label: 'Map competitive landscape', href: '/competitive', desc: 'Pipeline density and white space' },
+      { label: 'Benchmark deal terms', href: '/partners', desc: 'Comparable transactions and valuations' },
+    ],
+  },
+  bd_executive: {
+    title: 'Recommended for BD Executives',
+    items: [
+      { label: 'Find licensing partners', href: '/partners', desc: 'Match score and deal history' },
+      { label: 'Assess regulatory path', href: '/regulatory', desc: 'FDA/EMA pathway and timeline' },
+      { label: 'Size the opportunity', href: '/market-sizing', desc: 'Revenue projections for deal model' },
+    ],
+  },
+  founder: {
+    title: 'Recommended for Founders',
+    items: [
+      { label: 'Build your market thesis', href: '/market-sizing', desc: 'Investor-ready TAM analysis' },
+      { label: 'Know your competitors', href: '/competitive', desc: 'Pipeline map for board decks' },
+      { label: 'Plan regulatory strategy', href: '/regulatory', desc: 'Pathway selection and designations' },
+    ],
+  },
+  analyst: {
+    title: 'Recommended for Analysts',
+    items: [
+      { label: 'Deep market sizing', href: '/market-sizing', desc: 'Patient funnel and pricing analysis' },
+      { label: 'Landscape mapping', href: '/competitive', desc: 'Full competitive intelligence' },
+      { label: 'Regulatory benchmarking', href: '/regulatory', desc: 'Comparable approvals and timelines' },
+    ],
+  },
+  default: {
+    title: 'Getting Started',
+    items: [
+      { label: 'Run your first market analysis', href: '/market-sizing', desc: 'TAM/SAM/SOM in 90 seconds' },
+      { label: 'Explore competitive landscapes', href: '/competitive', desc: 'Pipeline and positioning' },
+      { label: 'Discover potential partners', href: '/partners', desc: 'BD match scoring' },
+    ],
+  },
+};
+
+/** Curated market signals -- static for now, could be API-driven later */
+const MARKET_SIGNALS = [
+  {
+    category: 'FDA',
+    headline: 'FDA PDUFA dates this week',
+    detail: 'Track upcoming action dates and potential market-moving approvals.',
+    href: '/regulatory',
+    color: 'text-purple-400',
+    bgColor: 'bg-purple-500/10',
+  },
+  {
+    category: 'M&A',
+    headline: 'Recent biopharma transactions',
+    detail: 'Latest deal announcements from SEC EDGAR filings.',
+    href: '/partners',
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/10',
+  },
+  {
+    category: 'Pipeline',
+    headline: 'Phase 3 readouts to watch',
+    detail: 'Key clinical catalysts across oncology, neurology, and immunology.',
+    href: '/competitive',
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+  },
+  {
+    category: 'Pricing',
+    headline: 'Pricing & reimbursement signals',
+    detail: 'WAC changes, payer coverage decisions, and IRA negotiation updates.',
+    href: '/market-sizing',
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-500/10',
+  },
+];
+
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 
 function DashboardContent() {
-  const { plan, isPro, isLoading: subLoading } = useSubscription();
-  const { fullName } = useProfile();
+  const { plan, isPro, isEnterprise, isLoading: subLoading } = useSubscription();
+  const { fullName, role, company, therapyAreas } = useProfile();
   const limits = PLAN_LIMITS[plan];
   const { reports, isLoading: reportsLoading, toggleStar } = useReports();
   const {
@@ -119,6 +208,7 @@ function DashboardContent() {
   } = useDashboardStats();
   const recentReports = useMemo(() => reports.slice(0, 8), [reports]);
   const firstName = fullName?.split(' ')[0];
+  const planDisplay = PLAN_DISPLAY[plan];
 
   // Derived insights
   const totalAllTimeAnalyses = dailyActivity.reduce((sum, d) => sum + d.count, 0);
@@ -143,12 +233,53 @@ function DashboardContent() {
     return { weekTrendLabel: label, weekTrendDir: dir };
   }, [dailyActivity]);
 
+  const isNewUser = totalReports === 0 && analysesThisMonth === 0 && !statsLoading;
+
+  // Role-based suggestions
+  const roleSuggestions = ROLE_SUGGESTIONS[role ?? 'default'] ?? ROLE_SUGGESTIONS.default;
+
   return (
     <>
+      {/* Welcome Header — enterprise-aware */}
       <PageHeader
         title={`${getGreeting()}${firstName ? `, ${firstName}` : ''}. Your market is moving.`}
-        subtitle="Start a new analysis or continue where you left off."
+        subtitle={
+          isEnterprise
+            ? `${company ? company + ' ' : ''}Enterprise workspace — full intelligence suite with API, SSO, and audit controls.`
+            : 'Start a new analysis or continue where you left off.'
+        }
+        badge={isEnterprise ? 'Enterprise' : undefined}
       />
+
+      {/* Enterprise Status Bar */}
+      {isEnterprise && (
+        <div className="card noise p-4 mb-8 border-purple-500/20 bg-gradient-to-r from-purple-500/5 via-transparent to-transparent">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0">
+                <Building2 className="w-4 h-4 text-purple-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-white">Enterprise Plan</span>
+                  <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded border bg-purple-500/10 text-purple-400 border-purple-500/20">
+                    ACTIVE
+                  </span>
+                </div>
+                <p className="text-2xs text-slate-500">Unlimited seats, API access, SSO, audit log, white-label</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/settings/billing"
+                className="text-2xs font-mono text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
+              >
+                Manage plan <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <h2 className="label mb-3">Quick Actions</h2>
@@ -180,6 +311,38 @@ function DashboardContent() {
             </Link>
           );
         })}
+      </div>
+
+      {/* Market Pulse — industry signals for daily return visits */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <h2 className="label">Market Pulse</h2>
+          <span className="w-1.5 h-1.5 rounded-full bg-signal-green animate-pulse" />
+        </div>
+        <span className="text-2xs font-mono text-slate-600">
+          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+        {MARKET_SIGNALS.map((signal) => (
+          <Link
+            key={signal.category}
+            href={signal.href}
+            className="group p-4 bg-navy-900/60 border border-navy-700/40 rounded-lg hover:border-navy-600/60 transition-all"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <span
+                className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded ${signal.bgColor} ${signal.color}`}
+              >
+                {signal.category}
+              </span>
+            </div>
+            <p className="text-xs font-medium text-white mb-1 group-hover:text-teal-400 transition-colors">
+              {signal.headline}
+            </p>
+            <p className="text-2xs text-slate-500 leading-relaxed">{signal.detail}</p>
+          </Link>
+        ))}
       </div>
 
       {/* Platform Overview — Key Metrics */}
@@ -298,6 +461,29 @@ function DashboardContent() {
         </div>
       )}
 
+      {/* Therapy Area Focus — if user has selected therapy areas */}
+      {therapyAreas.length > 0 && (
+        <div className="mb-8">
+          <h2 className="label mb-3">Your Focus Areas</h2>
+          <div className="flex flex-wrap gap-2">
+            {therapyAreas.map((area) => (
+              <span
+                key={area}
+                className="text-xs font-medium px-3 py-1.5 rounded-md bg-teal-500/8 border border-teal-500/15 text-teal-400"
+              >
+                {area}
+              </span>
+            ))}
+            <Link
+              href="/settings"
+              className="text-xs font-medium px-3 py-1.5 rounded-md bg-navy-800 border border-navy-700 text-slate-500 hover:text-slate-400 hover:border-navy-600 transition-colors"
+            >
+              Edit areas
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Analytics Charts */}
       <h2 className="label mb-3">Analytics</h2>
       {statsLoading ? (
@@ -340,6 +526,69 @@ function DashboardContent() {
         </div>
       </div>
 
+      {/* Enterprise Workspace Summary */}
+      {isEnterprise && (
+        <>
+          <h2 className="label mb-3">Enterprise Controls</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+            <Link
+              href="/settings/billing"
+              className="group flex items-center gap-3 p-4 bg-navy-900/60 border border-navy-700/40 rounded-lg hover:border-purple-500/20 transition-all"
+            >
+              <div className="w-9 h-9 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0">
+                <Key className="w-4 h-4 text-purple-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-white font-medium group-hover:text-purple-400 transition-colors">API Keys</p>
+                <p className="text-2xs text-slate-500">REST API access</p>
+              </div>
+            </Link>
+            <Link
+              href="/settings/billing"
+              className="group flex items-center gap-3 p-4 bg-navy-900/60 border border-navy-700/40 rounded-lg hover:border-purple-500/20 transition-all"
+            >
+              <div className="w-9 h-9 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4 text-purple-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-white font-medium group-hover:text-purple-400 transition-colors">
+                  SSO / SAML
+                </p>
+                <p className="text-2xs text-slate-500">Okta, Azure AD</p>
+              </div>
+            </Link>
+            <Link
+              href="/settings/billing"
+              className="group flex items-center gap-3 p-4 bg-navy-900/60 border border-navy-700/40 rounded-lg hover:border-purple-500/20 transition-all"
+            >
+              <div className="w-9 h-9 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0">
+                <ScrollText className="w-4 h-4 text-purple-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-white font-medium group-hover:text-purple-400 transition-colors">
+                  Audit Log
+                </p>
+                <p className="text-2xs text-slate-500">Activity tracking</p>
+              </div>
+            </Link>
+            <Link
+              href="/settings/team"
+              className="group flex items-center gap-3 p-4 bg-navy-900/60 border border-navy-700/40 rounded-lg hover:border-purple-500/20 transition-all"
+            >
+              <div className="w-9 h-9 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0">
+                <Users className="w-4 h-4 text-purple-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-white font-medium group-hover:text-purple-400 transition-colors">
+                  Team Members
+                </p>
+                <p className="text-2xs text-slate-500">Unlimited seats</p>
+              </div>
+            </Link>
+          </div>
+        </>
+      )}
+
       {/* Usage meters (free plan only) */}
       {plan === 'free' && (
         <>
@@ -367,7 +616,7 @@ function DashboardContent() {
         </>
       )}
 
-      {/* Recent Reports */}
+      {/* Recent Reports — enhanced empty state */}
       <h2 className="label mb-3">Recent Reports</h2>
       <div className="card noise">
         <div className="flex items-center justify-between mb-4">
@@ -440,13 +689,33 @@ function DashboardContent() {
             ))}
           </div>
         ) : (
-          <EmptyState
-            icon={FileText}
-            heading="No reports yet"
-            description="Run your first market analysis to get started."
-            cta={{ label: 'New Market Analysis', href: '/market-sizing' }}
-            variant="inline"
-          />
+          /* Enhanced empty state — role-aware getting started */
+          <div className="py-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-navy-800 mb-3">
+                <Lightbulb className="w-6 h-6 text-teal-500" />
+              </div>
+              <h3 className="text-sm font-medium text-slate-300 mb-1">{roleSuggestions.title}</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Your report library is empty. Start building your intelligence base with one of these workflows.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {roleSuggestions.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="group flex flex-col items-center text-center p-4 rounded-lg bg-navy-800/40 border border-navy-700/30 hover:border-teal-500/20 transition-all"
+                >
+                  <p className="text-xs font-medium text-white mb-1 group-hover:text-teal-400 transition-colors">
+                    {item.label}
+                  </p>
+                  <p className="text-2xs text-slate-500">{item.desc}</p>
+                  <ArrowRight className="w-3 h-3 text-slate-600 mt-2 group-hover:text-teal-500 group-hover:translate-x-0.5 transition-all" />
+                </Link>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </>
