@@ -23,9 +23,6 @@ import {
   Key,
   ShieldCheck,
   ScrollText,
-  Newspaper,
-  Globe,
-  Activity,
   Lightbulb,
   ChevronRight,
 } from 'lucide-react';
