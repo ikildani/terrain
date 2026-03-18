@@ -443,24 +443,36 @@ export async function POST(request: NextRequest) {
     // ── Save report (skip for demo, respect save parameter) ──
     let reportId: string | undefined;
     if (!isDemo && user && save === true) {
-      const supabase = await createClient();
-      const title = indication ? `${indication} Market Assessment` : 'Market Assessment';
-      const { data: saved } = await supabase
-        .from('reports')
-        .insert({
-          user_id: user.id,
-          title,
-          report_type: 'market_sizing',
-          indication: indication || 'N/A',
-          inputs: input,
-          outputs: result as Record<string, unknown>,
-          status: 'final',
-          is_starred: false,
-          tags: [product_category],
-        })
-        .select('id')
-        .single();
-      if (saved) reportId = saved.id;
+      try {
+        const supabase = await createClient();
+        const title = indication ? `${indication} Market Assessment` : 'Market Assessment';
+        const { data: saved, error: saveError } = await supabase
+          .from('reports')
+          .insert({
+            user_id: user.id,
+            title,
+            report_type: 'market_sizing',
+            indication: indication || 'N/A',
+            inputs: input,
+            outputs: result as Record<string, unknown>,
+            status: 'final',
+            is_starred: false,
+            tags: [product_category],
+          })
+          .select('id')
+          .single();
+        if (saveError) {
+          logger.error('report_save_failed', { error: saveError.message, code: saveError.code, userId: user.id });
+        }
+        if (saved) reportId = saved.id;
+      } catch (saveErr) {
+        logger.error('report_save_exception', {
+          error: saveErr instanceof Error ? saveErr.message : 'Unknown',
+          userId: user.id,
+        });
+      }
+    } else {
+      logger.warn('report_not_saved', { isDemo, hasUser: !!user, save, userId: user?.id });
     }
 
     // ── Success ─────────────────────────────────────────────
