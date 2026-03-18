@@ -1083,7 +1083,7 @@ export interface DealCompsAnalysisEntry {
   asset_or_indication: string;
   therapy_area: string;
   development_stage: string;
-  deal_type: 'acquisition' | 'licensing' | 'co_development' | 'option';
+  deal_type: 'acquisition' | 'licensing' | 'co_development' | 'option' | 'collaboration';
   total_deal_value_m: number;
   upfront_m: number;
   milestones_m: number;
