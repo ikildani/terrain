@@ -446,6 +446,17 @@ export async function POST(request: NextRequest) {
       try {
         const supabase = await createClient();
         const title = indication ? `${indication} Market Assessment` : 'Market Assessment';
+        // Save a trimmed version of outputs to avoid exceeding column size limits
+        const trimmedResult = result as Record<string, unknown>;
+        const outputsToSave = {
+          summary: trimmedResult.summary,
+          patient_funnel: trimmedResult.patient_funnel,
+          geography_breakdown: trimmedResult.geography_breakdown,
+          revenue_projection: trimmedResult.revenue_projection,
+          methodology: trimmedResult.methodology,
+          generated_at: trimmedResult.generated_at,
+          indication_validated: trimmedResult.indication_validated,
+        };
         const { data: saved, error: saveError } = await supabase
           .from('reports')
           .insert({
@@ -454,7 +465,7 @@ export async function POST(request: NextRequest) {
             report_type: 'market_sizing',
             indication: indication || 'N/A',
             inputs: input,
-            outputs: result as Record<string, unknown>,
+            outputs: outputsToSave,
             status: 'final',
             is_starred: false,
             tags: [product_category],
