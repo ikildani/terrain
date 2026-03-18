@@ -103,7 +103,7 @@ function getGreeting() {
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 
 function DashboardContent() {
-  const { plan, isPro } = useSubscription();
+  const { plan, isPro, isLoading: subLoading } = useSubscription();
   const { fullName } = useProfile();
   const limits = PLAN_LIMITS[plan];
   const { reports, isLoading: reportsLoading, toggleStar } = useReports();
@@ -156,7 +156,7 @@ function DashboardContent() {
         {quickActions.map((action) => {
           const Icon = action.icon;
           const isProFeature = action.href === '/partners' || action.href === '/regulatory';
-          const isLocked = isProFeature && !isPro;
+          const isLocked = isProFeature && !isPro && !subLoading;
           return (
             <Link
               key={action.href}
