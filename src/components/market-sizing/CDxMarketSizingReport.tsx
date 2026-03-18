@@ -79,7 +79,7 @@ function flattenCDxForCSV(data: CDxOutput): Record<string, unknown>[] {
   rows.push({
     section: 'CDx Economics',
     metric: 'CPT Codes',
-    value: e.reimbursement_cpt_codes.join('; '),
+    value: (e.reimbursement_cpt_codes ?? []).join('; '),
   });
   rows.push({
     section: 'CDx Economics',
@@ -118,7 +118,7 @@ function flattenCDxForCSV(data: CDxOutput): Record<string, unknown>[] {
   });
 
   // Comparable Deals
-  data.deal_structure_benchmark.comparable_deals.forEach((d: CDxDeal) => {
+  (data.deal_structure_benchmark?.comparable_deals ?? []).forEach((d: CDxDeal) => {
     rows.push({
       section: 'Comparable Deal',
       cdx_company: d.cdx_company,
@@ -134,7 +134,7 @@ function flattenCDxForCSV(data: CDxOutput): Record<string, unknown>[] {
   });
 
   // Approved Tests
-  data.competitive_cdx_landscape.approved_tests.forEach((t) => {
+  (data.competitive_cdx_landscape?.approved_tests ?? []).forEach((t) => {
     rows.push({
       section: 'Approved Test',
       test: t.test,
@@ -146,7 +146,7 @@ function flattenCDxForCSV(data: CDxOutput): Record<string, unknown>[] {
   });
 
   // Pipeline Tests
-  data.competitive_cdx_landscape.pipeline_tests.forEach((t) => {
+  (data.competitive_cdx_landscape?.pipeline_tests ?? []).forEach((t) => {
     rows.push({
       section: 'Pipeline Test',
       test: t.test,
@@ -256,7 +256,7 @@ function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMar
             <div className="flex items-start justify-between py-2 border-b border-navy-700">
               <span className="text-xs text-slate-500">CPT Codes</span>
               <div className="flex flex-wrap gap-1 justify-end">
-                {economics.reimbursement_cpt_codes.map((code) => (
+                {(economics.reimbursement_cpt_codes ?? []).map((code) => (
                   <span
                     key={code}
                     className="inline-block text-2xs font-mono px-2 py-0.5 rounded bg-navy-800 border border-navy-700 text-slate-300"
@@ -352,7 +352,7 @@ function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMar
         </div>
 
         {/* Comparable Deals table */}
-        {deals.comparable_deals.length > 0 && (
+        {deals.comparable_deals?.length > 0 && (
           <>
             <div className="text-xs text-slate-500 uppercase tracking-wider mb-3">Comparable Deals</div>
             <div className="overflow-x-auto">
@@ -457,7 +457,7 @@ function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMar
           </div>
 
           {/* Post-Approval Requirements */}
-          {regulatory.post_approval_requirements.length > 0 && (
+          {regulatory.post_approval_requirements?.length > 0 && (
             <div>
               <h4 className="text-xs text-slate-300 font-medium mb-2">Post-Approval Requirements</h4>
               <ul className="space-y-1">
@@ -480,7 +480,7 @@ function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMar
         <div className="chart-title">Competitive CDx Landscape</div>
 
         {/* Approved Tests */}
-        {landscape.approved_tests.length > 0 && (
+        {landscape.approved_tests?.length > 0 && (
           <div className="mb-6">
             <div className="text-xs text-slate-500 uppercase tracking-wider mb-3">Approved Tests</div>
             <div className="overflow-x-auto">
@@ -513,7 +513,7 @@ function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMar
         )}
 
         {/* Pipeline Tests */}
-        {landscape.pipeline_tests.length > 0 && (
+        {landscape.pipeline_tests?.length > 0 && (
           <div className="mb-6">
             <div className="text-xs text-slate-500 uppercase tracking-wider mb-3">Pipeline Tests</div>
             <div className="overflow-x-auto">
