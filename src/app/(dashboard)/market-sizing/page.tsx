@@ -163,7 +163,7 @@ export default function MarketSizingPage() {
       const response = await fetch('/api/analyze/market', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_category: pc, input: formData }),
+        body: JSON.stringify({ product_category: pc, input: formData, save: true }),
       });
       const json = await response.json();
       if (!json.success) throw new Error(json.error || 'Analysis failed');
