@@ -23,7 +23,7 @@ const COMPARISON_ROWS = [
   },
   {
     dimension: 'Indications covered',
-    terrain: '982+',
+    terrain: '236+',
     mckinsey: '1\u20133 per engagement',
     boutique: '5\u201310',
   },
@@ -62,9 +62,9 @@ export function ConsultingComparisonSection() {
           </p>
         </div>
 
-        <div className="card noise p-0 overflow-hidden">
+        <div className="card noise p-0 overflow-x-auto">
           {/* Header */}
-          <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] border-b border-navy-700/60">
+          <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] border-b border-navy-700/60 min-w-[560px]">
             <div className="px-5 py-4" />
             <div className="px-5 py-4 text-center bg-teal-500/5 border-l border-navy-700/60">
               <span className="text-xs font-mono text-teal-500 uppercase tracking-wider font-medium">Terrain</span>
@@ -81,7 +81,7 @@ export function ConsultingComparisonSection() {
           {COMPARISON_ROWS.map((row, i) => (
             <div
               key={row.dimension}
-              className={`grid grid-cols-[1.5fr_1fr_1fr_1fr] ${
+              className={`grid grid-cols-[1.5fr_1fr_1fr_1fr] min-w-[560px] ${
                 i < COMPARISON_ROWS.length - 1 ? 'border-b border-navy-700/60' : ''
               }`}
             >

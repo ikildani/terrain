@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Calculator, ChevronDown } from 'lucide-react';
 import { Section } from './Section';
@@ -352,17 +352,36 @@ function InteractiveCalculator() {
   const [selectedStage, setSelectedStage] = useState<string>('phase2');
   const [taOpen, setTaOpen] = useState(false);
   const [indicationOpen, setIndicationOpen] = useState(false);
+  const taDropdownRef = useRef<HTMLDivElement>(null);
+  const indicationDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Pre-load with NSCLC on mount
-  useEffect(() => {
-    setSelectedTA('Oncology');
-    setSelectedIndication('Non-Small Cell Lung Cancer');
-    setSelectedStage('phase2');
+  // Close dropdowns when clicking outside
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (taDropdownRef.current && !taDropdownRef.current.contains(e.target as Node)) {
+      setTaOpen(false);
+    }
+    if (indicationDropdownRef.current && !indicationDropdownRef.current.contains(e.target as Node)) {
+      setIndicationOpen(false);
+    }
   }, []);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [handleClickOutside]);
 
   const indications = DEMO_DATA[selectedTA] ?? [];
   const indication = indications.find((i) => i.name === selectedIndication) ?? null;
   const stage = STAGES.find((s) => s.value === selectedStage) ?? STAGES[2];
+
+  // When therapy area changes, auto-select the first indication
+  // so results are always visible
+  useEffect(() => {
+    const currentIndications = DEMO_DATA[selectedTA] ?? [];
+    if (currentIndications.length > 0 && !currentIndications.find((i) => i.name === selectedIndication)) {
+      setSelectedIndication(currentIndications[0].name);
+    }
+  }, [selectedTA]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Compute stage-adjusted results
   const results = useMemo(() => {
@@ -399,7 +418,7 @@ function InteractiveCalculator() {
           <label className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2 block">
             Therapeutic Area
           </label>
-          <div className="relative">
+          <div className="relative" ref={taDropdownRef}>
             <button
               type="button"
               onClick={() => {
@@ -439,7 +458,7 @@ function InteractiveCalculator() {
         {/* Indication Dropdown */}
         <div>
           <label className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2 block">Indication</label>
-          <div className="relative">
+          <div className="relative" ref={indicationDropdownRef}>
             <button
               type="button"
               onClick={() => {
@@ -556,7 +575,7 @@ function InteractiveCalculator() {
                     <span className="text-2xs font-mono text-teal-300 mb-1">SAM {formatBillion(results.sam)}</span>
                     <div
                       className="w-full bg-teal-500/20 rounded-sm relative"
-                      style={{ height: `${Math.max(20, (results.sam / results.tam) * 100) * 0.56}rem` }}
+                      style={{ height: `${Math.max(1.5, (results.sam / results.tam) * 3.5)}rem` }}
                     >
                       <div className="absolute inset-x-0 bottom-0 bg-teal-500/30 rounded-sm h-full" />
                     </div>
@@ -565,7 +584,7 @@ function InteractiveCalculator() {
                     <span className="text-2xs font-mono text-white mb-1">SOM {formatBillion(results.som)}</span>
                     <div
                       className="w-full bg-teal-500/20 rounded-sm relative"
-                      style={{ height: `${Math.max(10, (results.som / results.tam) * 100) * 0.56}rem` }}
+                      style={{ height: `${Math.max(0.75, (results.som / results.tam) * 3.5)}rem` }}
                     >
                       <div className="absolute inset-x-0 bottom-0 bg-teal-500/60 rounded-sm h-full" />
                     </div>

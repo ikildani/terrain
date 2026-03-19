@@ -14,7 +14,7 @@ const MODULE_COLORS = [
 ];
 
 const MODULE_METRICS = [
-  '982 indications \u00b7 30-second insights',
+  '236 indications \u00b7 30-second insights',
   'Live pipeline data \u00b7 Updated nightly',
   '300+ companies \u00b7 AI-scored matches',
   'FDA + EMA + PMDA \u00b7 Pathway recommended',
