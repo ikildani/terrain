@@ -1,6 +1,6 @@
 export function CredibilityStrip() {
   return (
-    <section className="py-12 px-6 border-t border-navy-700/40 bg-navy-900/30 noise">
+    <section className="py-12 px-6 border-t border-navy-700/60 bg-navy-900/30 noise">
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
@@ -24,7 +24,7 @@ export function CredibilityStrip() {
             <div className="text-2xs text-slate-600 mt-1">Pharma, device, CDx, nutraceutical</div>
           </div>
         </div>
-        <div className="mt-8 pt-6 border-t border-navy-700/40 text-center">
+        <div className="mt-8 pt-6 border-t border-navy-700/60 text-center">
           <p className="text-sm text-slate-500">
             Built by{' '}
             <a

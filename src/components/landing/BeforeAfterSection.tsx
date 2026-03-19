@@ -29,14 +29,14 @@ export function BeforeAfterSection() {
             <div
               key={row.label}
               className={`grid grid-cols-[1fr_120px_120px] sm:grid-cols-[1fr_160px_160px] ${
-                i < BEFORE_AFTER.length - 1 ? 'border-b border-navy-700/40' : ''
+                i < BEFORE_AFTER.length - 1 ? 'border-b border-navy-700/60' : ''
               }`}
             >
               <div className="px-5 py-4 text-sm text-slate-300">{row.label}</div>
-              <div className="px-5 py-4 text-center border-l border-navy-700/40 font-mono text-xs text-slate-500">
+              <div className="px-5 py-4 text-center border-l border-navy-700/60 font-mono text-xs text-slate-500">
                 {row.before}
               </div>
-              <div className="px-5 py-4 text-center border-l border-navy-700/40 bg-teal-500/5 font-mono text-xs text-teal-400 font-medium">
+              <div className="px-5 py-4 text-center border-l border-navy-700/60 bg-teal-500/5 font-mono text-xs text-teal-400 font-medium">
                 {row.after}
               </div>
             </div>

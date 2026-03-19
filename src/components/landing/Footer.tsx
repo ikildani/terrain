@@ -90,7 +90,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="pt-6 border-t border-navy-700/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="pt-6 border-t border-navy-700/60 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-600">
             &copy; {new Date().getFullYear()} Ambrosia Ventures LLC. All rights reserved.
           </p>

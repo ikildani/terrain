@@ -56,7 +56,7 @@ export function ConsultingComparisonSection() {
           <h2 className="font-display text-3xl sm:text-4xl text-white mb-4">
             Replace a $500K engagement with a $149/mo subscription.
           </h2>
-          <p className="text-sm text-slate-400 max-w-2xl mx-auto">
+          <p className="text-sm text-slate-300 max-w-2xl mx-auto">
             Terrain delivers institutional-grade market intelligence at a fraction of the cost and time of traditional
             consulting — with broader coverage, real-time data, and instant updates.
           </p>
@@ -82,17 +82,17 @@ export function ConsultingComparisonSection() {
             <div
               key={row.dimension}
               className={`grid grid-cols-[1.5fr_1fr_1fr_1fr] ${
-                i < COMPARISON_ROWS.length - 1 ? 'border-b border-navy-700/40' : ''
+                i < COMPARISON_ROWS.length - 1 ? 'border-b border-navy-700/60' : ''
               }`}
             >
-              <div className="px-5 py-3.5 text-xs text-slate-400 font-medium flex items-center">{row.dimension}</div>
-              <div className="px-5 py-3.5 text-center border-l border-navy-700/40 bg-teal-500/5">
+              <div className="px-5 py-3.5 text-xs text-slate-300 font-medium flex items-center">{row.dimension}</div>
+              <div className="px-5 py-3.5 text-center border-l border-navy-700/60 bg-teal-500/5">
                 <span className="text-xs font-mono text-teal-400 font-medium">{row.terrain}</span>
               </div>
-              <div className="px-5 py-3.5 text-center border-l border-navy-700/40">
+              <div className="px-5 py-3.5 text-center border-l border-navy-700/60">
                 <span className="text-xs font-mono text-slate-500">{row.mckinsey}</span>
               </div>
-              <div className="px-5 py-3.5 text-center border-l border-navy-700/40">
+              <div className="px-5 py-3.5 text-center border-l border-navy-700/60">
                 <span className="text-xs font-mono text-slate-500">{row.boutique}</span>
               </div>
             </div>

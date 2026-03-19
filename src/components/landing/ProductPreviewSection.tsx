@@ -81,7 +81,7 @@ function AnimatedDashboardPreview() {
           ].map((m, i) => (
             <motion.div
               key={m.label}
-              className="bg-navy-800/60 rounded-lg p-3 border border-navy-700/40"
+              className="bg-navy-800/60 rounded-lg p-3 border border-navy-700/60"
               initial={{ opacity: 0, y: 12 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.4, delay: i * 0.08 }}
@@ -158,8 +158,8 @@ function CompetitiveLandscapePreview() {
           </span>
         </div>
 
-        <div className="border border-navy-700/40 rounded-lg overflow-hidden mb-5">
-          <div className="grid grid-cols-[1fr_80px_60px_70px] text-[9px] font-mono uppercase tracking-wider text-slate-600 bg-navy-800/40 px-3 py-2 border-b border-navy-700/40">
+        <div className="border border-navy-700/60 rounded-lg overflow-hidden mb-5">
+          <div className="grid grid-cols-[1fr_80px_60px_70px] text-[9px] font-mono uppercase tracking-wider text-slate-600 bg-navy-800/40 px-3 py-2 border-b border-navy-700/60">
             <span>Company / Asset</span>
             <span>Phase</span>
             <span>MoA</span>
@@ -258,7 +258,7 @@ function PartnerDiscoveryPreview() {
           ].map((m, i) => (
             <motion.div
               key={m.label}
-              className="bg-navy-800/60 rounded-lg p-3 border border-navy-700/40"
+              className="bg-navy-800/60 rounded-lg p-3 border border-navy-700/60"
               initial={{ opacity: 0, y: 12 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.4, delay: i * 0.08 }}
@@ -275,7 +275,7 @@ function PartnerDiscoveryPreview() {
           {PARTNER_PREVIEW_DATA.map((p, pi) => (
             <motion.div
               key={p.company}
-              className="bg-navy-800/40 rounded-lg p-4 border border-navy-700/40"
+              className="bg-navy-800/40 rounded-lg p-4 border border-navy-700/60"
               initial={{ opacity: 0, x: -12 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.4, delay: 0.3 + pi * 0.12 }}
@@ -345,7 +345,7 @@ function RegulatoryPreview() {
       <div className="p-5">
         {/* Pathway card */}
         <motion.div
-          className="bg-navy-800/60 rounded-lg p-4 border border-navy-700/40 mb-5"
+          className="bg-navy-800/60 rounded-lg p-4 border border-navy-700/60 mb-5"
           initial={{ opacity: 0, y: 12 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.4 }}
@@ -406,8 +406,8 @@ function RegulatoryPreview() {
         {/* Comparables mini-table */}
         <div>
           <div className="text-[9px] text-slate-600 uppercase tracking-wider mb-2">Comparable Approvals</div>
-          <div className="border border-navy-700/40 rounded-lg overflow-hidden">
-            <div className="grid grid-cols-[1fr_80px_50px_90px] text-[8px] font-mono uppercase tracking-wider text-slate-600 bg-navy-800/40 px-3 py-1.5 border-b border-navy-700/40">
+          <div className="border border-navy-700/60 rounded-lg overflow-hidden">
+            <div className="grid grid-cols-[1fr_80px_50px_90px] text-[8px] font-mono uppercase tracking-wider text-slate-600 bg-navy-800/40 px-3 py-1.5 border-b border-navy-700/60">
               <span>Drug</span>
               <span>Company</span>
               <span className="text-right">Time</span>

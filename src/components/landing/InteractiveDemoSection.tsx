@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Calculator, ChevronDown } from 'lucide-react';
 import { Section } from './Section';
@@ -348,10 +348,17 @@ function formatPatients(v: number): string {
 
 function InteractiveCalculator() {
   const [selectedTA, setSelectedTA] = useState<string>('Oncology');
-  const [selectedIndication, setSelectedIndication] = useState<string>('');
+  const [selectedIndication, setSelectedIndication] = useState<string>('Non-Small Cell Lung Cancer');
   const [selectedStage, setSelectedStage] = useState<string>('phase2');
   const [taOpen, setTaOpen] = useState(false);
   const [indicationOpen, setIndicationOpen] = useState(false);
+
+  // Pre-load with NSCLC on mount
+  useEffect(() => {
+    setSelectedTA('Oncology');
+    setSelectedIndication('Non-Small Cell Lung Cancer');
+    setSelectedStage('phase2');
+  }, []);
 
   const indications = DEMO_DATA[selectedTA] ?? [];
   const indication = indications.find((i) => i.name === selectedIndication) ?? null;
@@ -399,13 +406,15 @@ function InteractiveCalculator() {
                 setTaOpen(!taOpen);
                 setIndicationOpen(false);
               }}
-              className="input w-full text-left flex items-center justify-between"
+              className="input w-full text-left flex items-center justify-between border-navy-600"
             >
-              <span className={selectedTA ? 'text-white' : 'text-slate-500'}>{selectedTA || 'Select...'}</span>
+              <span className={selectedTA ? 'text-teal-400 text-sm' : 'text-slate-500 text-sm'}>
+                {selectedTA || 'Select...'}
+              </span>
               <ChevronDown className="w-4 h-4 text-slate-500" />
             </button>
             {taOpen && (
-              <div className="absolute z-20 mt-1 w-full rounded-lg border border-navy-700 bg-navy-900 shadow-xl max-h-52 overflow-y-auto">
+              <div className="absolute z-20 mt-1 w-full rounded-lg border border-navy-600 bg-navy-900 shadow-xl max-h-52 overflow-y-auto">
                 {THERAPY_AREAS.map((ta) => (
                   <button
                     key={ta}
@@ -415,7 +424,7 @@ function InteractiveCalculator() {
                       setSelectedIndication('');
                       setTaOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 text-xs transition-colors hover:bg-navy-800 ${
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-navy-800 ${
                       selectedTA === ta ? 'text-teal-400 bg-navy-800/50' : 'text-slate-300'
                     }`}
                   >
@@ -437,15 +446,15 @@ function InteractiveCalculator() {
                 setIndicationOpen(!indicationOpen);
                 setTaOpen(false);
               }}
-              className="input w-full text-left flex items-center justify-between"
+              className="input w-full text-left flex items-center justify-between border-navy-600"
             >
-              <span className={selectedIndication ? 'text-white' : 'text-slate-500'}>
+              <span className={selectedIndication ? 'text-teal-400 text-sm' : 'text-slate-500 text-sm'}>
                 {selectedIndication || 'Select an indication...'}
               </span>
               <ChevronDown className="w-4 h-4 text-slate-500" />
             </button>
             {indicationOpen && (
-              <div className="absolute z-20 mt-1 w-full rounded-lg border border-navy-700 bg-navy-900 shadow-xl max-h-52 overflow-y-auto">
+              <div className="absolute z-20 mt-1 w-full rounded-lg border border-navy-600 bg-navy-900 shadow-xl max-h-52 overflow-y-auto">
                 {indications.map((ind) => (
                   <button
                     key={ind.name}
@@ -454,7 +463,7 @@ function InteractiveCalculator() {
                       setSelectedIndication(ind.name);
                       setIndicationOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 text-xs transition-colors hover:bg-navy-800 ${
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-navy-800 ${
                       selectedIndication === ind.name ? 'text-teal-400 bg-navy-800/50' : 'text-slate-300'
                     }`}
                   >
@@ -536,30 +545,30 @@ function InteractiveCalculator() {
               {/* Waterfall */}
               <div>
                 <div className="text-2xs text-slate-500 uppercase tracking-wider mb-2">TAM / SAM / SOM</div>
-                <div className="flex items-end gap-1 h-14">
-                  <div className="flex-1 bg-teal-500/20 rounded-sm h-full relative">
-                    <div className="absolute inset-x-0 bottom-0 bg-teal-500/40 rounded-sm h-full" />
-                    <span className="absolute inset-0 flex items-center justify-center text-2xs font-mono text-teal-300">
-                      TAM {formatBillion(results.tam)}
-                    </span>
+                <div className="flex items-end gap-1 h-20">
+                  <div className="flex-1 flex flex-col items-center">
+                    <span className="text-2xs font-mono text-teal-300 mb-1">TAM {formatBillion(results.tam)}</span>
+                    <div className="w-full bg-teal-500/20 rounded-sm h-14 relative">
+                      <div className="absolute inset-x-0 bottom-0 bg-teal-500/40 rounded-sm h-full" />
+                    </div>
                   </div>
-                  <div
-                    className="flex-1 bg-teal-500/20 rounded-sm relative"
-                    style={{ height: `${Math.max(20, (results.sam / results.tam) * 100)}%` }}
-                  >
-                    <div className="absolute inset-x-0 bottom-0 bg-teal-500/30 rounded-sm h-full" />
-                    <span className="absolute inset-0 flex items-center justify-center text-2xs font-mono text-teal-300">
-                      SAM {formatBillion(results.sam)}
-                    </span>
+                  <div className="flex-1 flex flex-col items-center justify-end">
+                    <span className="text-2xs font-mono text-teal-300 mb-1">SAM {formatBillion(results.sam)}</span>
+                    <div
+                      className="w-full bg-teal-500/20 rounded-sm relative"
+                      style={{ height: `${Math.max(20, (results.sam / results.tam) * 100) * 0.56}rem` }}
+                    >
+                      <div className="absolute inset-x-0 bottom-0 bg-teal-500/30 rounded-sm h-full" />
+                    </div>
                   </div>
-                  <div
-                    className="flex-1 bg-teal-500/20 rounded-sm relative"
-                    style={{ height: `${Math.max(10, (results.som / results.tam) * 100)}%` }}
-                  >
-                    <div className="absolute inset-x-0 bottom-0 bg-teal-500/60 rounded-sm h-full" />
-                    <span className="absolute inset-0 flex items-center justify-center text-2xs font-mono text-white">
-                      SOM {formatBillion(results.som)}
-                    </span>
+                  <div className="flex-1 flex flex-col items-center justify-end">
+                    <span className="text-2xs font-mono text-white mb-1">SOM {formatBillion(results.som)}</span>
+                    <div
+                      className="w-full bg-teal-500/20 rounded-sm relative"
+                      style={{ height: `${Math.max(10, (results.som / results.tam) * 100) * 0.56}rem` }}
+                    >
+                      <div className="absolute inset-x-0 bottom-0 bg-teal-500/60 rounded-sm h-full" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -579,14 +588,7 @@ function InteractiveCalculator() {
           )}
         </AnimatePresence>
 
-        {/* Placeholder when nothing selected */}
-        {!results && (
-          <div className="pt-5 border-t border-navy-700/60 text-center py-8">
-            <p className="text-sm text-slate-500">
-              Select a therapeutic area and indication to see instant market sizing.
-            </p>
-          </div>
-        )}
+        {/* No empty state — results pre-loaded on mount */}
       </div>
     </div>
   );
@@ -604,7 +606,7 @@ export function InteractiveDemoSection() {
           <div className="lg:sticky lg:top-24">
             <p className="text-xs font-mono text-teal-500 tracking-widest uppercase mb-3">Live Calculator</p>
             <h2 className="font-display text-3xl sm:text-4xl text-white mb-4">See your market in real time.</h2>
-            <p className="text-slate-400 leading-relaxed mb-6">
+            <p className="text-slate-300 leading-relaxed mb-6">
               Pick any therapeutic area, indication, and development stage. Terrain computes TAM, SAM, SOM, and peak
               sales estimates instantly — the same engine powering our full intelligence reports.
             </p>

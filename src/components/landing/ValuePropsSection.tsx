@@ -42,7 +42,7 @@ export function ValuePropsSection() {
                   <Icon className="w-5 h-5 text-teal-400" />
                 </div>
                 <h3 className="font-display text-xl text-white mb-3">{prop.title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{prop.body}</p>
+                <p className="text-slate-300 text-sm leading-relaxed">{prop.body}</p>
               </motion.div>
             );
           })}

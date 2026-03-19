@@ -39,7 +39,7 @@ export function Navbar() {
           <a href="#modules" className="nav-link hover:text-white transition-colors">
             Modules
           </a>
-          <a href="#demo" className="nav-link hover:text-white transition-colors">
+          <a href="#interactive-demo" className="nav-link hover:text-white transition-colors">
             Demo
           </a>
           <a href="#pricing" className="nav-link hover:text-white transition-colors">
@@ -80,7 +80,7 @@ export function Navbar() {
             <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1">
               {[
                 { href: '#modules', label: 'Modules' },
-                { href: '#demo', label: 'Demo' },
+                { href: '#interactive-demo', label: 'Demo' },
                 { href: '#pricing', label: 'Pricing' },
                 { href: '#faq', label: 'FAQ' },
               ].map((link, i) => (
@@ -100,7 +100,7 @@ export function Navbar() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="border-t border-navy-700/40 pt-4 mt-2 flex flex-col gap-3"
+                className="border-t border-navy-700/60 pt-4 mt-2 flex flex-col gap-3"
               >
                 <Link
                   href="/login"

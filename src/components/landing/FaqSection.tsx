@@ -35,7 +35,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
         transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
         className="overflow-hidden"
       >
-        <p className="text-sm text-slate-400 leading-relaxed pb-5">{a}</p>
+        <p className="text-sm text-slate-300 leading-relaxed pb-5">{a}</p>
       </motion.div>
     </div>
   );

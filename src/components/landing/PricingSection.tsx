@@ -17,7 +17,7 @@ export function PricingSection() {
         <div className="text-center mb-16">
           <p className="text-xs font-mono text-teal-500 tracking-widest uppercase mb-3">Pricing</p>
           <h2 className="font-display text-3xl sm:text-4xl text-white mb-4">Intelligence at every scale</h2>
-          <p className="text-slate-400 max-w-xl mx-auto mb-8">
+          <p className="text-slate-300 max-w-xl mx-auto mb-8">
             Start free. Upgrade when Terrain becomes indispensable.
           </p>
 

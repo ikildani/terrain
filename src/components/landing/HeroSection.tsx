@@ -4,94 +4,99 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { TERMINAL_LINES, TERMINAL_LINES_2 } from './data';
 
-function TerminalPreview() {
+const DASHBOARD_METRICS = [
+  { label: 'US TAM', value: '$24.8B', detail: 'High confidence', color: 'text-teal-400' },
+  { label: 'US SAM', value: '$8.2B', detail: null, color: 'text-teal-400' },
+  { label: 'US SOM', value: '$316M', detail: 'Range: $132\u2013475M', color: 'text-white' },
+  { label: 'Peak Sales', value: '$316M', detail: 'Base case', color: 'text-white' },
+  { label: '5-yr CAGR', value: '+9.2%', detail: null, color: 'text-emerald-400' },
+];
+
+function DashboardPreview() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-40px' });
 
   return (
-    <div ref={ref} className="card noise overflow-hidden">
-      {/* Chrome bar */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-navy-700/60">
-        <span className="w-2.5 h-2.5 rounded-full bg-red-400/60" />
-        <span className="w-2.5 h-2.5 rounded-full bg-amber-400/60" />
-        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/60" />
-        <span className="ml-3 text-xs font-mono text-slate-500">terrain — market-sizing</span>
-      </div>
-
-      {/* Terminal body */}
-      <div className="p-5 font-mono text-sm space-y-3">
-        <motion.div
-          className="text-slate-500"
+    <motion.div
+      ref={ref}
+      className="card noise overflow-hidden"
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-navy-700/60">
+        <motion.p
+          className="font-mono text-sm text-slate-300 tracking-wide"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
-          {'>'} KRAS G12C inhibitor · NSCLC · Phase 2
-        </motion.div>
-
-        <motion.div
-          className="h-px bg-navy-700/60"
-          initial={{ scaleX: 0 }}
-          animate={inView ? { scaleX: 1 } : {}}
           transition={{ duration: 0.4, delay: 0.5 }}
-          style={{ transformOrigin: 'left' }}
-        />
+        >
+          KRAS G12C Inhibitor &middot; NSCLC &middot; Phase 2
+        </motion.p>
+      </div>
 
-        {TERMINAL_LINES.map((line, i) => (
+      {/* Metrics body */}
+      <div className="p-5 space-y-0">
+        {DASHBOARD_METRICS.map((m, i) => (
           <motion.div
-            key={line.label}
-            className="flex justify-between"
-            initial={{ opacity: 0, x: -8 }}
+            key={m.label}
+            className="flex items-baseline justify-between py-2.5 border-b border-navy-700/30 last:border-b-0"
+            initial={{ opacity: 0, x: -10 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.35, delay: 0.7 + i * 0.15 }}
+            transition={{ duration: 0.35, delay: 0.6 + i * 0.12 }}
           >
-            <span className="text-slate-400">{line.label}</span>
-            <span className={`${line.color} font-medium`}>{line.value}</span>
+            <span className="text-sm text-slate-300">{m.label}</span>
+            <div className="flex items-baseline gap-3">
+              <span className={`font-mono text-lg font-medium ${m.color}`}>{m.value}</span>
+              {m.detail && <span className="text-xs text-slate-500 hidden sm:inline">{m.detail}</span>}
+            </div>
           </motion.div>
         ))}
 
+        {/* Divider */}
         <motion.div
-          className="h-px bg-navy-700/60"
+          className="h-px bg-navy-700/60 my-1"
           initial={{ scaleX: 0 }}
           animate={inView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.4, delay: 1.4 }}
+          transition={{ duration: 0.4, delay: 1.3 }}
           style={{ transformOrigin: 'left' }}
         />
 
-        {TERMINAL_LINES_2.map((line, i) => (
-          <motion.div
-            key={line.label}
-            className="flex justify-between"
-            initial={{ opacity: 0, x: -8 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.35, delay: 1.6 + i * 0.15 }}
-          >
-            <span className="text-slate-400">{line.label}</span>
-            <span className={`${line.color} font-medium`}>{line.value}</span>
-          </motion.div>
-        ))}
-
+        {/* Competitive summary */}
         <motion.div
-          className="h-px bg-navy-700/60"
-          initial={{ scaleX: 0 }}
-          animate={inView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.4, delay: 2.0 }}
-          style={{ transformOrigin: 'left' }}
-        />
-
-        <motion.div
-          className="text-slate-500 text-xs"
+          className="flex items-center justify-between pt-2.5"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5, delay: 2.2 }}
+          transition={{ duration: 0.4, delay: 1.5 }}
         >
-          Generated in 4.2s · 6 data sources · High confidence
-          <span className="terminal-cursor ml-1">▊</span>
+          <span className="text-sm text-slate-300">Competitors</span>
+          <span className="font-mono text-sm text-amber-400">7 competitors &middot; Crowding: 7/10</span>
+        </motion.div>
+        <motion.div
+          className="flex items-center justify-between pt-2"
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.4, delay: 1.65 }}
+        >
+          <span className="text-sm text-slate-300">Clinical Programs</span>
+          <span className="font-mono text-sm text-white">14 active</span>
         </motion.div>
       </div>
-    </div>
+
+      {/* Footer */}
+      <motion.div
+        className="px-5 py-3 border-t border-navy-700/60"
+        initial={{ opacity: 0 }}
+        animate={inView ? { opacity: 1 } : {}}
+        transition={{ duration: 0.5, delay: 1.8 }}
+      >
+        <p className="text-xs text-slate-500">
+          Generated in 4.2s &middot; ClinicalTrials.gov + FDA data &middot; High confidence
+        </p>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -108,7 +113,7 @@ export function HeroSection() {
         }}
       />
       {/* Top glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-glow-teal opacity-60 pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-glow-teal opacity-80 pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
         <div>
@@ -129,7 +134,7 @@ export function HeroSection() {
           </motion.h1>
 
           <motion.p
-            className="text-lg sm:text-xl text-slate-400 max-w-xl leading-relaxed mb-10"
+            className="text-lg sm:text-xl text-slate-300 max-w-xl leading-relaxed mb-10"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.35 }}
@@ -149,11 +154,11 @@ export function HeroSection() {
               href="/signup"
               className="btn btn-primary text-base px-8 py-3.5 inline-flex items-center gap-2 shadow-teal-sm hover:shadow-teal-md transition-shadow"
             >
-              Start for free
+              Analyze Your Market
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href="#demo" className="btn btn-secondary text-base px-8 py-3.5">
-              Try the live demo
+            <Link href="#interactive-demo" className="btn btn-secondary text-base px-8 py-3.5">
+              View Sample Report
             </Link>
           </motion.div>
         </div>
@@ -169,7 +174,7 @@ export function HeroSection() {
             ease: [0.22, 1, 0.36, 1],
           }}
         >
-          <TerminalPreview />
+          <DashboardPreview />
         </motion.div>
       </div>
     </section>
