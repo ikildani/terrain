@@ -101,22 +101,234 @@ function hexToRgb(hex: string | null | undefined): { r: number; g: number; b: nu
   return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
 }
 
+/** Captured section: a canvas image and its dimensions in mm at content scale. */
+interface CapturedSection {
+  canvas: HTMLCanvasElement;
+  /** Height of this section in mm when scaled to fit the PDF content width. */
+  heightMm: number;
+}
+
+// ── Page geometry (Letter, mm) ─────────────────────────────────────
+const PAGE_WIDTH = 215.9;
+const PAGE_HEIGHT = 279.4;
+const MARGIN = 15;
+const HEADER_HEIGHT = 28;
+const FOOTER_HEIGHT = 15;
+const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
+const CONTENT_HEIGHT = PAGE_HEIGHT - MARGIN * 2 - HEADER_HEIGHT - FOOTER_HEIGHT;
+const CONTENT_TOP = MARGIN + HEADER_HEIGHT;
+const SCALE_FACTOR = 2; // html2canvas scale
+
 /**
- * Generates a branded PDF from a DOM element.
- * Applies a light export theme before capture, then captures as a
- * high-resolution image and places it in a letter-sized PDF with
- * institutional header and footer.
+ * Capture a single DOM element as a high-res canvas.
+ * Returns the canvas and its height in mm when scaled to CONTENT_WIDTH.
+ */
+async function captureSection(el: HTMLElement): Promise<CapturedSection> {
+  const canvas = await html2canvas(el, {
+    scale: SCALE_FACTOR,
+    useCORS: true,
+    backgroundColor: '#FFFFFF',
+    logging: false,
+    windowWidth: 816,
+    windowHeight: el.scrollHeight,
+    allowTaint: false,
+    foreignObjectRendering: false,
+  });
+  // Convert pixel height → mm at content width scale
+  const ratio = CONTENT_WIDTH / (canvas.width / SCALE_FACTOR);
+  const heightMm = (canvas.height / SCALE_FACTOR) * ratio;
+  return { canvas, heightMm };
+}
+
+/**
+ * Draw the branded header on the current PDF page.
+ * The teal accent line is drawn BELOW the date text.
+ */
+async function drawHeader(
+  pdf: jsPDF,
+  page: number,
+  totalPages: number,
+  title: string,
+  subtitle: string | undefined,
+  dateString: string,
+  accentRgb: { r: number; g: number; b: number },
+  branding?: ExportBranding,
+): Promise<void> {
+  const isWhiteLabel = branding?.whiteLabel === true;
+
+  // White background behind header
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(0, 0, PAGE_WIDTH, CONTENT_TOP, 'F');
+
+  // Brand — render logo if provided, otherwise text
+  let headerTextX = MARGIN;
+  if (branding?.logoUrl) {
+    try {
+      const logoImg = new Image();
+      logoImg.crossOrigin = 'anonymous';
+      await new Promise<void>((resolve, reject) => {
+        logoImg.onload = () => resolve();
+        logoImg.onerror = () => reject(new Error('Logo load failed'));
+        logoImg.src = branding.logoUrl!;
+      });
+      const logoCanvas = document.createElement('canvas');
+      logoCanvas.width = logoImg.naturalWidth;
+      logoCanvas.height = logoImg.naturalHeight;
+      const logoCtx = logoCanvas.getContext('2d');
+      if (logoCtx) {
+        logoCtx.drawImage(logoImg, 0, 0);
+        const logoData = logoCanvas.toDataURL('image/png');
+        const logoH = 8; // mm height
+        const logoW = (logoImg.naturalWidth / logoImg.naturalHeight) * logoH;
+        pdf.addImage(logoData, 'PNG', MARGIN, MARGIN + 2, logoW, logoH);
+        headerTextX = MARGIN + logoW + 3;
+      }
+    } catch {
+      // Logo failed to load — fall back to text brand
+    }
+  }
+
+  if (!isWhiteLabel) {
+    // Default Terrain branding — distinctive bold italic for brand name
+    pdf.setFont('helvetica', 'bolditalic');
+    pdf.setFontSize(12);
+    pdf.setTextColor(4, 8, 15); // navy-950
+    pdf.text('TERRAIN', headerTextX, MARGIN + 7);
+
+    // Tagline
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(7);
+    pdf.setTextColor(accentRgb.r, accentRgb.g, accentRgb.b);
+    pdf.text('by Ambrosia Ventures', headerTextX + 24, MARGIN + 7);
+
+    // Thin line under brand area
+    pdf.setDrawColor(209, 213, 219); // gray-300
+    pdf.setLineWidth(0.3);
+    pdf.line(MARGIN, MARGIN + 10, PAGE_WIDTH - MARGIN, MARGIN + 10);
+  }
+
+  // Page number (top-right)
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(7);
+  pdf.setTextColor(100, 116, 139);
+  pdf.text(`Page ${page + 1} of ${totalPages}`, PAGE_WIDTH - MARGIN, MARGIN + 7, { align: 'right' });
+
+  // Report title — larger for first page, smaller for continuation pages
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(page === 0 ? 16 : 10);
+  pdf.setTextColor(4, 8, 15);
+  pdf.text(title, MARGIN, MARGIN + 16);
+
+  // Track the Y position for stacking subtitle, date, then accent line
+  let nextY = MARGIN + 16;
+
+  if (subtitle) {
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(page === 0 ? 10 : 7);
+    pdf.setTextColor(100, 116, 139); // slate-500
+    nextY = MARGIN + (page === 0 ? 22 : 21);
+    pdf.text(subtitle, MARGIN, nextY);
+  }
+
+  // Date line on first page
+  if (page === 0) {
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(8);
+    pdf.setTextColor(100, 116, 139);
+    nextY = MARGIN + (subtitle ? 27 : 22);
+    pdf.text(`Prepared ${dateString}`, MARGIN, nextY);
+  }
+
+  // Teal accent line — BELOW the date text (not through it)
+  const accentLineY = CONTENT_TOP - 2;
+  pdf.setDrawColor(accentRgb.r, accentRgb.g, accentRgb.b);
+  pdf.setLineWidth(0.8);
+  pdf.line(MARGIN, accentLineY, PAGE_WIDTH - MARGIN, accentLineY);
+}
+
+/**
+ * Draw the branded footer on the current PDF page.
+ */
+function drawFooter(
+  pdf: jsPDF,
+  page: number,
+  totalPages: number,
+  dateString: string,
+  footerLabel: string,
+  isWhiteLabel: boolean,
+): void {
+  const footerY = PAGE_HEIGHT - MARGIN - 4;
+
+  // Separator line
+  pdf.setDrawColor(209, 213, 219); // gray-300
+  pdf.setLineWidth(0.3);
+  pdf.line(MARGIN, footerY - 4, PAGE_WIDTH - MARGIN, footerY - 4);
+
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(6);
+  pdf.setTextColor(100, 116, 139);
+
+  // Left: confidential label
+  pdf.text(footerLabel, MARGIN, footerY);
+  // Center: copyright
+  pdf.text('\u00A9 2026 Ambrosia Ventures', PAGE_WIDTH / 2, footerY, { align: 'center' });
+  // Right: date + page
+  pdf.text(`${dateString}  |  Page ${page + 1} of ${totalPages}`, PAGE_WIDTH - MARGIN, footerY, { align: 'right' });
+}
+
+/**
+ * Place a section canvas (or a slice of it) onto the PDF at the given cursor position.
+ * Returns the height in mm that was actually placed.
+ */
+function placeImage(
+  pdf: jsPDF,
+  sectionCanvas: HTMLCanvasElement,
+  cursorY: number,
+  maxHeightMm: number,
+  sourceOffsetMm: number,
+  sectionTotalHeightMm: number,
+): number {
+  const placeMm = Math.min(sectionTotalHeightMm - sourceOffsetMm, maxHeightMm);
+  if (placeMm <= 0) return 0;
+
+  // Calculate source pixels for the slice
+  const ratio = CONTENT_WIDTH / (sectionCanvas.width / SCALE_FACTOR);
+  const srcYPx = (sourceOffsetMm / ratio) * SCALE_FACTOR;
+  const srcHPx = (placeMm / ratio) * SCALE_FACTOR;
+
+  // Create a slice canvas
+  const sliceCanvas = document.createElement('canvas');
+  sliceCanvas.width = sectionCanvas.width;
+  sliceCanvas.height = Math.ceil(srcHPx);
+  const ctx = sliceCanvas.getContext('2d');
+  if (!ctx) return 0;
+
+  ctx.drawImage(sectionCanvas, 0, srcYPx, sectionCanvas.width, srcHPx, 0, 0, sectionCanvas.width, srcHPx);
+
+  const imgData = sliceCanvas.toDataURL('image/png');
+  pdf.addImage(imgData, 'PNG', MARGIN, cursorY, CONTENT_WIDTH, placeMm);
+  return placeMm;
+}
+
+/**
+ * Generates a branded PDF from a DOM element using section-aware pagination.
+ *
+ * Instead of capturing one giant image and slicing blindly, this captures each
+ * direct child of the target element individually. Sections are placed on pages
+ * with intelligent break logic: a section only starts a new page if it won't fit
+ * on the current one. Sections taller than a full page are sliced (overflow).
+ *
+ * Elements with [data-no-print] are skipped entirely.
  */
 export async function exportToPdf(element: HTMLElement, options: ExportPdfOptions): Promise<void> {
   const { title, subtitle, filename = 'terrain-report', branding } = options;
   const isWhiteLabel = branding?.whiteLabel === true;
   const accentRgb = hexToRgb(branding?.primaryColor);
   const footerLabel = isWhiteLabel
-    ? branding?.footerText || 'CONFIDENTIAL'
-    : branding?.footerText || 'CONFIDENTIAL — Generated by Terrain (terrain.ambrosiaventures.co)';
+    ? `CONFIDENTIAL — ${branding?.footerText || ''}`
+    : `CONFIDENTIAL — ${branding?.footerText || 'Generated by Terrain (terrain.ambrosiaventures.co)'}`;
 
   // ── Apply light export theme for clean paper output ────
-  // If already in light mode (e.g., preview overlay), skip the toggle
   const alreadyLight = element.classList.contains('export-light');
   if (!alreadyLight) {
     element.classList.add('export-light');
@@ -127,7 +339,6 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
   const restoreSvgs = await svgToCanvas(element);
 
   try {
-    // Capture at 2x for retina quality with reasonable file sizes (5-10MB vs 30MB+)
     // Ensure the element is visible and has dimensions before capture
     const computedStyle = window.getComputedStyle(element);
     const wasHidden = computedStyle.visibility === 'hidden' || computedStyle.display === 'none';
@@ -138,44 +349,116 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
       await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     }
 
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#FFFFFF',
-      logging: false,
-      windowWidth: 816, // Letter width at 96 DPI
-      windowHeight: element.scrollHeight,
-      allowTaint: false,
-      foreignObjectRendering: false,
-      onclone: (clonedDoc) => {
-        // Ensure cloned element is fully visible
-        const clonedEl = clonedDoc.querySelector('[data-report-content]');
-        if (clonedEl) {
-          (clonedEl as HTMLElement).style.visibility = 'visible';
-          (clonedEl as HTMLElement).style.display = 'block';
+    // ── Step 1: Collect sections (direct children, skip [data-no-print]) ──
+    const children = Array.from(element.children) as HTMLElement[];
+    const sections: CapturedSection[] = [];
+
+    for (const child of children) {
+      // Skip elements marked as no-print
+      if (child.hasAttribute('data-no-print') || child.dataset.noPrint !== undefined) continue;
+      // Skip invisible elements
+      const childStyle = window.getComputedStyle(child);
+      if (childStyle.display === 'none' || childStyle.visibility === 'hidden') continue;
+      // Skip zero-height elements
+      if (child.offsetHeight === 0) continue;
+
+      const captured = await captureSection(child);
+      if (captured.heightMm > 0) {
+        sections.push(captured);
+      }
+    }
+
+    // If no sections were captured, fall back to capturing the whole element
+    if (sections.length === 0) {
+      const wholeCaptured = await captureSection(element);
+      if (wholeCaptured.heightMm > 0) {
+        sections.push(wholeCaptured);
+      }
+    }
+
+    if (sections.length === 0) {
+      throw new Error('No content to export');
+    }
+
+    // ── Step 2: Plan pagination ──────────────────────────────────────
+    // Walk through sections and determine page assignments.
+    // Each entry: { sectionIndex, sourceOffsetMm, heightMm, pageIndex, cursorY }
+    interface PageSlice {
+      sectionIndex: number;
+      sourceOffsetMm: number;
+      heightMm: number;
+    }
+    const pages: PageSlice[][] = [[]];
+    let currentPage = 0;
+    let cursorMm = 0; // How much of the current page's content area is used
+
+    for (let si = 0; si < sections.length; si++) {
+      const section = sections[si];
+      const remaining = CONTENT_HEIGHT - cursorMm;
+
+      if (section.heightMm <= remaining) {
+        // Section fits on current page
+        pages[currentPage].push({
+          sectionIndex: si,
+          sourceOffsetMm: 0,
+          heightMm: section.heightMm,
+        });
+        cursorMm += section.heightMm;
+      } else if (section.heightMm <= CONTENT_HEIGHT) {
+        // Section doesn't fit here but fits on a fresh page — start new page
+        currentPage++;
+        pages[currentPage] = [];
+        pages[currentPage].push({
+          sectionIndex: si,
+          sourceOffsetMm: 0,
+          heightMm: section.heightMm,
+        });
+        cursorMm = section.heightMm;
+      } else {
+        // Section is taller than one full page — slice it across pages
+        let offset = 0;
+        let sectionRemaining = section.heightMm;
+
+        // If there's some space on the current page, use it
+        if (remaining > 20) {
+          // Only start on current page if there's meaningful space (>20mm)
+          const slice = Math.min(remaining, sectionRemaining);
+          pages[currentPage].push({
+            sectionIndex: si,
+            sourceOffsetMm: offset,
+            heightMm: slice,
+          });
+          offset += slice;
+          sectionRemaining -= slice;
         }
-      },
-    });
 
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
+        // Fill subsequent pages with slices
+        while (sectionRemaining > 0) {
+          currentPage++;
+          pages[currentPage] = [];
+          const slice = Math.min(CONTENT_HEIGHT, sectionRemaining);
+          pages[currentPage].push({
+            sectionIndex: si,
+            sourceOffsetMm: offset,
+            heightMm: slice,
+          });
+          offset += slice;
+          sectionRemaining -= slice;
+        }
+        cursorMm = pages[currentPage].reduce((acc, s) => acc + s.heightMm, 0);
+      }
+    }
 
-    // Letter size in mm
-    const pageWidth = 215.9;
-    const pageHeight = 279.4;
-    const margin = 15;
-    const headerHeight = 28;
-    const footerHeight = 15;
-    const contentWidth = pageWidth - margin * 2;
-    const contentHeight = pageHeight - margin * 2 - headerHeight - footerHeight;
+    const totalPages = pages.length;
 
+    // ── Step 3: Build the PDF ────────────────────────────────────────
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: 'letter',
     });
 
-    // ── PDF metadata ───────────────────────────────────────
+    // PDF metadata
     pdf.setProperties({
       title: isWhiteLabel ? `${title} — Intelligence Report` : `${title} — Terrain Intelligence Report`,
       subject: subtitle || 'Market Intelligence Report',
@@ -184,140 +467,28 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
       keywords: 'market intelligence, life sciences, biotech',
     });
 
-    // Scale image to fit content width
-    const scaleFactor = 2; // Must match html2canvas scale option
-    const ratio = contentWidth / (imgWidth / scaleFactor);
-    const scaledHeight = (imgHeight / scaleFactor) * ratio;
-    const totalPages = Math.ceil(scaledHeight / contentHeight);
-
     const dateString = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
 
-    for (let page = 0; page < totalPages; page++) {
-      if (page > 0) pdf.addPage();
+    for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+      if (pageIdx > 0) pdf.addPage();
 
-      // ── Header ──────────────────────────────────────────
-      pdf.setFillColor(255, 255, 255);
-      pdf.rect(0, 0, pageWidth, headerHeight + margin, 'F');
+      // Draw header
+      await drawHeader(pdf, pageIdx, totalPages, title, subtitle, dateString, accentRgb, branding);
 
-      // Brand — render logo if provided, otherwise text
-      let headerTextX = margin;
-      if (branding?.logoUrl) {
-        try {
-          const logoImg = new Image();
-          logoImg.crossOrigin = 'anonymous';
-          await new Promise<void>((resolve, reject) => {
-            logoImg.onload = () => resolve();
-            logoImg.onerror = () => reject(new Error('Logo load failed'));
-            logoImg.src = branding.logoUrl!;
-          });
-          const logoCanvas = document.createElement('canvas');
-          logoCanvas.width = logoImg.naturalWidth;
-          logoCanvas.height = logoImg.naturalHeight;
-          const logoCtx = logoCanvas.getContext('2d');
-          if (logoCtx) {
-            logoCtx.drawImage(logoImg, 0, 0);
-            const logoData = logoCanvas.toDataURL('image/png');
-            const logoH = 8; // mm height
-            const logoW = (logoImg.naturalWidth / logoImg.naturalHeight) * logoH;
-            pdf.addImage(logoData, 'PNG', margin, margin + 2, logoW, logoH);
-            headerTextX = margin + logoW + 3;
-          }
-        } catch {
-          // Logo failed to load — fall back to text brand
-        }
-      }
-      if (!isWhiteLabel) {
-        // Default Terrain branding — distinctive bold italic for brand name
-        pdf.setFont('helvetica', 'bolditalic');
-        pdf.setFontSize(12);
-        pdf.setTextColor(4, 8, 15); // navy-950
-        pdf.text('TERRAIN', headerTextX, margin + 7);
-
-        // Tagline
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(7);
-        pdf.setTextColor(accentRgb.r, accentRgb.g, accentRgb.b);
-        pdf.text('by Ambrosia Ventures', headerTextX + 24, margin + 7);
-
-        // Thin line under brand area
-        pdf.setDrawColor(209, 213, 219); // gray-300
-        pdf.setLineWidth(0.3);
-        pdf.line(margin, margin + 10, pageWidth - margin, margin + 10);
-      } else if (!branding?.logoUrl) {
-        // White-label without logo — show nothing (logo handled above if present)
-        // Intentionally blank header brand area
+      // Place section slices on this page
+      let y = CONTENT_TOP;
+      for (const slice of pages[pageIdx]) {
+        const section = sections[slice.sectionIndex];
+        const placed = placeImage(pdf, section.canvas, y, slice.heightMm, slice.sourceOffsetMm, section.heightMm);
+        y += placed;
       }
 
-      // Report title — larger for first page, smaller for continuation pages
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(page === 0 ? 16 : 10);
-      pdf.setTextColor(4, 8, 15);
-      pdf.text(title, margin, margin + 16);
-
-      if (subtitle) {
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(page === 0 ? 10 : 7);
-        pdf.setTextColor(100, 116, 139); // slate-500
-        pdf.text(subtitle, margin, margin + (page === 0 ? 22 : 21));
-      }
-
-      // Date line on first page
-      if (page === 0) {
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(8);
-        pdf.setTextColor(100, 116, 139);
-        pdf.text(`Prepared ${dateString}`, margin, margin + (subtitle ? 27 : 22));
-      }
-
-      // Page number
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(7);
-      pdf.setTextColor(100, 116, 139);
-      pdf.text(`Page ${page + 1} of ${totalPages}`, pageWidth - margin, margin + 7, { align: 'right' });
-
-      // Accent line (uses branding color if provided)
-      pdf.setDrawColor(accentRgb.r, accentRgb.g, accentRgb.b);
-      pdf.setLineWidth(0.8);
-      pdf.line(margin, headerHeight + margin - 2, pageWidth - margin, headerHeight + margin - 2);
-
-      // ── Content (cropped from the full image) ───────────
-      const sourceY = ((page * contentHeight) / ratio) * scaleFactor;
-      const sourceH = Math.min((contentHeight / ratio) * scaleFactor, imgHeight - sourceY);
-
-      const pageCanvas = document.createElement('canvas');
-      pageCanvas.width = imgWidth;
-      pageCanvas.height = sourceH;
-      const ctx = pageCanvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(canvas, 0, sourceY, imgWidth, sourceH, 0, 0, imgWidth, sourceH);
-        const pageImgData = pageCanvas.toDataURL('image/png');
-        const sliceHeight = (sourceH / scaleFactor) * ratio;
-        pdf.addImage(pageImgData, 'PNG', margin, headerHeight + margin, contentWidth, sliceHeight);
-      }
-
-      // ── Footer (single line: left / center / right) ────
-      const footerY = pageHeight - margin - 4;
-      pdf.setDrawColor(209, 213, 219); // gray-300
-      pdf.setLineWidth(0.3);
-      pdf.line(margin, footerY - 4, pageWidth - margin, footerY - 4);
-
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(6);
-      pdf.setTextColor(100, 116, 139);
-      // Left: confidential label
-      pdf.text(
-        `CONFIDENTIAL — ${branding?.footerText || (isWhiteLabel ? '' : 'Generated by Terrain (terrain.ambrosiaventures.co)')}`,
-        margin,
-        footerY,
-      );
-      // Center: copyright
-      pdf.text('\u00A9 2026 Ambrosia Ventures', pageWidth / 2, footerY, { align: 'center' });
-      // Right: date + page
-      pdf.text(`${dateString}  |  Page ${page + 1} of ${totalPages}`, pageWidth - margin, footerY, { align: 'right' });
+      // Draw footer
+      drawFooter(pdf, pageIdx, totalPages, dateString, footerLabel, isWhiteLabel);
     }
 
     pdf.save(`${filename}.pdf`);

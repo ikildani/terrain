@@ -194,32 +194,19 @@ export function PdfPreviewOverlay({
     if (isDownloading) return;
     setIsDownloading(true);
     try {
-      // Strategy: create a temporary visible clone of the report content,
-      // render it to canvas, then remove it. This avoids html2canvas issues
-      // with hidden/off-screen elements.
-      const sourceEl = paperRef.current;
-      if (!sourceEl) throw new Error('No report content to export');
-
-      // Create a temp container that's visible and properly sized
-      const tempDiv = document.createElement('div');
-      tempDiv.style.cssText = 'position:fixed;top:0;left:0;width:816px;z-index:99999;background:#fff;overflow:visible;';
-      tempDiv.className = 'export-light';
-      tempDiv.innerHTML = sourceEl.innerHTML;
-      document.body.appendChild(tempDiv);
-
-      // Wait for images and layout to settle
-      await new Promise<void>((r) => setTimeout(r, 500));
-      void tempDiv.offsetHeight;
+      // Strategy: find the real report content on the main page via
+      // [data-report-content] attribute. This gives exportToPdf access to
+      // live DOM nodes (not innerHTML clones), so section-aware capture
+      // can iterate direct children with full fidelity.
+      const mainContent = document.querySelector<HTMLElement>('[data-report-content]');
+      if (!mainContent) throw new Error('No report content found on page');
 
       const { exportToPdf } = await import('@/lib/export-pdf');
-      await exportToPdf(tempDiv, {
+      await exportToPdf(mainContent, {
         title: reportTitle,
         subtitle: reportSubtitle,
         filename,
       });
-
-      // Clean up
-      document.body.removeChild(tempDiv);
 
       toast.success('PDF downloaded');
       onClose();
