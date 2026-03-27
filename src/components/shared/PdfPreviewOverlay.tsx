@@ -201,12 +201,23 @@ export function PdfPreviewOverlay({
       const mainContent = document.querySelector<HTMLElement>('[data-report-content]');
       if (!mainContent) throw new Error('No report content found on page');
 
+      // Temporarily hide the overlay so html2canvas can capture the report underneath
+      const overlayEl = document.querySelector<HTMLElement>('[data-pdf-overlay]');
+      if (overlayEl) overlayEl.style.display = 'none';
+
+      // Scroll to top of report for clean capture
+      window.scrollTo(0, 0);
+      await new Promise<void>((r) => setTimeout(r, 300));
+
       const { exportToPdf } = await import('@/lib/export-pdf');
       await exportToPdf(mainContent, {
         title: reportTitle,
         subtitle: reportSubtitle,
         filename,
       });
+
+      // Restore overlay
+      if (overlayEl) overlayEl.style.display = '';
 
       toast.success('PDF downloaded');
       onClose();
@@ -227,6 +238,7 @@ export function PdfPreviewOverlay({
     <AnimatePresence>
       {isOpen && (
         <motion.div
+          data-pdf-overlay
           className="fixed inset-0 z-[200] flex flex-col"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
