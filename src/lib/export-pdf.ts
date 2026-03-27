@@ -128,6 +128,16 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
 
   try {
     // Capture at 2x for retina quality with reasonable file sizes (5-10MB vs 30MB+)
+    // Ensure the element is visible and has dimensions before capture
+    const computedStyle = window.getComputedStyle(element);
+    const wasHidden = computedStyle.visibility === 'hidden' || computedStyle.display === 'none';
+    if (wasHidden) {
+      element.style.visibility = 'visible';
+      element.style.display = 'block';
+      void element.offsetHeight; // Force reflow
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    }
+
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
@@ -136,7 +146,15 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
       windowWidth: 816, // Letter width at 96 DPI
       windowHeight: element.scrollHeight,
       allowTaint: false,
-      foreignObjectRendering: false, // More compatible across browsers
+      foreignObjectRendering: false,
+      onclone: (clonedDoc) => {
+        // Ensure cloned element is fully visible
+        const clonedEl = clonedDoc.querySelector('[data-report-content]');
+        if (clonedEl) {
+          (clonedEl as HTMLElement).style.visibility = 'visible';
+          (clonedEl as HTMLElement).style.display = 'block';
+        }
+      },
     });
 
     const imgWidth = canvas.width;

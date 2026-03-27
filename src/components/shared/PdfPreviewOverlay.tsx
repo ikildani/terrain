@@ -194,12 +194,39 @@ export function PdfPreviewOverlay({
     if (!paperRef.current || isDownloading) return;
     setIsDownloading(true);
     try {
+      // Temporarily make measurement container visible for html2canvas capture
+      const measureContainer = paperRef.current.parentElement;
+      const prevStyles = measureContainer
+        ? {
+            left: measureContainer.style.left,
+            visibility: measureContainer.style.visibility,
+            position: measureContainer.style.position,
+          }
+        : null;
+
+      if (measureContainer) {
+        measureContainer.style.left = '0';
+        measureContainer.style.visibility = 'visible';
+        measureContainer.style.position = 'fixed';
+        // Force layout recalc
+        void measureContainer.offsetHeight;
+        await new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+      }
+
       const { exportToPdf } = await import('@/lib/export-pdf');
       await exportToPdf(paperRef.current, {
         title: reportTitle,
         subtitle: reportSubtitle,
         filename,
       });
+
+      // Restore hidden state
+      if (measureContainer && prevStyles) {
+        measureContainer.style.left = prevStyles.left;
+        measureContainer.style.visibility = prevStyles.visibility;
+        measureContainer.style.position = prevStyles.position;
+      }
+
       toast.success('PDF downloaded');
       onClose();
     } catch (err) {
