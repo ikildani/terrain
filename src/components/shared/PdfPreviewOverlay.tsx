@@ -189,43 +189,37 @@ export function PdfPreviewOverlay({
     [metrics, zoom],
   );
 
-  // ── Download PDF (from hidden measurement container) ──────
+  // ── Download PDF ──────────────────────────────────────────
   const handleDownload = useCallback(async () => {
-    if (!paperRef.current || isDownloading) return;
+    if (isDownloading) return;
     setIsDownloading(true);
     try {
-      // Temporarily make measurement container visible for html2canvas capture
-      const measureContainer = paperRef.current.parentElement;
-      const prevStyles = measureContainer
-        ? {
-            left: measureContainer.style.left,
-            visibility: measureContainer.style.visibility,
-            position: measureContainer.style.position,
-          }
-        : null;
+      // Strategy: create a temporary visible clone of the report content,
+      // render it to canvas, then remove it. This avoids html2canvas issues
+      // with hidden/off-screen elements.
+      const sourceEl = paperRef.current;
+      if (!sourceEl) throw new Error('No report content to export');
 
-      if (measureContainer) {
-        measureContainer.style.left = '0';
-        measureContainer.style.visibility = 'visible';
-        measureContainer.style.position = 'fixed';
-        // Force layout recalc
-        void measureContainer.offsetHeight;
-        await new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
-      }
+      // Create a temp container that's visible and properly sized
+      const tempDiv = document.createElement('div');
+      tempDiv.style.cssText = 'position:fixed;top:0;left:0;width:816px;z-index:99999;background:#fff;overflow:visible;';
+      tempDiv.className = 'export-light';
+      tempDiv.innerHTML = sourceEl.innerHTML;
+      document.body.appendChild(tempDiv);
+
+      // Wait for images and layout to settle
+      await new Promise<void>((r) => setTimeout(r, 500));
+      void tempDiv.offsetHeight;
 
       const { exportToPdf } = await import('@/lib/export-pdf');
-      await exportToPdf(paperRef.current, {
+      await exportToPdf(tempDiv, {
         title: reportTitle,
         subtitle: reportSubtitle,
         filename,
       });
 
-      // Restore hidden state
-      if (measureContainer && prevStyles) {
-        measureContainer.style.left = prevStyles.left;
-        measureContainer.style.visibility = prevStyles.visibility;
-        measureContainer.style.position = prevStyles.position;
-      }
+      // Clean up
+      document.body.removeChild(tempDiv);
 
       toast.success('PDF downloaded');
       onClose();
