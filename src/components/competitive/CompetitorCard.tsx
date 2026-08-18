@@ -41,7 +41,7 @@ export default function CompetitorCard({ competitor, rank }: CompetitorCardProps
   const c = competitor;
 
   return (
-    <div className="card noise hover:border-teal-500/20 transition-all duration-200">
+    <div className="card hover:border-teal-500/20 transition-all duration-200">
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-start gap-3 min-w-0">

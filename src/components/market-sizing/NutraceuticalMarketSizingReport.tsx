@@ -108,7 +108,7 @@ function NutraceuticalMarketSizingReport({
   return (
     <div ref={reportRef} className="space-y-6 animate-fade-in" data-report-content>
       {/* Executive Summary */}
-      <div className="card noise">
+      <div className="card">
         <h3 className="chart-title">Executive Summary</h3>
         <p className="text-xs text-slate-400 leading-relaxed">
           The <span className="text-white font-medium">{ingredientName}</span> nutraceutical market represents a US
@@ -164,7 +164,7 @@ function NutraceuticalMarketSizingReport({
       </div>
 
       {/* Consumer Funnel */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <div className="flex items-center gap-2 mb-4">
           <Target className="w-4 h-4 text-teal-500" />
           <span className="chart-title !mb-0">Consumer Funnel</span>
@@ -226,7 +226,7 @@ function NutraceuticalMarketSizingReport({
 
       {/* Channel Revenue */}
       {data.channel_revenue.length > 0 && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="flex items-center gap-2 mb-4">
             <ShoppingCart className="w-4 h-4 text-teal-500" />
             <span className="chart-title !mb-0">Channel Revenue Breakdown</span>
@@ -278,7 +278,7 @@ function NutraceuticalMarketSizingReport({
 
       {/* DTC Unit Economics */}
       {data.dtc_unit_economics && (
-        <div className="card noise">
+        <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-4 h-4 text-teal-500" />
             <h3 className="chart-title !mb-0">DTC Unit Economics</h3>
@@ -333,7 +333,7 @@ function NutraceuticalMarketSizingReport({
 
       {/* Amazon Intelligence */}
       {data.amazon_intelligence && (
-        <div className="card noise">
+        <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <Boxes className="w-4 h-4 text-teal-500" />
             <h3 className="chart-title !mb-0">Amazon Intelligence</h3>
@@ -392,7 +392,7 @@ function NutraceuticalMarketSizingReport({
 
       {/* Subscription Model */}
       {data.subscription_model && (
-        <div className="card noise">
+        <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="w-4 h-4 text-teal-500" />
             <h3 className="chart-title !mb-0">Subscription Model</h3>
@@ -427,7 +427,7 @@ function NutraceuticalMarketSizingReport({
 
       {/* Geography Breakdown */}
       {data.geography_breakdown.length > 0 && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="flex items-center gap-2 mb-4">
             <Globe className="w-4 h-4 text-teal-500" />
             <span className="chart-title !mb-0">Geography Breakdown</span>
@@ -476,7 +476,7 @@ function NutraceuticalMarketSizingReport({
       )}
 
       {/* Competitive Positioning */}
-      <div className="card noise">
+      <div className="card">
         <div className="flex items-center gap-2 mb-4">
           <Target className="w-4 h-4 text-teal-500" />
           <h3 className="chart-title !mb-0">Competitive Positioning</h3>
@@ -539,7 +539,7 @@ function NutraceuticalMarketSizingReport({
       </div>
 
       {/* Regulatory Assessment */}
-      <div className="card noise">
+      <div className="card">
         <div className="flex items-center gap-2 mb-4">
           <Shield className="w-4 h-4 text-teal-500" />
           <h3 className="chart-title !mb-0">Regulatory Assessment</h3>
@@ -622,7 +622,7 @@ function NutraceuticalMarketSizingReport({
 
       {/* Clinical Evidence Impact */}
       {data.clinical_evidence_impact && (
-        <div className="card noise">
+        <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <FlaskConical className="w-4 h-4 text-teal-500" />
             <h3 className="chart-title !mb-0">Clinical Evidence Impact</h3>
@@ -659,7 +659,7 @@ function NutraceuticalMarketSizingReport({
 
       {/* Ingredient Supply Chain */}
       {data.ingredient_supply_chain && (
-        <div className="card noise">
+        <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <Package className="w-4 h-4 text-teal-500" />
             <h3 className="chart-title !mb-0">Ingredient Supply Chain</h3>
@@ -690,7 +690,7 @@ function NutraceuticalMarketSizingReport({
 
       {/* Acquisition Attractiveness */}
       {data.acquisition_attractiveness && (
-        <div className="card noise">
+        <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-4 h-4 text-teal-500" />
             <h3 className="chart-title !mb-0">Acquisition Attractiveness</h3>
@@ -778,7 +778,7 @@ function NutraceuticalMarketSizingReport({
 
       {/* Sensitivity Analysis */}
       {data.sensitivity_analysis && data.sensitivity_analysis.length > 0 && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="chart-title">Sensitivity Analysis</div>
           <div className="overflow-x-auto">
             <table className="data-table">
@@ -812,7 +812,7 @@ function NutraceuticalMarketSizingReport({
       )}
 
       {/* Methodology */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <button
           onClick={() => setMethodologyOpen(!methodologyOpen)}
           className="flex items-center justify-between w-full"

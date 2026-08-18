@@ -353,32 +353,67 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
     const children = Array.from(element.children) as HTMLElement[];
     const sections: CapturedSection[] = [];
 
-    for (const child of children) {
+    console.log(`[PDF Export] Found ${children.length} direct children`);
+
+    for (let ci = 0; ci < children.length; ci++) {
+      const child = children[ci];
       // Skip elements marked as no-print
-      if (child.hasAttribute('data-no-print') || child.dataset.noPrint !== undefined) continue;
+      if (child.hasAttribute('data-no-print') || child.dataset.noPrint !== undefined) {
+        console.log(`[PDF Export] Child ${ci}: skipped (data-no-print)`);
+        continue;
+      }
       // Skip invisible elements
       const childStyle = window.getComputedStyle(child);
-      if (childStyle.display === 'none' || childStyle.visibility === 'hidden') continue;
+      if (childStyle.display === 'none') {
+        console.log(`[PDF Export] Child ${ci}: skipped (display:none)`);
+        continue;
+      }
+      if (childStyle.visibility === 'hidden') {
+        console.log(`[PDF Export] Child ${ci}: skipped (visibility:hidden)`);
+        continue;
+      }
       // Skip zero-height elements
-      if (child.offsetHeight === 0) continue;
+      if (child.offsetHeight === 0) {
+        console.log(`[PDF Export] Child ${ci}: skipped (zero height)`);
+        continue;
+      }
 
-      const captured = await captureSection(child);
-      if (captured.heightMm > 0) {
-        sections.push(captured);
+      try {
+        const captured = await captureSection(child);
+        if (captured.heightMm > 0) {
+          sections.push(captured);
+          console.log(`[PDF Export] Child ${ci}: captured (${captured.heightMm.toFixed(1)}mm)`);
+        } else {
+          console.log(`[PDF Export] Child ${ci}: captured but 0mm height`);
+        }
+      } catch (err) {
+        console.warn(`[PDF Export] Child ${ci}: capture failed`, err);
+        // Continue with remaining sections
       }
     }
 
-    // If no sections were captured, fall back to capturing the whole element
+    console.log(`[PDF Export] Captured ${sections.length} sections from ${children.length} children`);
+
+    // If no sections were captured, fall back to capturing the whole element as one piece
     if (sections.length === 0) {
-      const wholeCaptured = await captureSection(element);
-      if (wholeCaptured.heightMm > 0) {
-        sections.push(wholeCaptured);
+      console.warn('[PDF Export] No sections captured, falling back to whole-element capture');
+      try {
+        const wholeCaptured = await captureSection(element);
+        if (wholeCaptured.heightMm > 0) {
+          sections.push(wholeCaptured);
+        }
+      } catch (err) {
+        console.error('[PDF Export] Whole-element capture also failed', err);
       }
     }
 
     if (sections.length === 0) {
       throw new Error('No content to export');
     }
+
+    console.log(
+      `[PDF Export] Total sections for pagination: ${sections.length}, heights: [${sections.map((s) => s.heightMm.toFixed(0)).join(', ')}]mm`,
+    );
 
     // ── Step 2: Plan pagination ──────────────────────────────────────
     // Walk through sections and determine page assignments.

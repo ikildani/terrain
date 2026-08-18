@@ -45,12 +45,15 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
     router.push('/login');
   }
 
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const segments = pathname.split('/').filter(Boolean);
-  const breadcrumbs = segments.map((seg, i) => ({
-    label: SEGMENT_LABELS[seg] || seg,
-    href: '/' + segments.slice(0, i + 1).join('/'),
-    isLast: i === segments.length - 1,
-  }));
+  const breadcrumbs = segments
+    .filter((seg) => !UUID_RE.test(seg))
+    .map((seg, i, filtered) => ({
+      label: SEGMENT_LABELS[seg] || seg.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      href: '/' + segments.slice(0, segments.indexOf(seg) + 1).join('/'),
+      isLast: i === filtered.length - 1,
+    }));
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

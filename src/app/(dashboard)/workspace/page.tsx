@@ -31,7 +31,7 @@ function WorkspaceContent() {
           </div>
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="card noise animate-pulse">
+              <div key={i} className="card animate-pulse">
                 <div className="h-3 w-20 bg-navy-700/60 rounded mb-3" />
                 <div className="h-5 w-48 bg-navy-700/60 rounded mb-2" />
                 <div className="h-3 w-32 bg-navy-700/40 rounded" />
@@ -48,7 +48,7 @@ function WorkspaceContent() {
     return (
       <>
         <PageHeader title="Workspace" subtitle="Collaborate with your team on shared reports and analyses." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -71,7 +71,7 @@ function WorkspaceContent() {
     return (
       <>
         <PageHeader title="Workspace" subtitle="Set up your team workspace to get started." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>

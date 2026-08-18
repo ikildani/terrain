@@ -59,7 +59,7 @@ function MetricCard({
   color?: string;
 }) {
   return (
-    <div className="card noise p-4">
+    <div className="card p-4">
       <p className="text-2xs text-slate-500 uppercase tracking-wider">{label}</p>
       <p className={cn('font-mono text-2xl font-semibold mt-1', color || 'text-white')}>{value}</p>
       {sublabel && <p className="text-2xs text-slate-500 mt-0.5">{sublabel}</p>}
@@ -126,7 +126,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
       </div>
 
       {/* ── Key Insight ──────────────────────────────────── */}
-      <div className="card noise p-4 border-l-2 border-teal-500">
+      <div className="card p-4 border-l-2 border-teal-500">
         <div className="flex items-start gap-2">
           <Lightbulb className="h-4 w-4 text-teal-500 mt-0.5 flex-shrink-0" />
           <div>
@@ -138,7 +138,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
 
       {/* ── White Space ──────────────────────────────────── */}
       {summary.white_space.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <Lightbulb className="h-4 w-4 text-signal-amber" />
             White Space Opportunities
@@ -159,7 +159,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
 
       {/* ── Biomarker Competition Matrix ──────────────────── */}
       {data.biomarker_competition_matrix.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <Dna className="h-4 w-4 text-teal-500" />
             Biomarker Competition Matrix
@@ -206,7 +206,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
 
       {/* ── Platform Comparison ───────────────────────────── */}
       {data.platform_comparison.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <Layers className="h-4 w-4 text-teal-500" />
             Platform Comparison
@@ -255,7 +255,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
       )}
 
       {/* ── Testing Landscape ────────────────────────────── */}
-      <div className="card noise p-4">
+      <div className="card p-4">
         <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
           <BarChart3 className="h-4 w-4 text-teal-500" />
           Testing Landscape
@@ -293,7 +293,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
 
       {/* ── Linked Drug Dependencies ─────────────────────── */}
       {data.linked_drug_dependency.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <Pill className="h-4 w-4 text-teal-500" />
             Linked Drug Dependencies
@@ -343,7 +343,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
 
       {/* ── Approved Tests Table ──────────────────────────── */}
       {data.approved_tests.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <FlaskConical className="h-4 w-4 text-signal-green" />
             FDA Approved / Cleared Tests ({data.approved_tests.length})
@@ -374,7 +374,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
 
       {/* ── Pipeline/LDT Tests Table ─────────────────────── */}
       {data.pipeline_tests.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <FlaskConical className="h-4 w-4 text-signal-amber" />
             Pipeline / LDT Tests ({data.pipeline_tests.length})
@@ -405,7 +405,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
 
       {/* ── Comparable CDx Deals ──────────────────────────── */}
       {data.comparable_cdx_deals && data.comparable_cdx_deals.deals.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <Database className="h-4 w-4 text-teal-500" />
             Comparable CDx / Diagnostics Deals
@@ -444,7 +444,7 @@ export default function CDxCompetitiveLandscapeReport({ data }: Props) {
       )}
 
       {/* ── Data Sources ──────────────────────────────────── */}
-      <div className="card noise p-4">
+      <div className="card p-4">
         <h3 className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Data Sources</h3>
         <div className="flex flex-wrap gap-2">
           {data.data_sources.map((src, i) => (

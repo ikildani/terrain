@@ -64,9 +64,9 @@ export function PricingSection() {
                 variants={fadeUp}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className={`card noise p-6 relative flex flex-col ${
+                className={`card p-6 relative flex flex-col ${
                   plan.highlighted
-                    ? 'border-teal-500/40 ring-1 ring-teal-500/20 shadow-teal-sm pro-card-accent'
+                    ? 'border-teal-500/40 ring-1 ring-teal-500/20 pro-card-accent'
                     : isEnterprise
                       ? 'border-slate-600/40'
                       : ''
@@ -132,9 +132,7 @@ export function PricingSection() {
                   <Link
                     href={plan.href}
                     className={`btn w-full text-center text-sm py-2.5 ${
-                      plan.highlighted
-                        ? 'btn-primary shadow-teal-sm hover:shadow-teal-md transition-shadow'
-                        : 'btn-secondary'
+                      plan.highlighted ? 'btn-primary transition-shadow' : 'btn-secondary'
                     }`}
                   >
                     {plan.cta}

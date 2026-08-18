@@ -101,7 +101,7 @@ function ProjectsContent() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="card noise animate-pulse p-5">
+            <div key={i} className="card animate-pulse p-5">
               <Skeleton className="h-5 w-32 mb-3" />
               <Skeleton className="h-3 w-48 mb-2" />
               <Skeleton className="h-3 w-24" />
@@ -117,7 +117,7 @@ function ProjectsContent() {
     return (
       <>
         <PageHeader title="Projects" subtitle="Organize deal rooms with information barriers." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -141,7 +141,7 @@ function ProjectsContent() {
       <>
         <PageHeader title="Projects" subtitle="Organize deal rooms with information barriers." />
         {shouldNudge ? (
-          <div className="card noise p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
+          <div className="card p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
             <div className="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center mb-4">
               <Info className="w-5 h-5 text-teal-400" />
             </div>
@@ -171,7 +171,7 @@ function ProjectsContent() {
     return (
       <>
         <PageHeader title="Projects" subtitle="Organize deal rooms with information barriers." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -209,7 +209,7 @@ function ProjectsContent() {
       {isLoadingProjects ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="card noise animate-pulse p-5">
+            <div key={i} className="card animate-pulse p-5">
               <Skeleton className="h-5 w-32 mb-3" />
               <Skeleton className="h-3 w-48 mb-2" />
               <Skeleton className="h-3 w-24" />
@@ -239,7 +239,7 @@ function ProjectsContent() {
       {/* Create project modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="card noise max-w-md w-full p-6">
+          <div className="card max-w-md w-full p-6">
             <h3 className="font-display text-lg text-white mb-4">Create Project</h3>
 
             <div className="space-y-4">

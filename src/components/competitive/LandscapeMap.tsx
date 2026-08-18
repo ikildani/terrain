@@ -3,23 +3,12 @@
 import { useMemo } from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Cell } from 'recharts';
 import type { Competitor, ClinicalPhase } from '@/types';
+import { PHASE_COLORS } from '@/lib/constants/chart-colors';
 
 interface LandscapeMapProps {
   competitors: Competitor[];
   highlightMechanism?: string;
 }
-
-const PHASE_COLORS: Record<ClinicalPhase, string> = {
-  Approved: '#34D399',
-  Withdrawn: '#64748B',
-  Discontinued: '#64748B',
-  'Phase 3': '#00C9A7',
-  'Phase 2/3': '#00C9A7',
-  'Phase 2': '#FBBF24',
-  'Phase 1/2': '#60A5FA',
-  'Phase 1': '#60A5FA',
-  Preclinical: '#94A3B8',
-};
 
 interface ScatterDataPoint {
   x: number;
@@ -83,14 +72,14 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
 
   if (competitors.length === 0) {
     return (
-      <div className="card noise p-8 text-center">
+      <div className="card p-8 text-center">
         <p className="text-slate-500 text-sm">No competitors to map.</p>
       </div>
     );
   }
 
   return (
-    <div className="card noise">
+    <div className="card">
       <h3 className="chart-title">Competitive Landscape Map</h3>
 
       {/* Legend */}

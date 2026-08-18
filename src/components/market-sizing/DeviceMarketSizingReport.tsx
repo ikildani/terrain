@@ -186,7 +186,7 @@ function DeviceMarketSizingReport({
       )}
 
       {/* ──────────────────────── 1. Executive Summary ──────────────────────── */}
-      <div className="card noise">
+      <div className="card">
         <h3 className="chart-title">Executive Summary</h3>
         <p className="text-sm text-slate-300 leading-relaxed">
           The <span className="text-white font-medium">{input.procedure_or_condition}</span> device market represents a
@@ -352,7 +352,7 @@ function DeviceMarketSizingReport({
       {data.revenue_streams.length > 0 && <RevenueStreamChart streams={data.revenue_streams} />}
 
       {/* ──────────────────────── 6. Adoption Model ──────────────────────── */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <div className="chart-title">Adoption Model</div>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Total US Sites */}
@@ -402,7 +402,7 @@ function DeviceMarketSizingReport({
       {data.geography_breakdown.length > 0 && <DeviceGeographyTable data={data.geography_breakdown} />}
 
       {/* ──────────────────────── 8. Reimbursement Analysis ──────────────────────── */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <div className="chart-title">Reimbursement Analysis</div>
         <div className="space-y-4">
           {/* Coverage status */}
@@ -491,7 +491,7 @@ function DeviceMarketSizingReport({
       </div>
 
       {/* ──────────────────────── 9. Competitive Positioning ──────────────────────── */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <div className="chart-title">Competitive Positioning</div>
         <div className="space-y-4">
           {/* Summary row */}
@@ -558,16 +558,16 @@ function DeviceMarketSizingReport({
       {!isPro && !previewMode && (
         <UpgradeGate feature="Advanced device analytics (NTAP economics, competitive share distribution, deal benchmarking, evidence gaps, pricing pressure, technology readiness, clinical superiority, surgeon switching costs, and sensitivity analysis)">
           <div className="space-y-6 opacity-50 pointer-events-none select-none">
-            <div className="chart-container noise h-[200px]" />
-            <div className="chart-container noise h-[300px]" />
-            <div className="chart-container noise h-[200px]" />
+            <div className="chart-container h-[200px]" />
+            <div className="chart-container h-[300px]" />
+            <div className="chart-container h-[200px]" />
           </div>
         </UpgradeGate>
       )}
 
       {/* ──────────────────────── A. NTAP & Reimbursement Economics ──────────────────────── */}
       {(isPro || previewMode) && showReimbursementDepth && data.reimbursement_analytics && (
-        <div className="chart-container noise" data-report-content>
+        <div className="chart-container" data-report-content>
           <div className="chart-title">NTAP &amp; Reimbursement Economics</div>
           <div className="space-y-4">
             {/* Risk score header */}
@@ -759,7 +759,7 @@ function DeviceMarketSizingReport({
 
       {/* ──────────────────────── B. Competitive Share Distribution ──────────────────────── */}
       {(isPro || previewMode) && data.competitive_share_distribution && (
-        <div className="chart-container noise" data-report-content>
+        <div className="chart-container" data-report-content>
           <div className="chart-title">Competitive Share Distribution</div>
           <div className="space-y-4">
             {/* Concentration metrics */}
@@ -824,7 +824,7 @@ function DeviceMarketSizingReport({
 
       {/* ──────────────────────── C. Evidence Gap Analysis ──────────────────────── */}
       {(isPro || previewMode) && showClinicalSections && data.evidence_gap_analysis && (
-        <div className="chart-container noise" data-report-content>
+        <div className="chart-container" data-report-content>
           <div className="chart-title">Evidence Gap Analysis</div>
           <div className="space-y-4">
             {/* Score header */}
@@ -884,7 +884,7 @@ function DeviceMarketSizingReport({
 
       {/* ──────────────────────── D. Pricing Pressure Model ──────────────────────── */}
       {(isPro || previewMode) && data.pricing_pressure && (
-        <div className="chart-container noise" data-report-content>
+        <div className="chart-container" data-report-content>
           <div className="chart-title">Pricing Pressure Model</div>
           <div className="space-y-4">
             {/* Key metrics */}
@@ -1003,7 +1003,7 @@ function DeviceMarketSizingReport({
 
       {/* ──────────────────────── E. Deal Benchmarking ──────────────────────── */}
       {(isPro || previewMode) && showDealSections && data.deal_benchmark && (
-        <div className="chart-container noise" data-report-content>
+        <div className="chart-container" data-report-content>
           <div className="chart-title">Deal Benchmarking</div>
           <div className="space-y-4">
             {/* Summary metrics */}
@@ -1089,7 +1089,7 @@ function DeviceMarketSizingReport({
 
       {/* ──────────────────────── F. Technology Readiness ──────────────────────── */}
       {(isPro || previewMode) && showClinicalSections && data.technology_readiness && (
-        <div className="chart-container noise" data-report-content>
+        <div className="chart-container" data-report-content>
           <div className="chart-title">Technology Readiness</div>
           <div className="space-y-4">
             {/* Summary */}
@@ -1190,7 +1190,7 @@ function DeviceMarketSizingReport({
 
       {/* ──────────────────────── G. Clinical Superiority Matrix ──────────────────────── */}
       {(isPro || previewMode) && showClinicalSections && data.clinical_superiority && (
-        <div className="chart-container noise" data-report-content>
+        <div className="chart-container" data-report-content>
           <div className="chart-title">Clinical Superiority Matrix</div>
           <div className="space-y-4">
             {/* Position header */}
@@ -1278,7 +1278,7 @@ function DeviceMarketSizingReport({
 
       {/* ──────────────────────── H. Surgeon Switching Cost ──────────────────────── */}
       {(isPro || previewMode) && showOperationalSections && data.surgeon_switching_cost && (
-        <div className="chart-container noise" data-report-content>
+        <div className="chart-container" data-report-content>
           <div className="chart-title">Surgeon Switching Cost Analysis</div>
           <div className="space-y-4">
             {/* Key metrics */}
@@ -1417,7 +1417,7 @@ function DeviceMarketSizingReport({
           const shareLabels = ['0.7x', '1.0x', '1.3x'];
 
           return (
-            <div className="chart-container noise" data-report-content>
+            <div className="chart-container" data-report-content>
               <div className="chart-title">Device Sensitivity Analysis</div>
               <p className="text-xs text-slate-500 mb-4">
                 3x3 matrix showing SOM sensitivity to procedure volume and market share assumptions. Base case
@@ -1472,7 +1472,7 @@ function DeviceMarketSizingReport({
         })()}
 
       {/* ──────────────────────── 11. Methodology ──────────────────────── */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <button
           onClick={() => setMethodologyOpen(!methodologyOpen)}
           className="flex items-center justify-between w-full"

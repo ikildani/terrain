@@ -12,7 +12,7 @@ export function BeforeAfterSection() {
           <h2 className="font-display text-3xl sm:text-4xl text-white mb-4">Traditional consulting vs. Terrain</h2>
         </div>
 
-        <div className="card noise p-0 overflow-hidden">
+        <div className="card p-0 overflow-hidden">
           {/* Header */}
           <div className="grid grid-cols-[1fr_120px_120px] sm:grid-cols-[1fr_160px_160px] border-b border-navy-700/60">
             <div className="px-5 py-3" />

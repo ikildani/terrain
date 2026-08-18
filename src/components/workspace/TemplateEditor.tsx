@@ -120,7 +120,7 @@ export function TemplateEditor({ workspaceId, template, onSave, onCancel }: Temp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="card noise w-full max-w-lg mx-4 max-h-[85vh] overflow-y-auto">
+      <div className="card w-full max-w-lg mx-4 max-h-[85vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-display text-lg text-white">{isEditing ? 'Edit Template' : 'Create Template'}</h2>

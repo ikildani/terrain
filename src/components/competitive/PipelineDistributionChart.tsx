@@ -3,22 +3,11 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { Competitor, ClinicalPhase } from '@/types';
+import { PHASE_COLORS } from '@/lib/constants/chart-colors';
 
 interface PipelineDistributionChartProps {
   competitors: Competitor[];
 }
-
-const PHASE_COLORS: Record<ClinicalPhase, string> = {
-  Approved: '#34D399',
-  Withdrawn: '#64748B',
-  Discontinued: '#64748B',
-  'Phase 3': '#00C9A7',
-  'Phase 2/3': '#00C9A7',
-  'Phase 2': '#FBBF24',
-  'Phase 1/2': '#60A5FA',
-  'Phase 1': '#60A5FA',
-  Preclinical: '#94A3B8',
-};
 
 const PHASE_DISPLAY_ORDER: ClinicalPhase[] = [
   'Approved',
@@ -110,14 +99,14 @@ export default function PipelineDistributionChart({ competitors }: PipelineDistr
 
   if (competitors.length === 0) {
     return (
-      <div className="card noise p-8 text-center">
+      <div className="card p-8 text-center">
         <p className="text-slate-500 text-sm">No competitor data available.</p>
       </div>
     );
   }
 
   return (
-    <div className="card noise" role="img" aria-label="Pipeline distribution chart">
+    <div className="card" role="img" aria-label="Pipeline distribution chart">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Phase Distribution */}
         <div>

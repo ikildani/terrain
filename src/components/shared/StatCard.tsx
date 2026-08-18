@@ -31,7 +31,7 @@ export function StatCard({
 }: StatCardProps) {
   const sparkId = `spark-${label.replace(/\s+/g, '')}`;
   return (
-    <div className={cn('stat-card noise', className)}>
+    <div className={cn('stat-card', className)}>
       <div className="flex items-center justify-between mb-1">
         <span className="label font-medium">{label}</span>
         {confidence && (

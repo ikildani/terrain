@@ -99,7 +99,7 @@ function TemplatesContent() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="card noise animate-pulse p-5">
+            <div key={i} className="card animate-pulse p-5">
               <Skeleton className="h-5 w-32 mb-3" />
               <Skeleton className="h-3 w-48 mb-2" />
               <Skeleton className="h-3 w-24" />
@@ -115,7 +115,7 @@ function TemplatesContent() {
     return (
       <>
         <PageHeader title="Templates" subtitle="Re-usable analysis configurations for your team." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -138,7 +138,7 @@ function TemplatesContent() {
     return (
       <>
         <PageHeader title="Templates" subtitle="Re-usable analysis configurations for your team." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -179,7 +179,7 @@ function TemplatesContent() {
       {isLoadingTemplates ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="card noise animate-pulse p-5">
+            <div key={i} className="card animate-pulse p-5">
               <Skeleton className="h-5 w-32 mb-3" />
               <Skeleton className="h-3 w-48 mb-2" />
               <Skeleton className="h-3 w-24" />

@@ -63,7 +63,7 @@ function AnimatedDashboardPreview() {
   const inView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <div ref={ref} className="card noise p-0 overflow-hidden">
+    <div ref={ref} className="card p-0 overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-navy-700/60 bg-navy-900/60">
         <span className="w-2 h-2 rounded-full bg-red-400/60" />
         <span className="w-2 h-2 rounded-full bg-amber-400/60" />
@@ -145,7 +145,7 @@ function AnimatedDashboardPreview() {
 
 function CompetitiveLandscapePreview() {
   return (
-    <div className="card noise p-0 overflow-hidden">
+    <div className="card p-0 overflow-hidden">
       <WindowChrome title="competitive landscape" />
       <div className="p-5">
         <div className="flex items-center justify-between mb-4">
@@ -245,7 +245,7 @@ function PartnerDiscoveryPreview() {
   const inView = useInView(ref, { once: true, margin: '-60px' });
 
   return (
-    <div ref={ref} className="card noise p-0 overflow-hidden">
+    <div ref={ref} className="card p-0 overflow-hidden">
       <WindowChrome title="partner discovery" />
       <div className="p-5">
         {/* Summary metrics */}
@@ -340,7 +340,7 @@ function RegulatoryPreview() {
   const inView = useInView(ref, { once: true, margin: '-60px' });
 
   return (
-    <div ref={ref} className="card noise p-0 overflow-hidden">
+    <div ref={ref} className="card p-0 overflow-hidden">
       <WindowChrome title="regulatory intelligence" />
       <div className="p-5">
         {/* Pathway card */}

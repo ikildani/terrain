@@ -33,7 +33,7 @@ function PathwayCard({
   return (
     <div
       className={cn(
-        'border rounded-lg p-4 transition-all noise',
+        'border rounded-lg p-4 transition-all',
         isPrimary ? 'bg-teal-900/20 border-teal-500/30' : 'bg-navy-900 border-navy-700 hover:border-navy-600',
       )}
     >
@@ -118,7 +118,7 @@ function DesignationCard({ designation }: { designation: DesignationOpportunity 
         : 'Unlikely';
 
   return (
-    <div className="border border-navy-700 rounded-lg p-4 bg-navy-900 hover:border-navy-600 transition-all noise">
+    <div className="border border-navy-700 rounded-lg p-4 bg-navy-900 hover:border-navy-600 transition-all">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
@@ -220,7 +220,7 @@ function TimelineBar({ data }: { data: RegulatoryOutput['timeline_estimate'] }) 
   if (data.approval_estimate) milestones.push({ label: 'Approval Estimate', date: data.approval_estimate });
 
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       <h3 className="chart-title">Timeline to Approval</h3>
 
       {/* Summary metrics */}
@@ -314,7 +314,7 @@ function ComparableApprovalsTable({ approvals }: { approvals: ComparableApproval
   if (approvals.length === 0) return null;
 
   return (
-    <div className="chart-container noise overflow-hidden">
+    <div className="chart-container overflow-hidden">
       <h3 className="chart-title">Comparable Approval Precedents</h3>
       <div className="overflow-x-auto">
         <table className="data-table">
@@ -378,7 +378,7 @@ function RiskSection({ risks }: { risks: RegulatoryRisk[] }) {
   if (risks.length === 0) return null;
 
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       <h3 className="chart-title">Key Regulatory Risks</h3>
       <div className="space-y-3">
         {risks.map((risk, i) => (
@@ -443,7 +443,7 @@ function MethodologySection({ data }: { data: RegulatoryOutput }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
@@ -532,14 +532,14 @@ export default function RegulatoryResults({ data }: { data: RegulatoryOutput }) 
     <div className="space-y-4 animate-fade-in">
       {/* Summary stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="stat-card noise">
+        <div className="stat-card">
           <p className="label mb-1">Primary Pathway</p>
           <p className="text-sm font-medium text-white leading-tight">{data.recommended_pathway.primary.name}</p>
           <p className="metric text-xs text-slate-400 mt-1">
             {data.recommended_pathway.primary.typical_review_months}mo review
           </p>
         </div>
-        <div className="stat-card noise">
+        <div className="stat-card">
           <p className="label mb-1">Realistic Timeline</p>
           <p className="metric text-xl text-white">
             {data.timeline_estimate.total_to_approval.realistic}
@@ -547,7 +547,7 @@ export default function RegulatoryResults({ data }: { data: RegulatoryOutput }) 
           </p>
           <p className="text-xs text-slate-500 mt-1">from current stage to approval</p>
         </div>
-        <div className="stat-card noise">
+        <div className="stat-card">
           <p className="label mb-1">Designations Available</p>
           <p className="metric text-xl text-white">
             {data.designation_opportunities.filter((d) => d.eligibility === 'likely').length}
@@ -560,7 +560,7 @@ export default function RegulatoryResults({ data }: { data: RegulatoryOutput }) 
       </div>
 
       {/* Recommended Pathway */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <h3 className="chart-title">Recommended Regulatory Pathway</h3>
         <div className="space-y-3">
           <PathwayCard pathway={data.recommended_pathway.primary} isPrimary={true} />
@@ -574,7 +574,7 @@ export default function RegulatoryResults({ data }: { data: RegulatoryOutput }) 
       <TimelineBar data={data.timeline_estimate} />
 
       {/* Designation Opportunities */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <h3 className="chart-title">Designation Opportunities</h3>
         <div className="space-y-3">
           {data.designation_opportunities
@@ -590,7 +590,7 @@ export default function RegulatoryResults({ data }: { data: RegulatoryOutput }) 
 
       {/* Advisory Committee Prediction — Pro */}
       {data.advisory_committee_model && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <h3 className="chart-title">Advisory Committee Prediction</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
             <div className="p-3 bg-navy-800/50 rounded-md">
@@ -667,7 +667,7 @@ export default function RegulatoryResults({ data }: { data: RegulatoryOutput }) 
 
       {/* CMC Risk Assessment — Pro */}
       {data.cmc_risk && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <h3 className="chart-title">CMC Risk Assessment</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
             <div className="p-3 bg-navy-800/50 rounded-md">
@@ -769,7 +769,7 @@ export default function RegulatoryResults({ data }: { data: RegulatoryOutput }) 
 
       {/* Development Cost Integration — Pro */}
       {data.cost_estimate && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <h3 className="chart-title">Development Cost Estimate</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
             <div className="p-3 bg-navy-800/50 rounded-md">

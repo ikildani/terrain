@@ -34,7 +34,7 @@ function getDensityBar(density: number): string {
 
 function SegmentationContent({ data }: { data: PatientSegmentation }) {
   return (
-    <div className="card noise">
+    <div className="card">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-teal-500" />

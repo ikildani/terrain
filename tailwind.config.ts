@@ -68,17 +68,13 @@ const config: Config = {
         xl: '16px',
       },
       boxShadow: {
-        'teal-sm': '0 0 12px rgba(0, 201, 167, 0.15)',
-        'teal-md': '0 0 24px rgba(0, 201, 167, 0.25)',
-        'teal-lg': '0 0 48px rgba(0, 201, 167, 0.35)',
         card: '0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px rgba(16, 34, 54, 0.8)',
-        'card-hover': '0 4px 16px rgba(0,0,0,0.5), 0 0 0 1px rgba(0, 201, 167, 0.2)',
+        'card-hover': '0 2px 8px rgba(0,0,0,0.4), 0 0 0 1px rgba(100, 116, 139, 0.2)',
         elevated: '0 8px 32px rgba(0,0,0,0.6)',
       },
       animation: {
         'fade-in': 'fadeIn 0.4s ease-out',
         'slide-up': 'slideUp 0.4s ease-out',
-        'pulse-teal': 'pulseTeal 2s ease-in-out infinite',
         shimmer: 'shimmer 1.5s ease-in-out infinite',
         counter: 'counter 1.5s ease-out',
       },
@@ -91,10 +87,6 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translateY(16px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        pulseTeal: {
-          '0%, 100%': { boxShadow: '0 0 12px rgba(0, 201, 167, 0.15)' },
-          '50%': { boxShadow: '0 0 24px rgba(0, 201, 167, 0.35)' },
-        },
         shimmer: {
           '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' },
@@ -102,8 +94,6 @@ const config: Config = {
       },
       backgroundImage: {
         shimmer: 'linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.04) 50%, transparent 75%)',
-        'glow-teal': 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,201,167,0.12) 0%, transparent 70%)',
-        'glow-subtle': 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,201,167,0.06) 0%, transparent 60%)',
       },
     },
   },

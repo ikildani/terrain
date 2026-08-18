@@ -53,7 +53,7 @@ function getImpactColor(value: number): string {
 
 function ScenariosContent({ scenarios }: { scenarios: CompetitorScenario[] }) {
   return (
-    <div className="card noise">
+    <div className="card">
       <div className="flex items-center gap-2 mb-4">
         <FlaskConical className="h-4 w-4 text-teal-500" />
         <h3 className="chart-title">Multi-Competitor Scenario Modeling</h3>

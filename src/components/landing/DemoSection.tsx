@@ -16,7 +16,7 @@ function LiveDemo() {
   const demo = DEMO_INDICATIONS[activeIdx];
 
   return (
-    <div className="card noise p-0 overflow-hidden">
+    <div className="card p-0 overflow-hidden">
       {/* Tabs */}
       <div className="flex border-b border-navy-700/60">
         {DEMO_INDICATIONS.map((d, i) => (
@@ -244,7 +244,7 @@ function TryItYourself() {
         </p>
       </div>
 
-      <div className="card noise p-6 max-w-2xl mx-auto">
+      <div className="card p-6 max-w-2xl mx-auto">
         {/* Indication input */}
         <div className="mb-4">
           <label className="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2 block">Indication</label>

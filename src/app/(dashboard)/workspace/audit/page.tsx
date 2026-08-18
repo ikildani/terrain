@@ -27,7 +27,7 @@ function AuditLogContent() {
         </div>
         <div className="space-y-2">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="card noise animate-pulse p-4">
+            <div key={i} className="card animate-pulse p-4">
               <Skeleton className="h-4 w-full" />
             </div>
           ))}
@@ -41,7 +41,7 @@ function AuditLogContent() {
     return (
       <>
         <PageHeader title="Audit Log" subtitle="Track all workspace activity for compliance and security." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -65,7 +65,7 @@ function AuditLogContent() {
       <>
         <PageHeader title="Audit Log" subtitle="Track all workspace activity for compliance and security." />
         {shouldNudge ? (
-          <div className="card noise p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
+          <div className="card p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
             <div className="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center mb-4">
               <Info className="w-5 h-5 text-teal-400" />
             </div>
@@ -93,7 +93,7 @@ function AuditLogContent() {
     return (
       <>
         <PageHeader title="Audit Log" subtitle="Track all workspace activity for compliance and security." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>

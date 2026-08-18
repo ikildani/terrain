@@ -52,7 +52,7 @@ const GEOGRAPHIES = [
   { value: 'Global', label: 'Global (all territories)' },
 ];
 
-const DEAL_TYPES: { value: typeof DEAL_TYPE_VALUES[number]; label: string }[] = [
+const DEAL_TYPES: { value: (typeof DEAL_TYPE_VALUES)[number]; label: string }[] = [
   { value: 'licensing', label: 'Licensing' },
   { value: 'co-development', label: 'Co-Development' },
   { value: 'acquisition', label: 'Acquisition' },
@@ -91,9 +91,7 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
         setValue('geography_rights', next, { shouldValidate: true });
       } else {
         const filtered = geos.filter((g) => g !== 'Global');
-        const next = filtered.includes(value)
-          ? filtered.filter((g) => g !== value)
-          : [...filtered, value];
+        const next = filtered.includes(value) ? filtered.filter((g) => g !== value) : [...filtered, value];
         setValue('geography_rights', next, { shouldValidate: true });
       }
     },
@@ -101,11 +99,9 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
   );
 
   const toggleDealType = useCallback(
-    (value: typeof DEAL_TYPE_VALUES[number]) => {
-      const next = dealTypes.includes(value)
-        ? dealTypes.filter((dt) => dt !== value)
-        : [...dealTypes, value];
-      setValue('deal_types', next as typeof DEAL_TYPE_VALUES[number][], { shouldValidate: true });
+    (value: (typeof DEAL_TYPE_VALUES)[number]) => {
+      const next = dealTypes.includes(value) ? dealTypes.filter((dt) => dt !== value) : [...dealTypes, value];
+      setValue('deal_types', next as (typeof DEAL_TYPE_VALUES)[number][], { shouldValidate: true });
     },
     [dealTypes, setValue],
   );
@@ -118,7 +114,7 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
   });
 
   return (
-    <div className="card noise">
+    <div className="card">
       <form onSubmit={doSubmit} className="space-y-5">
         {/* Indication */}
         <IndicationAutocomplete
@@ -158,7 +154,7 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
                   'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
                   stage === s.value
                     ? 'bg-teal-500/20 text-teal-400 border border-teal-500/30'
-                    : 'bg-navy-800 text-slate-400 border border-navy-700 hover:border-navy-600 hover:text-slate-300'
+                    : 'bg-navy-800 text-slate-400 border border-navy-700 hover:border-navy-600 hover:text-slate-300',
                 )}
               >
                 {s.label}
@@ -181,7 +177,7 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
                   'flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer transition-all',
                   geos.includes(geo.value)
                     ? 'bg-teal-500/10 border border-teal-500/20'
-                    : 'bg-navy-800/50 border border-navy-700/50 hover:border-navy-600'
+                    : 'bg-navy-800/50 border border-navy-700/50 hover:border-navy-600',
                 )}
               >
                 <input
@@ -190,10 +186,7 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
                   onChange={() => toggleGeo(geo.value)}
                   className="accent-teal-500 w-3.5 h-3.5"
                 />
-                <span className={cn(
-                  'text-xs',
-                  geos.includes(geo.value) ? 'text-teal-400' : 'text-slate-400'
-                )}>
+                <span className={cn('text-xs', geos.includes(geo.value) ? 'text-teal-400' : 'text-slate-400')}>
                   {geo.label}
                 </span>
               </label>
@@ -204,9 +197,7 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
         {/* Deal Type */}
         <div>
           <label className="input-label">Deal Type</label>
-          {errors.deal_types?.message && (
-            <p className="text-xs text-signal-red mt-0.5">{errors.deal_types.message}</p>
-          )}
+          {errors.deal_types?.message && <p className="text-xs text-signal-red mt-0.5">{errors.deal_types.message}</p>}
           <div className="flex flex-wrap gap-2 mt-1.5">
             {DEAL_TYPES.map((dt) => (
               <button
@@ -217,7 +208,7 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
                   'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
                   dealTypes.includes(dt.value)
                     ? 'bg-teal-500/20 text-teal-400 border border-teal-500/30'
-                    : 'bg-navy-800 text-slate-400 border border-navy-700 hover:border-navy-600 hover:text-slate-300'
+                    : 'bg-navy-800 text-slate-400 border border-navy-700 hover:border-navy-600 hover:text-slate-300',
                 )}
               >
                 {dt.label}
@@ -227,11 +218,7 @@ export default function PartnerSearchForm({ onSubmit, isLoading }: PartnerSearch
         </div>
 
         {/* Submit */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="btn btn-primary btn-lg w-full"
-        >
+        <button type="submit" disabled={isLoading} className="btn btn-primary btn-lg w-full">
           {isLoading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />

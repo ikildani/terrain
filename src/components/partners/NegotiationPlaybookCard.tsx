@@ -89,7 +89,7 @@ export default function NegotiationPlaybookCard({ playbook }: NegotiationPlayboo
         : 'Licensing';
 
   return (
-    <div className="card noise">
+    <div className="card">
       <div className="flex items-center gap-2 mb-4">
         <Shield className="w-4 h-4 text-teal-500" />
         <h3 className="chart-title">Negotiation Playbook</h3>

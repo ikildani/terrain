@@ -55,7 +55,7 @@ function AnalyticsContent() {
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="card noise animate-pulse p-5">
+            <div key={i} className="card animate-pulse p-5">
               <Skeleton className="h-3 w-20 mb-2" />
               <Skeleton className="h-8 w-16" />
             </div>
@@ -70,7 +70,7 @@ function AnalyticsContent() {
     return (
       <>
         <PageHeader title="Team Analytics" subtitle="Monitor workspace usage and team activity." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -93,7 +93,7 @@ function AnalyticsContent() {
     return (
       <>
         <PageHeader title="Team Analytics" subtitle="Monitor workspace usage and team activity." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -125,7 +125,7 @@ function AnalyticsContent() {
       {isLoadingAnalytics ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="card noise animate-pulse p-5">
+            <div key={i} className="card animate-pulse p-5">
               <Skeleton className="h-3 w-20 mb-2" />
               <Skeleton className="h-8 w-16" />
             </div>
@@ -133,28 +133,28 @@ function AnalyticsContent() {
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="card noise p-5">
+          <div className="card p-5">
             <div className="flex items-center gap-2 mb-2">
               <BarChart3 className="w-4 h-4 text-teal-500" />
               <span className="label text-slate-500">Total Analyses</span>
             </div>
             <p className="font-mono text-2xl font-semibold text-white">{analytics?.total_analyses ?? 0}</p>
           </div>
-          <div className="card noise p-5">
+          <div className="card p-5">
             <div className="flex items-center gap-2 mb-2">
               <FileText className="w-4 h-4 text-teal-500" />
               <span className="label text-slate-500">Total Reports</span>
             </div>
             <p className="font-mono text-2xl font-semibold text-white">{analytics?.total_reports ?? 0}</p>
           </div>
-          <div className="card noise p-5">
+          <div className="card p-5">
             <div className="flex items-center gap-2 mb-2">
               <Users className="w-4 h-4 text-teal-500" />
               <span className="label text-slate-500">Active Members</span>
             </div>
             <p className="font-mono text-2xl font-semibold text-white">{activeMembers}</p>
           </div>
-          <div className="card noise p-5">
+          <div className="card p-5">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-teal-500" />
               <span className="label text-slate-500">Trending</span>
@@ -168,7 +168,7 @@ function AnalyticsContent() {
       {isLoadingAnalytics ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="card noise animate-pulse p-5 h-72">
+            <div key={i} className="card animate-pulse p-5 h-72">
               <Skeleton className="h-4 w-32 mb-4" />
               <Skeleton className="h-full w-full rounded" />
             </div>

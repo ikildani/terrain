@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { PageHeader } from '@/components/layout/PageHeader';
 import dynamic from 'next/dynamic';
@@ -71,7 +71,8 @@ function renderReportForCategory(report: Report, preview = false, onPdfExport?: 
   );
 }
 
-export default function MarketSizingReportPage({ params }: { params: { reportId: string } }) {
+export default function MarketSizingReportPage({ params }: { params: Promise<{ reportId: string }> }) {
+  const { reportId } = use(params);
   const [report, setReport] = useState<Report | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +82,7 @@ export default function MarketSizingReportPage({ params }: { params: { reportId:
     async function load() {
       setIsLoading(true);
       try {
-        const res = await apiGet<Report>(`/api/reports/${params.reportId}`);
+        const res = await apiGet<Report>(`/api/reports/${reportId}`);
         if (res.success && res.data) {
           setReport(res.data);
         } else {
@@ -94,13 +95,13 @@ export default function MarketSizingReportPage({ params }: { params: { reportId:
       }
     }
     load();
-  }, [params.reportId]);
+  }, [reportId]);
 
   return (
     <ErrorBoundary>
       <PageHeader
         title={report?.title ?? 'Market Assessment Report'}
-        subtitle={report ? `${report.indication} — ${report.report_type}` : `Report ${params.reportId}`}
+        subtitle={report ? `${report.indication} — ${report.report_type}` : `Report ${reportId}`}
         actions={
           <Link href="/market-sizing" className="btn btn-ghost">
             <ArrowLeft className="w-4 h-4" />
@@ -122,7 +123,7 @@ export default function MarketSizingReportPage({ params }: { params: { reportId:
       )}
 
       {error && !isLoading && (
-        <div className="card noise p-12 text-center flex flex-col items-center">
+        <div className="card p-12 text-center flex flex-col items-center">
           <FileText className="w-12 h-12 text-navy-600 mb-4" />
           <h3 className="font-display text-lg text-slate-200 mb-2">Report Not Found</h3>
           <p className="text-sm text-slate-500 max-w-md mb-6">{error}</p>

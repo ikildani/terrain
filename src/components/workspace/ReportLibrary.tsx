@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils/cn';
 import { FolderTree } from './FolderTree';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { REPORT_TYPE_COLORS, REPORT_TYPE_ROUTES, formatReportType } from '@/lib/constants/chart-colors';
 import type { ReportFolder, WorkspaceRole } from '@/types';
 
 // ────────────────────────────────────────────────────────────
@@ -37,21 +38,6 @@ interface ReportLibraryProps {
 // Constants
 // ────────────────────────────────────────────────────────────
 
-const REPORT_TYPE_COLORS: Record<string, string> = {
-  market_sizing: 'bg-teal-500/15 text-teal-400 border-teal-500/20',
-  competitive: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
-  regulatory: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
-  partners: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
-  full: 'bg-slate-500/15 text-slate-400 border-slate-500/20',
-};
-
-const REPORT_TYPE_ROUTES: Record<string, string> = {
-  market_sizing: '/market-sizing',
-  competitive: '/competitive',
-  regulatory: '/regulatory',
-  partners: '/partners',
-};
-
 type SortField = 'created_at' | 'updated_at' | 'title';
 type SortOrder = 'asc' | 'desc';
 
@@ -59,15 +45,8 @@ type SortOrder = 'asc' | 'desc';
 // Helpers
 // ────────────────────────────────────────────────────────────
 
-function formatReportType(reportType: string): string {
-  return reportType
-    .split('_')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
-
 function getReportTypeBadgeClass(reportType: string): string {
-  return REPORT_TYPE_COLORS[reportType] ?? REPORT_TYPE_COLORS.full;
+  return REPORT_TYPE_COLORS[reportType] ?? REPORT_TYPE_COLORS['full'];
 }
 
 function getReportHref(report: { id: string; report_type: string }): string {
@@ -360,7 +339,7 @@ export function ReportLibrary({ workspaceId, myRole }: ReportLibraryProps) {
         {isLoadingReports ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="card noise animate-pulse">
+              <div key={i} className="card animate-pulse">
                 <div className="h-3 w-20 bg-navy-700/60 rounded mb-3" />
                 <div className="h-5 w-48 bg-navy-700/60 rounded mb-2" />
                 <div className="h-3 w-32 bg-navy-700/40 rounded mb-4" />
@@ -377,7 +356,7 @@ export function ReportLibrary({ workspaceId, myRole }: ReportLibraryProps) {
               <Link
                 key={report.id}
                 href={getReportHref(report)}
-                className="card noise group hover:border-teal-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-teal-sm"
+                className="card group hover:border-teal-500/30 transition-all duration-200"
               >
                 {/* Report type badge */}
                 <div className="flex items-center justify-between mb-2">

@@ -98,7 +98,7 @@ function ReportsContent() {
           {filtered.map((report) => (
             <div
               key={report.id}
-              className="card noise p-4 flex items-center gap-4 hover:border-navy-600 transition-colors group"
+              className="card p-4 flex items-center gap-4 hover:border-navy-600 transition-colors group"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">

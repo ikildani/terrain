@@ -41,38 +41,25 @@
 ### Typography
 
 ```
-Display font:    "DM Serif Display" (headings, hero text, report titles)
-Body font:       "Sora" (all body copy, UI labels, navigation)
-Mono font:       "DM Mono" (data values, metrics, code, table numbers)
+Display font:    "Playfair Display" (headings, hero text, report titles)
+Body font:       "Inter" (all body copy, UI labels, navigation)
+Mono font:       "JetBrains Mono" (data values, metrics, code, table numbers)
 ```
 
-Load from Google Fonts:
-
-```
-https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap
-```
+Loaded via `next/font/google` in the root layout.
 
 ### Design Principles
 
 - **Data density**: Show more information than typical SaaS tools. Think Bloomberg, not Notion.
-- **Texture over flatness**: Use `noise.png` SVG texture overlays at 3-5% opacity on dark surfaces.
+- **Clean surfaces**: No noise textures, no decorative overlays. Institutional tools use flat, clean surfaces.
 - **No gradients for decoration**: Gradients only for data visualization and focus glow effects.
 - **Institutional tables**: Every data table should look like it came from a Morgan Stanley equity research report.
-- **Numbers in mono**: Every metric, percentage, dollar value, and count uses DM Mono font.
+- **Numbers in mono**: Every metric, percentage, dollar value, and count uses JetBrains Mono font.
 - **Teal as signal**: Teal (#00C9A7) means "active", "positive", "selected", "primary action". Never use it decoratively.
 
-### Noise texture (use inline SVG for the filter):
+### Chart Colors
 
-```css
-.noise::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  border-radius: inherit;
-}
-```
+Use shared constants from `src/lib/constants/chart-colors.ts` for all chart components. Never declare local color objects in individual chart files.
 
 ---
 

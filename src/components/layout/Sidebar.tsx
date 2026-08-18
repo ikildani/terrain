@@ -11,7 +11,6 @@ import {
   Settings,
   CreditCard,
   UsersRound,
-  Sparkles,
   X,
   LayoutDashboard,
   ExternalLink,
@@ -26,7 +25,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useSubscription } from '@/hooks/useSubscription';
-import { PLAN_DISPLAY } from '@/lib/subscription';
 
 interface NavItem {
   label: string;
@@ -80,7 +78,7 @@ const ENTERPRISE_ITEMS: NavItem[] = [
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { plan, isPro, isEnterprise, hasWorkspace } = useSubscription();
+  const { isPro, isEnterprise, hasWorkspace } = useSubscription();
   const settingsActive = pathname.startsWith('/settings');
 
   function isActive(href: string) {
@@ -147,12 +145,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     >
                       <Icon />
                       <span className="flex-1">{item.label}</span>
-                      {item.pro && !isPro && (
-                        <span className="badge-pro text-[9px] px-1.5 py-0.5 flex items-center gap-1">
-                          <Lock className="w-2.5 h-2.5" />
-                          PRO
-                        </span>
-                      )}
+                      {item.pro && !isPro && <Lock className="w-3.5 h-3.5 text-slate-600 shrink-0" />}
                     </Link>
                   );
                 })}
@@ -184,12 +177,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   >
                     <Icon />
                     <span className="flex-1">{item.label}</span>
-                    {item.enterprise && !isEnterprise && (
-                      <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded border bg-amber-500/10 text-amber-400 border-amber-500/20 flex items-center gap-1">
-                        <Lock className="w-2.5 h-2.5" />
-                        ENT
-                      </span>
-                    )}
+                    {item.enterprise && !isEnterprise && <Lock className="w-3.5 h-3.5 text-slate-600 shrink-0" />}
                   </Link>
                 );
               })}
@@ -263,26 +251,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           <ExternalLink className="w-3.5 h-3.5" />
           ambrosiaventures.co
         </a>
-
-        {/* Upgrade card — hidden for team/enterprise plans */}
-        {plan !== 'team' && plan !== 'enterprise' && (
-          <div className="sidebar-upgrade-card">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-teal-400" />
-              <span className="text-sm font-semibold text-white">
-                {plan === 'free' ? 'Upgrade to Pro' : 'Upgrade to Team'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              {plan === 'free'
-                ? 'Unlock partner discovery, regulatory intel, and export capabilities.'
-                : `Add ${PLAN_DISPLAY.team.name} features: ${PLAN_DISPLAY.team.tagline}`}
-            </p>
-            <Link href="/settings/billing" className="btn btn-primary btn-sm w-full mt-3">
-              {plan === 'free' ? 'View Plans' : 'Manage Plan'}
-            </Link>
-          </div>
-        )}
       </aside>
     </>
   );

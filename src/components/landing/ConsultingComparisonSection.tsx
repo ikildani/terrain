@@ -62,7 +62,7 @@ export function ConsultingComparisonSection() {
           </p>
         </div>
 
-        <div className="card noise p-0 overflow-x-auto">
+        <div className="card p-0 overflow-x-auto">
           {/* Header */}
           <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] border-b border-navy-700/60 min-w-[560px]">
             <div className="px-5 py-4" />

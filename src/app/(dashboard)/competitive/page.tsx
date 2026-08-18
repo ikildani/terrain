@@ -190,7 +190,7 @@ export default function CompetitivePage() {
             <div className="flex-1 min-w-0">
               {isLoading && <ResultsSkeleton />}
               {!isLoading && error && (
-                <div className="card noise p-8 text-center">
+                <div className="card p-8 text-center">
                   <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
                     {error}
                   </p>

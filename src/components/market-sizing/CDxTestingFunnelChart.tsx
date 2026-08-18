@@ -77,7 +77,7 @@ function CDxTestingFunnelChart({ funnel }: CDxTestingFunnelChartProps) {
   ];
 
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       <div className="chart-title">Patient Testing Funnel</div>
       <div style={{ overflowX: 'auto' }}>
         <BarChart width={600} height={320} data={data} margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>

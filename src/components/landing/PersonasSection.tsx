@@ -34,7 +34,7 @@ export function PersonasSection() {
                 key={p.title}
                 variants={fadeUp}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="card noise p-6"
+                className="card p-6"
               >
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-lg bg-teal-500/10 border border-teal-500/10 flex items-center justify-center">

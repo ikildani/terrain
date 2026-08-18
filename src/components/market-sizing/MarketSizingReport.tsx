@@ -196,7 +196,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
       )}
 
       {/* Executive Summary */}
-      <div className="card noise">
+      <div className="card">
         <h3 className="chart-title">Executive Summary</h3>
         <p className="text-sm text-slate-300 leading-relaxed">
           The <span className="text-white font-medium">{input.indication}</span> market
@@ -352,9 +352,9 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
       {!isPro && !previewMode && (
         <UpgradeGate feature="Advanced analytics (sensitivity analysis, payer-tier pricing, regulatory pathway, label expansion, manufacturing constraints, and pricing comparables)">
           <div className="space-y-6 opacity-50 pointer-events-none select-none">
-            <div className="chart-container noise h-[200px]" />
-            <div className="chart-container noise h-[300px]" />
-            <div className="chart-container noise h-[200px]" />
+            <div className="chart-container h-[200px]" />
+            <div className="chart-container h-[300px]" />
+            <div className="chart-container h-[200px]" />
           </div>
         </UpgradeGate>
       )}
@@ -372,7 +372,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
       {/* Pricing Comparables */}
       {(isPro || previewMode) && data.pricing_analysis.comparable_drugs.length > 0 && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="chart-title">Pricing Comparables</div>
           <div className="overflow-x-auto">
             <table className="data-table">
@@ -418,7 +418,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
       {/* ──────────────────────── Regulatory Pathway Analysis ──────────────────────── */}
       {(isPro || previewMode) && data.regulatory_pathway_analysis && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="chart-title">Regulatory Pathway Analysis</div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div className="p-3 bg-navy-800/50 rounded-md">
@@ -469,7 +469,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
       {/* ──────────────────────── Payer-Tier Pricing ──────────────────────── */}
       {(isPro || previewMode) && data.payer_tier_pricing && data.payer_tier_pricing.length > 0 && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="chart-title">Payer-Tier Pricing Analysis</div>
           {/* Year 1 tier breakdown */}
           {(() => {
@@ -550,7 +550,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
         showDealSections &&
         data.label_expansion_opportunities &&
         data.label_expansion_opportunities.length > 0 && (
-          <div className="chart-container noise">
+          <div className="chart-container">
             <div className="chart-title">Label Expansion Opportunities</div>
             <div className="space-y-4">
               {data.label_expansion_opportunities.map((exp) => (
@@ -592,7 +592,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
         showManufacturing &&
         data.manufacturing_constraint &&
         data.manufacturing_constraint.constrained_years.length > 0 && (
-          <div className="chart-container noise">
+          <div className="chart-container">
             <div className="chart-title">Manufacturing Capacity Constraints</div>
             <div className="flex items-center gap-3 mb-4">
               <span className="text-xs text-slate-400">Product Type:</span>
@@ -638,7 +638,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
       {/* ──────────────────────── Competitive Mechanism Analysis ──────────────────────── */}
       {(isPro || previewMode) && data.competitive_mechanism_analysis && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="flex items-center justify-between mb-4">
             <div className="chart-title !mb-0">Competitive Mechanism Analysis</div>
             <span
@@ -728,7 +728,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
       {/* ──────────────────────── Patent Cliff Analysis ──────────────────────── */}
       {(isPro || previewMode) && data.patent_cliff_analysis && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="chart-title">Patent Cliff & LOE Analysis</div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div className="p-3 bg-navy-800/50 rounded-md">
@@ -789,7 +789,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
       {/* ──────────────────────── Investment Thesis (Bull / Base / Bear) ──────────────────────── */}
       {(isPro || previewMode) && data.investment_thesis && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="chart-title">Investment Thesis — Bull / Base / Bear</div>
 
           {/* Scenario cards */}
@@ -946,7 +946,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
       {/* ──────────────────────── Deal Comps & Implied Valuation ──────────────────────── */}
       {(isPro || previewMode) && (fullDepth || showDealSections) && data.deal_comps_analysis && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="chart-title">Deal Comps &amp; Implied Valuation</div>
 
           {/* Top metric cards */}
@@ -1032,7 +1032,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
       {/* ──────────────────────── Clinical Development Cost Estimate ──────────────────────── */}
       {(isPro || previewMode) && data.development_cost_estimate && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="chart-title">Clinical Development Cost Estimate</div>
 
           {/* Phase progression display */}
@@ -1091,7 +1091,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
       {/* ──────────────────────── DCF Waterfall ──────────────────────── */}
       {(isPro || previewMode) && (fullDepth || showDealSections) && data.dcf_waterfall && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="chart-title">DCF Waterfall Analysis</div>
 
           {/* Discount rate */}
@@ -1210,7 +1210,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
       {/* ──────────────────────── One-Time Treatment Model ──────────────────────── */}
       {(isPro || previewMode) && data.one_time_treatment_model?.is_one_time && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="flex items-center gap-3 mb-4">
             <div className="chart-title !mb-0">One-Time Treatment Revenue Model</div>
             <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-purple-500/12 text-purple-400 border border-purple-500/20">
@@ -1271,7 +1271,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
       {/* ──────────────────────── Pediatric Analysis ──────────────────────── */}
       {(isPro || previewMode) && data.pediatric_analysis?.is_pediatric_focused && (
-        <div className="chart-container noise">
+        <div className="chart-container">
           <div className="flex items-center gap-3 mb-4">
             <div className="chart-title !mb-0">Pediatric Population Analysis</div>
             <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-blue-500/12 text-blue-400 border border-blue-500/20">
@@ -1301,7 +1301,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
       )}
 
       {/* Methodology */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <button
           onClick={() => setMethodologyOpen(!methodologyOpen)}
           className="flex items-center justify-between w-full"

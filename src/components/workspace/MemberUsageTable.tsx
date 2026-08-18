@@ -49,7 +49,7 @@ export function MemberUsageTable({ members }: MemberUsageTableProps) {
   ];
 
   return (
-    <div className="card noise">
+    <div className="card">
       <div className="p-4 border-b border-navy-700/30">
         <h3 className="label text-slate-400">Usage by Member</h3>
       </div>

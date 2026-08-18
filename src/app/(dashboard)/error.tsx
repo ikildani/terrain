@@ -15,7 +15,7 @@ export default function DashboardError({ error, reset }: { error: Error & { dige
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4">
-      <div className="card noise relative max-w-lg w-full p-8 text-center">
+      <div className="card relative max-w-lg w-full p-8 text-center">
         <div className="relative z-10">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-400/10 border border-red-400/20">
             <svg

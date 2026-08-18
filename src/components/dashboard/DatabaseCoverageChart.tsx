@@ -26,13 +26,7 @@ const THERAPY_AREA_COUNTS: { area: string; count: number }[] = [
   { area: 'dermatology', count: 4 },
 ];
 
-const COLORS = {
-  emerald: '#34D399',
-  navy: '#0D1B2E',
-  navyLight: '#102236',
-  text: '#94A3B8',
-  grid: '#102236',
-};
+import { CHART_COLORS } from '@/lib/constants/chart-colors';
 
 /** Format therapy_area slug to Title Case */
 function formatTherapyArea(area: string): string {
@@ -69,7 +63,7 @@ export default function DatabaseCoverageChart() {
   }));
 
   return (
-    <div className="chart-container noise relative">
+    <div className="chart-container relative">
       <div className="mb-4">
         <h3 className="label">Database Coverage by Therapy Area</h3>
         <p className="text-2xs text-slate-600 mt-0.5">
@@ -80,11 +74,11 @@ export default function DatabaseCoverageChart() {
       <div role="img" aria-label="Database coverage by therapy area">
         <ResponsiveContainer width="100%" height={Math.max(200, chartData.length * 36 + 20)}>
           <BarChart layout="vertical" data={chartData} margin={{ top: 4, right: 48, left: 8, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} horizontal={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} horizontal={false} />
             <XAxis
               type="number"
               allowDecimals={false}
-              tick={{ fontSize: 10, fontFamily: '"JetBrains Mono"', fill: COLORS.text }}
+              tick={{ fontSize: 10, fontFamily: '"JetBrains Mono"', fill: CHART_COLORS.text }}
               axisLine={false}
               tickLine={false}
             />
@@ -92,12 +86,12 @@ export default function DatabaseCoverageChart() {
               type="category"
               dataKey="label"
               width={140}
-              tick={{ fontSize: 11, fontFamily: '"Inter"', fill: COLORS.text }}
+              tick={{ fontSize: 11, fontFamily: '"Inter"', fill: CHART_COLORS.text }}
               axisLine={false}
               tickLine={false}
             />
             <Tooltip
-              cursor={{ fill: COLORS.navyLight }}
+              cursor={{ fill: CHART_COLORS.navyLight }}
               content={({ active, payload }) => {
                 if (!active || !payload?.[0]) return null;
                 const d = payload[0].payload;
@@ -111,7 +105,7 @@ export default function DatabaseCoverageChart() {
                 );
               }}
             />
-            <Bar dataKey="count" fill={COLORS.emerald} opacity={0.85} radius={[0, 4, 4, 0]} barSize={22}>
+            <Bar dataKey="count" fill={CHART_COLORS.positive} opacity={0.85} radius={[0, 4, 4, 0]} barSize={22}>
               <LabelList
                 dataKey="count"
                 position="right"

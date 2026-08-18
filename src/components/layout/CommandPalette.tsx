@@ -20,6 +20,7 @@ import {
 import { cn } from '@/lib/utils/cn';
 import { useReports } from '@/hooks/useReports';
 import { useSubscription } from '@/hooks/useSubscription';
+import { REPORT_TYPE_ROUTES } from '@/lib/constants/chart-colors';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -35,13 +36,6 @@ interface CommandItem {
   subtitle?: string;
   pro?: boolean;
 }
-
-const REPORT_TYPE_ROUTES: Record<string, string> = {
-  market_sizing: '/market-sizing',
-  competitive: '/competitive',
-  regulatory: '/regulatory',
-  partners: '/partners',
-};
 
 const NAV_COMMANDS: CommandItem[] = [
   { id: 'nav-dashboard', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, category: 'Navigation' },

@@ -172,7 +172,7 @@ export function AuditLogTable({ workspaceId, members }: AuditLogTableProps) {
           ))}
         </div>
         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <div key={i} className="card noise animate-pulse p-3 flex gap-4">
+          <div key={i} className="card animate-pulse p-3 flex gap-4">
             <Skeleton className="h-4 w-32" />
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-4 w-28" />
@@ -194,7 +194,7 @@ export function AuditLogTable({ workspaceId, members }: AuditLogTableProps) {
       />
 
       {/* Table */}
-      <div className="card noise overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

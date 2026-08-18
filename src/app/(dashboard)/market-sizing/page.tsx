@@ -82,7 +82,7 @@ function ResultsSkeleton() {
 
 function FormSkeleton() {
   return (
-    <div className="card noise p-6 space-y-5 animate-fade-in">
+    <div className="card p-6 space-y-5 animate-fade-in">
       {/* Product type selector */}
       <div className="space-y-2">
         <Skeleton className="h-3 w-24" />
@@ -266,7 +266,7 @@ export default function MarketSizingPage() {
           <div className="flex-1 min-w-0">
             {isLoading && <ResultsSkeleton />}
             {!isLoading && error && (
-              <div className="card noise p-8 text-center">
+              <div className="card p-8 text-center">
                 <p className="text-sm text-signal-red bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
                   {error}
                 </p>

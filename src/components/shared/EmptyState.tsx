@@ -24,7 +24,7 @@ export function EmptyState({ icon: Icon, heading, description, cta, variant = 'c
     <div
       className={cn(
         'flex flex-col items-center text-center',
-        variant === 'card' && 'card noise p-12',
+        variant === 'card' && 'card p-12',
         variant === 'inline' && 'py-10',
         className,
       )}

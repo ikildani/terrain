@@ -4,24 +4,12 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, ResponsiveContainer, LabelL
 import { cn } from '@/lib/utils/cn';
 import { formatMetric } from '@/lib/utils/format';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
-
-const COLORS = {
-  teal: '#00C9A7',
-  tealDark: '#002E27',
-  navy: '#0D1B2E',
-  navyLight: '#102236',
-  slate: '#64748B',
-  slateLight: '#94A3B8',
-  emerald: '#34D399',
-  amber: '#FBBF24',
-  text: '#94A3B8',
-  grid: '#102236',
-};
+import { CHART_COLORS } from '@/lib/constants/chart-colors';
 
 const BAR_FILLS = {
-  TAM: '#475569', // slate-600
-  SAM: '#002E27', // tealDark
-  SOM: '#00C9A7', // teal
+  TAM: CHART_COLORS.muted,
+  SAM: '#002E27',
+  SOM: CHART_COLORS.primary,
 };
 
 interface TAMChartProps {
@@ -47,7 +35,7 @@ function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
   ];
 
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       {/* Global TAM stat displayed above chart when provided */}
       {globalTam && (
         <div className="flex items-center gap-3 mb-4 pb-4 border-b border-navy-700">
@@ -84,12 +72,12 @@ function TAMChart({ tam, sam, som, globalTam }: TAMChartProps) {
             type="category"
             dataKey="name"
             width={48}
-            tick={{ fontSize: 12, fontFamily: '"JetBrains Mono"', fill: COLORS.text }}
+            tick={{ fontSize: 12, fontFamily: '"JetBrains Mono"', fill: CHART_COLORS.text }}
             axisLine={false}
             tickLine={false}
           />
           <Tooltip
-            cursor={{ fill: COLORS.navyLight }}
+            cursor={{ fill: CHART_COLORS.navyLight }}
             content={({ active, payload }) => {
               if (!active || !payload?.[0]) return null;
               const d = payload[0].payload as ChartDatum;

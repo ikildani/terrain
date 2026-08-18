@@ -405,7 +405,7 @@ function InteractiveCalculator() {
   }, [indication, stage]);
 
   return (
-    <div className="card noise p-0 overflow-hidden">
+    <div className="card p-0 overflow-hidden">
       {/* Header */}
       <div className="px-6 py-4 border-b border-navy-700/60 flex items-center gap-2">
         <Calculator className="w-4 h-4 text-teal-500" />

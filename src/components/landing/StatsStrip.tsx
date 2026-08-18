@@ -53,7 +53,7 @@ function AnimatedStat({
 
 export function StatsStrip() {
   return (
-    <section className="border-y border-navy-700/60 bg-navy-900/40 noise">
+    <section className="border-y border-navy-700/60 bg-navy-900/40">
       <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-6">
         {STATS.map((stat) => (
           <AnimatedStat key={stat.label} {...stat} />

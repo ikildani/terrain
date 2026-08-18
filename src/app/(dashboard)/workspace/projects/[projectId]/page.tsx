@@ -140,12 +140,12 @@ function ProjectDetailContent() {
           <Skeleton className="h-4 w-64 mt-2" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 card noise p-6">
+          <div className="lg:col-span-2 card p-6">
             <Skeleton className="h-5 w-32 mb-4" />
             <Skeleton className="h-20 w-full mb-4" />
             <Skeleton className="h-5 w-24" />
           </div>
-          <div className="card noise p-6">
+          <div className="card p-6">
             <Skeleton className="h-5 w-24 mb-4" />
             <Skeleton className="h-8 w-full mb-2" />
             <Skeleton className="h-8 w-full mb-2" />
@@ -159,7 +159,7 @@ function ProjectDetailContent() {
   // ── No workspace plan (free/pro) ────────────────────────
   if (!hasWorkspace) {
     return (
-      <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+      <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
         <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
           <Building2 className="w-7 h-7 text-teal-500" />
         </div>
@@ -178,7 +178,7 @@ function ProjectDetailContent() {
     return (
       <>
         {shouldNudge ? (
-          <div className="card noise p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
+          <div className="card p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
             <div className="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center mb-4">
               <Info className="w-5 h-5 text-teal-400" />
             </div>
@@ -263,7 +263,7 @@ function ProjectDetailContent() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Members panel */}
-        <div className="lg:col-span-2 card noise p-6">
+        <div className="lg:col-span-2 card p-6">
           <ProjectMemberManager
             projectId={projectId}
             workspaceId={activeWorkspaceId}
@@ -275,7 +275,7 @@ function ProjectDetailContent() {
         </div>
 
         {/* Project metadata */}
-        <div className="card noise p-6">
+        <div className="card p-6">
           <h3 className="text-sm font-semibold text-slate-300 mb-4">Details</h3>
           <dl className="space-y-3">
             <div>
@@ -311,7 +311,7 @@ function ProjectDetailContent() {
       {/* Edit modal */}
       {isEditing && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="card noise max-w-md w-full p-6">
+          <div className="card max-w-md w-full p-6">
             <h3 className="font-display text-lg text-white mb-4">Edit Project</h3>
 
             <div className="space-y-4">

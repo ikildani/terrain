@@ -20,7 +20,7 @@ function MarketGrowthChart({ projections, peakSales }: MarketGrowthChartProps) {
   }
 
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       <div className="flex items-center justify-between mb-1">
         <div className="chart-title !mb-0">10-Year Revenue Projection</div>
         {peakYear && <span className="text-2xs font-mono text-teal-500">Peak: {peakYear}</span>}

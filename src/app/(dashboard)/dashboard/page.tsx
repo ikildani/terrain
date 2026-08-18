@@ -3,43 +3,20 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { EmptyState } from '@/components/shared/EmptyState';
 import { StatCard } from '@/components/shared/StatCard';
-import { Progress } from '@/components/ui/Progress';
-import {
-  BarChart3,
-  Network,
-  Users,
-  Shield,
-  FileText,
-  ArrowRight,
-  Lock,
-  Star,
-  TrendingUp,
-  Zap,
-  Target,
-  Clock,
-  Building2,
-  Key,
-  ShieldCheck,
-  ScrollText,
-  Lightbulb,
-  ChevronRight,
-} from 'lucide-react';
+import { BarChart3, Network, Users, Shield, FileText, ArrowRight, Lock, Star, Clock, Lightbulb } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
-import { PLAN_LIMITS, PLAN_DISPLAY } from '@/lib/subscription';
+import { REPORT_TYPE_COLORS, REPORT_TYPE_ROUTES, formatReportType } from '@/lib/constants/chart-colors';
 // Pre-computed counts to avoid importing heavy data files into the client bundle.
 // INDICATION_DATA has 236 entries; PRICING_BENCHMARKS has 276 entries.
 const INDICATION_COUNT = 236;
 const PRICING_BENCHMARK_COUNT = 276;
 import { formatDistanceToNow } from 'date-fns';
-import ActivityTrendChart from '@/components/dashboard/ActivityTrendChart';
-import ModuleBreakdownChart from '@/components/dashboard/ModuleBreakdownChart';
-import TopIndicationsChart from '@/components/dashboard/TopIndicationsChart';
-import DatabaseCoverageChart from '@/components/dashboard/DatabaseCoverageChart';
+
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 
 const quickActions = [
   {
@@ -68,30 +45,8 @@ const quickActions = [
   },
 ];
 
-const REPORT_TYPE_COLORS: Record<string, string> = {
-  market_sizing: 'bg-teal-500/15 text-teal-400 border-teal-500/20',
-  competitive: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
-  regulatory: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
-  partners: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
-  full: 'bg-slate-500/15 text-slate-400 border-slate-500/20',
-};
-
-const REPORT_TYPE_ROUTES: Record<string, string> = {
-  market_sizing: '/market-sizing',
-  competitive: '/competitive',
-  regulatory: '/regulatory',
-  partners: '/partners',
-};
-
 function getReportTypeBadgeClass(reportType: string): string {
   return REPORT_TYPE_COLORS[reportType] ?? REPORT_TYPE_COLORS.full;
-}
-
-function formatReportType(reportType: string): string {
-  return reportType
-    .split('_')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
 }
 
 function getReportHref(report: { id: string; report_type: string }): string {
@@ -150,77 +105,22 @@ const ROLE_SUGGESTIONS: Record<string, { title: string; items: { label: string; 
   },
 };
 
-/** Curated market signals -- static for now, could be API-driven later */
-const MARKET_SIGNALS = [
-  {
-    category: 'FDA',
-    headline: 'FDA PDUFA dates this week',
-    detail: 'Track upcoming action dates and potential market-moving approvals.',
-    href: '/regulatory',
-    color: 'text-purple-400',
-    bgColor: 'bg-purple-500/10',
-  },
-  {
-    category: 'M&A',
-    headline: 'Recent biopharma transactions',
-    detail: 'Latest deal announcements from SEC EDGAR filings.',
-    href: '/partners',
-    color: 'text-emerald-400',
-    bgColor: 'bg-emerald-500/10',
-  },
-  {
-    category: 'Pipeline',
-    headline: 'Phase 3 readouts to watch',
-    detail: 'Key clinical catalysts across oncology, neurology, and immunology.',
-    href: '/competitive',
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-500/10',
-  },
-  {
-    category: 'Pricing',
-    headline: 'Pricing & reimbursement signals',
-    detail: 'WAC changes, payer coverage decisions, and IRA negotiation updates.',
-    href: '/market-sizing',
-    color: 'text-amber-400',
-    bgColor: 'bg-amber-500/10',
-  },
-];
-
-import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
-
 function DashboardContent() {
-  const { plan, isPro, isEnterprise, isLoading: subLoading } = useSubscription();
-  const { fullName, role, company, therapyAreas } = useProfile();
-  const limits = PLAN_LIMITS[plan];
+  const { isPro, isEnterprise, isLoading: subLoading } = useSubscription();
+  const { fullName, role, company } = useProfile();
   const { reports, isLoading: reportsLoading, toggleStar } = useReports();
   const {
     analysesThisMonth,
     totalReports,
     dailyActivity,
-    moduleBreakdown,
-    topIndications,
     reportsByType,
     isLoading: statsLoading,
     dataUpdatedAt,
   } = useDashboardStats();
-  const recentReports = useMemo(() => reports.slice(0, 8), [reports]);
+  const recentReports = useMemo(() => reports.slice(0, 10), [reports]);
   const firstName = fullName?.split(' ')[0];
-  const planDisplay = PLAN_DISPLAY[plan];
 
-  // Derived insights
-  const totalAllTimeAnalyses = dailyActivity.reduce((sum, d) => sum + d.count, 0);
-  const mostUsedModule = moduleBreakdown.length > 0 ? moduleBreakdown[0] : null;
-  const topIndication = topIndications.length > 0 ? topIndications[0] : null;
-  const activeStreak = useMemo(() => {
-    let streak = 0;
-    for (let i = dailyActivity.length - 1; i >= 0; i--) {
-      if (dailyActivity[i].count > 0) streak++;
-      else break;
-    }
-    return streak;
-  }, [dailyActivity]);
-
-  // Week-over-week trend: last 7 days vs prior 7 days
+  // Week-over-week trend for stat card
   const { weekTrendLabel, weekTrendDir } = useMemo(() => {
     const last7 = dailyActivity.slice(-7).reduce((s, d) => s + d.count, 0);
     const prior7 = dailyActivity.slice(-14, -7).reduce((s, d) => s + d.count, 0);
@@ -230,6 +130,8 @@ function DashboardContent() {
     return { weekTrendLabel: label, weekTrendDir: dir };
   }, [dailyActivity]);
 
+  const totalAllTimeAnalyses = dailyActivity.reduce((sum, d) => sum + d.count, 0);
+
   const isNewUser = totalReports === 0 && analysesThisMonth === 0 && !statsLoading;
 
   // Role-based suggestions
@@ -237,7 +139,7 @@ function DashboardContent() {
 
   return (
     <>
-      {/* Welcome Header — enterprise-aware */}
+      {/* Welcome Header */}
       <PageHeader
         title={`${getGreeting()}${firstName ? `, ${firstName}` : ''}. Your market is moving.`}
         subtitle={
@@ -247,36 +149,6 @@ function DashboardContent() {
         }
         badge={isEnterprise ? 'Enterprise' : undefined}
       />
-
-      {/* Enterprise Status Bar */}
-      {isEnterprise && (
-        <div className="card noise p-4 mb-8 border-purple-500/20 bg-gradient-to-r from-purple-500/5 via-transparent to-transparent">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0">
-                <Building2 className="w-4 h-4 text-purple-400" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-white">Enterprise Plan</span>
-                  <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded border bg-purple-500/10 text-purple-400 border-purple-500/20">
-                    ACTIVE
-                  </span>
-                </div>
-                <p className="text-2xs text-slate-500">Unlimited seats, API access, SSO, audit log, white-label</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link
-                href="/settings/billing"
-                className="text-2xs font-mono text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
-              >
-                Manage plan <ChevronRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Quick Actions */}
       <h2 className="label mb-3">Quick Actions</h2>
@@ -289,14 +161,11 @@ function DashboardContent() {
             <Link
               key={action.href}
               href={action.href}
-              className="card noise group hover:border-teal-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-teal-sm relative"
+              className="card group hover:border-teal-500/30 transition-all duration-200 relative"
             >
               {isLocked && (
                 <div className="absolute top-3 right-3">
-                  <span className="badge-pro text-[8px] px-1.5 py-0.5 flex items-center gap-0.5">
-                    <Lock className="w-2 h-2" />
-                    PRO
-                  </span>
+                  <Lock className="w-3.5 h-3.5 text-slate-600" />
                 </div>
               )}
               <Icon className="w-5 h-5 text-teal-500 mb-3" />
@@ -310,312 +179,9 @@ function DashboardContent() {
         })}
       </div>
 
-      {/* Market Pulse — industry signals for daily return visits */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <h2 className="label">Market Pulse</h2>
-          <span className="w-1.5 h-1.5 rounded-full bg-signal-green animate-pulse" />
-        </div>
-        <span className="text-2xs font-mono text-slate-600">
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
-        </span>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-        {MARKET_SIGNALS.map((signal) => (
-          <Link
-            key={signal.category}
-            href={signal.href}
-            className="group p-4 bg-navy-900/60 border border-navy-700/40 rounded-lg hover:border-navy-600/60 transition-all"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <span
-                className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded ${signal.bgColor} ${signal.color}`}
-              >
-                {signal.category}
-              </span>
-            </div>
-            <p className="text-xs font-medium text-white mb-1 group-hover:text-teal-400 transition-colors">
-              {signal.headline}
-            </p>
-            <p className="text-2xs text-slate-500 leading-relaxed">{signal.detail}</p>
-          </Link>
-        ))}
-      </div>
-
-      {/* Platform Overview — Key Metrics */}
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="label">Platform Overview</h2>
-        {dataUpdatedAt && !statsLoading && (
-          <span className="text-2xs font-mono text-slate-600 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-signal-green animate-pulse" />
-            Updated {formatDistanceToNow(dataUpdatedAt, { addSuffix: true })}
-          </span>
-        )}
-      </div>
-      {statsLoading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="stat-card noise animate-pulse">
-              <div className="h-3 w-24 bg-navy-700/60 rounded mb-3" />
-              <div className="h-7 w-16 bg-navy-700/60 rounded mb-2" />
-              <div className="h-3 w-32 bg-navy-700/40 rounded" />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <StatCard
-            label="Analyses This Month"
-            value={String(analysesThisMonth)}
-            subvalue={totalAllTimeAnalyses > 0 ? `${totalAllTimeAnalyses} in last 30 days` : 'This month'}
-            trend={dailyActivity.length > 0 ? weekTrendLabel : undefined}
-            trendDirection={dailyActivity.length > 0 ? weekTrendDir : undefined}
-            source="Usage Tracking"
-            sparklineData={dailyActivity.length > 0 ? dailyActivity.map((d) => d.count) : undefined}
-          />
-          <StatCard
-            label="Reports Saved"
-            value={String(totalReports)}
-            subvalue={reportsByType.length > 0 ? `Across ${reportsByType.length} report types` : 'Total'}
-            source="Reports Database"
-          />
-          <StatCard
-            label="Indications Covered"
-            value={String(INDICATION_COUNT)}
-            subvalue="In database"
-            source="Terrain Curated Dataset"
-          />
-          <StatCard
-            label="Pricing Benchmarks"
-            value={String(PRICING_BENCHMARK_COUNT)}
-            subvalue="Drug reference points"
-            source="Public Filings & Industry Data"
-          />
-        </div>
-      )}
-
-      {/* Insight Tiles — quick-glance highlights */}
-      {!statsLoading && (mostUsedModule || topIndication || activeStreak > 0 || reportsByType.length > 0) && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-          {mostUsedModule && (
-            <div className="flex items-center gap-3 p-3 bg-navy-900/60 border border-navy-700/40 rounded-lg">
-              <div className="w-8 h-8 rounded-md bg-teal-500/10 flex items-center justify-center shrink-0">
-                <Zap className="w-4 h-4 text-teal-500" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-2xs text-slate-500 uppercase tracking-wider">Most Used</p>
-                <p className="text-xs text-white font-medium truncate">{formatReportType(mostUsedModule.feature)}</p>
-                <p className="text-2xs text-slate-500 font-mono">{mostUsedModule.count} uses</p>
-              </div>
-            </div>
-          )}
-          {topIndication && (
-            <div className="flex items-center gap-3 p-3 bg-navy-900/60 border border-navy-700/40 rounded-lg">
-              <div className="w-8 h-8 rounded-md bg-amber-500/10 flex items-center justify-center shrink-0">
-                <Target className="w-4 h-4 text-amber-400" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-2xs text-slate-500 uppercase tracking-wider">Top Focus</p>
-                <p className="text-xs text-white font-medium truncate">{topIndication.indication}</p>
-                <p className="text-2xs text-slate-500 font-mono">{topIndication.count} analyses</p>
-              </div>
-            </div>
-          )}
-          {activeStreak > 0 && (
-            <div className="flex items-center gap-3 p-3 bg-navy-900/60 border border-navy-700/40 rounded-lg">
-              <div className="w-8 h-8 rounded-md bg-emerald-500/10 flex items-center justify-center shrink-0">
-                <TrendingUp className="w-4 h-4 text-emerald-400" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-2xs text-slate-500 uppercase tracking-wider">Active Streak</p>
-                <p className="text-xs text-white font-medium">
-                  {activeStreak} {activeStreak === 1 ? 'day' : 'days'}
-                </p>
-                <p className="text-2xs text-slate-500 font-mono">Consecutive activity</p>
-              </div>
-            </div>
-          )}
-          {reportsByType.length > 0 && (
-            <div className="flex items-center gap-3 p-3 bg-navy-900/60 border border-navy-700/40 rounded-lg">
-              <div className="w-8 h-8 rounded-md bg-blue-500/10 flex items-center justify-center shrink-0">
-                <FileText className="w-4 h-4 text-blue-400" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-2xs text-slate-500 uppercase tracking-wider">Report Mix</p>
-                <div className="flex flex-wrap gap-1 mt-0.5">
-                  {reportsByType.slice(0, 3).map((rt) => (
-                    <span
-                      key={rt.report_type}
-                      className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded border ${getReportTypeBadgeClass(rt.report_type)}`}
-                    >
-                      {formatReportType(rt.report_type)} ({rt.count})
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Therapy Area Focus — if user has selected therapy areas */}
-      {therapyAreas.length > 0 && (
-        <div className="mb-8">
-          <h2 className="label mb-3">Your Focus Areas</h2>
-          <div className="flex flex-wrap gap-2">
-            {therapyAreas.map((area) => (
-              <span
-                key={area}
-                className="text-xs font-medium px-3 py-1.5 rounded-md bg-teal-500/8 border border-teal-500/15 text-teal-400"
-              >
-                {area}
-              </span>
-            ))}
-            <Link
-              href="/settings"
-              className="text-xs font-medium px-3 py-1.5 rounded-md bg-navy-800 border border-navy-700 text-slate-500 hover:text-slate-400 hover:border-navy-600 transition-colors"
-            >
-              Edit areas
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* Analytics Charts */}
-      <h2 className="label mb-3">Analytics</h2>
-      {statsLoading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-          <div className="lg:col-span-2 chart-container noise animate-pulse">
-            <div className="h-3 w-24 bg-navy-700/60 rounded mb-4" />
-            <div className="h-[220px] bg-navy-700/30 rounded" />
-          </div>
-          <div className="chart-container noise animate-pulse">
-            <div className="h-3 w-24 bg-navy-700/60 rounded mb-4" />
-            <div className="h-[180px] bg-navy-700/30 rounded" />
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-          <div className="lg:col-span-2">
-            <ActivityTrendChart data={dailyActivity} />
-          </div>
-          <div>
-            <ModuleBreakdownChart data={moduleBreakdown} />
-          </div>
-        </div>
-      )}
-
-      {/* Intelligence Coverage */}
-      <h2 className="label mb-3">Intelligence Coverage</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-        <div>
-          {statsLoading ? (
-            <div className="chart-container noise animate-pulse">
-              <div className="h-3 w-28 bg-navy-700/60 rounded mb-4" />
-              <div className="h-[200px] bg-navy-700/30 rounded" />
-            </div>
-          ) : (
-            <TopIndicationsChart data={topIndications} />
-          )}
-        </div>
-        <div className="lg:col-span-2">
-          <DatabaseCoverageChart />
-        </div>
-      </div>
-
-      {/* Enterprise Workspace Summary */}
-      {isEnterprise && (
-        <>
-          <h2 className="label mb-3">Enterprise Controls</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-            <Link
-              href="/settings/billing"
-              className="group flex items-center gap-3 p-4 bg-navy-900/60 border border-navy-700/40 rounded-lg hover:border-purple-500/20 transition-all"
-            >
-              <div className="w-9 h-9 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0">
-                <Key className="w-4 h-4 text-purple-400" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs text-white font-medium group-hover:text-purple-400 transition-colors">API Keys</p>
-                <p className="text-2xs text-slate-500">REST API access</p>
-              </div>
-            </Link>
-            <Link
-              href="/settings/billing"
-              className="group flex items-center gap-3 p-4 bg-navy-900/60 border border-navy-700/40 rounded-lg hover:border-purple-500/20 transition-all"
-            >
-              <div className="w-9 h-9 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-4 h-4 text-purple-400" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs text-white font-medium group-hover:text-purple-400 transition-colors">
-                  SSO / SAML
-                </p>
-                <p className="text-2xs text-slate-500">Okta, Azure AD</p>
-              </div>
-            </Link>
-            <Link
-              href="/settings/billing"
-              className="group flex items-center gap-3 p-4 bg-navy-900/60 border border-navy-700/40 rounded-lg hover:border-purple-500/20 transition-all"
-            >
-              <div className="w-9 h-9 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0">
-                <ScrollText className="w-4 h-4 text-purple-400" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs text-white font-medium group-hover:text-purple-400 transition-colors">
-                  Audit Log
-                </p>
-                <p className="text-2xs text-slate-500">Activity tracking</p>
-              </div>
-            </Link>
-            <Link
-              href="/settings/team"
-              className="group flex items-center gap-3 p-4 bg-navy-900/60 border border-navy-700/40 rounded-lg hover:border-purple-500/20 transition-all"
-            >
-              <div className="w-9 h-9 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0">
-                <Users className="w-4 h-4 text-purple-400" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs text-white font-medium group-hover:text-purple-400 transition-colors">
-                  Team Members
-                </p>
-                <p className="text-2xs text-slate-500">Unlimited seats</p>
-              </div>
-            </Link>
-          </div>
-        </>
-      )}
-
-      {/* Usage meters (free plan only) */}
-      {plan === 'free' && (
-        <>
-          <h2 className="label mb-3">Usage This Month</h2>
-          <div className="card noise mb-8">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <Progress
-                label="Market Sizing"
-                value={analysesThisMonth}
-                max={limits.market_sizing as number}
-                showValue
-              />
-              <Progress
-                label="Competitive Analysis"
-                value={reportsByType.find((r) => r.report_type === 'competitive')?.count ?? 0}
-                max={limits.competitive as number}
-                showValue
-              />
-              <Progress label="Saved Reports" value={totalReports} max={limits.reports_saved as number} showValue />
-            </div>
-            <Link href="/settings/billing" className="btn btn-ghost btn-sm w-full mt-4 text-teal-500">
-              Upgrade for unlimited access
-            </Link>
-          </div>
-        </>
-      )}
-
-      {/* Recent Reports — enhanced empty state */}
+      {/* Recent Reports */}
       <h2 className="label mb-3">Recent Reports</h2>
-      <div className="card noise">
+      <div className="card mb-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Clock className="w-3.5 h-3.5 text-slate-500" />
@@ -715,6 +281,58 @@ function DashboardContent() {
           </div>
         )}
       </div>
+
+      {/* Platform Stats */}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="label">Platform Overview</h2>
+        {dataUpdatedAt && !statsLoading && (
+          <span className="text-2xs font-mono text-slate-600 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-signal-green animate-pulse" />
+            Updated {formatDistanceToNow(dataUpdatedAt, { addSuffix: true })}
+          </span>
+        )}
+      </div>
+      {statsLoading ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="stat-card animate-pulse">
+              <div className="h-3 w-24 bg-navy-700/60 rounded mb-3" />
+              <div className="h-7 w-16 bg-navy-700/60 rounded mb-2" />
+              <div className="h-3 w-32 bg-navy-700/40 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            label="Analyses This Month"
+            value={String(analysesThisMonth)}
+            subvalue={totalAllTimeAnalyses > 0 ? `${totalAllTimeAnalyses} in last 30 days` : 'This month'}
+            trend={dailyActivity.length > 0 ? weekTrendLabel : undefined}
+            trendDirection={dailyActivity.length > 0 ? weekTrendDir : undefined}
+            source="Usage Tracking"
+            sparklineData={dailyActivity.length > 0 ? dailyActivity.map((d) => d.count) : undefined}
+          />
+          <StatCard
+            label="Reports Saved"
+            value={String(totalReports)}
+            subvalue={reportsByType.length > 0 ? `Across ${reportsByType.length} report types` : 'Total'}
+            source="Reports Database"
+          />
+          <StatCard
+            label="Indications Covered"
+            value={String(INDICATION_COUNT)}
+            subvalue="In database"
+            source="Terrain Curated Dataset"
+          />
+          <StatCard
+            label="Pricing Benchmarks"
+            value={String(PRICING_BENCHMARK_COUNT)}
+            subvalue="Drug reference points"
+            source="Public Filings & Industry Data"
+          />
+        </div>
+      )}
     </>
   );
 }

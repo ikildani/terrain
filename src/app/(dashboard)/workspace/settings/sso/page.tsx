@@ -56,7 +56,7 @@ function SSOSettingsContent() {
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-4 w-64 mt-2" />
         </div>
-        <div className="card noise p-6 max-w-2xl">
+        <div className="card p-6 max-w-2xl">
           <Skeleton className="h-6 w-32 mb-4" />
           <Skeleton className="h-10 w-full mb-3" />
           <Skeleton className="h-10 w-full mb-3" />
@@ -71,7 +71,7 @@ function SSOSettingsContent() {
     return (
       <>
         <PageHeader title="Single Sign-On" subtitle="Configure SSO for your workspace." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -95,7 +95,7 @@ function SSOSettingsContent() {
       <>
         <PageHeader title="Single Sign-On" subtitle="Configure SSO for your workspace." />
         {shouldNudge ? (
-          <div className="card noise p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
+          <div className="card p-8 flex flex-col items-center text-center max-w-lg mx-auto border border-navy-700/40">
             <div className="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center mb-4">
               <Info className="w-5 h-5 text-teal-400" />
             </div>
@@ -125,7 +125,7 @@ function SSOSettingsContent() {
     return (
       <>
         <PageHeader title="Single Sign-On" subtitle="Configure SSO for your workspace." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -146,7 +146,7 @@ function SSOSettingsContent() {
       <PageHeader title="Single Sign-On" subtitle={activeWorkspace.name} badge="Enterprise" />
 
       {/* SSO status badge */}
-      <div className="card noise p-4 mb-6 flex items-center gap-3">
+      <div className="card p-4 mb-6 flex items-center gap-3">
         {config ? (
           <>
             <CheckCircle className="w-5 h-5 text-emerald-400" />
@@ -182,14 +182,14 @@ function SSOSettingsContent() {
 
       {/* Config form */}
       {isLoadingConfig ? (
-        <div className="card noise p-6 max-w-2xl">
+        <div className="card p-6 max-w-2xl">
           <Skeleton className="h-6 w-32 mb-4" />
           <Skeleton className="h-10 w-full mb-3" />
           <Skeleton className="h-10 w-full mb-3" />
           <Skeleton className="h-10 w-full" />
         </div>
       ) : (
-        <div className="card noise p-6 max-w-2xl">
+        <div className="card p-6 max-w-2xl">
           <SSOConfigForm config={config} workspaceId={activeWorkspaceId} onSaved={fetchConfig} />
         </div>
       )}

@@ -101,7 +101,7 @@ function RevenueWaterfallChart(props: RevenueWaterfallChartProps) {
   const data = buildWaterfallData(props);
 
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       <div className="chart-title">Revenue Waterfall: TAM to Peak Sales</div>
       <div className="text-2xs text-slate-500 mb-4">
         How the total addressable market narrows to peak annual revenue

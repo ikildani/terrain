@@ -26,7 +26,7 @@ function PricingComparableTable({ comparables, recommendedRange }: PricingCompar
   const sorted = useMemo(() => [...comparables].sort((a, b) => b.launch_year - a.launch_year), [comparables]);
 
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       <div className="label mb-2">Competitive Landscape</div>
       <div className="chart-title">Pricing Comparables</div>
 

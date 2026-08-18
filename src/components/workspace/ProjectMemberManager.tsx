@@ -102,7 +102,7 @@ export function ProjectMemberManager({
 
       {/* Add member form */}
       {isAdding && (
-        <div className="card noise p-4 mb-4 border border-teal-500/20">
+        <div className="card p-4 mb-4 border border-teal-500/20">
           <div className="flex items-end gap-3">
             <div className="flex-1">
               <label className="text-2xs text-slate-500 uppercase tracking-wider mb-1 block">Workspace Member</label>

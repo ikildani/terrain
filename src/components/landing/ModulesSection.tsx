@@ -129,7 +129,7 @@ export function ModulesSection() {
                 variants={fadeUp}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                className={`card module-card noise p-6 group hover:border-teal-500/30 hover:shadow-card-hover transition-all relative cursor-pointer border-l-2 ${MODULE_COLORS[idx]} border-navy-700/60`}
+                className={`card module-card p-6 group hover:border-teal-500/30 hover:shadow-card-hover transition-all relative cursor-pointer border-l-2 ${MODULE_COLORS[idx]} border-navy-700/60`}
               >
                 <div className="module-icon w-11 h-11 rounded-lg bg-teal-500/10 border border-teal-500/10 flex items-center justify-center mb-4 group-hover:bg-teal-500/15 group-hover:border-teal-500/20 transition-all">
                   <Icon className="w-6 h-6 text-teal-400" />

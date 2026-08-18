@@ -15,26 +15,20 @@ import {
   Bar,
 } from 'recharts';
 import type { AnalyticsData } from '@/types';
+import { CHART_COLORS, formatReportType } from '@/lib/constants/chart-colors';
 
-const CHART_COLORS = [
-  '#00C9A7', // teal
-  '#60A5FA', // blue
+const SERIES_COLORS = [
+  CHART_COLORS.primary, // teal
+  CHART_COLORS.secondary, // blue
   '#A78BFA', // purple
-  '#34D399', // emerald
-  '#FBBF24', // amber
-  '#F87171', // red
+  CHART_COLORS.positive, // emerald
+  CHART_COLORS.tertiary, // amber
+  CHART_COLORS.negative, // red
   '#38BDF8', // sky
   '#FB923C', // orange
   '#E879F9', // fuchsia
   '#2DD4BF', // cyan
 ];
-
-function formatReportType(type: string): string {
-  return type
-    .split('_')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
 
 interface AnalyticsChartsProps {
   analytics: AnalyticsData;
@@ -44,25 +38,25 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Activity Trend — Line Chart */}
-      <div className="card noise p-5 lg:col-span-2">
+      <div className="card p-5 lg:col-span-2">
         <h3 className="label text-slate-400 mb-4">Activity (Last 30 Days)</h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={analytics.activity_by_day}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#102236" />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
               <XAxis
                 dataKey="date"
                 tickFormatter={(val: string) => {
                   const d = new Date(val);
                   return `${d.getMonth() + 1}/${d.getDate()}`;
                 }}
-                stroke="#64748B"
+                stroke={CHART_COLORS.muted}
                 fontSize={10}
                 fontFamily="JetBrains Mono"
                 tickLine={false}
               />
               <YAxis
-                stroke="#64748B"
+                stroke={CHART_COLORS.muted}
                 fontSize={10}
                 fontFamily="JetBrains Mono"
                 tickLine={false}
@@ -70,12 +64,12 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#0D1B2E',
-                  border: '1px solid #102236',
+                  backgroundColor: CHART_COLORS.navy,
+                  border: `1px solid ${CHART_COLORS.grid}`,
                   borderRadius: '8px',
                   fontSize: '12px',
                   fontFamily: 'JetBrains Mono',
-                  color: '#F0F4F8',
+                  color: CHART_COLORS.white,
                 }}
                 labelFormatter={(label: unknown) =>
                   new Date(String(label)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
@@ -84,10 +78,10 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
               <Line
                 type="monotone"
                 dataKey="count"
-                stroke="#00C9A7"
+                stroke={CHART_COLORS.primary}
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 4, fill: '#00C9A7' }}
+                activeDot={{ r: 4, fill: CHART_COLORS.primary }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -95,7 +89,7 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
       </div>
 
       {/* Report Type Distribution — Donut */}
-      <div className="card noise p-5">
+      <div className="card p-5">
         <h3 className="label text-slate-400 mb-4">Report Types</h3>
         <div className="h-64">
           {analytics.report_type_distribution.length > 0 ? (
@@ -113,17 +107,17 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
                   strokeWidth={0}
                 >
                   {analytics.report_type_distribution.map((_, idx) => (
-                    <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
+                    <Cell key={idx} fill={SERIES_COLORS[idx % SERIES_COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#0D1B2E',
-                    border: '1px solid #102236',
+                    backgroundColor: CHART_COLORS.navy,
+                    border: `1px solid ${CHART_COLORS.grid}`,
                     borderRadius: '8px',
                     fontSize: '12px',
                     fontFamily: 'JetBrains Mono',
-                    color: '#F0F4F8',
+                    color: CHART_COLORS.white,
                   }}
                   formatter={(value: unknown, _name: unknown, props: unknown) => [
                     value as number,
@@ -143,7 +137,7 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
               <div key={item.type} className="flex items-center gap-1.5">
                 <div
                   className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }}
+                  style={{ backgroundColor: SERIES_COLORS[idx % SERIES_COLORS.length] }}
                 />
                 <span className="text-2xs font-mono text-slate-500">{formatReportType(item.type)}</span>
               </div>
@@ -153,16 +147,16 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
       </div>
 
       {/* Top Indications — Horizontal Bar */}
-      <div className="card noise p-5">
+      <div className="card p-5">
         <h3 className="label text-slate-400 mb-4">Top Indications</h3>
         <div className="h-64">
           {analytics.top_indications.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={analytics.top_indications} layout="vertical" margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#102236" horizontal={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} horizontal={false} />
                 <XAxis
                   type="number"
-                  stroke="#64748B"
+                  stroke={CHART_COLORS.muted}
                   fontSize={10}
                   fontFamily="JetBrains Mono"
                   tickLine={false}
@@ -171,24 +165,24 @@ export function AnalyticsCharts({ analytics }: AnalyticsChartsProps) {
                 <YAxis
                   type="category"
                   dataKey="indication"
-                  stroke="#64748B"
+                  stroke={CHART_COLORS.muted}
                   fontSize={9}
                   fontFamily="Inter"
                   tickLine={false}
                   width={120}
-                  tick={{ fill: '#94A3B8' }}
+                  tick={{ fill: CHART_COLORS.text }}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#0D1B2E',
-                    border: '1px solid #102236',
+                    backgroundColor: CHART_COLORS.navy,
+                    border: `1px solid ${CHART_COLORS.grid}`,
                     borderRadius: '8px',
                     fontSize: '12px',
                     fontFamily: 'JetBrains Mono',
-                    color: '#F0F4F8',
+                    color: CHART_COLORS.white,
                   }}
                 />
-                <Bar dataKey="count" fill="#00C9A7" radius={[0, 4, 4, 0]} barSize={16} />
+                <Bar dataKey="count" fill={CHART_COLORS.primary} radius={[0, 4, 4, 0]} barSize={16} />
               </BarChart>
             </ResponsiveContainer>
           ) : (

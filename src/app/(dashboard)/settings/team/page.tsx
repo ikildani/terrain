@@ -125,7 +125,7 @@ export default function TeamPage() {
     return (
       <ErrorBoundary>
         <PageHeader title="Team" subtitle="Manage team members and permissions." badge="Team" />
-        <div className="card noise p-12 text-center max-w-lg mx-auto">
+        <div className="card p-12 text-center max-w-lg mx-auto">
           <div className="w-12 h-12 rounded-full bg-amber-400/10 flex items-center justify-center mx-auto mb-4">
             <Users className="w-6 h-6 text-amber-400" />
           </div>
@@ -166,7 +166,7 @@ export default function TeamPage() {
 
       <div className="space-y-6 max-w-2xl">
         {/* Invite Form */}
-        <div className="card noise p-5">
+        <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
             <UserPlus className="w-4 h-4 text-teal-500" />
             <h3 className="text-sm font-medium text-white">Invite Team Member</h3>
@@ -195,7 +195,7 @@ export default function TeamPage() {
         </div>
 
         {/* Current Members */}
-        <div className="card noise overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="px-5 py-3 border-b border-navy-700">
             <h3 className="text-xs font-mono text-slate-400 uppercase tracking-wider">
               Members ({1 + members.length})
@@ -260,7 +260,7 @@ export default function TeamPage() {
 
         {/* Pending Invitations */}
         {pendingInvites.length > 0 && (
-          <div className="card noise overflow-hidden">
+          <div className="card overflow-hidden">
             <div className="px-5 py-3 border-b border-navy-700">
               <h3 className="text-xs font-mono text-slate-400 uppercase tracking-wider">
                 Pending Invitations ({pendingInvites.length})
@@ -299,7 +299,7 @@ export default function TeamPage() {
         )}
 
         {/* Team Features */}
-        <div className="card noise p-6">
+        <div className="card p-6">
           <h3 className="text-sm font-medium text-white mb-4">Team Features</h3>
           <div className="grid grid-cols-2 gap-3">
             {TEAM_FEATURES.map(({ icon: Icon, label }) => (

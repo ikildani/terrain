@@ -52,14 +52,14 @@ export default function CompanyConcentrationChart({ competitors }: CompanyConcen
 
   if (competitors.length === 0 || companyData.length === 0) {
     return (
-      <div className="card noise p-8 text-center">
+      <div className="card p-8 text-center">
         <p className="text-slate-500 text-sm">No competitor data available.</p>
       </div>
     );
   }
 
   return (
-    <div className="card noise">
+    <div className="card">
       <h3 className="chart-title mb-4">Company Concentration</h3>
       <div role="img" aria-label="Company concentration chart">
         <ResponsiveContainer width="100%" height={Math.max(200, companyData.length * 44)}>

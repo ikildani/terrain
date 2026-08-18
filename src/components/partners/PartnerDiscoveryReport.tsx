@@ -68,7 +68,7 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
     <div ref={reportRef} className="space-y-4 animate-fade-in">
       {/* Summary Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="stat-card noise">
+        <div className="stat-card">
           <div className="flex items-center gap-1.5 mb-2">
             <Users className="w-3.5 h-3.5 text-teal-500" />
             <span className="text-2xs font-mono text-slate-500 uppercase tracking-wider">Partners Screened</span>
@@ -77,7 +77,7 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
           <p className="text-2xs text-slate-500 mt-1">{data.summary.total_matched} matched threshold</p>
         </div>
 
-        <div className="stat-card noise">
+        <div className="stat-card">
           <div className="flex items-center gap-1.5 mb-2">
             <Building2 className="w-3.5 h-3.5 text-teal-500" />
             <span className="text-2xs font-mono text-slate-500 uppercase tracking-wider">Top-Tier Matches</span>
@@ -86,7 +86,7 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
           <p className="text-2xs text-slate-500 mt-1">Score {'>'}= 60/100</p>
         </div>
 
-        <div className="stat-card noise">
+        <div className="stat-card">
           <div className="flex items-center gap-1.5 mb-2">
             <BarChart3 className="w-3.5 h-3.5 text-teal-500" />
             <span className="text-2xs font-mono text-slate-500 uppercase tracking-wider">Avg Match Score</span>
@@ -95,7 +95,7 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
           <p className="text-2xs text-slate-500 mt-1">Across top {data.ranked_partners.length} results</p>
         </div>
 
-        <div className="stat-card noise">
+        <div className="stat-card">
           <div className="flex items-center gap-1.5 mb-2">
             <DollarSign className="w-3.5 h-3.5 text-teal-500" />
             <span className="text-2xs font-mono text-slate-500 uppercase tracking-wider">Median Upfront</span>
@@ -113,7 +113,7 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
 
       {/* Deal Benchmark Card */}
       {data.deal_benchmarks.sample_size > 0 && (
-        <div className="card noise">
+        <div className="card">
           <div className="flex items-center gap-2 mb-3">
             <DollarSign className="w-4 h-4 text-teal-500" />
             <h3 className="chart-title">Deal Benchmarks — {formatStage(data.summary.development_stage)} Stage</h3>
@@ -206,7 +206,7 @@ export default function PartnerDiscoveryReport({ data, input, previewMode, onPdf
       </div>
 
       {/* Methodology */}
-      <details className="card noise group">
+      <details className="card group">
         <summary className="flex items-center gap-2 cursor-pointer text-sm text-slate-400 hover:text-slate-300">
           <FileText className="w-4 h-4 text-slate-500" />
           <span>Methodology & Data Sources</span>

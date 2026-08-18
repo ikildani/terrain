@@ -3,36 +3,7 @@
 import { Star, Pencil, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { ReportTemplate } from '@/types';
-
-const REPORT_TYPE_COLORS: Record<string, string> = {
-  market_sizing: 'bg-teal-500/15 text-teal-400 border-teal-500/20',
-  competitive: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
-  regulatory: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
-  partners: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
-  pipeline: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/20',
-  full: 'bg-slate-500/15 text-slate-400 border-slate-500/20',
-  device_market_sizing: 'bg-amber-500/15 text-amber-400 border-amber-500/20',
-  cdx_market_sizing: 'bg-rose-500/15 text-rose-400 border-rose-500/20',
-  nutraceutical_market_sizing: 'bg-lime-500/15 text-lime-400 border-lime-500/20',
-};
-
-const REPORT_TYPE_ROUTES: Record<string, string> = {
-  market_sizing: '/market-sizing',
-  competitive: '/competitive',
-  regulatory: '/regulatory',
-  partners: '/partners',
-  pipeline: '/pipeline',
-  device_market_sizing: '/market-sizing',
-  cdx_market_sizing: '/market-sizing',
-  nutraceutical_market_sizing: '/market-sizing',
-};
-
-function formatReportType(reportType: string): string {
-  return reportType
-    .split('_')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
+import { REPORT_TYPE_COLORS, REPORT_TYPE_ROUTES, formatReportType } from '@/lib/constants/chart-colors';
 
 interface TemplateCardProps {
   template: ReportTemplate;
@@ -58,7 +29,7 @@ export function TemplateCard({ template, onEdit, onDelete, canManage }: Template
 
   return (
     <div
-      className="card noise group hover:border-teal-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-teal-sm cursor-pointer"
+      className="card group hover:border-teal-500/30 transition-all duration-200 cursor-pointer"
       onClick={handleUseTemplate}
     >
       {/* Header */}

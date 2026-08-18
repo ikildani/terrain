@@ -9,7 +9,7 @@ interface DeviceGeographyTableProps {
 
 function DeviceGeographyTable({ data }: DeviceGeographyTableProps) {
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       <div className="chart-title">Geography Breakdown</div>
       <div className="overflow-x-auto">
         <table className="data-table">

@@ -150,7 +150,7 @@ export function SSOConfigForm({ config, workspaceId, onSaved }: SSOConfigFormPro
   return (
     <div className="space-y-6">
       {/* IdP callout */}
-      <div className="card noise p-4 border-l-4 border-amber-400/50 bg-amber-400/5">
+      <div className="card p-4 border-l-4 border-amber-400/50 bg-amber-400/5">
         <div className="flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
           <div>

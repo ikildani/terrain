@@ -157,7 +157,7 @@ function SettingsContent() {
         </div>
         <div className="space-y-6 max-w-2xl">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="card noise animate-pulse p-6">
+            <div key={i} className="card animate-pulse p-6">
               <Skeleton className="h-5 w-32 mb-4" />
               <Skeleton className="h-10 w-full mb-3" />
               <Skeleton className="h-10 w-full" />
@@ -173,7 +173,7 @@ function SettingsContent() {
     return (
       <>
         <PageHeader title="Settings" subtitle="Manage workspace settings and branding." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -196,7 +196,7 @@ function SettingsContent() {
     return (
       <>
         <PageHeader title="Settings" subtitle="Manage workspace settings and branding." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -222,7 +222,7 @@ function SettingsContent() {
 
       <div className="space-y-6 max-w-2xl">
         {/* ── General ──────────────────────────────────────── */}
-        <div className="card noise p-6">
+        <div className="card p-6">
           <h3 className="font-display text-base text-white mb-4">General</h3>
 
           <div className="space-y-4">
@@ -263,7 +263,7 @@ function SettingsContent() {
         </div>
 
         {/* ── Branding ─────────────────────────────────────── */}
-        <div className="card noise p-6">
+        <div className="card p-6">
           <h3 className="font-display text-base text-white mb-4">Branding</h3>
           <p className="text-xs text-slate-500 mb-5">
             Customize the logo, accent color, and footer text used in exported PDF and Excel reports.
@@ -357,7 +357,7 @@ function SettingsContent() {
 
         {/* ── Danger Zone ──────────────────────────────────── */}
         {myRole === 'owner' && (
-          <div className="card noise p-6 border-red-500/20">
+          <div className="card p-6 border-red-500/20">
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle className="w-4 h-4 text-red-400" />
               <h3 className="font-display text-base text-red-400">Danger Zone</h3>

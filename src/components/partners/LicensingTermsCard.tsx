@@ -59,7 +59,7 @@ export default function LicensingTermsCard({ terms, stage }: LicensingTermsCardP
   const [showComps, setShowComps] = useState(false);
 
   return (
-    <div className="card noise">
+    <div className="card">
       <div className="flex items-center gap-2 mb-4">
         <DollarSign className="w-4 h-4 text-teal-500" />
         <h3 className="chart-title">Estimated Licensing Terms — {formatStage(stage)} Asset</h3>

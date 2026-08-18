@@ -103,7 +103,7 @@ export function LiveIntelligencePanel({ intelligence }: LiveIntelligencePanelPro
 
   if (!hasItems) {
     return (
-      <div className="chart-container noise">
+      <div className="chart-container">
         <div className="flex items-center justify-between mb-2">
           <div className="chart-title !mb-0">Live Market Intelligence</div>
         </div>
@@ -118,7 +118,7 @@ export function LiveIntelligencePanel({ intelligence }: LiveIntelligencePanelPro
   const count = intelligence!.items.length;
 
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       <div className="flex items-center justify-between mb-4">
         <div className="chart-title !mb-0">
           Live Market Intelligence{' '}

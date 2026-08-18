@@ -165,7 +165,7 @@ export function ShareModal({ isOpen, onClose, reportId, reportTitle, isPro }: Sh
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 8 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="card noise w-full max-w-lg"
+            className="card w-full max-w-lg"
             role="dialog"
             aria-modal="true"
             aria-label={`Share ${reportTitle}`}

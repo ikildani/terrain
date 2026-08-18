@@ -233,7 +233,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
   }
 
   return (
-    <div className="card noise">
+    <div className="card">
       <form onSubmit={handleFormSubmit} className="space-y-5">
         {/* Product Category */}
         <ProductTypeSelector value={productCategory} onChange={setProductCategory} />

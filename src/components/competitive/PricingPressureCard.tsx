@@ -46,7 +46,7 @@ function PricingPressureContent({ data }: { data: PricingPressure }) {
   const gaugeRotation = (data.pressure_score / 10) * 180 - 90; // -90 to +90 degrees
 
   return (
-    <div className="card noise">
+    <div className="card">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <DollarSign className="h-4 w-4 text-teal-500" />

@@ -28,7 +28,7 @@ function PatientFunnelChart({ funnel }: PatientFunnelChartProps) {
   ];
 
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       <div className="chart-title">Patient Population Funnel (US)</div>
       <div role="img" aria-label="Patient population funnel chart" style={{ overflowX: 'auto' }}>
         <BarChart width={700} height={350} data={data} margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>

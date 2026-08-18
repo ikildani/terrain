@@ -109,11 +109,7 @@ export function SharedReportPage() {
         )}
 
         {error && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="card noise p-12 text-center"
-          >
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="card p-12 text-center">
             <AlertCircle className="w-12 h-12 text-red-400/50 mx-auto mb-4" />
             <h2 className="font-display text-lg text-white mb-2">Link Unavailable</h2>
             <p className="text-sm text-slate-400 mb-6">{error}</p>
@@ -139,7 +135,7 @@ export function SharedReportPage() {
             className="space-y-6"
           >
             {/* Report Header */}
-            <div className="card noise p-8">
+            <div className="card p-8">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0">
                   <FileText className="w-6 h-6 text-teal-400" />
@@ -163,7 +159,7 @@ export function SharedReportPage() {
             {summaryMetrics && (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {summaryMetrics.tamUs && (
-                  <div className="stat-card noise">
+                  <div className="stat-card">
                     <p className="text-2xs font-mono text-slate-500 uppercase tracking-wider">US TAM</p>
                     <p className="font-mono text-2xl text-white mt-2">
                       {formatCurrency(summaryMetrics.tamUs.value, summaryMetrics.tamUs.unit)}
@@ -171,7 +167,7 @@ export function SharedReportPage() {
                   </div>
                 )}
                 {summaryMetrics.samUs && (
-                  <div className="stat-card noise">
+                  <div className="stat-card">
                     <p className="text-2xs font-mono text-slate-500 uppercase tracking-wider">US SAM</p>
                     <p className="font-mono text-2xl text-white mt-2">
                       {formatCurrency(summaryMetrics.samUs.value, summaryMetrics.samUs.unit)}
@@ -179,7 +175,7 @@ export function SharedReportPage() {
                   </div>
                 )}
                 {summaryMetrics.somUs && (
-                  <div className="stat-card noise">
+                  <div className="stat-card">
                     <p className="text-2xs font-mono text-slate-500 uppercase tracking-wider">US SOM</p>
                     <p className="font-mono text-2xl text-white mt-2">
                       {formatCurrency(summaryMetrics.somUs.value, summaryMetrics.somUs.unit)}
@@ -187,7 +183,7 @@ export function SharedReportPage() {
                   </div>
                 )}
                 {summaryMetrics.cagr != null && (
-                  <div className="stat-card noise">
+                  <div className="stat-card">
                     <p className="text-2xs font-mono text-slate-500 uppercase tracking-wider">5-Year CAGR</p>
                     <p className="font-mono text-2xl text-teal-400 mt-2">{summaryMetrics.cagr.toFixed(1)}%</p>
                   </div>
@@ -196,7 +192,7 @@ export function SharedReportPage() {
             )}
 
             {/* Full analysis CTA */}
-            <div className="card noise p-8 text-center">
+            <div className="card p-8 text-center">
               <BarChart3 className="w-10 h-10 text-teal-500/30 mx-auto mb-4" />
               <h3 className="font-display text-lg text-white mb-2">Explore the Full Analysis</h3>
               <p className="text-sm text-slate-400 mb-6 max-w-md mx-auto">

@@ -41,12 +41,15 @@ export function DataTable<T extends Record<string, unknown>>({
 
   const handleSort = (key: string) => {
     if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
-    else { setSortKey(key); setSortDir('asc'); }
+    else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
   };
 
   if (data.length === 0) {
     return (
-      <div className="card noise p-12 text-center">
+      <div className="card p-12 text-center">
         <p className="text-slate-500 text-sm">{emptyMessage}</p>
       </div>
     );
@@ -65,11 +68,16 @@ export function DataTable<T extends Record<string, unknown>>({
               >
                 <span className="inline-flex items-center gap-1">
                   {col.header}
-                  {col.sortable && (
-                    sortKey === col.key
-                      ? sortDir === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                      : <ArrowUpDown className="w-3 h-3 opacity-30" />
-                  )}
+                  {col.sortable &&
+                    (sortKey === col.key ? (
+                      sortDir === 'asc' ? (
+                        <ArrowUp className="w-3 h-3" />
+                      ) : (
+                        <ArrowDown className="w-3 h-3" />
+                      )
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 opacity-30" />
+                    ))}
                 </span>
               </th>
             ))}

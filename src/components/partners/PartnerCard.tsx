@@ -36,7 +36,7 @@ export default function PartnerCard({ partner }: PartnerCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="card noise hover:border-navy-600 transition-colors">
+    <div className="card hover:border-navy-600 transition-colors">
       {/* Header Row */}
       <div className="flex items-start gap-4">
         {/* Rank Badge */}

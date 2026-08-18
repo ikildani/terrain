@@ -80,7 +80,7 @@ export function OpportunityFilterBar({
   }
 
   return (
-    <div className="card noise p-4 space-y-3">
+    <div className="card p-4 space-y-3">
       {/* Header row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

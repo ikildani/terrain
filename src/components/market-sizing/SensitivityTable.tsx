@@ -23,7 +23,7 @@ const SHARE_VARIANTS = [
 
 function SensitivityTable({ addressablePatients, netPrice, baseSharePct }: SensitivityTableProps) {
   return (
-    <div className="chart-container noise">
+    <div className="chart-container">
       <h3 className="chart-title">Sensitivity Analysis</h3>
       <p className="text-[11px] text-slate-500 mb-4">
         SOM estimates across pricing and market share assumptions (annual revenue at peak)

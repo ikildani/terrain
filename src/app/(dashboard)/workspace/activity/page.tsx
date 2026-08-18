@@ -25,7 +25,7 @@ function ActivityContent() {
         </div>
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="card noise animate-pulse p-4">
+            <div key={i} className="card animate-pulse p-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-navy-700/60" />
                 <div className="flex-1 space-y-2">
@@ -45,7 +45,7 @@ function ActivityContent() {
     return (
       <>
         <PageHeader title="Activity" subtitle="Track workspace activity and changes." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>
@@ -68,7 +68,7 @@ function ActivityContent() {
     return (
       <>
         <PageHeader title="Activity" subtitle="Track workspace activity and changes." />
-        <div className="card noise p-12 flex flex-col items-center text-center max-w-lg mx-auto">
+        <div className="card p-12 flex flex-col items-center text-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-xl bg-teal-500/10 flex items-center justify-center mb-5">
             <Building2 className="w-7 h-7 text-teal-500" />
           </div>

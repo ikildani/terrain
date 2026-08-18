@@ -146,7 +146,7 @@ export default function PipelineTable({ competitors, title, noCard }: PipelineTa
     );
 
     if (noCard) return <div>{emptyContent}</div>;
-    return <div className="card noise">{emptyContent}</div>;
+    return <div className="card">{emptyContent}</div>;
   }
 
   const tableContent = (
@@ -307,5 +307,5 @@ export default function PipelineTable({ competitors, title, noCard }: PipelineTa
 
   if (noCard) return <div>{tableContent}</div>;
 
-  return <div className="card noise overflow-hidden">{tableContent}</div>;
+  return <div className="card overflow-hidden">{tableContent}</div>;
 }

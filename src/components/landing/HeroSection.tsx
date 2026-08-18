@@ -20,7 +20,7 @@ function DashboardPreview() {
   return (
     <motion.div
       ref={ref}
-      className="card noise overflow-hidden"
+      className="card overflow-hidden"
       initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
@@ -113,7 +113,7 @@ export function HeroSection() {
         }}
       />
       {/* Top glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-glow-teal opacity-80 pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] opacity-80 pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
         <div>
@@ -152,7 +152,7 @@ export function HeroSection() {
           >
             <Link
               href="/signup"
-              className="btn btn-primary text-base px-8 py-3.5 inline-flex items-center gap-2 shadow-teal-sm hover:shadow-teal-md transition-shadow"
+              className="btn btn-primary text-base px-8 py-3.5 inline-flex items-center gap-2 transition-shadow"
             >
               Analyze Your Market
               <ArrowRight className="w-4 h-4" />

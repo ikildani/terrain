@@ -41,7 +41,7 @@ function MetricCard({
   color?: string;
 }) {
   return (
-    <div className="card noise p-4">
+    <div className="card p-4">
       <p className="text-2xs text-slate-500 uppercase tracking-wider">{label}</p>
       <p className={cn('font-mono text-2xl font-semibold mt-1', color || 'text-white')}>{value}</p>
       {sublabel && <p className="text-2xs text-slate-500 mt-0.5">{sublabel}</p>}
@@ -107,7 +107,7 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
       </div>
 
       {/* ── Key Insight ──────────────────────────────────── */}
-      <div className="card noise p-4 border-l-2 border-teal-500">
+      <div className="card p-4 border-l-2 border-teal-500">
         <div className="flex items-start gap-2">
           <Lightbulb className="h-4 w-4 text-teal-500 mt-0.5 flex-shrink-0" />
           <div>
@@ -119,7 +119,7 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
 
       {/* ── White Space ──────────────────────────────────── */}
       {summary.white_space.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <Lightbulb className="h-4 w-4 text-signal-amber" />
             White Space Opportunities
@@ -140,7 +140,7 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
 
       {/* ── Pricing Landscape ────────────────────────────── */}
       {data.pricing_landscape.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <DollarSign className="h-4 w-4 text-teal-500" />
             Pricing Landscape
@@ -168,7 +168,7 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
       )}
 
       {/* ── Amazon Intelligence ───────────────────────────── */}
-      <div className="card noise p-4">
+      <div className="card p-4">
         <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
           <ShoppingCart className="h-4 w-4 text-teal-500" />
           Amazon Intelligence
@@ -206,7 +206,7 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
 
       {/* ── Channel Distribution ──────────────────────────── */}
       {data.channel_distribution.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <BarChart3 className="h-4 w-4 text-teal-500" />
             Channel Distribution
@@ -231,7 +231,7 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
 
       {/* ── Top Brands Table ──────────────────────────────── */}
       {data.top_brands.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <Leaf className="h-4 w-4 text-signal-green" />
             Top Brands ({data.top_brands.length})
@@ -262,7 +262,7 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
 
       {/* ── Clinical Evidence Gaps ────────────────────────── */}
       {data.clinical_evidence_gaps.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <FlaskConical className="h-4 w-4 text-teal-500" />
             Clinical Evidence Gaps
@@ -298,7 +298,7 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
 
       {/* ── Certification Matrix ──────────────────────────── */}
       {data.certification_matrix.length > 0 && (
-        <div className="card noise p-4">
+        <div className="card p-4">
           <h3 className="flex items-center gap-2 text-sm font-medium text-white mb-3">
             <Award className="h-4 w-4 text-teal-500" />
             Certification Matrix
@@ -341,7 +341,7 @@ export default function NutraceuticalCompetitiveLandscapeReport({ data }: Props)
       )}
 
       {/* ── Data Sources ──────────────────────────────────── */}
-      <div className="card noise p-4">
+      <div className="card p-4">
         <h3 className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Data Sources</h3>
         <div className="flex flex-wrap gap-2">
           {data.data_sources.map((src, i) => (

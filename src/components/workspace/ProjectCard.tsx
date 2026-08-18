@@ -15,7 +15,7 @@ export function ProjectCard({ project, reportCount, memberCount, canManage }: Pr
   return (
     <Link
       href={`/workspace/projects/${project.id}`}
-      className="card noise group hover:border-teal-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-teal-sm cursor-pointer block"
+      className="card group hover:border-teal-500/30 transition-all duration-200 cursor-pointer block"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3">

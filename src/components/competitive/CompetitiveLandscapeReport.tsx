@@ -130,7 +130,7 @@ export default function CompetitiveLandscapeReport({
     <div className="space-y-6" ref={reportRef} data-report-content>
       {/* ─── 1. Summary Metrics Row ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="stat-card noise">
+        <div className="stat-card">
           <p className="label mb-1">Crowding Score</p>
           <p className={`font-mono text-2xl font-medium ${getCrowdingColor(data.summary.crowding_score)}`}>
             {data.summary.crowding_score}
@@ -139,19 +139,19 @@ export default function CompetitiveLandscapeReport({
           <p className="text-[11px] text-slate-500 mt-0.5">{data.summary.crowding_label}</p>
         </div>
 
-        <div className="stat-card noise">
+        <div className="stat-card">
           <p className="label mb-1">Total Competitors</p>
           <p className="font-mono text-2xl font-medium text-slate-100">{allCompetitors.length}</p>
           <p className="text-[11px] text-slate-500 mt-0.5">All phases</p>
         </div>
 
-        <div className="stat-card noise">
+        <div className="stat-card">
           <p className="label mb-1">Approved Products</p>
           <p className="font-mono text-2xl font-medium text-signal-green">{data.approved_products.length}</p>
           <p className="text-[11px] text-slate-500 mt-0.5">On market</p>
         </div>
 
-        <div className="stat-card noise">
+        <div className="stat-card">
           <p className="label mb-1">Phase 3 Programs</p>
           <p className="font-mono text-2xl font-medium text-teal-400">{data.late_stage_pipeline.length}</p>
           <p className="text-[11px] text-slate-500 mt-0.5">Late stage</p>
@@ -175,7 +175,7 @@ export default function CompetitiveLandscapeReport({
       </div>
 
       {/* ─── 2. Executive Summary ─── */}
-      <div className="card noise">
+      <div className="card">
         <h3 className="chart-title mb-4">Executive Summary</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Top Threat */}
@@ -278,7 +278,7 @@ export default function CompetitiveLandscapeReport({
       <LandscapeMap competitors={allCompetitors} highlightMechanism={mechanism} />
 
       {/* ─── 5. Tabbed Pipeline Section ─── */}
-      <div className="card noise">
+      <div className="card">
         <div className="flex items-center gap-1 border-b border-navy-700/50 -mx-5 px-5 mb-5">
           {tabs.map((tab) => (
             <button
@@ -327,7 +327,7 @@ export default function CompetitiveLandscapeReport({
 
       {/* ─── 9. Comparison Matrix ─── */}
       {data.comparison_matrix && data.comparison_matrix.length > 0 && matrixColumns.length > 0 && (
-        <div className="card noise">
+        <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <TableProperties className="h-4 w-4 text-teal-500" />
             <h3 className="chart-title">Head-to-Head Comparison</h3>
@@ -398,7 +398,7 @@ export default function CompetitiveLandscapeReport({
 
       {/* ─── 10. Data Sources Footer ─── */}
       {data.data_sources.length > 0 && (
-        <div className="card noise">
+        <div className="card">
           <div className="flex items-center gap-2 mb-2">
             <Database className="h-3.5 w-3.5 text-slate-500" />
             <h3 className="text-2xs uppercase tracking-wider text-slate-500 font-medium">Data Sources</h3>

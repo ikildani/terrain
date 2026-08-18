@@ -2,15 +2,7 @@
 
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts';
 import { Activity } from 'lucide-react';
-
-const COLORS = {
-  teal: '#00C9A7',
-  tealFaded: 'rgba(0, 201, 167, 0.08)',
-  navy: '#0D1B2E',
-  navyLight: '#102236',
-  text: '#94A3B8',
-  grid: '#102236',
-};
+import { CHART_COLORS } from '@/lib/constants/chart-colors';
 
 interface ActivityTrendChartProps {
   data: { date: string; count: number }[];
@@ -28,7 +20,7 @@ export default function ActivityTrendChart({ data }: ActivityTrendChartProps) {
   const avg = activeDays > 0 ? +(total / data.length).toFixed(1) : 0;
 
   return (
-    <div className="chart-container noise relative">
+    <div className="chart-container relative">
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="label">Activity Trend</h3>
@@ -64,15 +56,15 @@ export default function ActivityTrendChart({ data }: ActivityTrendChartProps) {
             <AreaChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
               <defs>
                 <linearGradient id="tealGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={COLORS.teal} stopOpacity={0.25} />
-                  <stop offset="95%" stopColor={COLORS.teal} stopOpacity={0} />
+                  <stop offset="0%" stopColor={CHART_COLORS.primary} stopOpacity={0.25} />
+                  <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} vertical={false} />
               <XAxis
                 dataKey="date"
                 tickFormatter={formatDayLabel}
-                tick={{ fontSize: 10, fontFamily: '"JetBrains Mono"', fill: COLORS.text }}
+                tick={{ fontSize: 10, fontFamily: '"JetBrains Mono"', fill: CHART_COLORS.text }}
                 axisLine={false}
                 tickLine={false}
                 interval="preserveStartEnd"
@@ -80,13 +72,13 @@ export default function ActivityTrendChart({ data }: ActivityTrendChartProps) {
               />
               <YAxis
                 allowDecimals={false}
-                tick={{ fontSize: 10, fontFamily: '"JetBrains Mono"', fill: COLORS.text }}
+                tick={{ fontSize: 10, fontFamily: '"JetBrains Mono"', fill: CHART_COLORS.text }}
                 axisLine={false}
                 tickLine={false}
                 width={32}
               />
               <Tooltip
-                cursor={{ stroke: COLORS.teal, strokeWidth: 1, strokeDasharray: '3 3' }}
+                cursor={{ stroke: CHART_COLORS.primary, strokeWidth: 1, strokeDasharray: '3 3' }}
                 content={({ active, payload, label }) => {
                   if (!active || !payload?.[0]) return null;
                   return (
@@ -117,14 +109,14 @@ export default function ActivityTrendChart({ data }: ActivityTrendChartProps) {
               <Area
                 type="monotone"
                 dataKey="count"
-                stroke={COLORS.teal}
+                stroke={CHART_COLORS.primary}
                 strokeWidth={2}
                 fill="url(#tealGradient)"
                 dot={false}
                 activeDot={{
                   r: 4,
-                  fill: COLORS.teal,
-                  stroke: COLORS.navy,
+                  fill: CHART_COLORS.primary,
+                  stroke: CHART_COLORS.navy,
                   strokeWidth: 2,
                 }}
               />

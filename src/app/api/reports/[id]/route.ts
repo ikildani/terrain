@@ -50,7 +50,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     const adminSupabase = createAdminClient();
     const { data: sharedReport } = await adminSupabase
       .from('reports')
-      .select('id, title, report_type, indication, outputs, status, is_starred, tags, created_at, updated_at')
+      .select('id, title, report_type, indication, inputs, outputs, status, is_starred, tags, created_at, updated_at')
       .eq('id', id)
       .single();
 

@@ -446,36 +446,46 @@ export async function POST(request: NextRequest) {
       try {
         const supabase = await createClient();
         const title = indication ? `${indication} Market Assessment` : 'Market Assessment';
-        // Save a trimmed version of outputs to avoid exceeding column size limits
-        const trimmedResult = result as Record<string, unknown>;
-        const outputsToSave = {
-          summary: trimmedResult.summary,
-          patient_funnel: trimmedResult.patient_funnel,
-          geography_breakdown: trimmedResult.geography_breakdown,
-          revenue_projection: trimmedResult.revenue_projection,
-          methodology: trimmedResult.methodology,
-          generated_at: trimmedResult.generated_at,
-          indication_validated: trimmedResult.indication_validated,
-        };
-        const { data: saved, error: saveError } = await supabase
+        const { data: existing } = await supabase
           .from('reports')
-          .insert({
-            user_id: user.id,
-            title,
-            report_type: 'market_sizing',
-            indication: indication || 'N/A',
-            inputs: input,
-            outputs: outputsToSave,
-            status: 'final',
-            is_starred: false,
-            tags: [product_category],
-          })
           .select('id')
-          .single();
-        if (saveError) {
-          logger.error('report_save_failed', { error: saveError.message, code: saveError.code, userId: user.id });
+          .eq('user_id', user.id)
+          .eq('indication', indication || 'N/A')
+          .eq('report_type', 'market_sizing')
+          .gte('created_at', new Date(Date.now() - 60_000).toISOString())
+          .limit(1)
+          .maybeSingle();
+
+        if (existing) {
+          const { error: updateError } = await supabase
+            .from('reports')
+            .update({ outputs: result, inputs: input, updated_at: new Date().toISOString() })
+            .eq('id', existing.id);
+          if (updateError) {
+            logger.error('report_update_failed', { error: updateError.message, userId: user.id });
+          }
+          reportId = existing.id;
+        } else {
+          const { data: saved, error: saveError } = await supabase
+            .from('reports')
+            .insert({
+              user_id: user.id,
+              title,
+              report_type: 'market_sizing',
+              indication: indication || 'N/A',
+              inputs: input,
+              outputs: result,
+              status: 'final',
+              is_starred: false,
+              tags: [product_category],
+            })
+            .select('id')
+            .single();
+          if (saveError) {
+            logger.error('report_save_failed', { error: saveError.message, code: saveError.code, userId: user.id });
+          }
+          if (saved) reportId = saved.id;
         }
-        if (saved) reportId = saved.id;
       } catch (saveErr) {
         logger.error('report_save_exception', {
           error: saveErr instanceof Error ? saveErr.message : 'Unknown',

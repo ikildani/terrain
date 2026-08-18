@@ -189,7 +189,7 @@ function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMar
       {/* ──────────────────────────────────────────────────────
           1. EXECUTIVE SUMMARY
           ────────────────────────────────────────────────────── */}
-      <div className="card noise">
+      <div className="card">
         <h3 className="chart-title">Executive Summary</h3>
         <p className="text-xs text-slate-400 leading-relaxed">
           The companion diagnostic opportunity for <span className="text-white font-medium">{displayName}</span> in{' '}
@@ -243,7 +243,7 @@ function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMar
       {/* ──────────────────────────────────────────────────────
           4. CDx ECONOMICS
           ────────────────────────────────────────────────────── */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <div className="chart-title">CDx Economics</div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column — Revenue Per Test & Reimbursement */}
@@ -326,7 +326,7 @@ function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMar
       {/* ──────────────────────────────────────────────────────
           5. DEAL STRUCTURE BENCHMARK
           ────────────────────────────────────────────────────── */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <div className="chart-title">Deal Structure Benchmark</div>
 
         {/* Narrative blocks */}
@@ -407,7 +407,7 @@ function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMar
       {/* ──────────────────────────────────────────────────────
           6. REGULATORY PATHWAY
           ────────────────────────────────────────────────────── */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <div className="chart-title">Regulatory Pathway</div>
         <div className="space-y-4">
           {/* FDA Pathway Badge + Co-review */}
@@ -476,7 +476,7 @@ function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMar
       {/* ──────────────────────────────────────────────────────
           7. COMPETITIVE CDx LANDSCAPE
           ────────────────────────────────────────────────────── */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <div className="chart-title">Competitive CDx Landscape</div>
 
         {/* Approved Tests */}
@@ -565,7 +565,7 @@ function CDxMarketSizingReport({ data, input, previewMode, onPdfExport }: CDxMar
       {/* ──────────────────────────────────────────────────────
           8. METHODOLOGY
           ────────────────────────────────────────────────────── */}
-      <div className="chart-container noise">
+      <div className="chart-container">
         <button
           onClick={() => setMethodologyOpen(!methodologyOpen)}
           className="flex items-center justify-between w-full"
