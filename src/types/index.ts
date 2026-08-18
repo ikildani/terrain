@@ -1189,6 +1189,62 @@ export type ClinicalPhase =
   | 'Phase 1/2'
   | 'Preclinical';
 
+// ── Cached data types (from Supabase cache tables) ──
+
+export interface CachedClinicalTrial {
+  nct_id: string;
+  title: string;
+  status: string;
+  phase: string;
+  conditions: string[];
+  interventions: unknown;
+  sponsor: string;
+  collaborators?: string[];
+  enrollment: number;
+  start_date: string;
+  completion_date: string;
+  last_update_posted: string;
+  primary_outcomes?: unknown;
+  fetched_at: string;
+}
+
+export interface CachedFdaApproval {
+  application_number: string;
+  brand_name: string;
+  generic_name: string;
+  sponsor_name: string;
+  approval_date: string;
+  application_type: string;
+  active_ingredients: string[];
+  route: string;
+  dosage_form: string;
+  submission_type: string;
+  submission_status: string;
+  fetched_at: string;
+}
+
+export interface CachedSecFiling {
+  accession_number: string;
+  company_name: string;
+  ticker: string;
+  cik: string;
+  form_type: string;
+  filed_date: string;
+  description: string;
+  file_url: string;
+  is_deal_related: boolean;
+  deal_keywords: string[];
+  fetched_at: string;
+}
+
+export interface LiveMarketData {
+  activeTrials: CachedClinicalTrial[];
+  recentApprovals: CachedFdaApproval[];
+  recentFilings: CachedSecFiling[];
+}
+
+// ── Competitor types ──
+
 export interface Competitor {
   id: string;
   company: string;

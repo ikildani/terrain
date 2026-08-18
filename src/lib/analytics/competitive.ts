@@ -45,6 +45,8 @@ import {
 import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
 import { PHARMA_PARTNER_DATABASE } from '@/lib/data/partner-database';
 import { LOA_BY_PHASE_AND_AREA, DEFAULT_LOA } from '@/lib/data/loa-tables';
+import { getTrialsForIndicationFuzzy, getFdaApprovalsForIndication } from '@/lib/data/cached-data-loader';
+import type { CachedClinicalTrial, CachedFdaApproval } from '@/types';
 
 // ────────────────────────────────────────────────────────────
 // PUBLIC INPUT TYPE
@@ -644,17 +646,15 @@ const DEFAULT_CROWDING_THRESHOLDS = [3, 6, 10, 15, 20, 30];
 function calculateCrowdingScore(
   competitors: CompetitorRecord[],
   indicationData: { therapy_area: string },
+  liveTrialCount = 0,
 ): { score: number; label: LandscapeSummary['crowding_label'] } {
   const total = competitors.length;
   const ta = indicationData.therapy_area.toLowerCase();
 
-  // Step 1: Phase-weighted competitor count
-  // Late-stage and approved products contribute more to crowding than early-stage
   const weightedTotal = competitors.reduce((sum, c) => {
     return sum + (PHASE_CROWDING_WEIGHT[c.phase] ?? 0.5);
   }, 0);
 
-  // Use therapy-area-calibrated thresholds
   const thresholds = TA_CROWDING_THRESHOLDS[ta] ?? DEFAULT_CROWDING_THRESHOLDS;
 
   let score: number;
@@ -666,7 +666,6 @@ function calculateCrowdingScore(
   else if (weightedTotal <= thresholds[5]) score = 8;
   else score = 9;
 
-  // Step 2: Mechanism concentration adjustment
   if (total > 0) {
     const mechanismCounts: Record<string, number> = {};
     for (const c of competitors) {
@@ -675,19 +674,15 @@ function calculateCrowdingScore(
     const maxMechanismCount = Math.max(...Object.values(mechanismCounts));
     const dominantPct = maxMechanismCount / total;
 
-    if (dominantPct > 0.6) {
-      score += 1;
-    }
-    if (dominantPct < 0.3) {
-      score -= 1;
-    }
+    if (dominantPct > 0.6) score += 1;
+    if (dominantPct < 0.3) score -= 1;
   }
 
-  // Step 3: Late-stage density adjustment
   const lateStageCount = competitors.filter((c) => c.phase === 'Phase 3' || c.phase === 'Phase 2/3').length;
-  if (lateStageCount >= 5) {
-    score += 1;
-  }
+  if (lateStageCount >= 5) score += 1;
+
+  // Live pipeline density: active recruiting trials above the static database
+  if (liveTrialCount > total * 1.5 && liveTrialCount > 10) score += 1;
 
   score = clamp(score, 1, 10);
 
@@ -2997,13 +2992,60 @@ export async function analyzeCompetitiveLandscape(
     );
   }
 
-  // ── Step 2: Retrieve competitors ──────────────────────────
-  // Pull all competitors from the static database that match
-  // this indication. Uses fuzzy matching on indication name.
+  // ── Step 2: Retrieve competitors + live data ──────────────
   const competitorRecords = getCompetitorsForIndication(indication.name);
 
+  // Fetch live pipeline and approval data from cached tables (graceful degradation)
+  const [liveTrials, liveFdaApprovals] = await Promise.all([
+    getTrialsForIndicationFuzzy(indication.name).catch(() => [] as CachedClinicalTrial[]),
+    getFdaApprovalsForIndication(indication.name).catch(() => [] as CachedFdaApproval[]),
+  ]);
+
+  // Merge live trials as supplementary competitor records if they introduce new sponsors
+  const staticCompanies = new Set(competitorRecords.map((c) => c.company.toLowerCase()));
+  const liveSupplementalRecords: CompetitorRecord[] = [];
+  for (const trial of liveTrials) {
+    const sponsorLower = trial.sponsor?.toLowerCase() || '';
+    if (sponsorLower && !staticCompanies.has(sponsorLower)) {
+      const phase = normalizeCtgovPhase(trial.phase);
+      if (phase) {
+        liveSupplementalRecords.push({
+          asset_name: extractAssetName(trial.title),
+          company: trial.sponsor,
+          indication: indication.name,
+          indication_specifics: trial.conditions?.join(', ') || indication.name,
+          mechanism: 'Unknown (live pipeline)',
+          mechanism_category: 'other',
+          phase,
+          nct_ids: [trial.nct_id],
+          primary_endpoint: trial.primary_outcomes
+            ? String((trial.primary_outcomes as Array<{ measure: string }>)?.[0]?.measure || '')
+            : '',
+          first_in_class: false,
+          orphan_drug: false,
+          has_biomarker_selection: false,
+          strengths: [`Active trial: ${trial.status}`, `Enrollment: ${trial.enrollment || 'N/A'}`],
+          weaknesses: ['Limited public data available'],
+          source: `ClinicalTrials.gov (${trial.nct_id})`,
+          last_updated: trial.last_update_posted || trial.fetched_at,
+        });
+        staticCompanies.add(sponsorLower);
+      }
+    }
+  }
+
+  // Enrich existing competitor records with live trial status
+  for (const record of competitorRecords) {
+    const matchingTrials = liveTrials.filter((t) => t.sponsor?.toLowerCase() === record.company.toLowerCase());
+    if (matchingTrials.length > 0 && !record.nct_ids?.length) {
+      record.nct_ids = matchingTrials.map((t) => t.nct_id);
+    }
+  }
+
+  const allRecords = [...competitorRecords, ...liveSupplementalRecords];
+
   // ── Handle 0-competitor case: return empty landscape with white-space ──
-  if (competitorRecords.length === 0) {
+  if (allRecords.length === 0) {
     const whiteSpace = [
       `No approved or pipeline competitors identified for ${indication.name} — potential first-mover opportunity.`,
       `Consider novel mechanisms targeting ${indication.therapy_area} pathways.`,
@@ -3044,9 +3086,7 @@ export async function analyzeCompetitiveLandscape(
   //   - Calculate differentiation score (1-10)
   //   - Calculate evidence strength (1-10)
   //   - Build the typed Competitor object
-  const competitors: Competitor[] = competitorRecords.map((record) =>
-    buildCompetitor(record, competitorRecords, input.mechanism),
-  );
+  const competitors: Competitor[] = allRecords.map((record) => buildCompetitor(record, allRecords, input.mechanism));
 
   // ── Step 8b: Calculate efficacy deltas for each competitor ─
   // After all competitors are built, calculate head-to-head
@@ -3061,7 +3101,7 @@ export async function analyzeCompetitiveLandscape(
     .filter((t): t is CompetitiveTimeline => t !== undefined);
 
   // ── Step 8d: Build barrier-to-entry assessment ────────────
-  const barrierAssessment = assessBarriers(competitors, competitorRecords, indication);
+  const barrierAssessment = assessBarriers(competitors, allRecords, indication);
 
   // ── Step 8e: Build market share distribution ────────────
   const marketShareDistribution = buildMarketShareDistribution(competitors, indication.therapy_area);
@@ -3078,10 +3118,14 @@ export async function analyzeCompetitiveLandscape(
   );
 
   // ── Step 10: Calculate crowding score ─────────────────────
-  const { score: crowdingScore, label: crowdingLabel } = calculateCrowdingScore(competitorRecords, indication);
+  const { score: crowdingScore, label: crowdingLabel } = calculateCrowdingScore(
+    allRecords,
+    indication,
+    liveTrials.length,
+  );
 
   // ── Step 11: Identify white space ─────────────────────────
-  const whiteSpace = identifyWhiteSpace(competitorRecords, indication.therapy_area, indication.name);
+  const whiteSpace = identifyWhiteSpace(allRecords, indication.therapy_area, indication.name);
 
   // ── Step 12: Build narratives ─────────────────────────────
   const differentiationOpportunity = buildDifferentiationOpportunity(
@@ -3105,17 +3149,17 @@ export async function analyzeCompetitiveLandscape(
   const displacementRisk = assessDisplacementRisk(competitors, input.mechanism);
 
   // ── Step 14c: Build patent cliff timeline ─────────────────
-  const patentCliffTimeline = buildPatentCliffTimeline(competitors, competitorRecords);
+  const patentCliffTimeline = buildPatentCliffTimeline(competitors, allRecords);
 
   // ── Step 14d: Build LOT crowding segmentation ─────────────
-  const lotCrowding = buildLOTCrowding(competitorRecords);
+  const lotCrowding = buildLOTCrowding(allRecords);
 
   // ── Step 15: Build strategic intelligence layer ──────────
-  const patientSegmentation = buildPatientSegmentation(competitors, competitorRecords, indication);
+  const patientSegmentation = buildPatientSegmentation(competitors, allRecords, indication);
 
-  const competitorScenarios = buildCompetitorScenarios(competitors, competitorRecords, indication);
+  const competitorScenarios = buildCompetitorScenarios(competitors, allRecords, indication);
 
-  const pricingPressure = buildPricingPressure(competitors, competitorRecords, indication);
+  const pricingPressure = buildPricingPressure(competitors, allRecords, indication);
 
   // ── Step 16: Assemble final output ────────────────────────
   const summary: LandscapeSummary = {
@@ -3150,4 +3194,26 @@ export async function analyzeCompetitiveLandscape(
   };
 
   return output;
+}
+
+// ── Live data helpers ──
+
+function normalizeCtgovPhase(phase: string | null | undefined): ClinicalPhase | null {
+  if (!phase) return null;
+  const map: Record<string, ClinicalPhase> = {
+    PHASE1: 'Phase 1',
+    PHASE2: 'Phase 2',
+    PHASE3: 'Phase 3',
+    'PHASE2/PHASE3': 'Phase 2/3',
+    'PHASE1/PHASE2': 'Phase 1/2',
+    PHASE4: 'Approved',
+  };
+  return map[phase.toUpperCase()] ?? null;
+}
+
+function extractAssetName(trialTitle: string): string {
+  const match = trialTitle.match(/\b([A-Z]{2,}[\-\s]?\d{3,})\b/);
+  if (match) return match[1];
+  const words = trialTitle.split(/\s+/).slice(0, 4);
+  return words.join(' ');
 }

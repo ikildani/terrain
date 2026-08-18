@@ -68,6 +68,7 @@ import { getLikelihoodOfApproval } from '@/lib/data/loa-tables';
 import { BIOMARKER_DATA } from '@/lib/data/biomarker-prevalence';
 import { filterDealComps } from '@/lib/data/pharma-deal-comps';
 import { getSourceFreshness } from '@/lib/data/data-freshness';
+import { getActiveTrialCount, getRecentFdaApprovals } from '@/lib/data/cached-data-loader';
 
 // ────────────────────────────────────────────────────────────
 // STAGE-BASED PEAK MARKET SHARE RANGES
@@ -2277,7 +2278,7 @@ export async function calculateMarketSizing(rawInput: MarketSizingInput): Promis
 
   // Step 7: Revenue projection (values in $M) — S-curve adoption
   // Enhancement 5: Build competitive position context for S-curve adjustment
-  const competitiveContext = buildCompetitiveContext(indication);
+  const competitiveContext = await buildCompetitiveContext(indication);
   const competitivePositionCtx = buildCompetitivePositionContext(
     competitiveContext.crowding_score,
     input.mechanism,
@@ -4553,27 +4554,51 @@ function buildRevenueProjection(
 // ────────────────────────────────────────────────────────────
 // COMPETITIVE CONTEXT
 // ────────────────────────────────────────────────────────────
-function buildCompetitiveContext(indication: NonNullable<ReturnType<typeof findIndicationByName>>) {
-  const count = indication.major_competitors.length;
+async function buildCompetitiveContext(indication: NonNullable<ReturnType<typeof findIndicationByName>>) {
+  const staticCount = indication.major_competitors.length;
+
+  // Enrich with live pipeline data
+  let liveTrialCount = 0;
+  let recentApprovalCount = 0;
+  try {
+    const [trialCount, recentApprovals] = await Promise.all([
+      getActiveTrialCount(indication.name),
+      getRecentFdaApprovals(12),
+    ]);
+    liveTrialCount = trialCount;
+    const indicationLower = indication.name.toLowerCase();
+    recentApprovalCount = recentApprovals.filter(
+      (a) =>
+        a.brand_name?.toLowerCase().includes(indicationLower) ||
+        a.generic_name?.toLowerCase().includes(indicationLower),
+    ).length;
+  } catch {
+    // graceful degradation — use static data only
+  }
+
+  const effectiveCount = Math.max(staticCount, Math.round(staticCount + liveTrialCount * 0.3));
 
   let crowdingScore: number;
-  if (count <= 1) crowdingScore = 2;
-  else if (count <= 3) crowdingScore = 4;
-  else if (count <= 5) crowdingScore = 6;
-  else if (count <= 8) crowdingScore = 7;
-  else if (count <= 12) crowdingScore = 8;
+  if (effectiveCount <= 1) crowdingScore = 2;
+  else if (effectiveCount <= 3) crowdingScore = 4;
+  else if (effectiveCount <= 5) crowdingScore = 6;
+  else if (effectiveCount <= 8) crowdingScore = 7;
+  else if (effectiveCount <= 12) crowdingScore = 8;
   else crowdingScore = 9;
 
+  if (liveTrialCount > 20) crowdingScore = Math.min(10, crowdingScore + 1);
+
   const note =
-    count <= 2
+    effectiveCount <= 2
       ? 'Low competition creates significant first/second-mover advantage.'
-      : count <= 5
+      : effectiveCount <= 5
         ? 'Moderate competition. Mechanism differentiation and superior data will be key.'
         : 'Highly competitive. Requires clear differentiation on efficacy, safety, or convenience.';
 
   return {
-    approved_products: Math.max(1, Math.round(count * 0.6)),
-    phase3_programs: Math.max(1, Math.round(count * 0.4)),
+    approved_products: Math.max(1, Math.round(staticCount * 0.6) + recentApprovalCount),
+    phase3_programs: Math.max(1, Math.round(staticCount * 0.4)),
+    active_trials: liveTrialCount,
     crowding_score: crowdingScore,
     differentiation_note: note,
   };
