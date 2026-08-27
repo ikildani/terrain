@@ -27,6 +27,14 @@
     {
       "path": "/api/cron/qa-health-check",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-ema",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-pubmed",
+      "schedule": "0 4 * * 3"
     }
   ]
 }

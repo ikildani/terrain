@@ -32,6 +32,10 @@ export const DATA_SOURCE_FRESHNESS: Record<string, string> = {
   'ASC Association Annual Survey': '2026-01-01',
   'Definitive Healthcare Procedure Volume Data': '2026-01-01',
 
+  // ── European regulatory ──────────────────────────────────
+  'EMA Human Medicines Database': new Date().toISOString(), // daily cron refresh
+  'PubMed Scientific Literature': new Date().toISOString(), // weekly cron refresh
+
   // ── Proprietary / live ───────────────────────────────────
   'Ambrosia Ventures Transaction Database': new Date().toISOString(),
   'Ambrosia Ventures Deal Database': new Date().toISOString(),
