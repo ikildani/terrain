@@ -756,8 +756,8 @@ function buildComparisonMatrix(devices: DeviceCompetitor[]): CompetitiveComparis
         De_Novo: 'De Novo',
         HDE: 'HDE',
         EUA: 'EUA',
-        '361_hct': 8,
-        BLA: 7,
+        '361_hct': '351 HCT/P',
+        BLA: 'BLA',
       };
       return pathwayMap[d.pathway] || d.pathway;
     }),
