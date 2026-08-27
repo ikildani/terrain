@@ -1,7 +1,17 @@
 'use client';
 
 import { useMemo } from 'react';
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Cell } from 'recharts';
+import {
+  ScatterChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ReferenceLine,
+  Cell,
+  ResponsiveContainer,
+} from 'recharts';
 import type { Competitor, ClinicalPhase } from '@/types';
 import { PHASE_COLORS } from '@/lib/constants/chart-colors';
 
@@ -97,83 +107,85 @@ export default function LandscapeMap({ competitors, highlightMechanism }: Landsc
       </p>
 
       <div style={{ overflowX: 'auto' }}>
-        <ScatterChart width={700} height={400} margin={{ top: 10, right: 20, bottom: 20, left: 10 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.08)" />
-          <XAxis
-            type="number"
-            dataKey="x"
-            name="Differentiation"
-            domain={[0, 10]}
-            ticks={[0, 2, 4, 5, 6, 8, 10]}
-            label={{
-              value: 'Differentiation Score',
-              position: 'insideBottom',
-              offset: -10,
-              fill: '#64748B',
-              fontSize: 11,
-              fontFamily: 'JetBrains Mono, monospace',
-            }}
-            tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
-            stroke="rgba(100, 116, 139, 0.15)"
-          />
-          <YAxis
-            type="number"
-            dataKey="y"
-            name="Evidence"
-            domain={[0, 10]}
-            ticks={[0, 2, 4, 5, 6, 8, 10]}
-            label={{
-              value: 'Evidence Strength',
-              angle: -90,
-              position: 'insideLeft',
-              offset: 5,
-              fill: '#64748B',
-              fontSize: 11,
-              fontFamily: 'JetBrains Mono, monospace',
-            }}
-            tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
-            stroke="rgba(100, 116, 139, 0.15)"
-          />
-          <ReferenceLine
-            x={5}
-            stroke="rgba(100, 116, 139, 0.25)"
-            strokeDasharray="6 4"
-            strokeWidth={1}
-            label={{
-              value: '5',
-              position: 'top',
-              fill: '#64748B',
-              fontSize: 9,
-              fontFamily: 'JetBrains Mono, monospace',
-            }}
-          />
-          <ReferenceLine
-            y={5}
-            stroke="rgba(100, 116, 139, 0.25)"
-            strokeDasharray="6 4"
-            strokeWidth={1}
-            label={{
-              value: '5',
-              position: 'right',
-              fill: '#64748B',
-              fontSize: 9,
-              fontFamily: 'JetBrains Mono, monospace',
-            }}
-          />
-          <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#102236' }} />
-          <Scatter data={scatterData} isAnimationActive={true}>
-            {scatterData.map((entry) => (
-              <Cell
-                key={entry.id}
-                fill={getFillColor(entry)}
-                r={Math.max(4, Math.min(12, (entry.x + entry.y) / 2))}
-                stroke={getFillColor(entry)}
-                strokeWidth={1}
-                fillOpacity={0.85}
-              />
-            ))}
-          </Scatter>
-        </ScatterChart>
+        <ResponsiveContainer width="100%" height={380}>
+          <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 10 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.08)" />
+            <XAxis
+              type="number"
+              dataKey="x"
+              name="Differentiation"
+              domain={[0, 10]}
+              ticks={[0, 2, 4, 5, 6, 8, 10]}
+              label={{
+                value: 'Differentiation Score',
+                position: 'insideBottom',
+                offset: -10,
+                fill: '#64748B',
+                fontSize: 11,
+                fontFamily: 'JetBrains Mono, monospace',
+              }}
+              tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
+              stroke="rgba(100, 116, 139, 0.15)"
+            />
+            <YAxis
+              type="number"
+              dataKey="y"
+              name="Evidence"
+              domain={[0, 10]}
+              ticks={[0, 2, 4, 5, 6, 8, 10]}
+              label={{
+                value: 'Evidence Strength',
+                angle: -90,
+                position: 'insideLeft',
+                offset: 5,
+                fill: '#64748B',
+                fontSize: 11,
+                fontFamily: 'JetBrains Mono, monospace',
+              }}
+              tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}
+              stroke="rgba(100, 116, 139, 0.15)"
+            />
+            <ReferenceLine
+              x={5}
+              stroke="rgba(100, 116, 139, 0.25)"
+              strokeDasharray="6 4"
+              strokeWidth={1}
+              label={{
+                value: '5',
+                position: 'top',
+                fill: '#64748B',
+                fontSize: 9,
+                fontFamily: 'JetBrains Mono, monospace',
+              }}
+            />
+            <ReferenceLine
+              y={5}
+              stroke="rgba(100, 116, 139, 0.25)"
+              strokeDasharray="6 4"
+              strokeWidth={1}
+              label={{
+                value: '5',
+                position: 'right',
+                fill: '#64748B',
+                fontSize: 9,
+                fontFamily: 'JetBrains Mono, monospace',
+              }}
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#102236' }} />
+            <Scatter data={scatterData} isAnimationActive={true}>
+              {scatterData.map((entry) => (
+                <Cell
+                  key={entry.id}
+                  fill={getFillColor(entry)}
+                  r={Math.max(4, Math.min(12, (entry.x + entry.y) / 2))}
+                  stroke={getFillColor(entry)}
+                  strokeWidth={1}
+                  fillOpacity={0.85}
+                />
+              ))}
+            </Scatter>
+          </ScatterChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Quadrant labels */}

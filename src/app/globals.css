@@ -139,31 +139,40 @@ body {
 .card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-  padding: 16px;
+  border-radius: 3px;
+  padding: 14px;
   position: relative;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.card:hover {
-  border-color: rgba(100, 116, 139, 0.25);
 }
 
 .card-elevated {
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-  padding: 16px;
+  border-radius: 3px;
+  padding: 14px;
+}
+
+.card-dense {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 3px;
+  padding: 8px 12px;
 }
 
 /* Stat card — used for key metrics throughout the app */
 .stat-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-  padding: 16px 18px;
+  border-radius: 3px;
+  padding: 10px 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card-compact {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 3px;
+  padding: 8px 10px;
   position: relative;
   overflow: hidden;
 }
@@ -188,7 +197,7 @@ body {
   width: 100%;
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: 6px;
+  border-radius: 3px;
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   font-size: 13px;
@@ -230,16 +239,14 @@ body {
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: 3px;
   padding: 8px 16px;
   cursor: pointer;
   border: none;
   transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.1s ease;
+    background 0.1s ease,
+    color 0.1s ease,
+    border-color 0.1s ease;
   text-decoration: none;
   white-space: nowrap;
   letter-spacing: 0.01em;
@@ -273,7 +280,7 @@ body {
 
 .btn-secondary:hover {
   background: var(--navy-700);
-  border-color: rgba(0, 201, 167, 0.3);
+  border-color: var(--navy-600, #1a3350);
 }
 
 .btn-ghost {
@@ -288,13 +295,13 @@ body {
 }
 
 .btn-danger {
-  background: rgba(248, 113, 113, 0.15);
+  background: #2a1215;
   color: var(--signal-red);
-  border: 1px solid rgba(248, 113, 113, 0.2);
+  border: 1px solid #3d1a1e;
 }
 
 .btn-danger:hover {
-  background: rgba(248, 113, 113, 0.25);
+  background: #351519;
 }
 
 /* Size variants */
@@ -311,7 +318,7 @@ body {
 .btn-xl {
   font-size: 15px;
   padding: 14px 32px;
-  border-radius: 8px;
+  border-radius: 3px;
 }
 
 /* ============================================
@@ -324,21 +331,21 @@ body {
   gap: 4px;
   font-size: 11px;
   font-weight: 500;
-  padding: 3px 8px;
-  border-radius: 100px;
+  padding: 2px 6px;
+  border-radius: 3px;
   letter-spacing: 0.02em;
 }
 
 .badge-teal {
-  background: rgba(0, 201, 167, 0.12);
+  background: #002e27;
   color: var(--teal-400);
-  border: 1px solid rgba(0, 201, 167, 0.2);
+  border: 1px solid #004d40;
 }
 
 .badge-pro {
-  background: linear-gradient(135deg, rgba(0, 201, 167, 0.2), rgba(0, 228, 191, 0.1));
+  background: #002e27;
   color: var(--teal-400);
-  border: 1px solid rgba(0, 201, 167, 0.3);
+  border: 1px solid #004d40;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -346,27 +353,27 @@ body {
 }
 
 .badge-green {
-  background: rgba(52, 211, 153, 0.12);
+  background: #0a2a1f;
   color: var(--signal-green);
-  border: 1px solid rgba(52, 211, 153, 0.2);
+  border: 1px solid #134a35;
 }
 
 .badge-amber {
-  background: rgba(251, 191, 36, 0.12);
+  background: #2a2008;
   color: var(--signal-amber);
-  border: 1px solid rgba(251, 191, 36, 0.2);
+  border: 1px solid #4a380e;
 }
 
 .badge-red {
-  background: rgba(248, 113, 113, 0.12);
+  background: #2a1215;
   color: var(--signal-red);
-  border: 1px solid rgba(248, 113, 113, 0.2);
+  border: 1px solid #3d1a1e;
 }
 
 .badge-slate {
-  background: rgba(100, 116, 139, 0.12);
+  background: #1a2332;
   color: var(--slate-400);
-  border: 1px solid rgba(100, 116, 139, 0.2);
+  border: 1px solid #253548;
 }
 
 /* Phase badges — for clinical trial phases */
@@ -375,55 +382,55 @@ body {
   font-size: 10px;
   font-weight: 500;
   padding: 2px 7px;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .phase-approved {
-  background: rgba(52, 211, 153, 0.15);
+  background: #0a2a1f;
   color: #34d399;
 }
 .phase-3 {
-  background: rgba(96, 165, 250, 0.15);
+  background: #0c1a2e;
   color: #60a5fa;
 }
 .phase-2 {
-  background: rgba(251, 191, 36, 0.15);
+  background: #2a2008;
   color: #fbbf24;
 }
 .phase-1 {
-  background: rgba(148, 163, 184, 0.15);
+  background: #1a2332;
   color: #94a3b8;
 }
 .phase-preclinical {
-  background: rgba(100, 116, 139, 0.12);
+  background: #141c28;
   color: #64748b;
 }
 
 /* Device & CDx regulatory badges */
 .badge-510k {
-  background: rgba(96, 165, 250, 0.12);
+  background: #0c1a2e;
   color: #60a5fa;
-  border: 1px solid rgba(96, 165, 250, 0.2);
+  border: 1px solid #1a3350;
 }
 .badge-pma {
-  background: rgba(251, 191, 36, 0.12);
+  background: #2a2008;
   color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.2);
+  border: 1px solid #4a380e;
 }
 .badge-de-novo {
-  background: rgba(167, 139, 250, 0.12);
+  background: #1a152e;
   color: #a78bfa;
-  border: 1px solid rgba(167, 139, 250, 0.2);
+  border: 1px solid #2e2450;
 }
 .badge-cdx {
-  background: rgba(0, 201, 167, 0.12);
+  background: #002e27;
   color: #00c9a7;
-  border: 1px solid rgba(0, 201, 167, 0.2);
+  border: 1px solid #004d40;
 }
 .badge-breakthrough-device {
-  background: rgba(52, 211, 153, 0.12);
+  background: #0a2a1f;
   color: #34d399;
-  border: 1px solid rgba(52, 211, 153, 0.2);
+  border: 1px solid #134a35;
 }
 
 /* ============================================
@@ -593,26 +600,24 @@ body {
 .sidebar-nav-item {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 8px;
-  border-radius: 6px;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 3px;
   color: var(--text-secondary);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 400;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.15s ease;
-  margin-bottom: 2px;
+  transition: color 0.1s ease;
+  margin-bottom: 1px;
   white-space: nowrap;
 }
 
 .sidebar-nav-item:hover {
-  background: var(--bg-elevated);
   color: var(--text-primary);
 }
 
 .sidebar-nav-item.active {
-  background: rgba(0, 201, 167, 0.18);
   color: var(--teal-400);
   font-weight: 500;
   border-left: 3px solid var(--teal-500);
@@ -631,10 +636,10 @@ body {
 
 .sidebar-upgrade-card {
   margin: 12px;
-  padding: 14px;
-  background: linear-gradient(135deg, var(--teal-900), rgba(0, 46, 39, 0.5));
-  border: 1px solid rgba(0, 201, 167, 0.2);
-  border-radius: 8px;
+  padding: 12px;
+  background: var(--teal-900);
+  border: 1px solid var(--navy-700);
+  border-radius: 3px;
   flex-shrink: 0;
 }
 

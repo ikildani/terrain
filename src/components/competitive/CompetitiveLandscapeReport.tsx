@@ -180,7 +180,7 @@ export default function CompetitiveLandscapeReport({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Top Threat */}
           {topCompetitors.length > 0 && (
-            <div className="bg-navy-800/60 rounded-lg px-4 py-3 border border-navy-700/40">
+            <div className="bg-navy-800 rounded px-4 py-3 border border-navy-700">
               <div className="flex items-center gap-1.5 mb-2">
                 <ShieldAlert className="h-3.5 w-3.5 text-signal-red" />
                 <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">Top Threat</span>
@@ -198,7 +198,7 @@ export default function CompetitiveLandscapeReport({
 
           {/* Key Opportunity */}
           {data.summary.white_space.length > 0 && (
-            <div className="bg-navy-800/60 rounded-lg px-4 py-3 border border-teal-500/10">
+            <div className="bg-navy-800 rounded px-4 py-3 border border-[#004d40]">
               <div className="flex items-center gap-1.5 mb-2">
                 <Target className="h-3.5 w-3.5 text-teal-500" />
                 <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">Key Opportunity</span>
@@ -208,7 +208,7 @@ export default function CompetitiveLandscapeReport({
           )}
 
           {/* Key Insight */}
-          <div className="bg-navy-800/60 rounded-lg px-4 py-3 border border-navy-700/40">
+          <div className="bg-navy-800 rounded px-4 py-3 border border-navy-700">
             <div className="flex items-center gap-1.5 mb-2">
               <Sparkles className="h-3.5 w-3.5 text-teal-500" />
               <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">Key Insight</span>
@@ -218,7 +218,7 @@ export default function CompetitiveLandscapeReport({
 
           {/* Differentiation Opportunity */}
           {data.summary.differentiation_opportunity && (
-            <div className="bg-navy-800/60 rounded-lg px-4 py-3 border border-navy-700/40">
+            <div className="bg-navy-800 rounded px-4 py-3 border border-navy-700">
               <div className="flex items-center gap-1.5 mb-2">
                 <Lightbulb className="h-3.5 w-3.5 text-signal-amber" />
                 <span className="text-2xs uppercase tracking-wider text-slate-500 font-medium">
@@ -232,7 +232,7 @@ export default function CompetitiveLandscapeReport({
 
         {/* Additional white space items */}
         {data.summary.white_space.length > 1 && (
-          <div className="mt-4 pt-4 border-t border-navy-700/30">
+          <div className="mt-4 pt-4 border-t border-navy-700">
             <p className="text-2xs uppercase tracking-wider text-slate-500 font-medium mb-2">Additional White Space</p>
             <ul className="space-y-1.5">
               {data.summary.white_space.slice(1).map((item, i) => (
@@ -279,7 +279,7 @@ export default function CompetitiveLandscapeReport({
 
       {/* ─── 5. Tabbed Pipeline Section ─── */}
       <div className="card">
-        <div className="flex items-center gap-1 border-b border-navy-700/50 -mx-5 px-5 mb-5">
+        <div className="flex items-center gap-1 border-b border-navy-700 -mx-5 px-5 mb-5">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -427,7 +427,7 @@ export default function CompetitiveLandscapeReport({
           </div>
           <p className="text-2xs text-slate-600 mt-2 font-mono">Generated {data.generated_at}</p>
           {data.data_freshness && (
-            <div className="mt-3 pt-3 border-t border-navy-700/40">
+            <div className="mt-3 pt-3 border-t border-navy-700">
               <div className="flex flex-wrap gap-x-6 gap-y-1">
                 {Object.entries(data.data_freshness).map(([key, value]) => (
                   <div key={key} className="flex items-center gap-1.5 text-2xs">

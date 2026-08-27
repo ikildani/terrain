@@ -286,7 +286,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               <input
                 id="procedure_or_condition"
                 type="text"
-                className="input-field mt-1"
+                className="input mt-1"
                 placeholder="e.g., TAVR, Total Knee Arthroplasty, CGM"
                 {...deviceForm.register('procedure_or_condition')}
               />
@@ -314,7 +314,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               <label className="input-label" htmlFor="device_category">
                 Device Category (Optional)
               </label>
-              <select id="device_category" className="input-field mt-1" {...deviceForm.register('device_category')}>
+              <select id="device_category" className="input mt-1" {...deviceForm.register('device_category')}>
                 {DEVICE_CATEGORIES.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
@@ -329,7 +329,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               <input
                 id="technology_type"
                 type="text"
-                className="input-field mt-1"
+                className="input mt-1"
                 placeholder="e.g., Pulsed field ablation, Self-expanding valve"
                 {...deviceForm.register('technology_type')}
               />
@@ -347,7 +347,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               <input
                 id="biomarker"
                 type="text"
-                className="input-field mt-1"
+                className="input mt-1"
                 placeholder="e.g., EGFR, PD-L1, BRCA1/2, HER2"
                 {...cdxForm.register('biomarker')}
               />
@@ -374,7 +374,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               <input
                 id="cdx_indication"
                 type="text"
-                className="input-field mt-1"
+                className="input mt-1"
                 placeholder="e.g., NSCLC, Breast Cancer, Ovarian Cancer"
                 {...cdxForm.register('indication')}
               />
@@ -383,7 +383,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               <label className="input-label" htmlFor="test_type">
                 Test Platform (Optional)
               </label>
-              <select id="test_type" className="input-field mt-1" {...cdxForm.register('test_type')}>
+              <select id="test_type" className="input mt-1" {...cdxForm.register('test_type')}>
                 {CDX_PLATFORMS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
@@ -398,7 +398,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               <input
                 id="linked_drug"
                 type="text"
-                className="input-field mt-1"
+                className="input mt-1"
                 placeholder="e.g., Keytruda, Tagrisso, Lynparza"
                 {...cdxForm.register('linked_drug')}
               />
@@ -416,7 +416,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               <input
                 id="primary_ingredient"
                 type="text"
-                className="input-field mt-1"
+                className="input mt-1"
                 placeholder="e.g., NMN, Creatine, Omega-3, Ashwagandha"
                 {...nutraForm.register('primary_ingredient')}
               />
@@ -433,7 +433,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               <input
                 id="health_focus"
                 type="text"
-                className="input-field mt-1"
+                className="input mt-1"
                 placeholder="e.g., Longevity, Cognitive, Gut Health, Sports Performance"
                 {...nutraForm.register('health_focus')}
               />
@@ -445,7 +445,7 @@ export default function CompetitiveForm({ onSubmit, isLoading }: CompetitiveForm
               <input
                 id="ingredient_category"
                 type="text"
-                className="input-field mt-1"
+                className="input mt-1"
                 placeholder="e.g., longevity, cognitive, metabolic"
                 {...nutraForm.register('ingredient_category')}
               />

@@ -254,19 +254,19 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
           label="US TAM"
           value={formatMetric(summary.tam_us.value, summary.tam_us.unit)}
           confidence={summary.tam_us.confidence}
-          className="!p-3"
+          className=""
         />
         <StatCard
           label="US SAM"
           value={formatMetric(summary.sam_us.value, summary.sam_us.unit)}
           confidence={summary.sam_us.confidence}
-          className="!p-3"
+          className=""
         />
         <StatCard
           label="US SOM"
           value={formatMetric(summary.som_us.value, summary.som_us.unit)}
           confidence={summary.som_us.confidence}
-          className="!p-3"
+          className=""
           range={
             summary.som_us.range
               ? {
@@ -279,13 +279,13 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
         <StatCard
           label="Global TAM"
           value={formatMetric(summary.global_tam.value, summary.global_tam.unit)}
-          className="!p-3"
+          className=""
         />
-        <StatCard label="5yr CAGR" value={`${summary.cagr_5yr}%`} trendDirection="up" className="!p-3" />
+        <StatCard label="5yr CAGR" value={`${summary.cagr_5yr}%`} trendDirection="up" className="" />
         <StatCard
           label={`Peak (${peakProjection.year || '—'})`}
           value={peakProjection.value > 0 ? formatCompact(peakProjection.value) : '—'}
-          className="!p-3"
+          className=""
         />
       </div>
 
@@ -402,7 +402,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
               </tbody>
             </table>
           </div>
-          <div className="mt-4 p-3 bg-navy-800/50 rounded-md">
+          <div className="mt-4 p-3 bg-navy-800 rounded-md">
             <p className="text-xs text-slate-400">
               <span className="text-slate-300 font-medium">Recommended WAC: </span>
               Conservative {formatCurrency(data.pricing_analysis.recommended_wac.conservative)} · Base{' '}
@@ -421,30 +421,30 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
         <div className="chart-container">
           <div className="chart-title">Regulatory Pathway Analysis</div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Base LoA</div>
               <div className="metric text-lg text-slate-400">
                 {formatPercent(data.regulatory_pathway_analysis.base_loa * 100, 1)}
               </div>
             </div>
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Pathway Modifier</div>
               <div className="metric text-lg text-white">{data.regulatory_pathway_analysis.pathway_modifier}x</div>
             </div>
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Adjusted LoA</div>
               <div className="metric text-lg text-teal-400">
                 {formatPercent(data.regulatory_pathway_analysis.adjusted_loa * 100, 1)}
               </div>
             </div>
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Designations</div>
               <div className="flex flex-wrap gap-1 mt-1">
                 {data.regulatory_pathway_analysis.designations.length > 0 ? (
                   data.regulatory_pathway_analysis.designations.map((d) => (
                     <span
                       key={d}
-                      className="inline-flex items-center px-1.5 py-0.5 rounded text-2xs font-mono bg-teal-500/12 text-teal-400 border border-teal-500/20"
+                      className="inline-flex items-center px-1.5 py-0.5 rounded text-2xs font-mono bg-[#002e27] text-teal-400 border border-[#004d40]"
                     >
                       {d}
                     </span>
@@ -477,15 +477,15 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
             return (
               <>
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="p-3 bg-navy-800/50 rounded-md flex-1">
+                  <div className="p-3 bg-navy-800 rounded-md flex-1">
                     <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">WAC (List Price)</div>
                     <div className="metric text-lg text-white">{formatCurrency(yr1.wac)}</div>
                   </div>
-                  <div className="p-3 bg-navy-800/50 rounded-md flex-1">
+                  <div className="p-3 bg-navy-800 rounded-md flex-1">
                     <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Blended Net Price</div>
                     <div className="metric text-lg text-teal-400">{formatCurrency(yr1.blended_net_price)}</div>
                   </div>
-                  <div className="p-3 bg-navy-800/50 rounded-md flex-1">
+                  <div className="p-3 bg-navy-800 rounded-md flex-1">
                     <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Effective GTN</div>
                     <div className="metric text-lg text-amber-400">{yr1.effective_gtn_pct}%</div>
                   </div>
@@ -554,13 +554,13 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
             <div className="chart-title">Label Expansion Opportunities</div>
             <div className="space-y-4">
               {data.label_expansion_opportunities.map((exp) => (
-                <div key={exp.indication} className="p-4 bg-navy-800/50 rounded-md border border-navy-700">
+                <div key={exp.indication} className="p-4 bg-navy-800 rounded-md border border-navy-700">
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <span className="text-sm text-white font-medium">{exp.indication}</span>
                       <span className="text-2xs text-slate-500 ml-2">({exp.therapy_area})</span>
                     </div>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-teal-500/12 text-teal-400 border border-teal-500/20">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-[#002e27] text-teal-400 border border-[#004d40]">
                       {formatPercent(exp.probability * 100, 0)} probability
                     </span>
                   </div>
@@ -600,10 +600,10 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
                 className={cn(
                   'inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono uppercase tracking-wider',
                   data.manufacturing_constraint.product_type === 'cell_gene_therapy'
-                    ? 'bg-red-500/12 text-red-400 border border-red-500/20'
+                    ? 'bg-[#2a1215] text-red-400 border border-[#3d1a1e]'
                     : data.manufacturing_constraint.product_type === 'biologic'
                       ? 'bg-amber-500/12 text-amber-400 border border-amber-500/20'
-                      : 'bg-emerald-500/12 text-emerald-400 border border-emerald-500/20',
+                      : 'bg-[#0a2a1f] text-emerald-400 border border-[#134a35]',
                 )}
               >
                 {humanize(data.manufacturing_constraint.product_type)}
@@ -611,7 +611,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
               {data.manufacturing_constraint.constrained_years.map((yr) => (
-                <div key={yr.year} className="p-3 bg-navy-800/50 rounded-md">
+                <div key={yr.year} className="p-3 bg-navy-800 rounded-md">
                   <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Year {yr.year}</div>
                   <div className="flex items-baseline gap-2">
                     <span
@@ -645,17 +645,17 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
               className={cn(
                 'inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono uppercase tracking-wider',
                 data.competitive_mechanism_analysis.overall_mechanism_crowding === 'high'
-                  ? 'bg-red-500/12 text-red-400 border border-red-500/20'
+                  ? 'bg-[#2a1215] text-red-400 border border-[#3d1a1e]'
                   : data.competitive_mechanism_analysis.overall_mechanism_crowding === 'moderate'
                     ? 'bg-amber-500/12 text-amber-400 border border-amber-500/20'
-                    : 'bg-emerald-500/12 text-emerald-400 border border-emerald-500/20',
+                    : 'bg-[#0a2a1f] text-emerald-400 border border-[#134a35]',
               )}
             >
               {data.competitive_mechanism_analysis.overall_mechanism_crowding} crowding
             </span>
           </div>
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Mechanism-Weighted Erosion</div>
               <div className="metric text-lg text-amber-400">
                 {data.competitive_mechanism_analysis.mechanism_weighted_erosion_pct.toFixed(1)}%
@@ -687,12 +687,12 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
                           className={cn(
                             'inline-flex items-center px-1.5 py-0.5 rounded text-2xs font-mono',
                             c.relationship === 'same_mechanism'
-                              ? 'bg-red-500/12 text-red-400'
+                              ? 'bg-[#2a1215] text-red-400'
                               : c.relationship === 'same_target'
                                 ? 'bg-amber-500/12 text-amber-400'
                                 : c.relationship === 'same_pathway'
                                   ? 'bg-amber-500/10 text-amber-300'
-                                  : 'bg-emerald-500/12 text-emerald-400',
+                                  : 'bg-[#0a2a1f] text-emerald-400',
                           )}
                         >
                           {c.relationship.replace(/_/g, ' ')}
@@ -731,19 +731,19 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
         <div className="chart-container">
           <div className="chart-title">Patent Cliff & LOE Analysis</div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Product Type</div>
               <div className="text-sm text-white font-medium">{humanize(data.patent_cliff_analysis.product_type)}</div>
             </div>
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Estimated LOE Year</div>
               <div className="metric text-lg text-white">{data.patent_cliff_analysis.estimated_loe_year}</div>
             </div>
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Exclusivity Type</div>
               <div className="text-2xs text-slate-300">{data.patent_cliff_analysis.exclusivity_type}</div>
             </div>
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Peak-to-Trough Decline</div>
               <div
                 className={cn(
@@ -796,10 +796,10 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
             {/* Bull Case */}
             {data.investment_thesis.bull_case && (
-              <div className="p-4 bg-navy-800/50 rounded-md border border-emerald-500/20">
+              <div className="p-4 bg-navy-800 rounded-md border border-[#134a35]">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-emerald-400 font-medium">Bull Case</span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-emerald-500/12 text-emerald-400 border border-emerald-500/20">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-[#0a2a1f] text-emerald-400 border border-[#134a35]">
                     {data.investment_thesis.bull_case.probability_pct != null
                       ? `${data.investment_thesis.bull_case.probability_pct}%`
                       : '—'}
@@ -832,10 +832,10 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
             {/* Base Case */}
             {data.investment_thesis.base_case && (
-              <div className="p-4 bg-navy-800/50 rounded-md border border-teal-500/20">
+              <div className="p-4 bg-navy-800 rounded-md border border-[#004d40]">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-teal-400 font-medium">Base Case</span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-teal-500/12 text-teal-400 border border-teal-500/20">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-[#002e27] text-teal-400 border border-[#004d40]">
                     {data.investment_thesis.base_case.probability_pct != null
                       ? `${data.investment_thesis.base_case.probability_pct}%`
                       : '—'}
@@ -868,10 +868,10 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
             {/* Bear Case */}
             {data.investment_thesis.bear_case && (
-              <div className="p-4 bg-navy-800/50 rounded-md border border-red-500/20">
+              <div className="p-4 bg-navy-800 rounded-md border border-[#3d1a1e]">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-red-400 font-medium">Bear Case</span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-red-500/12 text-red-400 border border-red-500/20">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-[#2a1215] text-red-400 border border-[#3d1a1e]">
                     {data.investment_thesis.bear_case.probability_pct != null
                       ? `${data.investment_thesis.bear_case.probability_pct}%`
                       : '—'}
@@ -905,7 +905,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
           {/* Expected Value */}
           {data.investment_thesis.expected_value_m != null && (
-            <div className="p-4 bg-navy-800/50 rounded-md border border-navy-700 mb-4">
+            <div className="p-4 bg-navy-800 rounded-md border border-navy-700 mb-4">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">
                 Probability-Weighted Expected Peak Sales
               </div>
@@ -923,7 +923,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
                 {data.investment_thesis.key_binary_risks.map((risk: string, i: number) => (
                   <span
                     key={`risk-${i}`}
-                    className="inline-flex items-center px-2 py-1 rounded text-2xs font-mono bg-red-500/10 text-red-400 border border-red-500/20"
+                    className="inline-flex items-center px-2 py-1 rounded text-2xs font-mono bg-[#2a1215] text-red-400 border border-[#3d1a1e]"
                   >
                     {risk}
                   </span>
@@ -934,7 +934,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
           {/* Investment Decision Framework */}
           {data.investment_thesis.investment_decision_framework && (
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-2">Investment Decision Framework</div>
               <p className="text-xs text-slate-400 leading-relaxed">
                 {data.investment_thesis.investment_decision_framework}
@@ -952,7 +952,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
           {/* Top metric cards */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
             {data.deal_comps_analysis.median_ev_peak_sales != null && (
-              <div className="p-4 bg-navy-800/50 rounded-md border border-navy-700">
+              <div className="p-4 bg-navy-800 rounded-md border border-navy-700">
                 <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Median EV / Peak Sales</div>
                 <div className="metric text-lg text-white">
                   {data.deal_comps_analysis.median_ev_peak_sales.toFixed(1)}x
@@ -960,7 +960,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
               </div>
             )}
             {data.deal_comps_analysis.implied_valuation_base_m != null && (
-              <div className="p-4 bg-navy-800/50 rounded-md border border-teal-500/20">
+              <div className="p-4 bg-navy-800 rounded-md border border-[#004d40]">
                 <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Implied Valuation (Base)</div>
                 <div className="metric text-xl text-teal-400">
                   {formatCompact(data.deal_comps_analysis.implied_valuation_base_m)}
@@ -969,7 +969,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
             )}
             {data.deal_comps_analysis.implied_valuation_low_m != null &&
               data.deal_comps_analysis.implied_valuation_high_m != null && (
-                <div className="p-4 bg-navy-800/50 rounded-md border border-navy-700">
+                <div className="p-4 bg-navy-800 rounded-md border border-navy-700">
                   <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Valuation Range</div>
                   <div className="metric text-lg text-white">
                     {formatCompact(data.deal_comps_analysis.implied_valuation_low_m)} –{' '}
@@ -1023,7 +1023,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
 
           {/* Narrative */}
           {data.deal_comps_analysis.narrative && (
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <p className="text-xs text-slate-400 leading-relaxed">{data.deal_comps_analysis.narrative}</p>
             </div>
           )}
@@ -1041,7 +1041,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
               <div className="flex flex-wrap items-center gap-2 mb-6">
                 {data.development_cost_estimate.remaining_phases.map((phase, i, arr) => (
                   <div key={`phase-${i}`} className="flex items-center gap-2">
-                    <div className="p-3 bg-navy-800/50 rounded-md border border-navy-700 text-center min-w-[120px]">
+                    <div className="p-3 bg-navy-800 rounded-md border border-navy-700 text-center min-w-[120px]">
                       <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">{phase.phase}</div>
                       <div className="metric text-sm text-teal-400">{formatCompact(phase.cost_m ?? 0)}</div>
                       <div className="text-2xs font-mono text-slate-500 mt-0.5">
@@ -1057,7 +1057,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
           {/* Summary metrics */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             {data.development_cost_estimate.total_remaining_cost_m != null && (
-              <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="p-3 bg-navy-800 rounded-md">
                 <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Total Remaining Cost</div>
                 <div className="metric text-lg text-white">
                   {formatCompact(data.development_cost_estimate.total_remaining_cost_m)}
@@ -1065,7 +1065,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
               </div>
             )}
             {data.development_cost_estimate.estimated_years_to_launch != null && (
-              <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="p-3 bg-navy-800 rounded-md">
                 <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Years to Launch</div>
                 <div className="metric text-lg text-white">
                   {data.development_cost_estimate.estimated_years_to_launch}
@@ -1073,7 +1073,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
               </div>
             )}
             {data.development_cost_estimate.cost_adjusted_npv_m != null && (
-              <div className="p-3 bg-navy-800/50 rounded-md border border-teal-500/20">
+              <div className="p-3 bg-navy-800 rounded-md border border-[#004d40]">
                 <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Cost-Adjusted NPV</div>
                 <div className="metric text-lg text-teal-400">
                   {formatCompact(data.development_cost_estimate.cost_adjusted_npv_m)}
@@ -1097,7 +1097,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
           {/* Discount rate */}
           {data.dcf_waterfall.discount_rate_pct != null && (
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-navy-800/50 rounded-md">
+              <div className="p-3 bg-navy-800 rounded-md">
                 <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Discount Rate (WACC)</div>
                 <div className="metric text-lg text-white">
                   {formatPercent(data.dcf_waterfall.discount_rate_pct * 100, 1)}
@@ -1187,8 +1187,8 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
                     className={cn(
                       'p-3 rounded-md text-center min-w-[100px]',
                       ws.wacc === data.dcf_waterfall?.discount_rate_pct
-                        ? 'bg-teal-500/12 border border-teal-500/20'
-                        : 'bg-navy-800/50 border border-navy-700',
+                        ? 'bg-[#002e27] border border-[#004d40]'
+                        : 'bg-navy-800 border border-navy-700',
                     )}
                   >
                     <div className="text-2xs font-mono text-slate-500">{formatPercent(ws.wacc, 0)}</div>
@@ -1218,25 +1218,25 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
             </span>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Prevalent Pool</div>
               <div className="metric text-lg text-white">
                 {formatNumber(data.one_time_treatment_model.prevalent_pool)}
               </div>
             </div>
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Annual New Cases</div>
               <div className="metric text-lg text-white">
                 {formatNumber(data.one_time_treatment_model.annual_new_cases)}
               </div>
             </div>
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Pool Depletion</div>
               <div className="metric text-lg text-amber-400">
                 {data.one_time_treatment_model.pool_depletion_years} years
               </div>
             </div>
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Steady-State Revenue</div>
               <div className="metric text-lg text-teal-400">
                 ${data.one_time_treatment_model.steady_state_revenue_m}M/yr
@@ -1279,19 +1279,19 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
             </span>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Pediatric Prevalence</div>
               <div className="metric text-lg text-white">
                 {formatNumber(data.pediatric_analysis.pediatric_prevalence)}
               </div>
             </div>
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Adult Prevalence</div>
               <div className="metric text-lg text-slate-400">
                 {formatNumber(data.pediatric_analysis.adult_prevalence)}
               </div>
             </div>
-            <div className="p-3 bg-navy-800/50 rounded-md">
+            <div className="p-3 bg-navy-800 rounded-md">
               <div className="text-2xs text-slate-500 uppercase tracking-wider mb-1">Pricing Adjustment</div>
               <div className="metric text-lg text-amber-400">{data.pediatric_analysis.pricing_adjustment}x</div>
             </div>
@@ -1339,7 +1339,7 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
       {/* Data Sources */}
       <div className="flex flex-wrap gap-3 items-center">
         {data.indication_enriched && (
-          <span className="text-2xs text-teal-500 bg-teal-500/10 px-1.5 py-0.5 rounded border border-teal-500/20 font-mono">
+          <span className="text-2xs text-teal-500 bg-teal-500/10 px-1.5 py-0.5 rounded border border-[#004d40] font-mono">
             Live enriched
           </span>
         )}

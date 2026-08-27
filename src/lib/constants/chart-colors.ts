@@ -13,6 +13,21 @@ export const CHART_COLORS = {
   navy: '#0D1B2E',
   navyLight: '#102236',
   white: '#F0F4F8',
+  // Sequential palette for heatmaps and gradient data
+  sequential: [
+    '#04080f',
+    '#071520',
+    '#0a2232',
+    '#0d3045',
+    '#104058',
+    '#13506c',
+    '#166180',
+    '#1a7496',
+    '#1d88ad',
+    '#219dc6',
+  ],
+  // Diverging palette (red-neutral-green)
+  diverging: ['#f87171', '#fb923c', '#fbbf24', '#94a3b8', '#34d399', '#22c55e', '#16a34a'],
 } as const;
 
 export const PHASE_COLORS: Record<string, string> = {
@@ -28,15 +43,15 @@ export const PHASE_COLORS: Record<string, string> = {
 };
 
 export const REPORT_TYPE_COLORS: Record<string, string> = {
-  market_sizing: 'bg-teal-500/15 text-teal-400 border-teal-500/20',
-  competitive: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
-  regulatory: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
-  partners: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
-  pipeline: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
-  device_market_sizing: 'bg-teal-500/15 text-teal-400 border-teal-500/20',
-  cdx_market_sizing: 'bg-teal-500/15 text-teal-400 border-teal-500/20',
-  nutraceutical_market_sizing: 'bg-teal-500/15 text-teal-400 border-teal-500/20',
-  full: 'bg-slate-500/15 text-slate-400 border-slate-500/20',
+  market_sizing: 'bg-[#002e27] text-teal-400 border-[#004d40]',
+  competitive: 'bg-[#0c1a2e] text-blue-400 border-[#1a3350]',
+  regulatory: 'bg-[#1a152e] text-purple-400 border-[#2e2450]',
+  partners: 'bg-[#0a2a1f] text-emerald-400 border-[#134a35]',
+  pipeline: 'bg-[#0c1a2e] text-blue-400 border-[#1a3350]',
+  device_market_sizing: 'bg-[#002e27] text-teal-400 border-[#004d40]',
+  cdx_market_sizing: 'bg-[#002e27] text-teal-400 border-[#004d40]',
+  nutraceutical_market_sizing: 'bg-[#002e27] text-teal-400 border-[#004d40]',
+  full: 'bg-[#1a2332] text-slate-400 border-[#253548]',
 };
 
 export const REPORT_TYPE_ROUTES: Record<string, string> = {

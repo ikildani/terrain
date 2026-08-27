@@ -61,11 +61,11 @@ const config: Config = {
         content: '1400px',
       },
       borderRadius: {
-        sm: '4px',
-        DEFAULT: '6px',
-        md: '8px',
-        lg: '12px',
-        xl: '16px',
+        sm: '2px',
+        DEFAULT: '3px',
+        md: '3px',
+        lg: '6px',
+        xl: '8px',
       },
       boxShadow: {
         card: '0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px rgba(16, 34, 54, 0.8)',
@@ -73,8 +73,8 @@ const config: Config = {
         elevated: '0 8px 32px rgba(0,0,0,0.6)',
       },
       animation: {
-        'fade-in': 'fadeIn 0.4s ease-out',
-        'slide-up': 'slideUp 0.4s ease-out',
+        'fade-in': 'fadeIn 0.15s ease-out',
+        'slide-up': 'slideUp 0.15s ease-out',
         shimmer: 'shimmer 1.5s ease-in-out infinite',
         counter: 'counter 1.5s ease-out',
       },

@@ -518,7 +518,7 @@ export default function MarketSizingForm({ onSubmit, isLoading }: MarketSizingFo
   const formMode = getFormMode(productCategory);
 
   return (
-    <div className="card noise space-y-6">
+    <div className="card space-y-5">
       <ProductTypeSelector value={productCategory} onChange={setProductCategory} />
 
       <SectionDivider />

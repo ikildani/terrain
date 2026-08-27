@@ -79,7 +79,7 @@ export default function CompanyConcentrationChart({ competitors }: CompanyConcen
               stroke="none"
             />
             <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(16, 34, 54, 0.4)' }} />
-            <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
+            <Bar dataKey="count" radius={[0, 1, 1, 0]} barSize={20}>
               {companyData.map((entry, idx) => (
                 <Cell
                   key={entry.name}

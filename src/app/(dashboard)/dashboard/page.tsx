@@ -158,22 +158,16 @@ function DashboardContent() {
           const isProFeature = action.href === '/partners' || action.href === '/regulatory';
           const isLocked = isProFeature && !isPro && !subLoading;
           return (
-            <Link
-              key={action.href}
-              href={action.href}
-              className="card group hover:border-teal-500/30 transition-all duration-200 relative"
-            >
+            <Link key={action.href} href={action.href} className="card group relative">
               {isLocked && (
                 <div className="absolute top-3 right-3">
                   <Lock className="w-3.5 h-3.5 text-slate-600" />
                 </div>
               )}
               <Icon className="w-5 h-5 text-teal-500 mb-3" />
-              <h3 className="text-sm font-semibold text-white mb-1 group-hover:text-teal-400 transition-colors">
-                {action.label}
-              </h3>
+              <h3 className="text-sm font-semibold text-white mb-1">{action.label}</h3>
               <p className="text-xs text-slate-400">{action.desc}</p>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-600 mt-3 group-hover:text-teal-500 group-hover:translate-x-1 transition-all" />
+              <ArrowRight className="w-3.5 h-3.5 text-slate-600 mt-3" />
             </Link>
           );
         })}
@@ -199,11 +193,11 @@ function DashboardContent() {
         {reportsLoading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 bg-navy-800/50 rounded-md animate-pulse" />
+              <div key={i} className="h-14 bg-navy-800 rounded animate-pulse" />
             ))}
           </div>
         ) : recentReports.length > 0 ? (
-          <div className="divide-y divide-navy-700/30">
+          <div className="divide-y divide-navy-700">
             {recentReports.map((report) => (
               <div key={report.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0 group">
                 <Link href={getReportHref(report)} className="flex items-center gap-3 min-w-0 flex-1">
@@ -222,7 +216,7 @@ function DashboardContent() {
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
-                      {report.indication && <span className="text-teal-500/80 font-medium">{report.indication}</span>}
+                      {report.indication && <span className="text-teal-500 font-medium">{report.indication}</span>}
                       <span className="text-slate-600 font-mono text-2xs">
                         {new Date(report.created_at).toLocaleDateString('en-US', {
                           month: 'short',
@@ -239,7 +233,7 @@ function DashboardContent() {
                     e.stopPropagation();
                     toggleStar(report.id);
                   }}
-                  className="p-1.5 rounded hover:bg-navy-700/50 transition-colors shrink-0 ml-2"
+                  className="p-1.5 rounded hover:bg-navy-700 transition-colors shrink-0 ml-2"
                   aria-label={report.is_starred ? 'Remove star' : 'Star report'}
                 >
                   <Star
@@ -253,9 +247,9 @@ function DashboardContent() {
           </div>
         ) : (
           /* Enhanced empty state — role-aware getting started */
-          <div className="py-8">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-navy-800 mb-3">
+          <div className="py-6">
+            <div className="text-center mb-5">
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-sm bg-navy-800 mb-3">
                 <Lightbulb className="w-6 h-6 text-teal-500" />
               </div>
               <h3 className="text-sm font-medium text-slate-300 mb-1">{roleSuggestions.title}</h3>
@@ -268,13 +262,11 @@ function DashboardContent() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="group flex flex-col items-center text-center p-4 rounded-lg bg-navy-800/40 border border-navy-700/30 hover:border-teal-500/20 transition-all"
+                  className="group flex flex-col items-center text-center p-3 rounded bg-navy-800 border border-navy-700"
                 >
-                  <p className="text-xs font-medium text-white mb-1 group-hover:text-teal-400 transition-colors">
-                    {item.label}
-                  </p>
+                  <p className="text-xs font-medium text-white mb-1">{item.label}</p>
                   <p className="text-2xs text-slate-500">{item.desc}</p>
-                  <ArrowRight className="w-3 h-3 text-slate-600 mt-2 group-hover:text-teal-500 group-hover:translate-x-0.5 transition-all" />
+                  <ArrowRight className="w-3 h-3 text-slate-600 mt-2" />
                 </Link>
               ))}
             </div>
@@ -296,14 +288,14 @@ function DashboardContent() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="stat-card animate-pulse">
-              <div className="h-3 w-24 bg-navy-700/60 rounded mb-3" />
-              <div className="h-7 w-16 bg-navy-700/60 rounded mb-2" />
-              <div className="h-3 w-32 bg-navy-700/40 rounded" />
+              <div className="h-3 w-24 bg-navy-700 rounded mb-3" />
+              <div className="h-7 w-16 bg-navy-700 rounded mb-2" />
+              <div className="h-3 w-32 bg-navy-800 rounded" />
             </div>
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard
             label="Analyses This Month"
             value={String(analysesThisMonth)}
@@ -330,6 +322,28 @@ function DashboardContent() {
             value={String(PRICING_BENCHMARK_COUNT)}
             subvalue="Drug reference points"
             source="Public Filings & Industry Data"
+          />
+          <StatCard label="Therapeutic Areas" value="18" subvalue="Full coverage" source="Terrain Platform" />
+          <StatCard label="Most Active TA" value="Oncology" subvalue="By analysis volume" source="Usage Analytics" />
+          <StatCard
+            label="Reports This Month"
+            value={String(
+              reports.filter((r) => {
+                const d = new Date(r.created_at);
+                const now = new Date();
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+              }).length,
+            )}
+            subvalue="Generated"
+            source="Reports Database"
+          />
+          <StatCard
+            label="Last Analysis"
+            value={
+              recentReports[0] ? formatDistanceToNow(new Date(recentReports[0].created_at), { addSuffix: false }) : '—'
+            }
+            subvalue={recentReports[0] ? 'ago' : 'No analyses yet'}
+            source="Activity Log"
           />
         </div>
       )}

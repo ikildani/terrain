@@ -121,6 +121,12 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
         </kbd>
       </button>
 
+      {/* Data freshness */}
+      <div className="hidden lg:flex items-center gap-1.5 ml-3 mr-1 text-2xs text-slate-600 font-mono">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+        Data refreshed nightly
+      </div>
+
       {/* User dropdown */}
       <div className="relative ml-1" ref={dropdownRef}>
         <button
@@ -130,8 +136,8 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
           aria-haspopup="true"
           aria-expanded={dropdownOpen}
         >
-          <div className="w-7 h-7 rounded-full bg-teal-500/15 border border-teal-500/30 flex items-center justify-center">
-            <span className="text-xs font-semibold text-teal-400">{initials}</span>
+          <div className="w-7 h-7 rounded-full bg-navy-700 border border-navy-600 flex items-center justify-center">
+            <span className="text-xs font-semibold text-slate-300">{initials}</span>
           </div>
           <span className={cn('badge text-[9px] px-1.5 py-0', plan === 'free' ? 'badge-slate' : 'badge-pro')}>
             {planDisplay.name}
@@ -140,7 +146,7 @@ export function Topbar({ onMenuToggle, onSearchClick }: TopbarProps) {
 
         {dropdownOpen && (
           <div
-            className="absolute right-0 top-full mt-2 w-56 bg-navy-800 border border-navy-700 rounded-lg shadow-elevated py-1 z-50"
+            className="absolute right-0 top-full mt-2 w-56 bg-navy-800 border border-navy-700 rounded shadow-elevated py-1 z-50"
             role="menu"
           >
             <div className="px-4 py-3 border-b border-navy-700">

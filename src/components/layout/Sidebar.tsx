@@ -201,7 +201,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               >
                 <span className="flex items-center gap-1.5">
                   Enterprise
-                  <span className="text-[7px] font-mono uppercase px-1 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 leading-none">
+                  <span className="text-[7px] font-mono uppercase px-1 py-0.5 rounded-sm bg-[#1a152e] text-purple-400 border border-[#2e2450] leading-none">
                     ENT
                   </span>
                 </span>
@@ -248,11 +248,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         {/* Ambrosia Ventures */}
+        <div className="border-t border-navy-700 mx-3 mb-1" />
         <a
           href="https://ambrosiaventures.co"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 text-xs text-slate-500 hover:text-slate-300 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-xs text-slate-500 hover:text-slate-300"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           ambrosiaventures.co
