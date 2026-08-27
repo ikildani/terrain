@@ -341,28 +341,28 @@ export async function POST(request: NextRequest) {
     if (isBiosimilar(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_biosimilar',
-        () => calculateBiosimilarMarketSizing(input as Parameters<typeof calculateBiosimilarMarketSizing>[0]),
+        async () => calculateBiosimilarMarketSizing(input as Parameters<typeof calculateBiosimilarMarketSizing>[0]),
         { indication },
       );
       result = r;
     } else if (isCGT(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_cgt',
-        () => calculateCGTMarketSizing(input as Parameters<typeof calculateCGTMarketSizing>[0]),
+        async () => calculateCGTMarketSizing(input as Parameters<typeof calculateCGTMarketSizing>[0]),
         { indication },
       );
       result = r;
     } else if (isRadiopharm(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_radiopharm',
-        () => calculateRadiopharmMarketSizing(input as Parameters<typeof calculateRadiopharmMarketSizing>[0]),
+        async () => calculateRadiopharmMarketSizing(input as Parameters<typeof calculateRadiopharmMarketSizing>[0]),
         { indication },
       );
       result = r;
     } else if (isPlatform(product_category)) {
       const { result: r } = await withTiming(
         'platform_valuation',
-        () => calculatePlatformValuation(input as Parameters<typeof calculatePlatformValuation>[0]),
+        async () => calculatePlatformValuation(input as Parameters<typeof calculatePlatformValuation>[0]),
         { indication },
       );
       result = r;
