@@ -9,42 +9,12 @@ import { Section } from './Section';
 // ────────────────────────────────────────────────────────────
 
 const COMPARISON_ROWS = [
-  {
-    dimension: 'Time to insight',
-    terrain: '90 seconds',
-    mckinsey: '3\u20136 weeks',
-    boutique: '2\u20134 weeks',
-  },
-  {
-    dimension: 'Cost',
-    terrain: '$149/mo',
-    mckinsey: '$500K\u2013$2M',
-    boutique: '$50K\u2013$200K',
-  },
-  {
-    dimension: 'Indications covered',
-    terrain: '236+',
-    mckinsey: '1\u20133 per engagement',
-    boutique: '5\u201310',
-  },
-  {
-    dimension: 'Data sources',
-    terrain: '6+ live feeds',
-    mckinsey: 'Manual research',
-    boutique: 'Mixed',
-  },
-  {
-    dimension: 'Update frequency',
-    terrain: 'Real-time',
-    mckinsey: 'Static deliverable',
-    boutique: 'Quarterly',
-  },
-  {
-    dimension: 'Deal comps',
-    terrain: '416 transactions',
-    mckinsey: '10\u201320 curated',
-    boutique: '20\u201350',
-  },
+  { dimension: 'Time to insight', terrain: '90 seconds', advisory: '3\u20136 weeks' },
+  { dimension: 'Cost', terrain: '$149/mo', advisory: '$500K\u2013$2M per engagement' },
+  { dimension: 'Indications covered', terrain: '236+', advisory: '1\u20133 per engagement' },
+  { dimension: 'Data sources', terrain: '6+ live feeds, daily refresh', advisory: 'Manual analyst research' },
+  { dimension: 'Update frequency', terrain: 'Real-time', advisory: 'Static deliverable' },
+  { dimension: 'Deal comps', terrain: '1,900+ verified transactions', advisory: '10\u201350 curated' },
 ] as const;
 
 export function ConsultingComparisonSection() {
@@ -64,16 +34,13 @@ export function ConsultingComparisonSection() {
 
         <div className="card p-0 overflow-x-auto">
           {/* Header */}
-          <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] border-b border-navy-700/60 min-w-[560px]">
+          <div className="grid grid-cols-[1.5fr_1fr_1fr] border-b border-navy-700/60 min-w-[400px]">
             <div className="px-5 py-4" />
             <div className="px-5 py-4 text-center bg-teal-500/5 border-l border-navy-700/60">
               <span className="text-xs font-mono text-teal-500 uppercase tracking-wider font-medium">Terrain</span>
             </div>
             <div className="px-5 py-4 text-center border-l border-navy-700/60">
-              <span className="text-xs font-mono text-slate-500 uppercase tracking-wider">McKinsey / BCG</span>
-            </div>
-            <div className="px-5 py-4 text-center border-l border-navy-700/60">
-              <span className="text-xs font-mono text-slate-500 uppercase tracking-wider">Boutique Advisory</span>
+              <span className="text-xs font-mono text-slate-500 uppercase tracking-wider">Advisory Firm</span>
             </div>
           </div>
 
@@ -81,7 +48,7 @@ export function ConsultingComparisonSection() {
           {COMPARISON_ROWS.map((row, i) => (
             <div
               key={row.dimension}
-              className={`grid grid-cols-[1.5fr_1fr_1fr_1fr] min-w-[560px] ${
+              className={`grid grid-cols-[1.5fr_1fr_1fr] min-w-[400px] ${
                 i < COMPARISON_ROWS.length - 1 ? 'border-b border-navy-700/60' : ''
               }`}
             >
@@ -90,10 +57,7 @@ export function ConsultingComparisonSection() {
                 <span className="text-xs font-mono text-teal-400 font-medium">{row.terrain}</span>
               </div>
               <div className="px-5 py-3.5 text-center border-l border-navy-700/60">
-                <span className="text-xs font-mono text-slate-500">{row.mckinsey}</span>
-              </div>
-              <div className="px-5 py-3.5 text-center border-l border-navy-700/60">
-                <span className="text-xs font-mono text-slate-500">{row.boutique}</span>
+                <span className="text-xs font-mono text-slate-500">{row.advisory}</span>
               </div>
             </div>
           ))}

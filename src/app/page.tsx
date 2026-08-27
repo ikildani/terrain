@@ -19,10 +19,10 @@ export default function HomePage() {
       <Navbar />
       <main id="main-content">
         <HeroSection />
-        <DataSourceStrip />
         <CredibilityStrip />
-        <ModulesSection />
         <InteractiveDemoSection />
+        <DataSourceStrip />
+        <ModulesSection />
         <ConsultingComparisonSection />
         <PricingSection />
         <FaqSection />

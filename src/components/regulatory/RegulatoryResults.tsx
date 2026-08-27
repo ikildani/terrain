@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import type { RegulatoryOutput, DesignationOpportunity, RegulatoryRisk, ComparableApproval } from '@/types';
+import RegulatoryTimeline from './RegulatoryTimeline';
 
 // ────────────────────────────────────────────────────────────
 // PATHWAY CARD
@@ -570,7 +571,19 @@ export default function RegulatoryResults({ data }: { data: RegulatoryOutput }) 
         </div>
       </div>
 
-      {/* Timeline */}
+      {/* Gantt Timeline — hero visualization */}
+      <RegulatoryTimeline
+        totalMonths={data.timeline_estimate.total_to_approval}
+        comparableApprovals={data.comparable_approvals}
+        hasBreakthroughDesignation={data.designation_opportunities.some(
+          (d) => d.designation === 'Breakthrough Therapy' && d.eligibility === 'likely',
+        )}
+        hasOrphanDesignation={data.designation_opportunities.some(
+          (d) => d.designation === 'Orphan Drug' && d.eligibility === 'likely',
+        )}
+      />
+
+      {/* Legacy Timeline Detail */}
       <TimelineBar data={data.timeline_estimate} />
 
       {/* Designation Opportunities */}

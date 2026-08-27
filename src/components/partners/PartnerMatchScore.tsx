@@ -40,14 +40,18 @@ export default function PartnerMatchScore({ score, breakdown, compact }: Partner
         <div className="relative w-12 h-12">
           <svg viewBox="0 0 36 36" className="w-12 h-12 -rotate-90">
             <circle
-              cx="18" cy="18" r="15.5"
+              cx="18"
+              cy="18"
+              r="15.5"
               fill="none"
               stroke="currentColor"
               strokeWidth="3"
               className="text-navy-700"
             />
             <circle
-              cx="18" cy="18" r="15.5"
+              cx="18"
+              cy="18"
+              r="15.5"
               fill="none"
               stroke="currentColor"
               strokeWidth="3"
@@ -56,10 +60,12 @@ export default function PartnerMatchScore({ score, breakdown, compact }: Partner
               strokeLinecap="round"
             />
           </svg>
-          <span className={cn(
-            'absolute inset-0 flex items-center justify-center text-xs font-mono font-medium',
-            getScoreColor(score)
-          )}>
+          <span
+            className={cn(
+              'absolute inset-0 flex items-center justify-center text-xs font-mono font-medium',
+              getScoreColor(score),
+            )}
+          >
             {score}
           </span>
         </div>
@@ -74,14 +80,18 @@ export default function PartnerMatchScore({ score, breakdown, compact }: Partner
         <div className="relative w-14 h-14">
           <svg viewBox="0 0 36 36" className="w-14 h-14 -rotate-90">
             <circle
-              cx="18" cy="18" r="15.5"
+              cx="18"
+              cy="18"
+              r="15.5"
               fill="none"
               stroke="currentColor"
               strokeWidth="3"
               className="text-navy-700"
             />
             <circle
-              cx="18" cy="18" r="15.5"
+              cx="18"
+              cy="18"
+              r="15.5"
               fill="none"
               stroke="currentColor"
               strokeWidth="3"
@@ -90,17 +100,27 @@ export default function PartnerMatchScore({ score, breakdown, compact }: Partner
               strokeLinecap="round"
             />
           </svg>
-          <span className={cn(
-            'absolute inset-0 flex items-center justify-center text-sm font-mono font-semibold',
-            getScoreColor(score)
-          )}>
+          <span
+            className={cn(
+              'absolute inset-0 flex items-center justify-center text-sm font-mono font-semibold',
+              getScoreColor(score),
+            )}
+          >
             {score}
           </span>
         </div>
         <div>
           <p className="text-xs text-slate-400">Match Score</p>
           <p className={cn('text-sm font-medium', getScoreColor(score))}>
-            {score >= 80 ? 'Excellent' : score >= 65 ? 'Strong' : score >= 50 ? 'Good' : score >= 35 ? 'Moderate' : 'Low'}
+            {score >= 80
+              ? 'Excellent'
+              : score >= 65
+                ? 'Strong'
+                : score >= 50
+                  ? 'Good'
+                  : score >= 35
+                    ? 'Moderate'
+                    : 'Low'}
           </p>
         </div>
       </div>
@@ -114,9 +134,11 @@ export default function PartnerMatchScore({ score, breakdown, compact }: Partner
             <div key={dim.key}>
               <div className="flex items-center justify-between mb-0.5">
                 <span className="text-2xs text-slate-500 uppercase tracking-wider">{dim.label}</span>
-                <span className="text-2xs font-mono text-slate-400">{value}/{dim.max}</span>
+                <span className="text-2xs font-mono text-slate-400">
+                  {value}/{dim.max}
+                </span>
               </div>
-              <div className="h-1.5 bg-navy-700 rounded-full overflow-hidden">
+              <div className="h-2 bg-navy-700 rounded-full overflow-hidden">
                 <div
                   className={cn('h-full rounded-full transition-all duration-500', getBarColor(value, dim.max))}
                   style={{ width: `${pct}%` }}

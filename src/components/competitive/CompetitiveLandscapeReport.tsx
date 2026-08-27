@@ -426,6 +426,18 @@ export default function CompetitiveLandscapeReport({
             ))}
           </div>
           <p className="text-2xs text-slate-600 mt-2 font-mono">Generated {data.generated_at}</p>
+          {data.data_freshness && (
+            <div className="mt-3 pt-3 border-t border-navy-700/40">
+              <div className="flex flex-wrap gap-x-6 gap-y-1">
+                {Object.entries(data.data_freshness).map(([key, value]) => (
+                  <div key={key} className="flex items-center gap-1.5 text-2xs">
+                    <span className="text-slate-500">{key.replace(/_/g, ' ')}:</span>
+                    <span className="font-mono text-slate-400">{String(value)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

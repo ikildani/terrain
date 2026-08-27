@@ -47,7 +47,7 @@ export function ApiKeyTable({ keys, onRevoke, onRotate }: ApiKeyTableProps) {
         <div className="mb-4 rounded-full bg-navy-800 p-4">
           <Clock className="h-8 w-8 text-slate-500" />
         </div>
-        <h3 className="font-display text-lg text-white">No API Keys</h3>
+        <h3 className="text-lg font-semibold text-white">No API Keys</h3>
         <p className="mt-2 max-w-sm text-sm text-slate-400">
           Create an API key to start making programmatic requests to the Terrain API.
         </p>

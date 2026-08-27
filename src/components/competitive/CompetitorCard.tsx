@@ -58,8 +58,16 @@ export default function CompetitorCard({ competitor, rank }: CompetitorCardProps
             </p>
           </div>
         </div>
-        <span className={`phase-badge flex-shrink-0 ${PHASE_CLASSES[c.phase] ?? 'phase-preclinical'}`}>{c.phase}</span>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {!c.partner && (
+            <span className="text-2xs font-mono text-signal-green/80 bg-signal-green/10 border border-signal-green/20 px-1.5 py-0.5 rounded">
+              Unpartnered
+            </span>
+          )}
+          <span className={`phase-badge ${PHASE_CLASSES[c.phase] ?? 'phase-preclinical'}`}>{c.phase}</span>
+        </div>
       </div>
+      {c.last_updated && <div className="text-2xs text-slate-600 font-mono mb-2">Updated: {c.last_updated}</div>}
 
       {/* Mechanism + Target */}
       <div className="mb-3">

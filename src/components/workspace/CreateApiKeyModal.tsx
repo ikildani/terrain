@@ -95,7 +95,7 @@ export function CreateApiKeyModal({ workspaceId, onCreated, onClose }: CreateApi
             <Key className="h-5 w-5 text-teal-400" />
           </div>
           <div>
-            <h2 className="font-display text-lg text-white">Create API Key</h2>
+            <h2 className="text-lg font-semibold text-white">Create API Key</h2>
             <p className="text-sm text-slate-400">Generate a new key for programmatic access</p>
           </div>
         </div>

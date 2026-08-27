@@ -110,7 +110,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
           >
             {title && (
               <div className="flex items-center justify-between px-6 py-4 border-b border-navy-700">
-                <h2 id="modal-title" className="font-display text-lg text-white">
+                <h2 id="modal-title" className="text-lg font-semibold text-white">
                   {title}
                 </h2>
                 <button

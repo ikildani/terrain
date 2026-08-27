@@ -181,7 +181,15 @@ export default function PipelineTable({ competitors, title, noCard }: PipelineTa
                   <td className="max-w-[160px] truncate">{competitor.mechanism}</td>
                   <td className="max-w-[160px] truncate text-slate-400">{competitor.primary_endpoint || '\u2014'}</td>
                   <td className="max-w-[200px] truncate text-slate-400">{competitor.key_data || '\u2014'}</td>
-                  <td className="text-slate-400 whitespace-nowrap">{competitor.partner || '\u2014'}</td>
+                  <td className="whitespace-nowrap">
+                    {competitor.partner ? (
+                      <span className="text-slate-400">{competitor.partner}</span>
+                    ) : (
+                      <span className="text-2xs font-mono text-signal-green/80 bg-signal-green/10 border border-signal-green/20 px-1.5 py-0.5 rounded">
+                        Unpartnered
+                      </span>
+                    )}
+                  </td>
                   <td className="numeric font-mono text-xs">{competitor.partnership_deal_value || '\u2014'}</td>
                   <td className={`numeric font-mono text-xs ${getScoreColorClass(competitor.differentiation_score)}`}>
                     {competitor.differentiation_score}
