@@ -257,7 +257,7 @@ export async function GET(request: NextRequest) {
 
   // ── 12. Pricing benchmarks ────────────────────────────────
   try {
-    const { pricingBenchmarks } = await import('@/lib/data/pricing-benchmarks');
+    const { PRICING_BENCHMARKS: pricingBenchmarks } = await import('@/lib/data/pricing-benchmarks');
     const n = Array.isArray(pricingBenchmarks) ? pricingBenchmarks.length : 0;
     checks.push(
       n >= 100
@@ -270,7 +270,7 @@ export async function GET(request: NextRequest) {
 
   // ── 13. Deal comps ────────────────────────────────────────
   try {
-    const { dealComps } = await import('@/lib/data/pharma-deal-comps');
+    const { PHARMA_DEAL_COMPS: dealComps } = await import('@/lib/data/pharma-deal-comps');
     const n = Array.isArray(dealComps) ? dealComps.length : 0;
     checks.push(
       n >= 200
