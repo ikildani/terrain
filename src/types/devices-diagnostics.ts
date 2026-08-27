@@ -1149,7 +1149,14 @@ export type DeviceRegulatoryStatus =
 
 export type DeviceRegulatoryPathwayShort = '510k' | 'PMA' | 'De_Novo' | 'HDE' | 'EUA' | '361_hct' | 'BLA';
 
-export type ClinicalEvidenceLevel = 'RCT' | 'registry' | 'single_arm' | 'case_series' | 'bench_only';
+export type ClinicalEvidenceLevel =
+  | 'RCT'
+  | 'registry'
+  | 'single_arm'
+  | 'case_series'
+  | 'bench_only'
+  | 'observational'
+  | 'real_world';
 
 export type TechnologyReadiness =
   | 'concept' // TRL 1-3
