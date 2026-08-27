@@ -155,6 +155,8 @@ const EVIDENCE_LEVEL_SCORE: Record<ClinicalEvidenceLevel, number> = {
   single_arm: 5,
   case_series: 3,
   bench_only: 1,
+  observational: 6,
+  real_world: 6,
 };
 
 /**
