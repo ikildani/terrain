@@ -179,6 +179,8 @@ const PATHWAY_INNOVATIVENESS: Record<DeviceRegulatoryPathwayShort, number> = {
   HDE: 7,
   EUA: 5,
   '510k': 3,
+  '361_hct': 8,
+  BLA: 7,
 };
 
 /**
