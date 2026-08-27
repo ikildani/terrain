@@ -150,8 +150,8 @@ function parseEFetchXml(xml: string): EFetchArticle[] {
                 LastName: n.split(' ').slice(1).join(' '),
               })),
             },
-            Journal: { Title: journalMatch?.[1] ?? null },
-            Abstract: { AbstractText: abstractMatch?.[1]?.replace(/<[^>]+>/g, '').slice(0, 2000) ?? null },
+            Journal: { Title: journalMatch?.[1] ?? undefined },
+            Abstract: { AbstractText: abstractMatch?.[1]?.replace(/<[^>]+>/g, '').slice(0, 2000) ?? undefined },
             ELocationID: doiMatch ? [{ '#text': doiMatch[1], '@EIdType': 'doi' }] : [],
             ArticleDate: pubDate
               ? [{ Year: pubDate.split('-')[0], Month: pubDate.split('-')[1], Day: pubDate.split('-')[2] }]
