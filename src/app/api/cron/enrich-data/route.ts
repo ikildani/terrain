@@ -6,6 +6,7 @@ import {
   runIndicationEnrichment,
   runPricingEnrichment,
   runProcedureEnrichment,
+  runCompetitorEnrichment,
   THERAPY_AREAS,
 } from '@/lib/intelligence/enrichment-pipeline';
 
@@ -78,6 +79,16 @@ export async function GET(request: NextRequest) {
       device_category: deviceCategory,
       discovered: procedureResult.discovered,
       added: procedureResult.added,
+    });
+
+    // Run competitor enrichment for the same TA
+    const competitorResult = await runCompetitorEnrichment(therapyArea);
+    results.competitors = competitorResult;
+
+    logger.info('Enrichment: competitors complete', {
+      therapy_area: therapyArea,
+      discovered: competitorResult.discovered,
+      updated: competitorResult.updated,
     });
 
     return NextResponse.json({

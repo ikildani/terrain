@@ -298,6 +298,41 @@ export async function getPubmedForIndication(indication: string): Promise<Cached
   }
 }
 
+export interface CompetitorEnrichment {
+  company: string;
+  asset: string;
+  therapeutic_area: string;
+  development: string;
+  development_date: string;
+  significance: string;
+  enriched_at: string;
+}
+
+const enrichmentCache = new Map<string, CacheEntry<CompetitorEnrichment[]>>();
+
+export async function getCompetitorEnrichments(therapeuticArea: string): Promise<CompetitorEnrichment[]> {
+  const key = therapeuticArea.toLowerCase().trim();
+  const cached = getCached(enrichmentCache, key);
+  if (cached) return cached;
+
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from('competitor_enrichments')
+      .select('company, asset, therapeutic_area, development, development_date, significance, enriched_at')
+      .ilike('therapeutic_area', `%${key}%`)
+      .order('enriched_at', { ascending: false })
+      .limit(50);
+
+    if (error) return [];
+    const results = (data || []) as CompetitorEnrichment[];
+    setCache(enrichmentCache, key, results);
+    return results;
+  } catch {
+    return [];
+  }
+}
+
 export async function getDataFreshness(): Promise<{
   clinical_trials: string | null;
   fda_approvals: string | null;

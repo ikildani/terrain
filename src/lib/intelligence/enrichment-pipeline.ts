@@ -487,6 +487,108 @@ function parseProceduresFromResponse(content: string, _deviceCategory: string): 
 // ENRICHMENT RUN LOGGER
 // ────────────────────────────────────────────────────────────
 
+// ── Competitor Enrichment ─────────────────────────────────
+// Queries Perplexity for recent updates on top competitors in
+// a given TA, stores enrichment overlays in Supabase that the
+// competitive engine merges at query time.
+
+export async function runCompetitorEnrichment(therapyArea: string): Promise<EnrichmentResult> {
+  const result: EnrichmentResult = {
+    therapy_area: therapyArea,
+    run_type: 'competitor_refresh',
+    discovered: 0,
+    added: 0,
+    updated: 0,
+    errors: [],
+  };
+
+  const query = `List the 10 most significant competitive developments in ${therapyArea} drug development from the last 30 days. For each, provide:
+- Company name
+- Asset/drug name
+- Development: what changed (phase advance, data readout, approval, deal, discontinuation)
+- Date (approximate)
+- One-sentence significance
+
+Format each as: COMPANY | ASSET | DEVELOPMENT | DATE | SIGNIFICANCE
+Return only the list, one entry per line.`;
+
+  try {
+    const perplexityResult = await queryPerplexity(query);
+    if (!perplexityResult?.content) {
+      result.errors.push('No response from Perplexity');
+      return result;
+    }
+
+    const lines = perplexityResult.content
+      .split('\n')
+      .map((l: string) => l.trim())
+      .filter((l: string) => l.includes('|'));
+
+    const updates: Array<{
+      company: string;
+      asset: string;
+      development: string;
+      date: string;
+      significance: string;
+    }> = [];
+
+    for (const line of lines) {
+      const parts = line
+        .replace(/^[-*\d.)\s]+/, '')
+        .split('|')
+        .map((p: string) => p.trim());
+      if (parts.length >= 5) {
+        updates.push({
+          company: parts[0],
+          asset: parts[1],
+          development: parts[2],
+          date: parts[3],
+          significance: parts[4],
+        });
+      }
+    }
+
+    result.discovered = updates.length;
+
+    if (updates.length === 0) return result;
+
+    const supabase = createAdminClient();
+
+    for (const update of updates) {
+      try {
+        const { error } = await supabase.from('competitor_enrichments').upsert(
+          {
+            company: update.company,
+            asset: update.asset,
+            therapeutic_area: therapyArea,
+            development: update.development,
+            development_date: update.date,
+            significance: update.significance,
+            source: 'perplexity',
+            enriched_at: new Date().toISOString(),
+          },
+          { onConflict: 'company,asset,therapeutic_area' },
+        );
+
+        if (error) {
+          result.errors.push(`Upsert failed for ${update.company}: ${error.message}`);
+        } else {
+          result.updated++;
+        }
+      } catch (e) {
+        result.errors.push(`Error for ${update.company}: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+
+    result.added = result.updated;
+    await logEnrichmentRun(supabase, result);
+    return result;
+  } catch (e) {
+    result.errors.push(`Competitor enrichment failed: ${e instanceof Error ? e.message : String(e)}`);
+    return result;
+  }
+}
+
 async function logEnrichmentRun(
   supabase: ReturnType<typeof createAdminClient>,
   result: EnrichmentResult,
