@@ -55,7 +55,6 @@ import {
   type CachedPubmedArticle,
 } from '@/lib/data/cached-data-loader';
 import type { CachedClinicalTrial, CachedFdaApproval } from '@/types';
-import type { CachedEmaMedicine, CachedPubmedArticle } from '@/lib/data/cached-data-loader';
 
 // ────────────────────────────────────────────────────────────
 // PUBLIC INPUT TYPE
