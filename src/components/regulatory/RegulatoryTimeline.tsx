@@ -73,7 +73,7 @@ export default function RegulatoryTimeline({
   const phases = buildPhases(totalMonths.realistic, !!hasBreakthroughDesignation);
   const maxMonths = totalMonths.pessimistic + 12;
 
-  const comps = (comparableApprovals || []).filter((c) => c.timeline_months && c.timeline_months > 0).slice(0, 4);
+  const comps = (comparableApprovals || []).filter((c) => c.ind_to_bla_months && c.ind_to_bla_months > 0).slice(0, 4);
 
   return (
     <div className="card">
@@ -173,7 +173,7 @@ export default function RegulatoryTimeline({
           <h4 className="label mb-3">Comparable Approval Timelines</h4>
           <div className="space-y-2">
             {comps.map((c, i) => {
-              const widthPct = ((c.timeline_months || 0) / maxMonths) * 100;
+              const widthPct = ((c.ind_to_bla_months || 0) / maxMonths) * 100;
               return (
                 <div key={i} className="flex items-center gap-3">
                   <span className="text-2xs text-slate-500 w-28 truncate flex-shrink-0">
@@ -186,7 +186,7 @@ export default function RegulatoryTimeline({
                     />
                   </div>
                   <span className="metric text-2xs text-slate-400 w-12 text-right flex-shrink-0">
-                    {c.timeline_months}mo
+                    {c.ind_to_bla_months}mo
                   </span>
                 </div>
               );
