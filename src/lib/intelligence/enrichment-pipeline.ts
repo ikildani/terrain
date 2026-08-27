@@ -37,7 +37,7 @@ export type TherapyArea = (typeof THERAPY_AREAS)[number];
 
 export interface EnrichmentResult {
   therapy_area: string;
-  run_type: 'indications' | 'pricing' | 'procedures';
+  run_type: 'indications' | 'pricing' | 'procedures' | 'competitor_refresh';
   discovered: number;
   added: number;
   updated: number;
