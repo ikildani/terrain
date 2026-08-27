@@ -378,17 +378,29 @@ export async function exportToPdf(element: HTMLElement, options: ExportPdfOption
         continue;
       }
 
-      try {
-        const captured = await captureSection(child);
-        if (captured.heightMm > 0) {
-          sections.push(captured);
-          console.log(`[PDF Export] Child ${ci}: captured (${captured.heightMm.toFixed(1)}mm)`);
-        } else {
-          console.log(`[PDF Export] Child ${ci}: captured but 0mm height`);
+      // Retry up to 2 times per section — html2canvas can fail transiently on complex DOM
+      let captured: CapturedSection | null = null;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          // Wait for any pending renders/animations before capture
+          if (attempt > 0) {
+            await new Promise<void>((resolve) => setTimeout(resolve, 500));
+            await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+          }
+          captured = await captureSection(child);
+          if (captured.heightMm > 0) break;
+        } catch (err) {
+          console.warn(`[PDF Export] Child ${ci}: attempt ${attempt + 1} failed`, err);
+          if (attempt === 1) {
+            console.error(`[PDF Export] Child ${ci}: all attempts exhausted — skipping section`);
+          }
         }
-      } catch (err) {
-        console.warn(`[PDF Export] Child ${ci}: capture failed`, err);
-        // Continue with remaining sections
+      }
+      if (captured && captured.heightMm > 0) {
+        sections.push(captured);
+        console.log(`[PDF Export] Child ${ci}: captured (${captured.heightMm.toFixed(1)}mm)`);
+      } else if (captured) {
+        console.log(`[PDF Export] Child ${ci}: captured but 0mm height — skipped`);
       }
     }
 
