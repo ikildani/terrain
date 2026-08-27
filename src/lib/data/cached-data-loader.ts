@@ -1,6 +1,34 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { CachedClinicalTrial, CachedFdaApproval, CachedSecFiling } from '@/types';
 
+// EMA and PubMed types (ingested by crons, queried here)
+export interface CachedEmaMedicine {
+  medicine_name: string;
+  inn: string | null;
+  therapeutic_area: string | null;
+  condition: string | null;
+  authorisation_status: string | null;
+  marketing_authorisation_holder: string | null;
+  authorisation_date: string | null;
+  medicine_url: string | null;
+  atc_code: string | null;
+  active_substance: string | null;
+  medicine_type: string | null;
+  fetched_at: string;
+}
+
+export interface CachedPubmedArticle {
+  pmid: string;
+  title: string;
+  authors: string[];
+  journal: string | null;
+  pub_date: string | null;
+  abstract_snippet: string | null;
+  therapeutic_area: string;
+  doi: string | null;
+  fetched_at: string;
+}
+
 const TRIALS_COLUMNS =
   'nct_id, title, status, phase, conditions, interventions, sponsor, collaborators, enrollment, start_date, completion_date, last_update_posted, primary_outcomes, fetched_at';
 const FDA_COLUMNS =
@@ -173,11 +201,99 @@ export async function getActiveTrialCount(indication: string): Promise<number> {
 }
 
 export async function getLiveCompetitorEnrichment(indication: string, companyNames: string[]) {
-  const [trials, fdaApprovals, secFilings] = await Promise.all([
+  const [trials, fdaApprovals, secFilings, emaApprovals, pubmedArticles] = await Promise.all([
     getTrialsForIndicationFuzzy(indication),
     getFdaApprovalsForIndication(indication),
     getSecFilingsForCompanies(companyNames),
+    getEmaApprovalsForIndication(indication),
+    getPubmedForIndication(indication),
   ]);
 
-  return { trials, fdaApprovals, secFilings };
+  return { trials, fdaApprovals, secFilings, emaApprovals, pubmedArticles };
+}
+
+// ── EMA Medicines ─────────────────────────────────────────
+
+const EMA_COLUMNS =
+  'medicine_name, inn, therapeutic_area, condition, authorisation_status, marketing_authorisation_holder, authorisation_date, medicine_url, atc_code, active_substance, medicine_type, fetched_at';
+
+const emaCache = new Map<string, CacheEntry<CachedEmaMedicine[]>>();
+
+export async function getEmaApprovalsForIndication(indication: string): Promise<CachedEmaMedicine[]> {
+  const key = indication.toLowerCase().trim();
+  const cached = getCached(emaCache, key);
+  if (cached) return cached;
+
+  try {
+    const supabase = createAdminClient();
+    const searchTerm = indication.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+    const { data, error } = await supabase
+      .from('ema_medicines_cache')
+      .select(EMA_COLUMNS)
+      .or(`condition.ilike.%${searchTerm}%,therapeutic_area.ilike.%${searchTerm}%,medicine_name.ilike.%${searchTerm}%`)
+      .order('authorisation_date', { ascending: false })
+      .limit(50);
+
+    if (error) return [];
+    const results = (data || []) as CachedEmaMedicine[];
+    setCache(emaCache, key, results);
+    return results;
+  } catch {
+    return [];
+  }
+}
+
+export async function getRecentEmaApprovals(months = 12): Promise<CachedEmaMedicine[]> {
+  const key = `ema-recent:${months}`;
+  const cached = getCached(emaCache, key);
+  if (cached) return cached;
+
+  try {
+    const supabase = createAdminClient();
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - months);
+    const { data, error } = await supabase
+      .from('ema_medicines_cache')
+      .select(EMA_COLUMNS)
+      .gte('authorisation_date', cutoff.toISOString().slice(0, 10))
+      .order('authorisation_date', { ascending: false })
+      .limit(100);
+
+    if (error) return [];
+    const results = (data || []) as CachedEmaMedicine[];
+    setCache(emaCache, key, results);
+    return results;
+  } catch {
+    return [];
+  }
+}
+
+// ── PubMed Articles ───────────────────────────────────────
+
+const PUBMED_COLUMNS = 'pmid, title, authors, journal, pub_date, abstract_snippet, therapeutic_area, doi, fetched_at';
+
+const pubmedCache = new Map<string, CacheEntry<CachedPubmedArticle[]>>();
+
+export async function getPubmedForIndication(indication: string): Promise<CachedPubmedArticle[]> {
+  const key = indication.toLowerCase().trim();
+  const cached = getCached(pubmedCache, key);
+  if (cached) return cached;
+
+  try {
+    const supabase = createAdminClient();
+    const searchTerm = indication.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+    const { data, error } = await supabase
+      .from('pubmed_articles_cache')
+      .select(PUBMED_COLUMNS)
+      .or(`title.ilike.%${searchTerm}%,abstract_snippet.ilike.%${searchTerm}%`)
+      .order('pub_date', { ascending: false })
+      .limit(30);
+
+    if (error) return [];
+    const results = (data || []) as CachedPubmedArticle[];
+    setCache(pubmedCache, key, results);
+    return results;
+  } catch {
+    return [];
+  }
 }

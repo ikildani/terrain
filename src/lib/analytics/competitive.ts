@@ -45,8 +45,14 @@ import {
 import { PRICING_BENCHMARKS } from '@/lib/data/pricing-benchmarks';
 import { PHARMA_PARTNER_DATABASE } from '@/lib/data/partner-database';
 import { LOA_BY_PHASE_AND_AREA, DEFAULT_LOA } from '@/lib/data/loa-tables';
-import { getTrialsForIndicationFuzzy, getFdaApprovalsForIndication } from '@/lib/data/cached-data-loader';
+import {
+  getTrialsForIndicationFuzzy,
+  getFdaApprovalsForIndication,
+  getEmaApprovalsForIndication,
+  getPubmedForIndication,
+} from '@/lib/data/cached-data-loader';
 import type { CachedClinicalTrial, CachedFdaApproval } from '@/types';
+import type { CachedEmaMedicine, CachedPubmedArticle } from '@/lib/data/cached-data-loader';
 
 // ────────────────────────────────────────────────────────────
 // PUBLIC INPUT TYPE
@@ -2996,9 +3002,11 @@ export async function analyzeCompetitiveLandscape(
   const competitorRecords = getCompetitorsForIndication(indication.name);
 
   // Fetch live pipeline and approval data from cached tables (graceful degradation)
-  const [liveTrials, liveFdaApprovals] = await Promise.all([
+  const [liveTrials, liveFdaApprovals, liveEmaApprovals, livePubmed] = await Promise.all([
     getTrialsForIndicationFuzzy(indication.name).catch(() => [] as CachedClinicalTrial[]),
     getFdaApprovalsForIndication(indication.name).catch(() => [] as CachedFdaApproval[]),
+    getEmaApprovalsForIndication(indication.name).catch(() => [] as CachedEmaMedicine[]),
+    getPubmedForIndication(indication.name).catch(() => [] as CachedPubmedArticle[]),
   ]);
 
   // Merge live trials as supplementary competitor records if they introduce new sponsors
@@ -3039,6 +3047,32 @@ export async function analyzeCompetitiveLandscape(
     const matchingTrials = liveTrials.filter((t) => t.sponsor?.toLowerCase() === record.company.toLowerCase());
     if (matchingTrials.length > 0 && !record.nct_ids?.length) {
       record.nct_ids = matchingTrials.map((t) => t.nct_id);
+    }
+  }
+
+  // Add EMA-approved medicines as supplementary competitor records
+  for (const ema of liveEmaApprovals) {
+    const holderLower = ema.marketing_authorisation_holder?.toLowerCase() || '';
+    if (holderLower && !staticCompanies.has(holderLower) && ema.authorisation_status === 'authorised') {
+      liveSupplementalRecords.push({
+        asset_name: ema.medicine_name,
+        company: ema.marketing_authorisation_holder || 'Unknown',
+        indication: indication.name,
+        indication_specifics: ema.condition || indication.name,
+        mechanism: ema.active_substance || 'Unknown',
+        mechanism_category: 'other',
+        phase: 'approved',
+        nct_ids: [],
+        primary_endpoint: '',
+        first_in_class: false,
+        orphan_drug: false,
+        has_biomarker_selection: false,
+        strengths: ['EMA-authorised'],
+        weaknesses: [],
+        source: `EMA${ema.medicine_url ? ` (${ema.medicine_url})` : ''}`,
+        last_updated: ema.authorisation_date || ema.fetched_at,
+      });
+      staticCompanies.add(holderLower);
     }
   }
 

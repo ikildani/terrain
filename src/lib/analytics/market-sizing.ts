@@ -68,7 +68,7 @@ import { getLikelihoodOfApproval } from '@/lib/data/loa-tables';
 import { BIOMARKER_DATA } from '@/lib/data/biomarker-prevalence';
 import { filterDealComps } from '@/lib/data/pharma-deal-comps';
 import { getSourceFreshness } from '@/lib/data/data-freshness';
-import { getActiveTrialCount, getRecentFdaApprovals } from '@/lib/data/cached-data-loader';
+import { getActiveTrialCount, getRecentFdaApprovals, getRecentEmaApprovals } from '@/lib/data/cached-data-loader';
 
 // ────────────────────────────────────────────────────────────
 // STAGE-BASED PEAK MARKET SHARE RANGES
@@ -4561,17 +4561,24 @@ async function buildCompetitiveContext(indication: NonNullable<ReturnType<typeof
   let liveTrialCount = 0;
   let recentApprovalCount = 0;
   try {
-    const [trialCount, recentApprovals] = await Promise.all([
+    const [trialCount, recentFdaApprovals, recentEmaApprovals] = await Promise.all([
       getActiveTrialCount(indication.name),
       getRecentFdaApprovals(12),
+      getRecentEmaApprovals(12),
     ]);
     liveTrialCount = trialCount;
     const indicationLower = indication.name.toLowerCase();
-    recentApprovalCount = recentApprovals.filter(
+    const fdaCount = recentFdaApprovals.filter(
       (a) =>
         a.brand_name?.toLowerCase().includes(indicationLower) ||
         a.generic_name?.toLowerCase().includes(indicationLower),
     ).length;
+    const emaCount = recentEmaApprovals.filter(
+      (a) =>
+        a.condition?.toLowerCase().includes(indicationLower) ||
+        a.medicine_name?.toLowerCase().includes(indicationLower),
+    ).length;
+    recentApprovalCount = fdaCount + emaCount;
   } catch {
     // graceful degradation — use static data only
   }
