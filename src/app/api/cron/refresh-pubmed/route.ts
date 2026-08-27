@@ -292,7 +292,7 @@ export async function GET(request: NextRequest) {
     next_refresh_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     records_count: count ?? 0,
     status,
-    last_error: errors.length > 0 ? errors.join('; ') : null,
+    last_error: errors.length > 0 ? errors.join('; ') : undefined,
     updated_at: new Date().toISOString(),
   });
 
