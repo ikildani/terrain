@@ -57,40 +57,40 @@ const CURRENT_YEAR = new Date().getFullYear();
  * the database's procedure_or_condition field.
  */
 const PROCEDURE_ALIASES: Record<string, string[]> = {
-  'tavr':                     ['tavr', 'transcatheter aortic valve'],
-  'tavi':                     ['tavr', 'transcatheter aortic valve'],
-  'transcatheter aortic':     ['tavr', 'transcatheter aortic valve'],
-  'tka':                      ['total knee arthroplasty', 'total knee replacement'],
-  'total knee':               ['total knee arthroplasty', 'total knee replacement'],
-  'tha':                      ['total hip arthroplasty', 'total hip replacement'],
-  'total hip':                ['total hip arthroplasty', 'total hip replacement'],
-  'dbs':                      ['deep brain stimulation'],
-  'deep brain':               ['deep brain stimulation'],
-  'cgm':                      ['continuous glucose monitoring'],
-  'continuous glucose':       ['continuous glucose monitoring'],
-  'pfa':                      ['pulsed field ablation'],
-  'pulsed field':             ['pulsed field ablation'],
-  'laac':                     ['left atrial appendage closure', 'laa closure'],
-  'laa closure':              ['left atrial appendage closure'],
-  'left atrial appendage':    ['left atrial appendage closure'],
-  'robotic surgery':          ['surgical robotics', 'robotic-assisted', 'robotic surgery'],
-  'surgical robot':           ['surgical robotics', 'robotic-assisted', 'robotic surgery'],
-  'ep mapping':               ['ep mapping', 'cardiac ablation'],
-  'cardiac ablation':         ['cardiac ablation', 'ep mapping', 'pulsed field ablation'],
-  'af ablation':              ['cardiac ablation', 'pulsed field ablation'],
-  'atrial fibrillation':      ['cardiac ablation', 'pulsed field ablation', 'left atrial appendage'],
-  'pci':                      ['pci', 'coronary stent'],
-  'coronary stent':           ['pci', 'coronary stent'],
-  'stent':                    ['coronary stent', 'pci'],
-  'spinal cord stimulation':  ['spinal cord stimulation', 'scs'],
-  'scs':                      ['spinal cord stimulation'],
-  'thrombectomy':             ['mechanical thrombectomy', 'thrombectomy', 'stroke'],
-  'stroke':                   ['mechanical thrombectomy', 'stroke'],
-  'knee replacement':         ['total knee arthroplasty', 'total knee replacement'],
-  'hip replacement':          ['total hip arthroplasty', 'total hip replacement'],
-  'dtx':                      ['digital therapeutic', 'digital health'],
-  'digital therapeutic':      ['digital therapeutic', 'digital health'],
-  'samd':                     ['software as a medical device', 'digital health', 'samd'],
+  tavr: ['tavr', 'transcatheter aortic valve'],
+  tavi: ['tavr', 'transcatheter aortic valve'],
+  'transcatheter aortic': ['tavr', 'transcatheter aortic valve'],
+  tka: ['total knee arthroplasty', 'total knee replacement'],
+  'total knee': ['total knee arthroplasty', 'total knee replacement'],
+  tha: ['total hip arthroplasty', 'total hip replacement'],
+  'total hip': ['total hip arthroplasty', 'total hip replacement'],
+  dbs: ['deep brain stimulation'],
+  'deep brain': ['deep brain stimulation'],
+  cgm: ['continuous glucose monitoring'],
+  'continuous glucose': ['continuous glucose monitoring'],
+  pfa: ['pulsed field ablation'],
+  'pulsed field': ['pulsed field ablation'],
+  laac: ['left atrial appendage closure', 'laa closure'],
+  'laa closure': ['left atrial appendage closure'],
+  'left atrial appendage': ['left atrial appendage closure'],
+  'robotic surgery': ['surgical robotics', 'robotic-assisted', 'robotic surgery'],
+  'surgical robot': ['surgical robotics', 'robotic-assisted', 'robotic surgery'],
+  'ep mapping': ['ep mapping', 'cardiac ablation'],
+  'cardiac ablation': ['cardiac ablation', 'ep mapping', 'pulsed field ablation'],
+  'af ablation': ['cardiac ablation', 'pulsed field ablation'],
+  'atrial fibrillation': ['cardiac ablation', 'pulsed field ablation', 'left atrial appendage'],
+  pci: ['pci', 'coronary stent'],
+  'coronary stent': ['pci', 'coronary stent'],
+  stent: ['coronary stent', 'pci'],
+  'spinal cord stimulation': ['spinal cord stimulation', 'scs'],
+  scs: ['spinal cord stimulation'],
+  thrombectomy: ['mechanical thrombectomy', 'thrombectomy', 'stroke'],
+  stroke: ['mechanical thrombectomy', 'stroke'],
+  'knee replacement': ['total knee arthroplasty', 'total knee replacement'],
+  'hip replacement': ['total hip arthroplasty', 'total hip replacement'],
+  dtx: ['digital therapeutic', 'digital health'],
+  'digital therapeutic': ['digital therapeutic', 'digital health'],
+  samd: ['software as a medical device', 'digital health', 'samd'],
 };
 
 /**
@@ -142,12 +142,7 @@ const REFERENCE_TECHNOLOGIES: Record<string, string[]> = {
     'stapling',
     'energy-based tissue sealing',
   ],
-  vascular: [
-    'stent retriever',
-    'aspiration thrombectomy',
-    'intrasaccular flow disruption',
-    'flow diverter',
-  ],
+  vascular: ['stent retriever', 'aspiration thrombectomy', 'intrasaccular flow disruption', 'flow diverter'],
 };
 
 /**
@@ -199,30 +194,25 @@ const REIMBURSEMENT_SCORE: Record<string, number> = {
 /**
  * Cleared/approved statuses — devices that have received FDA authorization.
  */
-const CLEARED_APPROVED_STATUSES: DeviceRegulatoryStatus[] = [
-  'cleared',
-  'approved',
-  'de_novo',
-];
+const CLEARED_APPROVED_STATUSES: DeviceRegulatoryStatus[] = ['cleared', 'approved', 'de_novo'];
 
 /**
  * Pipeline statuses — devices still in development or under review.
  */
-const PIPELINE_STATUSES: DeviceRegulatoryStatus[] = [
-  'ide_ongoing',
-  'submitted',
-  'development',
-];
+const PIPELINE_STATUSES: DeviceRegulatoryStatus[] = ['ide_ongoing', 'submitted', 'development'];
 
 /**
  * Synthetic deal benchmarks by device category.
  * Used when the medtech deal database is not available.
  */
-const SYNTHETIC_DEAL_BENCHMARKS: Record<string, {
-  deals: { target: string; acquirer: string; value_m: number; year: number; multiple?: string }[];
-  median_revenue_multiple: number;
-  median_deal_value_m: number;
-}> = {
+const SYNTHETIC_DEAL_BENCHMARKS: Record<
+  string,
+  {
+    deals: { target: string; acquirer: string; value_m: number; year: number; multiple?: string }[];
+    median_revenue_multiple: number;
+    median_deal_value_m: number;
+  }
+> = {
   cardiovascular: {
     deals: [
       { target: 'Abiomed', acquirer: 'Johnson & Johnson', value_m: 16600, year: 2023, multiple: '10.2x' },
@@ -440,12 +430,8 @@ function splitByRegulatoryStatus(devices: DeviceCompetitor[]): {
   cleared_approved: DeviceCompetitor[];
   pipeline: DeviceCompetitor[];
 } {
-  const cleared_approved = devices.filter((d) =>
-    CLEARED_APPROVED_STATUSES.includes(d.regulatory_status)
-  );
-  const pipeline = devices.filter((d) =>
-    PIPELINE_STATUSES.includes(d.regulatory_status)
-  );
+  const cleared_approved = devices.filter((d) => CLEARED_APPROVED_STATUSES.includes(d.regulatory_status));
+  const pipeline = devices.filter((d) => PIPELINE_STATUSES.includes(d.regulatory_status));
 
   return { cleared_approved, pipeline };
 }
@@ -468,10 +454,7 @@ function splitByRegulatoryStatus(devices: DeviceCompetitor[]): {
  * @param allDevices - All devices in the competitive set (for relative scoring).
  * @returns Updated differentiation score (1-10).
  */
-function calculateDifferentiationScore(
-  device: DeviceCompetitor,
-  allDevices: DeviceCompetitor[]
-): number {
+function calculateDifferentiationScore(device: DeviceCompetitor, allDevices: DeviceCompetitor[]): number {
   let score = 5; // Baseline
 
   // Technology novelty: early-stage TRL = more innovative / differentiated
@@ -508,7 +491,7 @@ function calculateDifferentiationScore(
 
   // Technology uniqueness penalty: if many devices share the same technology_type
   const sameTechCount = allDevices.filter(
-    (d) => d.technology_type.toLowerCase() === device.technology_type.toLowerCase()
+    (d) => d.technology_type.toLowerCase() === device.technology_type.toLowerCase(),
   ).length;
   if (sameTechCount > 3) {
     score -= Math.min(sameTechCount - 3, 2); // Penalty capped at -2
@@ -553,9 +536,7 @@ function calculateEvidenceStrength(level: ClinicalEvidenceLevel): number {
  * @returns CompetitiveMarketShareDistribution with HHI, concentration label,
  *          top-3 share, and narrative.
  */
-function calculateMarketShareDistribution(
-  clearedDevices: DeviceCompetitor[]
-): CompetitiveMarketShareDistribution {
+function calculateMarketShareDistribution(clearedDevices: DeviceCompetitor[]): CompetitiveMarketShareDistribution {
   // Build share entries from devices that have estimated_market_share_pct
   const shareEntries = clearedDevices
     .filter((d) => d.estimated_market_share_pct != null && d.estimated_market_share_pct > 0)
@@ -567,10 +548,7 @@ function calculateMarketShareDistribution(
     .sort((a, b) => b.estimated_share_pct - a.estimated_share_pct);
 
   // Calculate HHI: sum of squared market shares
-  const hhi = shareEntries.reduce(
-    (sum, entry) => sum + Math.pow(entry.estimated_share_pct, 2),
-    0
-  );
+  const hhi = shareEntries.reduce((sum, entry) => sum + Math.pow(entry.estimated_share_pct, 2), 0);
 
   // Concentration label
   let concentration_label: CompetitiveMarketShareDistribution['concentration_label'];
@@ -588,7 +566,7 @@ function calculateMarketShareDistribution(
   const top3 = shareEntries.slice(0, 3);
   const top_3_share_pct = round(
     top3.reduce((sum, e) => sum + e.estimated_share_pct, 0),
-    1
+    1,
   );
 
   // Build narrative
@@ -598,23 +576,23 @@ function calculateMarketShareDistribution(
     narrativeParts.push('No market share data available for this procedure category.');
   } else {
     narrativeParts.push(
-      `The market has an HHI of ${Math.round(hhi)}, indicating a ${concentration_label.toLowerCase()} competitive structure.`
+      `The market has an HHI of ${Math.round(hhi)}, indicating a ${concentration_label.toLowerCase()} competitive structure.`,
     );
 
     if (top3.length > 0) {
       const topNames = top3.map((e) => e.name.split(' — ')[0]).join(', ');
       narrativeParts.push(
-        `The top ${Math.min(3, top3.length)} player${top3.length > 1 ? 's' : ''} (${topNames}) control ${top_3_share_pct}% of the market.`
+        `The top ${Math.min(3, top3.length)} player${top3.length > 1 ? 's' : ''} (${topNames}) control ${top_3_share_pct}% of the market.`,
       );
     }
 
     if (concentration_label === 'Monopolistic' || concentration_label === 'Concentrated') {
       narrativeParts.push(
-        'New entrants face significant barriers from incumbent market dominance and established clinical evidence.'
+        'New entrants face significant barriers from incumbent market dominance and established clinical evidence.',
       );
     } else if (concentration_label === 'Fragmented') {
       narrativeParts.push(
-        'The fragmented structure creates opportunity for a differentiated entrant to consolidate share.'
+        'The fragmented structure creates opportunity for a differentiated entrant to consolidate share.',
       );
     }
   }
@@ -646,9 +624,7 @@ function calculateMarketShareDistribution(
  * @param devices - All device competitors in the landscape.
  * @returns Array of DeviceTechnologyLandscape entries.
  */
-function buildTechnologyLandscape(
-  devices: DeviceCompetitor[]
-): DeviceTechnologyLandscape[] {
+function buildTechnologyLandscape(devices: DeviceCompetitor[]): DeviceTechnologyLandscape[] {
   // Group by technology_type (case-insensitive)
   const techGroups = new Map<string, DeviceCompetitor[]>();
   for (const device of devices) {
@@ -681,12 +657,11 @@ function buildTechnologyLandscape(
     }
 
     // Representative device: pick the one with highest differentiation_score
-    const representative = [...group].sort(
-      (a, b) => b.differentiation_score - a.differentiation_score
-    )[0];
+    const representative = [...group].sort((a, b) => b.differentiation_score - a.differentiation_score)[0];
 
     // Average TRL score for growth trajectory
-    const avgTRL = group.reduce((sum: number, d: DeviceCompetitor) => sum + TRL_SCORE[d.technology_readiness], 0) / group.length;
+    const avgTRL =
+      group.reduce((sum: number, d: DeviceCompetitor) => sum + TRL_SCORE[d.technology_readiness], 0) / group.length;
 
     // Growth trajectory determination
     let growth_trajectory: DeviceTechnologyLandscape['growth_trajectory'];
@@ -731,13 +706,9 @@ function buildTechnologyLandscape(
  * @param devices - All device competitors (cleared + pipeline).
  * @returns Array of CompetitiveComparisonAttribute rows.
  */
-function buildComparisonMatrix(
-  devices: DeviceCompetitor[]
-): CompetitiveComparisonAttribute[] {
+function buildComparisonMatrix(devices: DeviceCompetitor[]): CompetitiveComparisonAttribute[] {
   // Select top devices by differentiation score
-  const topDevices = [...devices]
-    .sort((a, b) => b.differentiation_score - a.differentiation_score)
-    .slice(0, 6);
+  const topDevices = [...devices].sort((a, b) => b.differentiation_score - a.differentiation_score).slice(0, 6);
 
   if (topDevices.length === 0) return [];
 
@@ -746,7 +717,7 @@ function buildComparisonMatrix(
   // Helper to create a row
   function makeRow(
     attribute: string,
-    extractor: (d: DeviceCompetitor) => string | number
+    extractor: (d: DeviceCompetitor) => string | number,
   ): CompetitiveComparisonAttribute {
     const row: CompetitiveComparisonAttribute = { attribute, competitors: {} };
     for (const d of topDevices) {
@@ -760,88 +731,102 @@ function buildComparisonMatrix(
   attributes.push(makeRow('Technology Type', (d) => d.technology_type));
 
   // Regulatory Status
-  attributes.push(makeRow('Regulatory Status', (d) => {
-    const statusMap: Record<DeviceRegulatoryStatus, string> = {
-      cleared: '510(k) Cleared',
-      approved: 'PMA Approved',
-      de_novo: 'De Novo Authorized',
-      ide_ongoing: 'IDE Ongoing',
-      submitted: 'Under Review',
-      development: 'In Development',
-    };
-    return statusMap[d.regulatory_status] || d.regulatory_status;
-  }));
+  attributes.push(
+    makeRow('Regulatory Status', (d) => {
+      const statusMap: Record<DeviceRegulatoryStatus, string> = {
+        cleared: '510(k) Cleared',
+        approved: 'PMA Approved',
+        de_novo: 'De Novo Authorized',
+        ide_ongoing: 'IDE Ongoing',
+        submitted: 'Under Review',
+        development: 'In Development',
+      };
+      return statusMap[d.regulatory_status] || d.regulatory_status;
+    }),
+  );
 
   // Pathway
-  attributes.push(makeRow('Regulatory Pathway', (d) => {
-    const pathwayMap: Record<DeviceRegulatoryPathwayShort, string> = {
-      '510k': '510(k)',
-      PMA: 'PMA',
-      De_Novo: 'De Novo',
-      HDE: 'HDE',
-      EUA: 'EUA',
-    };
-    return pathwayMap[d.pathway] || d.pathway;
-  }));
+  attributes.push(
+    makeRow('Regulatory Pathway', (d) => {
+      const pathwayMap: Record<DeviceRegulatoryPathwayShort, string> = {
+        '510k': '510(k)',
+        PMA: 'PMA',
+        De_Novo: 'De Novo',
+        HDE: 'HDE',
+        EUA: 'EUA',
+        '361_hct': 8,
+        BLA: 7,
+      };
+      return pathwayMap[d.pathway] || d.pathway;
+    }),
+  );
 
   // ASP
-  attributes.push(makeRow('Avg. Selling Price', (d) =>
-    d.asp_estimate ? `$${d.asp_estimate.toLocaleString()}` : 'N/A'
-  ));
+  attributes.push(
+    makeRow('Avg. Selling Price', (d) => (d.asp_estimate ? `$${d.asp_estimate.toLocaleString()}` : 'N/A')),
+  );
 
   // Market Share
-  attributes.push(makeRow('Est. Market Share', (d) =>
-    d.estimated_market_share_pct != null ? `${d.estimated_market_share_pct}%` : 'N/A'
-  ));
+  attributes.push(
+    makeRow('Est. Market Share', (d) =>
+      d.estimated_market_share_pct != null ? `${d.estimated_market_share_pct}%` : 'N/A',
+    ),
+  );
 
   // Clinical Evidence Level
-  attributes.push(makeRow('Clinical Evidence', (d) => {
-    const evidenceMap: Record<ClinicalEvidenceLevel, string> = {
-      RCT: 'Randomized Controlled Trial',
-      registry: 'Registry / Real-World',
-      single_arm: 'Single-Arm Study',
-      case_series: 'Case Series',
-      bench_only: 'Bench Testing Only',
-    };
-    return evidenceMap[d.clinical_evidence_level] || d.clinical_evidence_level;
-  }));
+  attributes.push(
+    makeRow('Clinical Evidence', (d) => {
+      const evidenceMap: Record<ClinicalEvidenceLevel, string> = {
+        RCT: 'Randomized Controlled Trial',
+        registry: 'Registry / Real-World',
+        single_arm: 'Single-Arm Study',
+        case_series: 'Case Series',
+        bench_only: 'Bench Testing Only',
+      };
+      return evidenceMap[d.clinical_evidence_level] || d.clinical_evidence_level;
+    }),
+  );
 
   // Installed Base
-  attributes.push(makeRow('Installed Base', (d) =>
-    d.installed_base_estimate
-      ? d.installed_base_estimate >= 1000
-        ? `${(d.installed_base_estimate / 1000).toFixed(0)}K+`
-        : `${d.installed_base_estimate}`
-      : 'N/A'
-  ));
+  attributes.push(
+    makeRow('Installed Base', (d) =>
+      d.installed_base_estimate
+        ? d.installed_base_estimate >= 1000
+          ? `${(d.installed_base_estimate / 1000).toFixed(0)}K+`
+          : `${d.installed_base_estimate}`
+        : 'N/A',
+    ),
+  );
 
   // Reimbursement Status
-  attributes.push(makeRow('Reimbursement', (d) => {
-    const reimbMap: Record<string, string> = {
-      covered: 'Fully Covered',
-      partial: 'Partial Coverage',
-      emerging: 'Emerging / NTAP',
-      none: 'No Coverage',
-    };
-    return reimbMap[d.reimbursement_status] || d.reimbursement_status;
-  }));
+  attributes.push(
+    makeRow('Reimbursement', (d) => {
+      const reimbMap: Record<string, string> = {
+        covered: 'Fully Covered',
+        partial: 'Partial Coverage',
+        emerging: 'Emerging / NTAP',
+        none: 'No Coverage',
+      };
+      return reimbMap[d.reimbursement_status] || d.reimbursement_status;
+    }),
+  );
 
   // Differentiation Score
-  attributes.push(makeRow('Differentiation Score', (d) =>
-    `${d.differentiation_score}/10`
-  ));
+  attributes.push(makeRow('Differentiation Score', (d) => `${d.differentiation_score}/10`));
 
   // Technology Readiness
-  attributes.push(makeRow('Technology Readiness', (d) => {
-    const trlMap: Record<TechnologyReadiness, string> = {
-      concept: 'TRL 1-3 (Concept)',
-      prototype: 'TRL 4-5 (Prototype)',
-      clinical: 'TRL 6-7 (Clinical)',
-      commercial: 'TRL 8-9 (Commercial)',
-      mature: 'Established',
-    };
-    return trlMap[d.technology_readiness] || d.technology_readiness;
-  }));
+  attributes.push(
+    makeRow('Technology Readiness', (d) => {
+      const trlMap: Record<TechnologyReadiness, string> = {
+        concept: 'TRL 1-3 (Concept)',
+        prototype: 'TRL 4-5 (Prototype)',
+        clinical: 'TRL 6-7 (Clinical)',
+        commercial: 'TRL 8-9 (Commercial)',
+        mature: 'Established',
+      };
+      return trlMap[d.technology_readiness] || d.technology_readiness;
+    }),
+  );
 
   return attributes;
 }
@@ -927,12 +912,14 @@ const SWITCHING_COST_NARRATIVES: Record<string, Record<string, string>> = {
   },
   implant_inventory: {
     low: 'Low inventory requirements; standard consignment model with minimal par levels.',
-    moderate: 'Moderate inventory transition needed; existing consignment must be wound down and new implant sets onboarded.',
+    moderate:
+      'Moderate inventory transition needed; existing consignment must be wound down and new implant sets onboarded.',
     high: 'High inventory carrying costs; broad size matrix requiring significant shelf space and consignment investment.',
   },
   data_migration: {
     low: 'Minimal data migration concerns; device operates independently of existing IT infrastructure.',
-    moderate: 'Data migration required for patient records, historical procedure data, or clinical follow-up databases.',
+    moderate:
+      'Data migration required for patient records, historical procedure data, or clinical follow-up databases.',
     high: 'Complex data integration with hospital EMR/EHR, remote monitoring platforms, and longitudinal patient data. Migration timeline 6-12 months.',
   },
 };
@@ -947,7 +934,7 @@ const SWITCHING_COST_NARRATIVES: Record<string, Record<string, string>> = {
  */
 function buildSwitchingCostAnalysis(
   devices: DeviceCompetitor[],
-  category: string | undefined
+  category: string | undefined,
 ): DeviceSwitchingCostAnalysis[] {
   // Determine the best category key
   let categoryKey = category || '';
@@ -1017,12 +1004,8 @@ function buildSwitchingCostAnalysis(
  * @returns Array of PredicateDeviceMapEntry records, or undefined if no
  *          510(k) devices exist.
  */
-function buildPredicateDeviceMap(
-  clearedDevices: DeviceCompetitor[]
-): PredicateDeviceMapEntry[] | undefined {
-  const k510Devices = clearedDevices.filter(
-    (d) => d.pathway === '510k' && d.k_number_or_pma
-  );
+function buildPredicateDeviceMap(clearedDevices: DeviceCompetitor[]): PredicateDeviceMapEntry[] | undefined {
+  const k510Devices = clearedDevices.filter((d) => d.pathway === '510k' && d.k_number_or_pma);
 
   if (k510Devices.length === 0) return undefined;
 
@@ -1048,10 +1031,7 @@ function buildPredicateDeviceMap(
     // as a potential predicate
     if (i > 0) {
       const potentialPredicate = sorted[i - 1];
-      if (
-        potentialPredicate.technology_type.toLowerCase() ===
-        device.technology_type.toLowerCase()
-      ) {
+      if (potentialPredicate.technology_type.toLowerCase() === device.technology_type.toLowerCase()) {
         entry.predicate_k_number = potentialPredicate.k_number_or_pma;
         entry.predicate_device_name = `${potentialPredicate.company} ${potentialPredicate.device_name}`;
       }
@@ -1078,7 +1058,7 @@ function buildPredicateDeviceMap(
  */
 function buildDealBenchmark(
   devices: DeviceCompetitor[],
-  category: string | undefined
+  category: string | undefined,
 ): DeviceCompetitiveLandscapeOutput['deal_benchmark'] {
   // Determine category key
   let categoryKey = category || '';
@@ -1155,7 +1135,7 @@ function calculateCrowdingScore(
   clearedDevices: DeviceCompetitor[],
   pipelineDevices: DeviceCompetitor[],
   hhi: number,
-  techLandscape: DeviceTechnologyLandscape[]
+  techLandscape: DeviceTechnologyLandscape[],
 ): { score: number; label: DeviceCompetitiveLandscapeOutput['summary']['crowding_label'] } {
   // Factor 1: Cleared/approved device count (0-10)
   let clearedScore: number;
@@ -1198,10 +1178,7 @@ function calculateCrowdingScore(
   else techDiversityScore = 10;
 
   // Factor 5: Installed base concentration
-  const totalInstalled = clearedDevices.reduce(
-    (sum, d) => sum + (d.installed_base_estimate || 0),
-    0
-  );
+  const totalInstalled = clearedDevices.reduce((sum, d) => sum + (d.installed_base_estimate || 0), 0);
   let installedBaseScore: number;
   if (totalInstalled === 0) installedBaseScore = 1;
   else if (totalInstalled < 10000) installedBaseScore = 3;
@@ -1212,11 +1189,7 @@ function calculateCrowdingScore(
 
   // Weighted combination
   const rawScore =
-    clearedScore * 0.3 +
-    pipelineScore * 0.2 +
-    hhiScore * 0.2 +
-    techDiversityScore * 0.15 +
-    installedBaseScore * 0.15;
+    clearedScore * 0.3 + pipelineScore * 0.2 + hhiScore * 0.2 + techDiversityScore * 0.15 + installedBaseScore * 0.15;
 
   const score = clamp(Math.round(rawScore), 1, 10);
 
@@ -1251,16 +1224,14 @@ function calculateCrowdingScore(
 function identifyWhiteSpace(
   devices: DeviceCompetitor[],
   category: string | undefined,
-  techLandscape: DeviceTechnologyLandscape[]
+  techLandscape: DeviceTechnologyLandscape[],
 ): string[] {
   const whiteSpace: string[] = [];
 
   // 1. Technology gaps: reference technologies for this category vs. what's present
   const categoryKey = (category || '').toLowerCase();
   const refTechnologies = REFERENCE_TECHNOLOGIES[categoryKey] || [];
-  const presentTechTypes = new Set(
-    devices.map((d) => d.technology_type.toLowerCase().trim())
-  );
+  const presentTechTypes = new Set(devices.map((d) => d.technology_type.toLowerCase().trim()));
 
   for (const refTech of refTechnologies) {
     if (whiteSpace.length >= 3) break;
@@ -1275,12 +1246,8 @@ function identifyWhiteSpace(
       }
     }
     if (!found) {
-      const readable = refTech
-        .replace(/-/g, ' ')
-        .replace(/\b\w/g, (c) => c.toUpperCase());
-      whiteSpace.push(
-        `No ${readable} technology present — potential novel technology entry point`
-      );
+      const readable = refTech.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      whiteSpace.push(`No ${readable} technology present — potential novel technology entry point`);
     }
   }
 
@@ -1295,11 +1262,11 @@ function identifyWhiteSpace(
     if (!usedPathways.has(pathway)) {
       if (pathway === 'De_Novo') {
         whiteSpace.push(
-          'No De Novo classification used — opportunity for novel low-to-moderate risk device with no predicate'
+          'No De Novo classification used — opportunity for novel low-to-moderate risk device with no predicate',
         );
       } else if (pathway === 'HDE') {
         whiteSpace.push(
-          'No Humanitarian Device Exemption utilized — if patient population < 8,000/yr, HDE pathway may expedite market entry'
+          'No Humanitarian Device Exemption utilized — if patient population < 8,000/yr, HDE pathway may expedite market entry',
         );
       }
       // Skip 510k, PMA, EUA as these are standard and their absence is less insightful
@@ -1308,12 +1275,10 @@ function identifyWhiteSpace(
 
   // 3. Reimbursement gaps
   const reimbursementStatuses = devices.map((d) => d.reimbursement_status);
-  const emergingOrNone = reimbursementStatuses.filter(
-    (s) => s === 'emerging' || s === 'none'
-  );
+  const emergingOrNone = reimbursementStatuses.filter((s) => s === 'emerging' || s === 'none');
   if (emergingOrNone.length > devices.length * 0.4 && whiteSpace.length < 5) {
     whiteSpace.push(
-      `${Math.round((emergingOrNone.length / devices.length) * 100)}% of devices lack full reimbursement — securing early CMS coverage or NTAP designation could be a decisive advantage`
+      `${Math.round((emergingOrNone.length / devices.length) * 100)}% of devices lack full reimbursement — securing early CMS coverage or NTAP designation could be a decisive advantage`,
     );
   }
 
@@ -1321,7 +1286,7 @@ function identifyWhiteSpace(
   const hasRCT = devices.some((d) => d.clinical_evidence_level === 'RCT');
   if (!hasRCT && devices.length > 0 && whiteSpace.length < 5) {
     whiteSpace.push(
-      'No device in this space has RCT-level clinical evidence — conducting a randomized trial would establish clinical superiority'
+      'No device in this space has RCT-level clinical evidence — conducting a randomized trial would establish clinical superiority',
     );
   }
 
@@ -1329,7 +1294,7 @@ function identifyWhiteSpace(
   // All devices in the database are US-focused; note EU/international opportunity
   if (devices.length > 0 && whiteSpace.length < 5) {
     whiteSpace.push(
-      'Current competitive set is US-centric — EU MDR and APAC market entry represent additional growth vectors'
+      'Current competitive set is US-centric — EU MDR and APAC market entry represent additional growth vectors',
     );
   }
 
@@ -1359,7 +1324,7 @@ function buildSummary(
   techLandscape: DeviceTechnologyLandscape[],
   marketShareDist: CompetitiveMarketShareDistribution,
   whiteSpaces: string[],
-  procedureInput: string
+  procedureInput: string,
 ): DeviceCompetitiveLandscapeOutput['summary'] {
   // Technology evolution stage: based on dominant growth trajectory
   const trajectories = techLandscape.map((t) => t.growth_trajectory);
@@ -1377,10 +1342,7 @@ function buildSummary(
   }
 
   // Installed base concentration
-  const totalInstalled = devices.reduce(
-    (sum, d) => sum + (d.installed_base_estimate || 0),
-    0
-  );
+  const totalInstalled = devices.reduce((sum, d) => sum + (d.installed_base_estimate || 0), 0);
   let installedBaseConcentration: string;
   if (totalInstalled === 0) {
     installedBaseConcentration = 'No installed base data available';
@@ -1394,26 +1356,26 @@ function buildSummary(
 
   // Key insight
   let keyInsight: string;
-  const clearedCount = devices.filter((d) =>
-    CLEARED_APPROVED_STATUSES.includes(d.regulatory_status)
-  ).length;
-  const pipelineCount = devices.filter((d) =>
-    PIPELINE_STATUSES.includes(d.regulatory_status)
-  ).length;
+  const clearedCount = devices.filter((d) => CLEARED_APPROVED_STATUSES.includes(d.regulatory_status)).length;
+  const pipelineCount = devices.filter((d) => PIPELINE_STATUSES.includes(d.regulatory_status)).length;
 
   if (crowding.score >= 8) {
-    keyInsight = `The ${procedureInput} device market is extremely crowded with ${clearedCount} cleared/approved devices and ${pipelineCount} pipeline entrants. ` +
+    keyInsight =
+      `The ${procedureInput} device market is extremely crowded with ${clearedCount} cleared/approved devices and ${pipelineCount} pipeline entrants. ` +
       `Market share is ${marketShareDist.concentration_label.toLowerCase()}, with the top 3 players controlling ${marketShareDist.top_3_share_pct}% of the market. ` +
       `New entrants must demonstrate clinical superiority or pursue disruptive technology to gain traction.`;
   } else if (crowding.score >= 5) {
-    keyInsight = `The ${procedureInput} device market is competitively active with ${clearedCount} cleared/approved devices. ` +
+    keyInsight =
+      `The ${procedureInput} device market is competitively active with ${clearedCount} cleared/approved devices. ` +
       `${marketShareDist.concentration_label} market structure (HHI: ${marketShareDist.hhi_index}) leaves room for differentiated entrants. ` +
       `Focus areas: ${whiteSpaces.length > 0 ? whiteSpaces[0].toLowerCase() : 'clinical evidence differentiation'}.`;
   } else if (crowding.score >= 3) {
-    keyInsight = `The ${procedureInput} device landscape has moderate competition with ${clearedCount} authorized devices. ` +
+    keyInsight =
+      `The ${procedureInput} device landscape has moderate competition with ${clearedCount} authorized devices. ` +
       `Opportunity exists for well-positioned entrants, particularly in ${whiteSpaces.length > 0 ? whiteSpaces[0].toLowerCase() : 'underserved clinical niches'}.`;
   } else {
-    keyInsight = `The ${procedureInput} device market is relatively underdeveloped with limited competition. ` +
+    keyInsight =
+      `The ${procedureInput} device market is relatively underdeveloped with limited competition. ` +
       `This represents a significant first-mover or fast-follower opportunity for a device with strong clinical evidence.`;
   }
 
@@ -1509,9 +1471,7 @@ function buildDataSources(devices: DeviceCompetitor[]): CompetitiveDataSource[] 
  * @returns A DeviceCompetitiveLandscapeOutput with minimal data and a
  *          crowding_score of 1.
  */
-function buildEmptyOutput(
-  input: DeviceCompetitiveLandscapeInput
-): DeviceCompetitiveLandscapeOutput {
+function buildEmptyOutput(input: DeviceCompetitiveLandscapeInput): DeviceCompetitiveLandscapeOutput {
   const coveredProcedures = getCoveredProcedures();
   const suggestions = coveredProcedures.slice(0, 5).join(', ');
 
@@ -1584,7 +1544,7 @@ function buildEmptyOutput(
  * ```
  */
 export function analyzeDeviceCompetitiveLandscape(
-  input: DeviceCompetitiveLandscapeInput
+  input: DeviceCompetitiveLandscapeInput,
 ): DeviceCompetitiveLandscapeOutput {
   // ── Step 1 & 2: Procedure lookup + competitor retrieval ──────────────────
   const allDevices = retrieveCompetitors(input);
@@ -1604,12 +1564,8 @@ export function analyzeDeviceCompetitiveLandscape(
     differentiation_score: calculateDifferentiationScore(device, allDevices),
   }));
 
-  const enhancedCleared = enhancedDevices.filter((d) =>
-    CLEARED_APPROVED_STATUSES.includes(d.regulatory_status)
-  );
-  const enhancedPipeline = enhancedDevices.filter((d) =>
-    PIPELINE_STATUSES.includes(d.regulatory_status)
-  );
+  const enhancedCleared = enhancedDevices.filter((d) => CLEARED_APPROVED_STATUSES.includes(d.regulatory_status));
+  const enhancedPipeline = enhancedDevices.filter((d) => PIPELINE_STATUSES.includes(d.regulatory_status));
 
   // ── Step 5: Evidence strength scoring ────────────────────────────────────
   // Update evidence_strength on each device
@@ -1618,12 +1574,8 @@ export function analyzeDeviceCompetitiveLandscape(
     evidence_strength: calculateEvidenceStrength(device.clinical_evidence_level),
   }));
 
-  const scoredCleared = scoredDevices.filter((d) =>
-    CLEARED_APPROVED_STATUSES.includes(d.regulatory_status)
-  );
-  const scoredPipeline = scoredDevices.filter((d) =>
-    PIPELINE_STATUSES.includes(d.regulatory_status)
-  );
+  const scoredCleared = scoredDevices.filter((d) => CLEARED_APPROVED_STATUSES.includes(d.regulatory_status));
+  const scoredPipeline = scoredDevices.filter((d) => PIPELINE_STATUSES.includes(d.regulatory_status));
 
   // ── Step 6: Market share distribution + HHI ──────────────────────────────
   const marketShareDist = calculateMarketShareDistribution(scoredCleared);
@@ -1635,10 +1587,7 @@ export function analyzeDeviceCompetitiveLandscape(
   const comparisonMatrix = buildComparisonMatrix(scoredDevices);
 
   // ── Step 9: Switching cost analysis ──────────────────────────────────────
-  const switchingCosts = buildSwitchingCostAnalysis(
-    scoredDevices,
-    input.device_category
-  );
+  const switchingCosts = buildSwitchingCostAnalysis(scoredDevices, input.device_category);
 
   // ── Step 10: Predicate device map ────────────────────────────────────────
   const predicateMap = buildPredicateDeviceMap(scoredCleared);
@@ -1647,19 +1596,10 @@ export function analyzeDeviceCompetitiveLandscape(
   const dealBenchmark = buildDealBenchmark(scoredDevices, input.device_category);
 
   // ── Step 12: Crowding score ──────────────────────────────────────────────
-  const crowding = calculateCrowdingScore(
-    scoredCleared,
-    scoredPipeline,
-    marketShareDist.hhi_index,
-    techLandscape
-  );
+  const crowding = calculateCrowdingScore(scoredCleared, scoredPipeline, marketShareDist.hhi_index, techLandscape);
 
   // ── Step 13: White space identification ──────────────────────────────────
-  const whiteSpaces = identifyWhiteSpace(
-    scoredDevices,
-    input.device_category,
-    techLandscape
-  );
+  const whiteSpaces = identifyWhiteSpace(scoredDevices, input.device_category, techLandscape);
 
   // ── Final: Output assembly ───────────────────────────────────────────────
   const summary = buildSummary(
@@ -1668,7 +1608,7 @@ export function analyzeDeviceCompetitiveLandscape(
     techLandscape,
     marketShareDist,
     whiteSpaces,
-    input.procedure_or_condition
+    input.procedure_or_condition,
   );
 
   const dataSources = buildDataSources(scoredDevices);

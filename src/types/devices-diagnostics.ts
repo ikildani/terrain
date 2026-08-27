@@ -1147,7 +1147,7 @@ export type DeviceRegulatoryStatus =
   | 'submitted' // Under FDA review
   | 'development'; // Pre-submission
 
-export type DeviceRegulatoryPathwayShort = '510k' | 'PMA' | 'De_Novo' | 'HDE' | 'EUA';
+export type DeviceRegulatoryPathwayShort = '510k' | 'PMA' | 'De_Novo' | 'HDE' | 'EUA' | '361_hct' | 'BLA';
 
 export type ClinicalEvidenceLevel = 'RCT' | 'registry' | 'single_arm' | 'case_series' | 'bench_only';
 
