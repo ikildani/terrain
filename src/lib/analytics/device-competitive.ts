@@ -786,6 +786,8 @@ function buildComparisonMatrix(devices: DeviceCompetitor[]): CompetitiveComparis
         single_arm: 'Single-Arm Study',
         case_series: 'Case Series',
         bench_only: 'Bench Testing Only',
+        observational: 'Observational Study',
+        real_world: 'Real-World Evidence',
       };
       return evidenceMap[d.clinical_evidence_level] || d.clinical_evidence_level;
     }),
