@@ -371,28 +371,28 @@ export async function POST(request: NextRequest) {
     } else if (isCDMO(product_category)) {
       const { result: r } = await withTiming(
         'cdmo_matching',
-        () => matchCDMOs(input as unknown as Parameters<typeof matchCDMOs>[0]),
+        async () => matchCDMOs(input as unknown as Parameters<typeof matchCDMOs>[0]),
         { indication },
       );
       result = r;
     } else if (isPharma(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_pharma',
-        () => calculateMarketSizing(input as unknown as Parameters<typeof calculateMarketSizing>[0]),
+        async () => calculateMarketSizing(input as unknown as Parameters<typeof calculateMarketSizing>[0]),
         { indication },
       );
       result = r;
     } else if (isDevice(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_device',
-        () => calculateDeviceMarketSizing(input as unknown as Parameters<typeof calculateDeviceMarketSizing>[0]),
+        async () => calculateDeviceMarketSizing(input as unknown as Parameters<typeof calculateDeviceMarketSizing>[0]),
         { indication },
       );
       result = r;
     } else if (isCDx(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_cdx',
-        () => calculateCDxMarketSizing(input as unknown as Parameters<typeof calculateCDxMarketSizing>[0]),
+        async () => calculateCDxMarketSizing(input as unknown as Parameters<typeof calculateCDxMarketSizing>[0]),
         { indication },
       );
       result = r;
