@@ -297,3 +297,29 @@ export async function getPubmedForIndication(indication: string): Promise<Cached
     return [];
   }
 }
+
+export async function getDataFreshness(): Promise<{
+  clinical_trials: string | null;
+  fda_approvals: string | null;
+  ema_approvals: string | null;
+  literature: string | null;
+}> {
+  try {
+    const supabase = createAdminClient();
+    const [trials, fda, ema, pubmed] = await Promise.all([
+      supabase.from('clinical_trials_cache').select('fetched_at').order('fetched_at', { ascending: false }).limit(1),
+      supabase.from('fda_approvals_cache').select('fetched_at').order('fetched_at', { ascending: false }).limit(1),
+      supabase.from('ema_medicines_cache').select('fetched_at').order('fetched_at', { ascending: false }).limit(1),
+      supabase.from('pubmed_articles_cache').select('fetched_at').order('fetched_at', { ascending: false }).limit(1),
+    ]);
+
+    return {
+      clinical_trials: trials.data?.[0]?.fetched_at || null,
+      fda_approvals: fda.data?.[0]?.fetched_at || null,
+      ema_approvals: ema.data?.[0]?.fetched_at || null,
+      literature: pubmed.data?.[0]?.fetched_at || null,
+    };
+  } catch {
+    return { clinical_trials: null, fda_approvals: null, ema_approvals: null, literature: null };
+  }
+}

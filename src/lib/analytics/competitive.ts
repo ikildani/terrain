@@ -50,6 +50,9 @@ import {
   getFdaApprovalsForIndication,
   getEmaApprovalsForIndication,
   getPubmedForIndication,
+  getDataFreshness,
+  type CachedEmaMedicine,
+  type CachedPubmedArticle,
 } from '@/lib/data/cached-data-loader';
 import type { CachedClinicalTrial, CachedFdaApproval } from '@/types';
 import type { CachedEmaMedicine, CachedPubmedArticle } from '@/lib/data/cached-data-loader';
@@ -2149,7 +2152,7 @@ function buildDataSources(indicationName: string): DataSource[] {
     {
       name: 'Terrain Competitor Database',
       type: 'proprietary',
-      last_updated: new Date().toISOString().split('T')[0],
+      last_updated: '2026-08-01',
     },
     {
       name: 'ClinicalTrials.gov',
@@ -2174,6 +2177,18 @@ function buildDataSources(indicationName: string): DataSource[] {
     {
       name: 'Ambrosia Ventures Deal Intelligence',
       type: 'proprietary',
+    },
+    {
+      name: 'European Medicines Agency (EMA)',
+      type: 'public',
+      url: 'https://www.ema.europa.eu/en/medicines',
+      last_updated: new Date().toISOString().split('T')[0],
+    },
+    {
+      name: 'PubMed / MEDLINE',
+      type: 'public',
+      url: `https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(indicationName)}`,
+      last_updated: new Date().toISOString().split('T')[0],
     },
   ];
 }
@@ -3225,7 +3240,42 @@ export async function analyzeCompetitiveLandscape(
     patient_segmentation: patientSegmentation,
     competitor_scenarios: competitorScenarios.length > 0 ? competitorScenarios : undefined,
     pricing_pressure: pricingPressure,
+    ema_approvals:
+      liveEmaApprovals.length > 0
+        ? liveEmaApprovals.slice(0, 20).map((e) => ({
+            medicine_name: e.medicine_name,
+            inn: e.inn,
+            marketing_authorisation_holder: e.marketing_authorisation_holder,
+            authorisation_date: e.authorisation_date,
+            authorisation_status: e.authorisation_status,
+          }))
+        : undefined,
+    recent_literature:
+      livePubmed.length > 0
+        ? livePubmed.slice(0, 10).map((p) => ({
+            pmid: p.pmid,
+            title: p.title,
+            journal: p.journal,
+            pub_date: p.pub_date,
+            authors: p.authors,
+          }))
+        : undefined,
   };
+
+  // Attach live freshness timestamps (best-effort, doesn't block the response)
+  try {
+    const freshness = await getDataFreshness();
+    output.data_freshness = {
+      clinical_trials: freshness.clinical_trials,
+      fda_approvals: freshness.fda_approvals,
+      ema_approvals: freshness.ema_approvals,
+      literature: freshness.literature,
+      competitor_database: '2026-08-01',
+      market_intelligence: new Date().toISOString(),
+    };
+  } catch {
+    // Non-critical — proceed without freshness metadata
+  }
 
   return output;
 }

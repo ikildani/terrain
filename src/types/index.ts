@@ -1319,6 +1319,28 @@ export interface CompetitiveLandscapeOutput {
   patient_segmentation?: PatientSegmentation;
   competitor_scenarios?: CompetitorScenario[];
   pricing_pressure?: PricingPressure;
+  ema_approvals?: {
+    medicine_name: string;
+    inn: string | null;
+    marketing_authorisation_holder: string | null;
+    authorisation_date: string | null;
+    authorisation_status: string | null;
+  }[];
+  recent_literature?: {
+    pmid: string;
+    title: string;
+    journal: string | null;
+    pub_date: string | null;
+    authors: string[];
+  }[];
+  data_freshness?: {
+    clinical_trials: string | null;
+    fda_approvals: string | null;
+    ema_approvals: string | null;
+    literature: string | null;
+    competitor_database: string;
+    market_intelligence: string | null;
+  };
 }
 
 // ────────────────────────────────────────────────────────────
