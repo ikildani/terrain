@@ -3075,7 +3075,7 @@ export async function analyzeCompetitiveLandscape(
         indication_specifics: ema.condition || indication.name,
         mechanism: ema.active_substance || 'Unknown',
         mechanism_category: 'other',
-        phase: 'approved',
+        phase: 'Approved',
         nct_ids: [],
         primary_endpoint: '',
         first_in_class: false,
