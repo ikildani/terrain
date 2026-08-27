@@ -16,12 +16,12 @@ export const DATA_SOURCE_FRESHNESS: Record<string, string> = {
   'WHO Global Burden of Disease 2024': '2025-12-01',
   'WHO Global Burden of Disease': '2025-12-01',
   'ClinicalTrials.gov': new Date().toISOString(),
-  'FDA Drug Approvals Database': '2026-02-15',
-  'FDA 510(k) / PMA Database': '2026-02-15',
-  'FDA Companion Diagnostics Database': '2026-02-15',
+  'FDA Drug Approvals Database': new Date().toISOString(), // daily cron refresh
+  'FDA 510(k) / PMA Database': new Date().toISOString(), // daily cron refresh
+  'FDA Companion Diagnostics Database': new Date().toISOString(), // daily cron refresh
 
-  // ── Pricing / reimbursement ──────────────────────────────
-  'IQVIA Drug Pricing Benchmarks': '2026-01-01',
+  // ── Pricing / reimbursement (curated datasets, periodically updated) ──
+  'IQVIA Drug Pricing Benchmarks': '2026-08-01', // curated dataset, last manual update
   'CMS Medicare Spending Data': '2026-01-01',
   'CMS Medicare Fee Schedule': '2026-01-01',
   'CMS Clinical Laboratory Fee Schedule': '2026-01-01',

@@ -283,7 +283,7 @@ export async function GET(request: NextRequest) {
     source_url: 'https://clinicaltrials.gov/api/v2/studies',
     refresh_frequency: 'weekly',
     last_refreshed_at: new Date().toISOString(),
-    next_refresh_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    next_refresh_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     records_count: newCount,
     status,
     last_error: errors.length > 0 ? errors.join('; ') : null,
@@ -297,6 +297,21 @@ export async function GET(request: NextRequest) {
     errors: errors.length,
     durationMs,
   });
+
+  try {
+    const { notifyCronSuccess, notifyCronFailure } = await import('@/lib/slack');
+    if (errors.length > 0) {
+      await notifyCronFailure(
+        'refresh-trials',
+        `${errors.length} errors. Fetched: ${totalFetched}, Upserted: ${totalUpserted}`,
+      );
+    } else {
+      await notifyCronSuccess(
+        'refresh-trials',
+        `Fetched: ${totalFetched}, Upserted: ${totalUpserted}, Total: ${count ?? 0}`,
+      );
+    }
+  } catch {}
 
   return NextResponse.json({
     success: true,

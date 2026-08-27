@@ -244,6 +244,21 @@ export async function GET(request: NextRequest) {
     durationMs,
   });
 
+  try {
+    const { notifyCronSuccess, notifyCronFailure } = await import('@/lib/slack');
+    if (errors.length > 0) {
+      await notifyCronFailure(
+        'refresh-fda',
+        `${errors.length} errors. Fetched: ${totalFetched}, Upserted: ${totalUpserted}`,
+      );
+    } else {
+      await notifyCronSuccess(
+        'refresh-fda',
+        `Fetched: ${totalFetched}, Upserted: ${totalUpserted}, Total: ${count ?? 0}`,
+      );
+    }
+  } catch {}
+
   return NextResponse.json({
     success: true,
     fetched: totalFetched,
