@@ -12,8 +12,7 @@ export function CtaSection() {
       <div className="relative max-w-3xl mx-auto text-center">
         <h2 className="font-display text-3xl sm:text-4xl text-white mb-4">Your next deal starts with better data.</h2>
         <p className="text-slate-300 mb-10 max-w-xl mx-auto">
-          Join biotech founders, BD executives, and life sciences investors who use Terrain to move faster and negotiate
-          smarter.
+          Market sizing, competitive landscapes, partner matching, and regulatory intelligence — in seconds, not weeks.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
