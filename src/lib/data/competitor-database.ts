@@ -25,6 +25,7 @@ import { MSK_GASTRO_DERM_COMPETITORS } from './competitor-data-msk-gastro-derm';
 import { GAP_FILL_COMPETITORS } from './competitor-data-gap-fill';
 import { BIO_COMPETITORS } from './competitor-data-bio';
 import { EARLY_STAGE_COMPETITORS } from './competitor-data-early-stage';
+import { EXPANSION_COMPETITORS } from './competitor-data-expansion';
 
 // ────────────────────────────────────────────────────────────
 // COMPETITOR RECORD TYPE
@@ -3798,6 +3799,7 @@ export const COMPETITOR_DATABASE: CompetitorRecord[] = [
   ...GAP_FILL_COMPETITORS,
   ...BIO_COMPETITORS,
   ...EARLY_STAGE_COMPETITORS,
+  ...EXPANSION_COMPETITORS,
 
   // ── Ischemic Stroke ─────────────────────────────────────────
   {
