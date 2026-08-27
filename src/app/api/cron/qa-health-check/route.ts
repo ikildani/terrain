@@ -229,9 +229,8 @@ export async function GET(request: NextRequest) {
 
   // ── 10. Competitor database completeness ──────────────────
   try {
-    const { getAllCompetitors } = await import('@/lib/data/competitor-database');
-    const competitors = getAllCompetitors();
-    const n = Array.isArray(competitors) ? competitors.length : 0;
+    const { COMPETITOR_DATABASE } = await import('@/lib/data/competitor-database');
+    const n = Array.isArray(COMPETITOR_DATABASE) ? COMPETITOR_DATABASE.length : 0;
     checks.push(
       n >= 500
         ? { name: 'Competitor database', status: 'pass', detail: `${n} competitors` }
