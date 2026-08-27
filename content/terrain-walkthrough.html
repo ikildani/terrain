@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terrain — Platform Walkthrough</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy-950: #04080f;
+    --navy-900: #07101e;
+    --navy-800: #102236;
+    --navy-700: #1a3350;
+    --teal: #00c9a7;
+    --teal-hover: #00e4bf;
+    --text-bright: #f0f4f8;
+    --text-primary: #cbd5e1;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-dim: #475569;
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --purple: #a855f7;
+  }
+
+  body { font-family: 'Inter', sans-serif; background: #020408; color: var(--text-primary); overflow: hidden; width: 1280px; height: 800px; position: relative; }
+
+  .shell { display: flex; width: 1280px; height: 800px; position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.04); }
+
+  /* Sidebar */
+  .sidebar { width: 224px; background: var(--navy-900); border-right: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; padding: 20px 14px; flex-shrink: 0; }
+  .sidebar-logo { padding: 8px 12px 28px; display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 26px; height: 26px; background: linear-gradient(135deg, var(--teal), var(--teal-hover)); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--navy-950); }
+  .logo-text { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: var(--text-bright); }
+  .nav-section { margin-bottom: 20px; }
+  .nav-label { font-size: 9px; font-weight: 700; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; padding: 0 12px; margin-bottom: 6px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; border-left: 2px solid transparent; margin-bottom: 1px; }
+  .nav-item.active { background: rgba(0,201,167,0.08); color: var(--teal); border-left-color: var(--teal); font-weight: 600; }
+  .nav-icon { width: 14px; text-align: center; font-size: 10px; opacity: 0.5; }
+  .nav-item.active .nav-icon { opacity: 1; }
+  .pro-badge { font-size: 8px; font-weight: 700; color: var(--teal); background: rgba(0,201,167,0.1); padding: 1px 5px; border-radius: 3px; margin-left: auto; }
+
+  .step-indicator { margin-top: auto; padding: 14px 12px; border-top: 1px solid rgba(255,255,255,0.04); }
+  .step-dots { display: flex; gap: 5px; margin-bottom: 8px; }
+  .step-dot { width: 22px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.06); transition: all 0.4s; }
+  .step-dot.active { background: var(--teal); width: 30px; }
+  .step-dot.past { background: rgba(0,201,167,0.2); }
+  .step-text { font-size: 10px; font-weight: 600; color: var(--text-dim); }
+
+  /* Main */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { height: 48px; background: var(--navy-900); border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; padding: 0 22px; flex-shrink: 0; }
+  .search-bar { flex: 1; max-width: 340px; height: 30px; background: var(--navy-800); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; padding: 0 10px; font-size: 11px; color: var(--text-dim); gap: 6px; }
+  .topbar-spacer { flex: 1; }
+  .avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--blue)); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--navy-950); }
+
+  .pages-container { flex: 1; position: relative; overflow: hidden; }
+  .page { position: absolute; inset: 0; padding: 24px 28px; overflow-y: auto; background: var(--navy-950); opacity: 0; transform: translateY(6px); transition: opacity 0.5s, transform 0.5s; pointer-events: none; }
+  .page.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .page-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--text-bright); margin-bottom: 3px; }
+  .page-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+
+  /* Guide overlays */
+  .guide { position: absolute; z-index: 100; pointer-events: none; opacity: 0; transition: opacity 0.5s, transform 0.4s; transform: translateY(6px); }
+  .guide.visible { opacity: 1; transform: translateY(0); }
+  .guide-card { background: rgba(0,201,167,0.05); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(0,201,167,0.12); border-radius: 10px; padding: 14px 16px; max-width: 260px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+  .guide-step { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: var(--teal); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 5px; }
+  .guide-title { font-size: 13px; font-weight: 700; color: var(--text-bright); margin-bottom: 4px; line-height: 1.3; }
+  .guide-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+  .guide-features { margin-top: 8px; display: flex; flex-direction: column; gap: 3px; }
+  .guide-feature { font-size: 10px; color: var(--teal); font-weight: 600; }
+  .guide-feature::before { content: '✓ '; opacity: 0.6; }
+
+  /* Cards */
+  .card { background: var(--navy-900); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 16px 18px; position: relative; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--teal), transparent); border-radius: 8px 8px 0 0; opacity: 0.25; }
+  .card-label { font-size: 9px; font-weight: 700; color: var(--text-dim); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 5px; }
+  .card-metric { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--text-bright); letter-spacing: -1px; margin-bottom: 2px; font-variant-numeric: tabular-nums; }
+  .card-sub { font-size: 10px; color: var(--text-muted); }
+  .card-trend { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; }
+  .trend-up { color: var(--green); }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .stat-grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .section-header { font-size: 9px; font-weight: 700; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; margin-top: 4px; }
+
+  /* Quick actions */
+  .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+  .qa-card { background: var(--navy-900); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 14px; }
+  .qa-icon { width: 28px; height: 28px; border-radius: 6px; background: rgba(0,201,167,0.08); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; font-size: 12px; color: var(--teal); }
+  .qa-title { font-size: 12px; font-weight: 700; color: var(--text-bright); margin-bottom: 2px; }
+  .qa-desc { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
+
+  /* Signals */
+  .signal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+  .signal-card { background: var(--navy-900); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 12px 14px; }
+  .signal-dot { width: 6px; height: 6px; border-radius: 50%; margin-bottom: 7px; }
+  .signal-dot-green { background: var(--green); }
+  .signal-dot-amber { background: var(--amber); }
+  .signal-dot-blue { background: var(--blue); }
+  .signal-dot-red { background: var(--red); }
+  .signal-title { font-size: 10px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+  .signal-text { font-size: 9px; color: var(--text-muted); line-height: 1.4; }
+
+  /* Two col */
+  .two-col { display: flex; gap: 18px; }
+  .col-form { width: 320px; flex-shrink: 0; }
+  .col-results { flex: 1; }
+  .form-group { margin-bottom: 12px; }
+  .form-label { font-size: 9px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; display: block; }
+  .form-input { width: 100%; height: 34px; background: var(--navy-800); border: 1px solid rgba(255,255,255,0.06); border-radius: 5px; padding: 0 10px; font-size: 11px; color: var(--text-primary); display: flex; align-items: center; }
+  .form-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+  .pill { padding: 4px 10px; border-radius: 5px; font-size: 10px; font-weight: 600; background: var(--navy-800); border: 1px solid rgba(255,255,255,0.06); color: var(--text-secondary); }
+  .pill.active { background: rgba(0,201,167,0.1); border-color: rgba(0,201,167,0.2); color: var(--teal); }
+  .btn-primary { width: 100%; padding: 10px; background: var(--teal); color: var(--navy-950); border: none; border-radius: 6px; font-size: 12px; font-weight: 700; font-family: 'Inter', sans-serif; margin-top: 4px; }
+
+  /* Charts */
+  .chart-area { background: var(--navy-900); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; }
+  .chart-title { font-size: 11px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+
+  .bars-h { display: flex; flex-direction: column; gap: 8px; }
+  .bar-h-row { display: flex; align-items: center; gap: 8px; }
+  .bar-h-label { width: 44px; font-size: 9px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); text-align: right; flex-shrink: 0; }
+  .bar-h-track { flex: 1; height: 20px; background: rgba(255,255,255,0.02); border-radius: 4px; overflow: hidden; }
+  .bar-h-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; color: var(--text-bright); }
+  .bar-teal { background: linear-gradient(90deg, rgba(0,201,167,0.25), rgba(0,201,167,0.1)); }
+  .bar-amber { background: linear-gradient(90deg, rgba(251,191,36,0.2), rgba(251,191,36,0.08)); }
+  .bar-blue { background: linear-gradient(90deg, rgba(96,165,250,0.2), rgba(96,165,250,0.08)); }
+
+  /* Funnel */
+  .funnel { display: flex; flex-direction: column; gap: 4px; }
+  .funnel-row { display: flex; align-items: center; gap: 10px; }
+  .funnel-label { width: 80px; font-size: 9px; font-weight: 600; color: var(--text-muted); text-align: right; flex-shrink: 0; }
+  .funnel-bar { height: 18px; border-radius: 3px; display: flex; align-items: center; padding-left: 8px; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; color: var(--text-bright); }
+  .funnel-rate { font-size: 8px; color: var(--text-dim); margin-left: 6px; font-family: 'JetBrains Mono', monospace; }
+
+  /* Tables */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th { font-size: 8px; font-weight: 700; color: var(--text-dim); letter-spacing: 1.5px; text-transform: uppercase; text-align: left; padding: 7px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .data-table td { font-size: 11px; color: var(--text-secondary); padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+  .data-table .mono { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-bright); text-align: right; }
+  .phase-badge { font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 600; padding: 2px 6px; border-radius: 3px; background: rgba(0,201,167,0.08); color: var(--teal); }
+  .phase-badge-amber { background: rgba(251,191,36,0.08); color: var(--amber); }
+
+  /* Sensitivity matrix */
+  .matrix { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .matrix th { font-size: 8px; font-weight: 700; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; padding: 6px 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .matrix td { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-primary); padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.02); }
+  .matrix .highlight { background: rgba(0,201,167,0.06); color: var(--teal); font-weight: 700; border-radius: 4px; }
+  .matrix .row-label { font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600; color: var(--text-muted); text-align: left; }
+
+  /* Partners */
+  .partner-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .partner-card { background: var(--navy-900); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 14px 16px; }
+  .partner-rank { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: var(--teal); margin-bottom: 3px; }
+  .partner-name { font-size: 13px; font-weight: 700; color: var(--text-bright); margin-bottom: 8px; }
+  .match-bar-track { width: 100%; height: 4px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+  .match-bar-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--teal-hover)); border-radius: 3px; }
+  .match-score { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--teal); margin-bottom: 8px; }
+
+  .score-breakdown { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+  .sb-row { display: flex; align-items: center; gap: 6px; }
+  .sb-label { font-size: 9px; color: var(--text-muted); width: 90px; flex-shrink: 0; }
+  .sb-track { flex: 1; height: 3px; background: rgba(255,255,255,0.04); border-radius: 2px; overflow: hidden; }
+  .sb-fill { height: 100%; background: var(--teal); border-radius: 2px; }
+  .sb-value { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--text-dim); width: 28px; text-align: right; flex-shrink: 0; }
+
+  .partner-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .partner-tag { font-size: 8px; font-weight: 600; padding: 2px 6px; border-radius: 3px; background: rgba(255,255,255,0.03); color: var(--text-muted); }
+
+  /* Regulatory */
+  .pathway-card { background: var(--navy-900); border: 1px solid rgba(0,201,167,0.1); border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; }
+  .pathway-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 4px; background: rgba(0,201,167,0.1); color: var(--teal); margin-bottom: 8px; }
+  .pathway-title { font-size: 16px; font-weight: 700; color: var(--text-bright); margin-bottom: 4px; }
+  .pathway-time { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--teal); margin-bottom: 10px; }
+  .pathway-reqs { display: flex; flex-direction: column; gap: 4px; }
+  .pathway-req { font-size: 10px; color: var(--text-secondary); padding-left: 14px; position: relative; }
+  .pathway-req::before { content: '•'; position: absolute; left: 0; color: var(--teal); }
+
+  .designation-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .designation-card { background: var(--navy-900); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 12px 14px; }
+  .desg-name { font-size: 11px; font-weight: 700; color: var(--text-bright); margin-bottom: 4px; }
+  .desg-eligible { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-bottom: 4px; }
+  .desg-likely { background: rgba(52,211,153,0.1); color: var(--green); }
+  .desg-possible { background: rgba(251,191,36,0.1); color: var(--amber); }
+  .desg-savings { font-size: 9px; color: var(--text-muted); }
+
+  /* Timeline bar */
+  .timeline-bar { display: flex; gap: 2px; height: 28px; margin-bottom: 6px; border-radius: 4px; overflow: hidden; }
+  .timeline-segment { display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; letter-spacing: 0.3px; }
+  .tl-ind { background: rgba(0,201,167,0.15); color: var(--teal); }
+  .tl-p1 { background: rgba(96,165,250,0.12); color: var(--blue); }
+  .tl-p2 { background: rgba(251,191,36,0.12); color: var(--amber); }
+  .tl-p3 { background: rgba(0,201,167,0.2); color: var(--teal); }
+  .tl-review { background: rgba(168,85,247,0.12); color: var(--purple); }
+
+  /* Reports */
+  .report-row { display: flex; align-items: center; padding: 10px 12px; background: var(--navy-900); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; margin-bottom: 6px; gap: 12px; }
+  .report-type-badge { font-size: 8px; font-weight: 700; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; flex-shrink: 0; }
+  .badge-market { background: rgba(0,201,167,0.1); color: var(--teal); }
+  .badge-comp { background: rgba(96,165,250,0.1); color: var(--blue); }
+  .badge-partner { background: rgba(251,191,36,0.1); color: var(--amber); }
+  .badge-reg { background: rgba(168,85,247,0.1); color: var(--purple); }
+  .report-title { font-size: 12px; font-weight: 600; color: var(--text-primary); flex: 1; }
+  .report-date { font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
+
+  /* Exec summary */
+  .exec-summary { background: var(--navy-900); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+  .exec-summary strong { color: var(--text-bright); }
+
+  /* Deal benchmarks */
+  .deal-bench { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 14px; }
+  .db-item { background: var(--navy-900); border: 1px solid rgba(255,255,255,0.04); border-radius: 6px; padding: 10px 12px; text-align: center; }
+  .db-value { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--teal); margin-bottom: 2px; }
+  .db-label { font-size: 8px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; }
+
+  /* Intro */
+  .intro-overlay { position: absolute; inset: 0; background: var(--navy-950); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s; }
+  .intro-overlay.hidden { opacity: 0; pointer-events: none; }
+  .intro-logo { font-family: 'Playfair Display', serif; font-size: 44px; font-weight: 700; color: var(--text-bright); margin-bottom: 10px; opacity: 0; animation: fadeUp 0.8s ease 0.3s forwards; }
+  .intro-sub { font-size: 15px; font-weight: 500; color: var(--text-muted); opacity: 0; animation: fadeUp 0.8s ease 0.6s forwards; }
+  .intro-line { width: 40px; height: 2px; background: var(--teal); margin: 16px 0; opacity: 0; animation: fadeUp 0.6s ease 0.9s forwards; }
+  .intro-cta { font-size: 12px; font-weight: 600; color: var(--teal); opacity: 0; animation: fadeUp 0.6s ease 1.2s forwards; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Confidence badge */
+  .conf-badge { font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 3px; position: absolute; top: 14px; right: 14px; }
+  .conf-high { background: rgba(52,211,153,0.1); color: var(--green); }
+</style>
+</head>
+<body>
+
+<div class="intro-overlay" id="intro">
+  <div class="intro-logo">Terrain</div>
+  <div class="intro-sub">Pharma Market Intelligence Platform</div>
+  <div class="intro-line"></div>
+  <div class="intro-cta">Full Platform Walkthrough — Pro Features</div>
+</div>
+
+<div class="shell">
+  <div class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">T</div><div class="logo-text">Terrain</div></div>
+    <div class="nav-section">
+      <div class="nav-label">Modules</div>
+      <div class="nav-item active" id="nav-0"><div class="nav-icon">&#9632;</div> Dashboard</div>
+      <div class="nav-item" id="nav-1"><div class="nav-icon">&#9650;</div> Market Sizing</div>
+      <div class="nav-item" id="nav-2"><div class="nav-icon">&#9679;</div> Competitive</div>
+      <div class="nav-item" id="nav-3"><div class="nav-icon">&#9670;</div> Regulatory Intel <span class="pro-badge">PRO</span></div>
+      <div class="nav-item" id="nav-4"><div class="nav-icon">&#9733;</div> Partner Discovery <span class="pro-badge">PRO</span></div>
+      <div class="nav-item" id="nav-5"><div class="nav-icon">&#9776;</div> Saved Reports</div>
+    </div>
+    <div class="step-indicator">
+      <div class="step-dots"><div class="step-dot active" id="dot-0"></div><div class="step-dot" id="dot-1"></div><div class="step-dot" id="dot-2"></div><div class="step-dot" id="dot-3"></div><div class="step-dot" id="dot-4"></div><div class="step-dot" id="dot-5"></div></div>
+      <div class="step-text" id="step-text">1 of 6 — Dashboard</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar"><div class="search-bar">&#128269; Search indications, companies, reports...</div><div class="topbar-spacer"></div><div class="avatar">IK</div></div>
+
+    <div class="pages-container" id="pages-container">
+
+      <!-- 1: DASHBOARD -->
+      <div class="page visible" id="page-0">
+        <div class="page-title">Good morning, Issa.</div>
+        <div class="page-subtitle">Your market is moving. Here's what matters today.</div>
+        <div class="section-header">Quick Actions</div>
+        <div class="quick-actions">
+          <div class="qa-card"><div class="qa-icon">&#9650;</div><div class="qa-title">Market Analysis</div><div class="qa-desc">TAM/SAM/SOM for any indication</div></div>
+          <div class="qa-card"><div class="qa-icon">&#9679;</div><div class="qa-title">Map Landscape</div><div class="qa-desc">Competitive pipeline mapping</div></div>
+          <div class="qa-card"><div class="qa-icon">&#9670;</div><div class="qa-title">Regulatory Path</div><div class="qa-desc">Pathway, timeline, designations</div></div>
+          <div class="qa-card"><div class="qa-icon">&#9733;</div><div class="qa-title">Find Partners</div><div class="qa-desc">AI-scored strategic fit matching</div></div>
+        </div>
+        <div class="section-header">Market Pulse — Live Signals</div>
+        <div class="signal-grid">
+          <div class="signal-card"><div class="signal-dot signal-dot-green"></div><div class="signal-title">FDA Activity</div><div class="signal-text">3 new approvals this week in oncology and rare disease</div></div>
+          <div class="signal-card"><div class="signal-dot signal-dot-amber"></div><div class="signal-title">M&A Signal</div><div class="signal-text">Lilly-Insilico $2.75B deal — AI drug discovery acceleration</div></div>
+          <div class="signal-card"><div class="signal-dot signal-dot-blue"></div><div class="signal-title">Pipeline</div><div class="signal-text">14 Phase 3 readouts expected in Q2 2026</div></div>
+          <div class="signal-card"><div class="signal-dot signal-dot-red"></div><div class="signal-title">Pricing</div><div class="signal-text">CMS proposed Part B reimbursement changes</div></div>
+        </div>
+        <div class="section-header">Platform Overview</div>
+        <div class="stat-grid">
+          <div class="card"><div class="card-label">Analyses</div><div class="card-metric">24</div><div class="card-trend trend-up">+38%</div></div>
+          <div class="card"><div class="card-label">Reports</div><div class="card-metric">12</div><div class="card-sub">3 shared</div></div>
+          <div class="card"><div class="card-label">Indications</div><div class="card-metric">236</div><div class="card-sub">18 TAs</div></div>
+          <div class="card"><div class="card-label">Benchmarks</div><div class="card-metric">276</div><div class="card-sub">Weekly updates</div></div>
+        </div>
+      </div>
+
+      <!-- 2: MARKET SIZING (Full Pro) -->
+      <div class="page" id="page-1">
+        <div class="page-title">Market Sizing</div>
+        <div class="page-subtitle">TAM, SAM, SOM with epidemiological precision. Sensitivity analysis, pricing comps, and DCF.</div>
+        <div class="two-col">
+          <div class="col-form">
+            <div class="card" style="padding: 16px;">
+              <div class="form-group"><div class="form-label">Indication</div><div class="form-input" style="color:var(--teal);font-weight:600;">Non-Small Cell Lung Cancer</div></div>
+              <div class="form-group"><div class="form-label">Subtype</div><div class="form-input">EGFR+ Stage III/IV</div></div>
+              <div class="form-group"><div class="form-label">Geography</div><div class="form-pills"><div class="pill active">US</div><div class="pill active">EU5</div><div class="pill">Japan</div><div class="pill">Global</div></div></div>
+              <div class="form-group"><div class="form-label">Stage</div><div class="form-pills"><div class="pill">Phase 1</div><div class="pill active">Phase 2</div><div class="pill">Phase 3</div></div></div>
+              <div class="form-group"><div class="form-label">Mechanism</div><div class="form-input">ADC (Antibody-Drug Conjugate)</div></div>
+              <div class="form-group"><div class="form-label">Pricing</div><div class="form-pills"><div class="pill">Conservative</div><div class="pill active">Base</div><div class="pill">Premium</div></div></div>
+              <div class="form-group"><div class="form-label">Launch Year</div><div class="form-input">2029</div></div>
+              <button class="btn-primary">Generate Analysis</button>
+            </div>
+          </div>
+          <div class="col-results">
+            <div class="stat-grid stat-grid-2">
+              <div class="card"><div class="conf-badge conf-high">HIGH</div><div class="card-label">US TAM</div><div class="card-metric" style="color:var(--teal);">$14.2B</div><div class="card-sub">228,150 eligible patients</div></div>
+              <div class="card"><div class="card-label">US SAM</div><div class="card-metric">$8.7B</div><div class="card-sub">139,900 treatable</div></div>
+              <div class="card"><div class="card-label">US SOM</div><div class="card-metric">$1.4B</div><div class="card-sub">12% peak penetration</div></div>
+              <div class="card"><div class="card-label">Global TAM</div><div class="card-metric">$38.6B</div><div class="card-sub">US + EU5 + Japan</div></div>
+            </div>
+            <div class="exec-summary">The NSCLC ADC market represents a <strong>US TAM of $14.2B</strong> with SAM of $8.7B. Peak SOM estimated at <strong>$1.4B</strong> with 12% penetration by year 6 post-launch. Key growth drivers include expanding 2L+ treatment paradigm and ADC adoption in EGFR+ subpopulation.</div>
+            <div class="chart-area">
+              <div class="chart-title">Patient Population Funnel</div>
+              <div class="funnel">
+                <div class="funnel-row"><div class="funnel-label">Prevalence</div><div class="funnel-bar bar-teal" style="width:100%;">541,200</div></div>
+                <div class="funnel-row"><div class="funnel-label">Diagnosed</div><div class="funnel-bar bar-teal" style="width:78%;">421,800 <span class="funnel-rate">78%</span></div></div>
+                <div class="funnel-row"><div class="funnel-label">Treated</div><div class="funnel-bar bar-teal" style="width:58%;">312,500 <span class="funnel-rate">74%</span></div></div>
+                <div class="funnel-row"><div class="funnel-label">Addressable</div><div class="funnel-bar bar-teal" style="width:42%;">228,150 <span class="funnel-rate">73%</span></div></div>
+                <div class="funnel-row"><div class="funnel-label">Capturable</div><div class="funnel-bar bar-teal" style="width:14%;">27,378 <span class="funnel-rate">12%</span></div></div>
+              </div>
+            </div>
+            <div class="chart-area">
+              <div class="chart-title">Pro: Sensitivity Analysis — Peak Year SOM ($M)</div>
+              <table class="matrix">
+                <thead><tr><th></th><th>Low Share (60%)</th><th>Base Share</th><th>High Share (150%)</th></tr></thead>
+                <tbody>
+                  <tr><td class="row-label">Conservative (-20%)</td><td>$672M</td><td>$1,120M</td><td>$1,680M</td></tr>
+                  <tr><td class="row-label">Base Pricing</td><td>$840M</td><td class="highlight">$1,400M</td><td>$2,100M</td></tr>
+                  <tr><td class="row-label">Premium (+20%)</td><td>$1,008M</td><td>$1,680M</td><td>$2,520M</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3: COMPETITIVE (Full Pro) -->
+      <div class="page" id="page-2">
+        <div class="page-title">Competitive Landscape</div>
+        <div class="page-subtitle">Pipeline mapping, crowding analysis, opportunity screening, and differentiation scoring.</div>
+        <div class="stat-grid">
+          <div class="card"><div class="card-label">Crowding Score</div><div class="card-metric" style="color:var(--amber);">7.2</div><div class="card-sub">High — 23 active programs</div></div>
+          <div class="card"><div class="card-label">Phase 3+</div><div class="card-metric">7</div><div class="card-trend trend-up">+3 since Q3</div></div>
+          <div class="card"><div class="card-label">Approved</div><div class="card-metric">4</div><div class="card-sub">Enhertu, Padcev, Trodelvy, Dato-DXd</div></div>
+          <div class="card"><div class="card-label">Avg Diff. Score</div><div class="card-metric">5.8</div><div class="card-sub">Moderate differentiation</div></div>
+        </div>
+        <div class="chart-area">
+          <div class="chart-title">Pipeline — Sorted by Differentiation Score</div>
+          <table class="data-table">
+            <thead><tr><th>Company</th><th>Asset</th><th>Target</th><th>Stage</th><th>Diff.</th><th>Evidence</th><th style="text-align:right">Peak Sales</th></tr></thead>
+            <tbody>
+              <tr><td style="color:var(--text-bright);font-weight:600;">Daiichi / AZ</td><td>Dato-DXd</td><td>TROP2</td><td><span class="phase-badge">Phase 3</span></td><td class="mono">8.4</td><td class="mono">9.1</td><td class="mono">$4.2B</td></tr>
+              <tr><td style="color:var(--text-bright);font-weight:600;">Summit / Akeso</td><td>Ivonescimab</td><td>PD-1/VEGF</td><td><span class="phase-badge">Phase 3</span></td><td class="mono">7.8</td><td class="mono">7.2</td><td class="mono">$3.1B</td></tr>
+              <tr><td style="color:var(--text-bright);font-weight:600;">Sanofi / BioNTech</td><td>BNT327</td><td>PD-L1/VEGF</td><td><span class="phase-badge">Phase 3</span></td><td class="mono">7.5</td><td class="mono">6.8</td><td class="mono">$2.8B</td></tr>
+              <tr><td style="color:var(--text-bright);font-weight:600;">Gilead / Arcus</td><td>Domvanalimab</td><td>TIGIT</td><td><span class="phase-badge">Phase 3</span></td><td class="mono">6.2</td><td class="mono">5.9</td><td class="mono">$1.9B</td></tr>
+              <tr><td style="color:var(--text-bright);font-weight:600;">Kelun-Biotech</td><td>SKB264</td><td>TROP2 ADC</td><td><span class="phase-badge phase-badge-amber">Phase 2</span></td><td class="mono">6.0</td><td class="mono">4.5</td><td class="mono">$1.2B</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-area">
+          <div class="chart-title">Pro: Pipeline by Phase</div>
+          <div class="bars-h">
+            <div class="bar-h-row"><div class="bar-h-label">Approved</div><div class="bar-h-track"><div class="bar-h-fill bar-teal" style="width:17%;">4</div></div></div>
+            <div class="bar-h-row"><div class="bar-h-label">Phase 3</div><div class="bar-h-track"><div class="bar-h-fill bar-teal" style="width:30%;">7</div></div></div>
+            <div class="bar-h-row"><div class="bar-h-label">Phase 2</div><div class="bar-h-track"><div class="bar-h-fill bar-amber" style="width:35%;">8</div></div></div>
+            <div class="bar-h-row"><div class="bar-h-label">Phase 1</div><div class="bar-h-track"><div class="bar-h-fill bar-blue" style="width:17%;">4</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4: REGULATORY (Pro Only) -->
+      <div class="page" id="page-3">
+        <div class="page-title">Regulatory Intelligence</div>
+        <div class="page-subtitle">Pathway recommendation, designation opportunities, timeline modeling, and comparable approvals.</div>
+        <div class="stat-grid stat-grid-3">
+          <div class="card"><div class="card-label">Expected Timeline</div><div class="card-metric" style="color:var(--teal);">72 mo</div><div class="card-sub">Phase 2 → Approval</div></div>
+          <div class="card"><div class="card-label">Regulatory Risk</div><div class="card-metric" style="color:var(--amber);">5.4</div><div class="card-sub">Moderate — precedent exists</div></div>
+          <div class="card"><div class="card-label">Designations Available</div><div class="card-metric">3</div><div class="card-sub">Breakthrough + Fast Track + Orphan</div></div>
+        </div>
+        <div class="pathway-card">
+          <div class="pathway-badge">Recommended Pathway</div>
+          <div class="pathway-title">BLA — Accelerated Approval</div>
+          <div class="pathway-time">Est. review: 6 months (Priority Review eligible)</div>
+          <div class="pathway-reqs">
+            <div class="pathway-req">Pivotal Phase 2 with surrogate endpoint (ORR/DOR)</div>
+            <div class="pathway-req">Confirmatory Phase 3 post-approval commitment</div>
+            <div class="pathway-req">Companion diagnostic co-development required</div>
+            <div class="pathway-req">CMC package with validated ADC manufacturing</div>
+          </div>
+        </div>
+        <div class="section-header">Designation Opportunities</div>
+        <div class="designation-grid">
+          <div class="designation-card"><div class="desg-name">Breakthrough Therapy</div><div class="desg-eligible desg-likely">Likely Eligible</div><div class="desg-savings">6-month faster review</div></div>
+          <div class="designation-card"><div class="desg-name">Fast Track</div><div class="desg-eligible desg-likely">Likely Eligible</div><div class="desg-savings">Rolling review access</div></div>
+          <div class="designation-card"><div class="desg-name">Orphan Drug</div><div class="desg-eligible desg-possible">Possibly Eligible</div><div class="desg-savings">7-year market exclusivity</div></div>
+        </div>
+        <div class="chart-area">
+          <div class="chart-title">Estimated Timeline — IND to Approval</div>
+          <div style="font-size:9px;color:var(--text-muted);margin-bottom:8px;">Realistic scenario · 72 months total</div>
+          <div class="timeline-bar">
+            <div class="timeline-segment tl-ind" style="width:5%;">IND</div>
+            <div class="timeline-segment tl-p1" style="width:12%;">Ph 1</div>
+            <div class="timeline-segment tl-p2" style="width:22%;">Ph 2</div>
+            <div class="timeline-segment tl-p3" style="width:32%;">Ph 3</div>
+            <div class="timeline-segment tl-review" style="width:12%;">BLA</div>
+            <div class="timeline-segment tl-ind" style="width:8%;">Review</div>
+          </div>
+          <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">Optimistic: 58 mo &nbsp;|&nbsp; Realistic: 72 mo &nbsp;|&nbsp; Pessimistic: 96 mo</div>
+        </div>
+        <div class="chart-area">
+          <div class="chart-title">Comparable Approvals</div>
+          <table class="data-table">
+            <thead><tr><th>Drug</th><th>Company</th><th>Pathway</th><th>Timeline</th><th style="text-align:right;">Year</th></tr></thead>
+            <tbody>
+              <tr><td style="color:var(--text-bright);">Enhertu</td><td>Daiichi / AZ</td><td>Accelerated</td><td class="mono">64 mo</td><td class="mono">2019</td></tr>
+              <tr><td style="color:var(--text-bright);">Padcev</td><td>Seagen / Astellas</td><td>Accelerated</td><td class="mono">58 mo</td><td class="mono">2019</td></tr>
+              <tr><td style="color:var(--text-bright);">Trodelvy</td><td>Gilead</td><td>Accelerated</td><td class="mono">71 mo</td><td class="mono">2020</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 5: PARTNER DISCOVERY (Pro Only) -->
+      <div class="page" id="page-4">
+        <div class="page-title">Partner Discovery</div>
+        <div class="page-subtitle">AI-scored matching across 847 companies. Score breakdown, deal benchmarks, and negotiation playbook.</div>
+        <div class="stat-grid">
+          <div class="card"><div class="card-label">Screened</div><div class="card-metric">847</div><div class="card-sub">Global pharma</div></div>
+          <div class="card"><div class="card-label">High-Fit</div><div class="card-metric" style="color:var(--teal);">12</div><div class="card-sub">Score &gt; 80%</div></div>
+          <div class="card"><div class="card-label">Median Upfront</div><div class="card-metric">$245M</div><div class="card-sub">Based on 18 comps</div></div>
+          <div class="card"><div class="card-label">Typical Royalty</div><div class="card-metric">8-14%</div><div class="card-sub">Phase 2 ADC oncology</div></div>
+        </div>
+        <div class="section-header">Deal Benchmarks — Phase 2 ADC Oncology</div>
+        <div class="deal-bench">
+          <div class="db-item"><div class="db-value">$245M</div><div class="db-label">Avg Upfront</div></div>
+          <div class="db-item"><div class="db-value">$180M</div><div class="db-label">Median Upfront</div></div>
+          <div class="db-item"><div class="db-value">$1.8B</div><div class="db-label">Avg Total</div></div>
+          <div class="db-item"><div class="db-value">$1.4B</div><div class="db-label">Median Total</div></div>
+          <div class="db-item"><div class="db-value">8-14%</div><div class="db-label">Royalty Range</div></div>
+        </div>
+        <div class="section-header">Top Matches</div>
+        <div class="partner-grid">
+          <div class="partner-card"><div class="partner-rank">#01</div><div class="partner-name">AstraZeneca</div><div class="match-bar-track"><div class="match-bar-fill" style="width:94%;"></div></div><div class="match-score">94% match</div>
+            <div class="score-breakdown">
+              <div class="sb-row"><div class="sb-label">TA Alignment</div><div class="sb-track"><div class="sb-fill" style="width:96%;"></div></div><div class="sb-value">24/25</div></div>
+              <div class="sb-row"><div class="sb-label">Pipeline Gap</div><div class="sb-track"><div class="sb-fill" style="width:92%;"></div></div><div class="sb-value">23/25</div></div>
+              <div class="sb-row"><div class="sb-label">Deal History</div><div class="sb-track"><div class="sb-fill" style="width:90%;"></div></div><div class="sb-value">18/20</div></div>
+              <div class="sb-row"><div class="sb-label">Geo Fit</div><div class="sb-track"><div class="sb-fill" style="width:87%;"></div></div><div class="sb-value">13/15</div></div>
+            </div>
+            <div class="partner-tags"><span class="partner-tag">ADC leader</span><span class="partner-tag">Daiichi partner</span><span class="partner-tag">$18.5B CSPC deal</span></div>
+          </div>
+          <div class="partner-card"><div class="partner-rank">#02</div><div class="partner-name">Pfizer</div><div class="match-bar-track"><div class="match-bar-fill" style="width:89%;"></div></div><div class="match-score">89% match</div>
+            <div class="score-breakdown">
+              <div class="sb-row"><div class="sb-label">TA Alignment</div><div class="sb-track"><div class="sb-fill" style="width:88%;"></div></div><div class="sb-value">22/25</div></div>
+              <div class="sb-row"><div class="sb-label">Pipeline Gap</div><div class="sb-track"><div class="sb-fill" style="width:96%;"></div></div><div class="sb-value">24/25</div></div>
+              <div class="sb-row"><div class="sb-label">Deal History</div><div class="sb-track"><div class="sb-fill" style="width:85%;"></div></div><div class="sb-value">17/20</div></div>
+              <div class="sb-row"><div class="sb-label">Geo Fit</div><div class="sb-track"><div class="sb-fill" style="width:80%;"></div></div><div class="sb-value">12/15</div></div>
+            </div>
+            <div class="partner-tags"><span class="partner-tag">$6B 3SBio deal</span><span class="partner-tag">Oncology priority</span><span class="partner-tag">ADC pipeline gap</span></div>
+          </div>
+          <div class="partner-card"><div class="partner-rank">#03</div><div class="partner-name">Merck</div><div class="match-bar-track"><div class="match-bar-fill" style="width:86%;"></div></div><div class="match-score">86% match</div>
+            <div class="score-breakdown">
+              <div class="sb-row"><div class="sb-label">TA Alignment</div><div class="sb-track"><div class="sb-fill" style="width:92%;"></div></div><div class="sb-value">23/25</div></div>
+              <div class="sb-row"><div class="sb-label">Pipeline Gap</div><div class="sb-track"><div class="sb-fill" style="width:88%;"></div></div><div class="sb-value">22/25</div></div>
+              <div class="sb-row"><div class="sb-label">Deal History</div><div class="sb-track"><div class="sb-fill" style="width:80%;"></div></div><div class="sb-value">16/20</div></div>
+              <div class="sb-row"><div class="sb-label">Geo Fit</div><div class="sb-track"><div class="sb-fill" style="width:73%;"></div></div><div class="sb-value">11/15</div></div>
+            </div>
+            <div class="partner-tags"><span class="partner-tag">Keytruda LOE 2028</span><span class="partner-tag">$29B acquisition spree</span></div>
+          </div>
+          <div class="partner-card"><div class="partner-rank">#04</div><div class="partner-name">Bristol Myers Squibb</div><div class="match-bar-track"><div class="match-bar-fill" style="width:83%;"></div></div><div class="match-score">83% match</div>
+            <div class="score-breakdown">
+              <div class="sb-row"><div class="sb-label">TA Alignment</div><div class="sb-track"><div class="sb-fill" style="width:84%;"></div></div><div class="sb-value">21/25</div></div>
+              <div class="sb-row"><div class="sb-label">Pipeline Gap</div><div class="sb-track"><div class="sb-fill" style="width:84%;"></div></div><div class="sb-value">21/25</div></div>
+              <div class="sb-row"><div class="sb-label">Deal History</div><div class="sb-track"><div class="sb-fill" style="width:80%;"></div></div><div class="sb-value">16/20</div></div>
+              <div class="sb-row"><div class="sb-label">Geo Fit</div><div class="sb-track"><div class="sb-fill" style="width:80%;"></div></div><div class="sb-value">12/15</div></div>
+            </div>
+            <div class="partner-tags"><span class="partner-tag">IO leadership</span><span class="partner-tag">$11.1B BioNTech deal</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6: REPORTS -->
+      <div class="page" id="page-5">
+        <div class="page-title">Saved Reports</div>
+        <div class="page-subtitle">Export to PDF, Excel, or CSV. Share with your team. Revisit past analyses.</div>
+        <div class="form-pills" style="margin-bottom:16px;"><div class="pill active">All</div><div class="pill">Starred</div><div class="pill">Market</div><div class="pill">Competitive</div><div class="pill">Partners</div><div class="pill">Regulatory</div></div>
+        <div class="report-row"><span class="report-type-badge badge-market">Market</span><div class="report-title">NSCLC ADC Market Sizing — US + EU5 + Japan</div><div class="report-date">Mar 28</div></div>
+        <div class="report-row"><span class="report-type-badge badge-comp">Competitive</span><div class="report-title">NSCLC Competitive Landscape — ADC & Bispecific Programs</div><div class="report-date">Mar 25</div></div>
+        <div class="report-row"><span class="report-type-badge badge-reg">Regulatory</span><div class="report-title">NSCLC ADC — Accelerated Approval Pathway Analysis</div><div class="report-date">Mar 22</div></div>
+        <div class="report-row"><span class="report-type-badge badge-partner">Partners</span><div class="report-title">Partner Discovery — Oncology ADC Phase 2 Global Rights</div><div class="report-date">Mar 18</div></div>
+        <div class="report-row"><span class="report-type-badge badge-market">Market</span><div class="report-title">Multiple Myeloma BCMA — Global Opportunity Assessment</div><div class="report-date">Mar 14</div></div>
+        <div class="report-row"><span class="report-type-badge badge-comp">Competitive</span><div class="report-title">GLP-1 Obesity Landscape — Q1 2026 Update</div><div class="report-date">Mar 10</div></div>
+        <div class="report-row"><span class="report-type-badge badge-partner">Partners</span><div class="report-title">Rare Disease Gene Therapy — Partner Screening</div><div class="report-date">Mar 6</div></div>
+        <div class="report-row"><span class="report-type-badge badge-reg">Regulatory</span><div class="report-title">NASH Fibrosis — FDA Pathway + EMA Scientific Advice</div><div class="report-date">Feb 28</div></div>
+      </div>
+
+      <!-- GUIDE OVERLAYS -->
+      <div class="guide" id="guide-0" style="bottom: 80px; right: 30px;">
+        <div class="guide-card">
+          <div class="guide-step">Dashboard</div>
+          <div class="guide-title">Your command center</div>
+          <div class="guide-desc">Real-time market signals across FDA, M&A, pipeline, and pricing. Launch any analysis in one click.</div>
+          <div class="guide-features">
+            <div class="guide-feature">Live FDA / M&A / Pipeline alerts</div>
+            <div class="guide-feature">Quick-launch any module</div>
+            <div class="guide-feature">Usage analytics + recent reports</div>
+          </div>
+        </div>
+      </div>
+      <div class="guide" id="guide-1" style="top: 70px; right: 24px;">
+        <div class="guide-card">
+          <div class="guide-step">Market Sizing</div>
+          <div class="guide-title">TAM/SAM/SOM in seconds</div>
+          <div class="guide-desc">Epidemiological precision with 236 indications, 276 pricing benchmarks, and real patient funnel data.</div>
+          <div class="guide-features">
+            <div class="guide-feature">Patient population funnel</div>
+            <div class="guide-feature">10-year revenue projection</div>
+            <div class="guide-feature">Sensitivity analysis matrix</div>
+            <div class="guide-feature">Pricing comparables + DCF</div>
+            <div class="guide-feature">Geography breakdown</div>
+          </div>
+        </div>
+      </div>
+      <div class="guide" id="guide-2" style="top: 70px; right: 24px;">
+        <div class="guide-card">
+          <div class="guide-step">Competitive</div>
+          <div class="guide-title">Full pipeline intelligence</div>
+          <div class="guide-desc">Every competitor mapped with differentiation scores, evidence strength, and peak sales estimates.</div>
+          <div class="guide-features">
+            <div class="guide-feature">Crowding score (1-10)</div>
+            <div class="guide-feature">Landscape scatter plot</div>
+            <div class="guide-feature">Sortable pipeline table</div>
+            <div class="guide-feature">Opportunity Screener (Pro)</div>
+            <div class="guide-feature">Strengths / weaknesses per asset</div>
+          </div>
+        </div>
+      </div>
+      <div class="guide" id="guide-3" style="top: 70px; right: 24px;">
+        <div class="guide-card">
+          <div class="guide-step">Regulatory — Pro</div>
+          <div class="guide-title">Pathway + timeline + designations</div>
+          <div class="guide-desc">AI-recommended regulatory pathway with comparable approvals, designation eligibility, and risk scoring.</div>
+          <div class="guide-features">
+            <div class="guide-feature">Recommended pathway + alternatives</div>
+            <div class="guide-feature">Optimistic/Realistic/Pessimistic timeline</div>
+            <div class="guide-feature">Designation eligibility (BT, FT, Orphan)</div>
+            <div class="guide-feature">Comparable approvals table</div>
+            <div class="guide-feature">Multi-agency (FDA, EMA, PMDA, NMPA)</div>
+          </div>
+        </div>
+      </div>
+      <div class="guide" id="guide-4" style="top: 70px; right: 24px;">
+        <div class="guide-card">
+          <div class="guide-step">Partners — Pro</div>
+          <div class="guide-title">AI-scored strategic matching</div>
+          <div class="guide-desc">847 companies scored on TA alignment, pipeline gaps, deal history, geography fit, and financial capacity.</div>
+          <div class="guide-features">
+            <div class="guide-feature">Score breakdown per factor</div>
+            <div class="guide-feature">Deal benchmarks (upfront, milestones, royalty)</div>
+            <div class="guide-feature">Licensing terms estimate</div>
+            <div class="guide-feature">Negotiation playbook</div>
+            <div class="guide-feature">Recent comparable transactions</div>
+          </div>
+        </div>
+      </div>
+      <div class="guide" id="guide-5" style="top: 70px; right: 24px;">
+        <div class="guide-card">
+          <div class="guide-step">Reports</div>
+          <div class="guide-title">Your analysis library</div>
+          <div class="guide-desc">Every analysis auto-saved. Export to PDF, Excel, or CSV for deal committee presentations.</div>
+          <div class="guide-features">
+            <div class="guide-feature">PDF export with full formatting</div>
+            <div class="guide-feature">Excel + CSV data export</div>
+            <div class="guide-feature">Share with team members</div>
+            <div class="guide-feature">Filter by type, star favorites</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const PAGES = 6;
+  const TIMING = [4500, 7000, 6000, 6500, 7000, 5000];
+  const LABELS = ['1 of 6 — Dashboard','2 of 6 — Market Sizing','3 of 6 — Competitive','4 of 6 — Regulatory Intel','5 of 6 — Partner Discovery','6 of 6 — Reports'];
+
+  function showPage(idx) {
+    for (let i = 0; i < PAGES; i++) {
+      const p = document.getElementById('page-' + i);
+      const n = document.getElementById('nav-' + i);
+      const d = document.getElementById('dot-' + i);
+      const g = document.getElementById('guide-' + i);
+      if (p) p.classList.toggle('visible', i === idx);
+      if (n) n.classList.toggle('active', i === idx);
+      if (d) { d.classList.toggle('active', i === idx); d.classList.toggle('past', i < idx); }
+      if (g) { if (i === idx) setTimeout(() => g.classList.add('visible'), 700); else g.classList.remove('visible'); }
+    }
+    document.getElementById('step-text').textContent = LABELS[idx];
+  }
+
+  setTimeout(() => document.getElementById('intro').classList.add('hidden'), 2800);
+
+  setTimeout(() => {
+    let step = 0;
+    function advance() { step = (step + 1) % PAGES; showPage(step); setTimeout(advance, TIMING[step]); }
+    setTimeout(advance, TIMING[0]);
+  }, 3000);
+
+  for (let i = 0; i < PAGES; i++) {
+    const n = document.getElementById('nav-' + i);
+    if (n) n.addEventListener('click', () => showPage(i));
+  }
+</script>
+
+</body>
+</html>

@@ -27,7 +27,12 @@ export type ProductCategory =
   | 'device_drug_delivery' // Combination product, drug-eluting
   | 'device_digital_health' // SaMD — software as a medical device
   | 'device_capital_equipment' // MRI, CT, radiation systems, NGS platforms
-  | 'device_point_of_care'; // POC testing, rapid diagnostics
+  | 'device_point_of_care' // POC testing, rapid diagnostics
+  | 'biosimilar' // Biosimilar / follow-on biologic
+  | 'cell_gene_therapy' // CAR-T, gene therapy, cell therapy
+  | 'radiopharmaceutical' // Theranostics, Lu-177, Ac-225
+  | 'drug_delivery_platform' // LNP, liposomal, GalNAc, depot
+  | 'cdmo_partnership'; // CDMO/CMO manufacturing partnership matching
 
 export type DeviceCategory =
   | 'cardiovascular'

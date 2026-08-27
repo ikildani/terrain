@@ -265,6 +265,11 @@ type FormMode = 'pharma' | 'device' | 'cdx' | 'nutra';
 
 function getFormMode(category: ProductCategory): FormMode {
   if (category === 'pharmaceutical') return 'pharma';
+  if (category === 'biosimilar') return 'pharma';
+  if (category === 'cell_gene_therapy') return 'pharma';
+  if (category === 'radiopharmaceutical') return 'pharma';
+  if (category === 'drug_delivery_platform') return 'pharma';
+  if (category === 'cdmo_partnership') return 'pharma';
   if (category === 'nutraceutical') return 'nutra';
   if (category === 'diagnostics_companion' || category === 'diagnostics_ivd') return 'cdx';
   return 'device';

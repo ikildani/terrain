@@ -37,11 +37,17 @@ interface NavItem {
 
 const NAV_SECTIONS: { section: string; items: NavItem[] }[] = [
   {
-    section: 'Modules',
+    section: 'Intelligence',
     items: [
       { label: 'Market Sizing', href: '/market-sizing', icon: BarChart3, tourId: 'market-sizing' },
       { label: 'Competitive Landscape', href: '/competitive', icon: Network, tourId: 'competitive' },
+    ],
+  },
+  {
+    section: 'Deal Tools',
+    items: [
       { label: 'Partner Discovery', href: '/partners', icon: Users, pro: true },
+      { label: 'CDMO / CMO Matching', href: '/cdmo', icon: Activity, pro: true },
       { label: 'Regulatory Intel', href: '/regulatory', icon: Shield, pro: true },
     ],
   },

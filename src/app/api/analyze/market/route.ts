@@ -6,6 +6,11 @@ import { checkUsage, recordUsage } from '@/lib/usage';
 import { calculateMarketSizing } from '@/lib/analytics/market-sizing';
 import { calculateDeviceMarketSizing, calculateCDxMarketSizing } from '@/lib/analytics/device-market-sizing';
 import { calculateNutraceuticalMarketSizing } from '@/lib/analytics/nutraceutical-market-sizing';
+import { calculateBiosimilarMarketSizing } from '@/lib/analytics/biosimilar-engine';
+import { calculateCGTMarketSizing } from '@/lib/analytics/cgt-engine';
+import { calculateRadiopharmMarketSizing } from '@/lib/analytics/radiopharm-engine';
+import { calculatePlatformValuation } from '@/lib/analytics/platform-valuation';
+import { matchCDMOs } from '@/lib/analytics/cdmo-matching';
 import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { logger, withTiming, logApiRequest, logApiResponse, logBusinessEvent } from '@/lib/logger';
 import { sanitizePostgrestValue, sanitizePostgrestSearch } from '@/lib/utils/sanitize';
@@ -117,6 +122,26 @@ const RequestSchema = z.object({
 
 function isPharma(category: string): boolean {
   return category === 'pharmaceutical' || category.startsWith('pharma');
+}
+
+function isBiosimilar(category: string): boolean {
+  return category === 'biosimilar';
+}
+
+function isCGT(category: string): boolean {
+  return category === 'cell_gene_therapy';
+}
+
+function isRadiopharm(category: string): boolean {
+  return category === 'radiopharmaceutical';
+}
+
+function isPlatform(category: string): boolean {
+  return category === 'drug_delivery_platform';
+}
+
+function isCDMO(category: string): boolean {
+  return category === 'cdmo_partnership';
 }
 
 function isDevice(category: string): boolean {
@@ -313,7 +338,42 @@ export async function POST(request: NextRequest) {
       ((input as Record<string, unknown>).primary_ingredient as string) ||
       '';
 
-    if (isPharma(product_category)) {
+    if (isBiosimilar(product_category)) {
+      const { result: r } = await withTiming(
+        'market_sizing_biosimilar',
+        () => calculateBiosimilarMarketSizing(input as Parameters<typeof calculateBiosimilarMarketSizing>[0]),
+        { indication },
+      );
+      result = r;
+    } else if (isCGT(product_category)) {
+      const { result: r } = await withTiming(
+        'market_sizing_cgt',
+        () => calculateCGTMarketSizing(input as Parameters<typeof calculateCGTMarketSizing>[0]),
+        { indication },
+      );
+      result = r;
+    } else if (isRadiopharm(product_category)) {
+      const { result: r } = await withTiming(
+        'market_sizing_radiopharm',
+        () => calculateRadiopharmMarketSizing(input as Parameters<typeof calculateRadiopharmMarketSizing>[0]),
+        { indication },
+      );
+      result = r;
+    } else if (isPlatform(product_category)) {
+      const { result: r } = await withTiming(
+        'platform_valuation',
+        () => calculatePlatformValuation(input as Parameters<typeof calculatePlatformValuation>[0]),
+        { indication },
+      );
+      result = r;
+    } else if (isCDMO(product_category)) {
+      const { result: r } = await withTiming(
+        'cdmo_matching',
+        () => matchCDMOs(input as Parameters<typeof matchCDMOs>[0]),
+        { indication },
+      );
+      result = r;
+    } else if (isPharma(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_pharma',
         () => calculateMarketSizing(input as Parameters<typeof calculateMarketSizing>[0]),
