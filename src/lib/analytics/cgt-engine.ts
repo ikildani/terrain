@@ -320,8 +320,8 @@ export function calculateCGTMarketSizing(input: CGTInput): CGTOutput {
       { name: 'ARM (Alliance for Regenerative Medicine) sector report', type: 'public' as const },
       {
         name: 'Published COGS analyses (Nature Reviews Drug Discovery)',
-        date: '2024-2025',
-        confidence: 'medium' as const,
+        type: 'public' as const,
+        last_updated: '2024-2025',
       },
     ],
   };

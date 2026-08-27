@@ -291,8 +291,8 @@ export function calculatePlatformValuation(input: PlatformInput): PlatformOutput
       { name: 'Platform licensing deal database (Ambrosia Ventures)', type: 'public' as const },
       {
         name: 'Published platform deal analyses (Nature Biotechnology)',
-        date: '2024-2025',
-        confidence: 'high' as const,
+        type: 'public' as const,
+        last_updated: '2024-2025',
       },
     ],
   };
