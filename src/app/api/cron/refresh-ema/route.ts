@@ -110,9 +110,9 @@ async function fetchFromEmaRss(): Promise<EmaMedicine[]> {
       if (title) {
         results.push({
           medicineName: title.trim(),
-          condition: desc.trim() || null,
-          url: link.trim() || null,
-          firstPublishedDate: date ? new Date(date).toISOString().split('T')[0] : null,
+          condition: desc.trim() || undefined,
+          url: link.trim() || undefined,
+          firstPublishedDate: date ? new Date(date).toISOString().split('T')[0] : undefined,
           authorisationStatus: 'Authorised',
         });
       }
@@ -127,16 +127,16 @@ async function fetchFromEmaRss(): Promise<EmaMedicine[]> {
 function parseEmaMedicine(med: EmaMedicine) {
   return {
     medicine_name: med.medicineName || 'Unknown',
-    inn: med.inn || med.activeSubstance || null,
-    therapeutic_area: med.therapeuticArea || null,
-    condition: med.condition || null,
-    authorisation_status: med.authorisationStatus || null,
-    marketing_authorisation_holder: med.marketingAuthorisationHolder || null,
-    authorisation_date: med.firstPublishedDate || med.revisionDate || null,
-    medicine_url: med.url || null,
-    atc_code: med.atcCode || null,
-    active_substance: med.activeSubstance || med.inn || null,
-    medicine_type: med.medicineType || null,
+    inn: med.inn || med.activeSubstance || undefined,
+    therapeutic_area: med.therapeuticArea || undefined,
+    condition: med.condition || undefined,
+    authorisation_status: med.authorisationStatus || undefined,
+    marketing_authorisation_holder: med.marketingAuthorisationHolder || undefined,
+    authorisation_date: med.firstPublishedDate || med.revisionDate || undefined,
+    medicine_url: med.url || undefined,
+    atc_code: med.atcCode || undefined,
+    active_substance: med.activeSubstance || med.inn || undefined,
+    medicine_type: med.medicineType || undefined,
   };
 }
 
@@ -222,7 +222,7 @@ export async function GET(request: NextRequest) {
     next_refresh_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     records_count: count ?? 0,
     status,
-    last_error: errors.length > 0 ? errors.join('; ') : null,
+    last_error: errors.length > 0 ? errors.join('; ') : undefined,
     updated_at: new Date().toISOString(),
   });
 
