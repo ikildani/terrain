@@ -341,56 +341,58 @@ export async function POST(request: NextRequest) {
     if (isBiosimilar(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_biosimilar',
-        async () => calculateBiosimilarMarketSizing(input as Parameters<typeof calculateBiosimilarMarketSizing>[0]),
+        async () =>
+          calculateBiosimilarMarketSizing(input as unknown as Parameters<typeof calculateBiosimilarMarketSizing>[0]),
         { indication },
       );
       result = r;
     } else if (isCGT(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_cgt',
-        async () => calculateCGTMarketSizing(input as Parameters<typeof calculateCGTMarketSizing>[0]),
+        async () => calculateCGTMarketSizing(input as unknown as Parameters<typeof calculateCGTMarketSizing>[0]),
         { indication },
       );
       result = r;
     } else if (isRadiopharm(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_radiopharm',
-        async () => calculateRadiopharmMarketSizing(input as Parameters<typeof calculateRadiopharmMarketSizing>[0]),
+        async () =>
+          calculateRadiopharmMarketSizing(input as unknown as Parameters<typeof calculateRadiopharmMarketSizing>[0]),
         { indication },
       );
       result = r;
     } else if (isPlatform(product_category)) {
       const { result: r } = await withTiming(
         'platform_valuation',
-        async () => calculatePlatformValuation(input as Parameters<typeof calculatePlatformValuation>[0]),
+        async () => calculatePlatformValuation(input as unknown as Parameters<typeof calculatePlatformValuation>[0]),
         { indication },
       );
       result = r;
     } else if (isCDMO(product_category)) {
       const { result: r } = await withTiming(
         'cdmo_matching',
-        () => matchCDMOs(input as Parameters<typeof matchCDMOs>[0]),
+        () => matchCDMOs(input as unknown as Parameters<typeof matchCDMOs>[0]),
         { indication },
       );
       result = r;
     } else if (isPharma(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_pharma',
-        () => calculateMarketSizing(input as Parameters<typeof calculateMarketSizing>[0]),
+        () => calculateMarketSizing(input as unknown as Parameters<typeof calculateMarketSizing>[0]),
         { indication },
       );
       result = r;
     } else if (isDevice(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_device',
-        () => calculateDeviceMarketSizing(input as Parameters<typeof calculateDeviceMarketSizing>[0]),
+        () => calculateDeviceMarketSizing(input as unknown as Parameters<typeof calculateDeviceMarketSizing>[0]),
         { indication },
       );
       result = r;
     } else if (isCDx(product_category)) {
       const { result: r } = await withTiming(
         'market_sizing_cdx',
-        () => calculateCDxMarketSizing(input as Parameters<typeof calculateCDxMarketSizing>[0]),
+        () => calculateCDxMarketSizing(input as unknown as Parameters<typeof calculateCDxMarketSizing>[0]),
         { indication },
       );
       result = r;
