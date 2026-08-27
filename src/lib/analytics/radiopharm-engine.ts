@@ -283,9 +283,9 @@ export function calculateRadiopharmMarketSizing(input: RadiopharmInput): Radioph
     ),
     methodology: `Radiopharmaceutical market sizing with isotope supply constraints. ${isotope.supply === 'severely_limited' ? 'SUPPLY-LIMITED MODEL: ' : ''}${addressable.toLocaleString()} eligible patients constrained to ${supplyConstrained.toLocaleString()} by ${input.isotope.toUpperCase()} supply (${isotope.annual_global_supply}). ${input.treatment_cycles}-cycle treatment at $${Math.round(price.base / 1000)}K/course.${input.has_diagnostic_pair ? ` Theranostic pair adds $${diagnosticPrice}/diagnostic scan.` : ''}`,
     data_sources: [
-      { name: 'SNMMI Radiopharmaceutical Market Report', date: '2025', confidence: 'high' as const },
-      { name: 'DOE Isotope Program production data', date: '2025-2026', confidence: 'high' as const },
-      { name: 'Ambrosia Ventures radiopharm deal database', date: 'current', confidence: 'high' as const },
+      { name: 'SNMMI Radiopharmaceutical Market Report', type: 'public' as const },
+      { name: 'DOE Isotope Program production data', type: 'public' as const },
+      { name: 'Ambrosia Ventures radiopharm deal database', type: 'public' as const },
     ],
   };
 }

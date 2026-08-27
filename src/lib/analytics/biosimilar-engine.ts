@@ -132,9 +132,9 @@ export function calculateBiosimilarMarketSizing(input: BiosimilarInput): Biosimi
     revenue_projection: revenueProjection,
     methodology: `Biosimilar revenue projected using molecule-class penetration curves calibrated to historical adoption data (adalimumab, infliximab, bevacizumab, trastuzumab). ${input.molecule_type} class profile applied with ${input.expected_biosimilar_competitors} expected competitors and ${Math.round(input.discount_to_reference * 100)}% initial discount.${input.is_interchangeable ? ' Interchangeability designation adds ~15% adoption premium.' : ''}`,
     data_sources: [
-      { name: 'IQVIA Biosimilar Adoption Trends', date: '2025', confidence: 'high' as const },
-      { name: 'FDA Purple Book', date: 'current', confidence: 'high' as const },
-      { name: 'Ambrosia Ventures Deal Database', date: 'current', confidence: 'high' as const },
+      { name: 'IQVIA Biosimilar Adoption Trends', type: 'public' as const },
+      { name: 'FDA Purple Book', type: 'public' as const },
+      { name: 'Ambrosia Ventures Deal Database', type: 'public' as const },
     ],
   };
 }

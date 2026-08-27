@@ -316,8 +316,8 @@ export function calculateCGTMarketSizing(input: CGTInput): CGTOutput {
     },
     methodology: `Cell & gene therapy market sizing using one-time treatment economics. Patient pool: ${addressablePatients.toLocaleString()} eligible patients (${Math.round(input.eligible_fraction * 100)}% of ${input.target_population_us.toLocaleString()} target population). Manufacturing constraint: ${Math.round(maxCapacity).toLocaleString()} patients/year across ${input.manufacturing_sites} site(s). ${profile.autologous ? 'Autologous' : 'Allogeneic'} manufacturing with ${Math.round(profile.success_rate * 100)}% success rate.`,
     data_sources: [
-      { name: 'FDA-approved CGT product pricing (CMS ASP)', date: '2025-2026', confidence: 'high' as const },
-      { name: 'ARM (Alliance for Regenerative Medicine) sector report', date: '2025', confidence: 'high' as const },
+      { name: 'FDA-approved CGT product pricing (CMS ASP)', type: 'public' as const },
+      { name: 'ARM (Alliance for Regenerative Medicine) sector report', type: 'public' as const },
       {
         name: 'Published COGS analyses (Nature Reviews Drug Discovery)',
         date: '2024-2025',

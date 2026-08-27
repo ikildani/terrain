@@ -375,8 +375,8 @@ export function matchCDMOs(input: CDMOInput): CDMOOutput {
     recommendations,
     methodology: `Scored ${CDMO_DATABASE.length} CDMOs across 5 dimensions: molecule fit (30%), scale capability (25%), geographic coverage (15%), regulatory track record (15%), and specialization alignment (15%). Rankings prioritize ${input.priority_factors.join(', ')}.`,
     data_sources: [
-      { name: 'Public CDMO announcements and capabilities', date: '2026', confidence: 'high' as const },
-      { name: 'FDA facility inspection database', date: 'current', confidence: 'high' as const },
+      { name: 'Public CDMO announcements and capabilities', type: 'public' as const },
+      { name: 'FDA facility inspection database', type: 'public' as const },
     ],
   };
 }

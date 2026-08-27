@@ -288,7 +288,7 @@ export function calculatePlatformValuation(input: PlatformInput): PlatformOutput
     },
     methodology: `Platform valuation using real options approach. Each of ${remainingTargets} licensable targets valued as a probability-weighted milestone stream (${Math.round(optionProb * 100)}% cumulative PoS at ${input.development_stage_of_platform.replace(/_/g, ' ')} stage). ${input.platform_type.replace(/_/g, ' ').toUpperCase()} benchmarks calibrated against comparable platform deals. ${input.platform_differentiation.replace(/_/g, ' ')} differentiation ${dMult > 1 ? 'premium' : 'discount'} applied.`,
     data_sources: [
-      { name: 'Platform licensing deal database (Ambrosia Ventures)', date: 'current', confidence: 'high' as const },
+      { name: 'Platform licensing deal database (Ambrosia Ventures)', type: 'public' as const },
       {
         name: 'Published platform deal analyses (Nature Biotechnology)',
         date: '2024-2025',
