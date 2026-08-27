@@ -244,8 +244,8 @@ export async function GET(request: NextRequest) {
 
   // ── 11. Partner database ──────────────────────────────────
   try {
-    const { partners } = await import('@/lib/data/partner-database');
-    const n = Array.isArray(partners) ? partners.length : 0;
+    const { PHARMA_PARTNER_DATABASE } = await import('@/lib/data/partner-database');
+    const n = Array.isArray(PHARMA_PARTNER_DATABASE) ? PHARMA_PARTNER_DATABASE.length : 0;
     checks.push(
       n >= 200
         ? { name: 'Partner database', status: 'pass', detail: `${n} partners` }
