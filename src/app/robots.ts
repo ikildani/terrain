@@ -1,11 +1,12 @@
 import type { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = 'https://terrain.ambrosiaventures.co';
   return {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: ['/', '/therapeutic-areas/', '/llms.txt'],
         disallow: [
           '/dashboard/',
           '/settings/',
@@ -19,7 +20,11 @@ export default function robots(): MetadataRoute.Robots {
           '/alerts/',
         ],
       },
+      {
+        userAgent: ['GPTBot', 'Claude-Web', 'PerplexityBot', 'Applebot-Extended'],
+        allow: ['/', '/therapeutic-areas/', '/llms.txt'],
+      },
     ],
-    sitemap: 'https://terrain.ambrosiaventures.co/sitemap.xml',
+    sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

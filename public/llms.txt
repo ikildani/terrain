@@ -1,0 +1,44 @@
+# Terrain — Life Sciences Market Intelligence Platform
+# https://terrain.ambrosiaventures.co
+# Built by Ambrosia Ventures
+
+## What Terrain Is
+Terrain is a market intelligence platform for biopharma, medtech, and diagnostics professionals. It provides indication-level market sizing, competitive landscape analysis, regulatory pathway assessment, partner mapping, and live market intelligence across 18 therapeutic areas and 236+ indications.
+
+## Therapeutic Areas Covered (18)
+Oncology, Neurology, Immunology, Rare Disease, Cardiovascular, Metabolic, Psychiatry, Pain Management, Infectious Disease, Hematology, Ophthalmology, Pulmonology, Nephrology, Dermatology, Gastroenterology, Endocrinology, Urology, Hepatology
+
+## Core Modules
+1. Market Sizing — Patient funnel-based TAM/SAM/SOM with biomarker nesting, treatment line modeling, payer mix, biosimilar erosion, IRA impact, geographic decomposition, and DCF waterfall
+2. Competitive Landscape — Threat assessment, displacement risk, mechanism analysis, patent cliff analysis, efficacy deltas. Specialized engines for pharma, medtech, CDx, and nutraceutical
+3. Partner Analysis — Strategic adjacency scoring across 300+ potential partners
+4. Regulatory Analysis — Pathway analysis, LOA by phase and TA, designation impact modeling
+5. Live Market Intelligence — Real-time AI-powered intelligence with signal classification (competitive, regulatory, clinical, deal, market)
+
+## Data Sources
+- ClinicalTrials.gov (daily refresh)
+- FDA Drug Approvals (daily refresh)
+- SEC EDGAR full-text search (weekly)
+- 2,100+ competitor entries across 14 specialized databases
+- 400+ deal comparables
+- 550+ pricing benchmarks
+- Biomarker prevalence data
+- LOA tables sourced from BIO/Informa/QLS + CDER/CBER 2021-2025
+- AI-enriched data rotating across all 18 TAs
+
+## Who Uses Terrain
+- Business development teams at pharma and biotech companies
+- Strategy and corporate development professionals
+- VC and CVC operating partners evaluating portfolio company markets
+- Biotech founders preparing for partnering or fundraising
+- Regulatory affairs professionals assessing development pathways
+
+## Pricing
+- Free: 3 reports per month
+- Pro: $149/month (annual) or $179/month (monthly)
+- Team: $499/month (10 seats)
+- Enterprise: Custom
+
+## Contact
+Ambrosia Ventures — ambrosiaventures.co
+terrain.ambrosiaventures.co
