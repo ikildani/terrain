@@ -265,11 +265,6 @@ type FormMode = 'pharma' | 'device' | 'cdx' | 'nutra';
 
 function getFormMode(category: ProductCategory): FormMode {
   if (category === 'pharmaceutical') return 'pharma';
-  if (category === 'biosimilar') return 'pharma';
-  if (category === 'cell_gene_therapy') return 'pharma';
-  if (category === 'radiopharmaceutical') return 'pharma';
-  if (category === 'drug_delivery_platform') return 'pharma';
-  if (category === 'cdmo_partnership') return 'pharma';
   if (category === 'nutraceutical') return 'nutra';
   if (category === 'diagnostics_companion' || category === 'diagnostics_ivd') return 'cdx';
   return 'device';
@@ -518,12 +513,12 @@ function PricingAssumptionCards({ value, onChange }: { value: string; onChange: 
 // Main Component
 // ────────────────────────────────────────────────────────────
 
-function MarketSizingForm({ onSubmit, isLoading }: MarketSizingFormProps) {
+export default function MarketSizingForm({ onSubmit, isLoading }: MarketSizingFormProps) {
   const [productCategory, setProductCategory] = useState<ProductCategory>('pharmaceutical');
   const formMode = getFormMode(productCategory);
 
   return (
-    <div className="card space-y-6">
+    <div className="card noise space-y-6">
       <ProductTypeSelector value={productCategory} onChange={setProductCategory} />
 
       <SectionDivider />
@@ -1771,5 +1766,3 @@ function NutraForm({
     </form>
   );
 }
-
-export default MarketSizingForm;
