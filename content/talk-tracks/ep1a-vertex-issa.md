@@ -1,18 +1,18 @@
 # Hot Off The Press — Episode 1a: Vertex
 ## Issa's Talk Track (Managing Partner, Ambrosia Ventures)
 
+**Recorded:** week of August 31, 2026
 **Format:** Chinmay sets the facts. Issa supplies the read.
-**Voice:** Banker, not commentator. Every block lands one number, one mechanism, one conclusion.
 **Runtime target:** 45–75 seconds per block.
+
+> **TIMING NOTE — READ FIRST.** Crinetics shareholders adopted the merger on **Friday, August 28, 2026**, and Crinetics states closing is expected **on or about September 1, 2026**. Confirm whether the deal has closed before the take and adjust tense in the Crinetics blocks accordingly. Every figure in this script is sourced in the fact table at the bottom.
 
 ---
 
 ## THE INTRO
 
-> *Chinmay handles the cold open. Issa's only job here is one line that frames the whole episode.*
-
 **ISSA**
-Fifty-plus deals in six months, and the thing nobody's saying out loud is that the *structures* changed before the volume did. Buyers spent 2024 and 2025 hiding behind contingent value rights and milestone-heavy earnouts because they couldn't underwrite the risk. Vertex just wrote a ten-billion-dollar check with none of that. That's the story.
+Fifty-plus deals in six months, and the one that matters closed a condition on Friday. Vertex just bought Crinetics for ten billion dollars in cash — no stock, no contingent value rights, no earnout. And here's what almost nobody has picked up: Vertex was the *only* bidder. They raised their own price three separate times against no competition. That's the episode.
 
 ---
 
@@ -20,23 +20,43 @@ Fifty-plus deals in six months, and the thing nobody's saying out loud is that t
 
 ### ISSA — Block 1 · *How the buyer priced the risk*
 
-Chinmay, run the multiple with me. Roughly ten billion dollars against projected peak combined sales north of five billion — that's about two times peak. In biopharma, two times peak sales for a *de-risked* asset is not an aggressive price. It's a disciplined one.
+Chinmay, forget the headline number for a second and read the background-of-the-merger section in that proxy, because it is one of the more remarkable documents I've seen this year.
 
-And the word that's doing the work there is de-risked. PALSONIFY is approved. Atumelnant is the option, not the thesis. So Vertex isn't buying science risk — they've already retired it — they're buying commercial risk. Which happens to be the single risk category Vertex is better at absorbing than almost anyone alive. They've spent fifteen years finding every cystic fibrosis patient on earth. Rare endocrine is the same muscle: small treating universe, concentrated specialists, high price per patient, near-total patient identification.
+Vertex opened at seventy-eight dollars a share in late March. Board says no. Vertex comes back at eighty-three in April. Board says no again. Crinetics' bankers go out and canvass the field — and the field does not show up. Their most serious alternative, "Party A," walks away because they can't get north of six billion dollars. The other two contenders fold within a week. And then, with *no one else in the room*, Vertex raises itself to eighty-four-fifty, Crinetics counters at eighty-seven, and Vertex lands on eighty-five as best-and-final.
 
-So the price tells you Vertex thinks the hard part is already over — and that the remaining work is work they do in-house for free.
+So: a sole bidder, bidding against itself, to a hundred-and-two percent premium. That is not a competitive process setting a price. That is a strategic buyer telling you what an asset is worth to them and nobody else.
 
-### ISSA — Block 2 · *Structure, balance sheet, and the regulatory clock*
+### ISSA — Block 2 · *What exactly did ten billion dollars buy?*
 
-Three things on structure, and this is where Ambrosia lives.
+Now let's underwrite it honestly, because I think both bulls and bears are being sloppy here.
 
-**One — cash, not equity.** That is a *statement*. Stock deals happen when a buyer thinks its own paper is expensive or its own conviction is soft. Cash means Vertex would rather spend the balance sheet than dilute the holders who are about to own an endocrinology franchise. This is a treasury being converted into a pipeline in a single transaction.
+What Vertex is buying is one commercial product and one Phase 3 program. PALSONIFY — the oral acromegaly drug, approved September 2025 — did five million dollars in the fourth quarter of last year, ten point three million in Q1, twenty-four million in Q2. So the launch is inflecting, genuinely, but you are still talking about roughly a hundred-million-dollar annualized run rate against eight point eight billion dollars net of cash.
 
-**Two — the earnout question.** Watch for a CVR, and understand what the *absence* of one means. CVRs exist to bridge a binary disagreement — an approval, a readout, a sales threshold. Buyer says "prove it," seller says "pay me." At Ambrosia we track more than ten thousand transactions inside our data platform, and the pattern is consistent: contingent consideration clusters where the asset is pre-approval and the parties are arguing about probability. Here, the lead product is already cleared. There's nothing left to argue about — so there's nothing left to defer. A clean, all-cash, no-CVR structure is the most expensive way to buy an asset and the loudest possible signal of conviction.
+The rest of the thesis is atumelnant, in congenital adrenal hyperplasia. First patient dosed in the pivotal adult trial in December, pediatric study started in January. That asset is not de-risked. It is a Phase 3 readout waiting to happen.
 
-**Three — the 10-K and the P&L.** This one matters for anyone modeling Vertex. When Vertex bought Alpine Immune Sciences in 2024, that was structured as an *asset* acquisition — which means the purchase price went straight through the income statement as acquired in-process R&D. Multi-billion-dollar hit to GAAP earnings, one quarter, gone. Crinetics has an approved, revenue-generating product and a commercial organization, so this almost certainly books as a *business combination* instead: goodwill and intangibles on the balance sheet, amortization over years, no crater in a single quarter. Same cash out the door. Completely different-looking financial statements. If you're comparing Vertex's GAAP EPS year over year without adjusting for that, you're going to draw the wrong conclusion.
+So when Vertex says roughly five billion in combined peak revenue, about two times peak sales is a defensible multiple in this industry — Stifel and William Blair both landed there, with the caveat that it only works *if* the peak number is real. My read: Vertex is not paying for 2027 revenue, they're paying for a durable revenue stream that arrives on the other side of their own patent exposure. The company itself told you as much — they guided to accretion on non-GAAP operating income in **2029**. Nobody writes a ten-billion-dollar check for something that starts paying in three years unless the problem they're solving is duration.
 
-**And on the FTC** — at ten billion this sits in the top Hart-Scott-Rodino fee tier, roughly two point four million dollars just to file, under the expanded rules that took effect in February 2025. Filing burden is real now; substantive risk here is not. Cystic fibrosis, pain, hematology, renal — versus acromegaly and adrenal disease. There is no therapeutic overlap to litigate. Barring a Second Request, this clears on the thirty-day clock.
+### ISSA — Block 3 · *Structure, balance sheet, and the FTC*
+
+Three structural points, and this is where Ambrosia lives.
+
+**One — the earnout that isn't there.** All cash. No CVR. And that's a genuine tell, because there *was* something to bridge. Atumelnant is unproven. A CVR on the CAH readout would have been the textbook move — buyer says prove it, seller says pay me, you split the binary. Vertex didn't ask for one. Across the ten thousand-plus transactions we track in Ambrosia's data platform, contingent consideration shows up precisely where the parties are arguing about probability. Vertex chose to eat that argument rather than negotiate it, and they paid a hundred-and-two percent premium on top. That is conviction priced in cash.
+
+**Two — Vertex is levering up for the first time.** Look at the June 30 balance sheet: thirteen point six billion in cash and marketable securities, and *zero* long-term debt. This is a company that has never needed a lender. On announcement they lined up four and a half billion of committed bridge financing from Bank of America and Morgan Stanley — and then on July 30 they termed it out, replacing the bridge with a four-and-a-half-billion-dollar senior unsecured delayed-draw Term Loan A, structured in three tranches: a billion at 364 days, a billion at two years, two and a half billion at three years. Undrawn as of the last 10-Q. Read that maturity ladder — they've built themselves a three-year runway to repay it out of cash flow. This is not a company that intends to be a borrower for long.
+
+**Three — the 10-K trap, and this one will fool people.** When Vertex bought Alpine Immune Sciences in 2024 for four point nine billion, that was structured as an *asset* acquisition. Four point four billion went straight through the income statement as acquired IPR&D in a single quarter. Crinetics is different — there's an approved product and a commercial organization attached, so I'd expect this to book as a *business combination* instead: goodwill and intangibles capitalized on the balance sheet, amortization spread over years, no crater in one quarter. Same cash out the door, completely different-looking financial statements. Anyone comparing Vertex's GAAP earnings across 2024, 2026 and 2027 without adjusting for that is going to draw exactly the wrong conclusion.
+
+**And on the FTC** — two things. At ten billion this is the top Hart-Scott-Rodino fee tier: two point four six million dollars just to file, under thresholds effective February 17th of this year. But the more interesting fact is what they filed *on*. The FTC's expanded HSR form — the big 2024 rewrite that took effect in February 2025 — was vacated by the Eastern District of Texas this past February, and the Fifth Circuit declined to stay it. The agencies are back to taking the old form. So the largest biopharma deal of the year went in on the pre-2025 notification. Waiting period expired mid-August, no Second Request, and they've cleared Austria, Germany and Australia. Zero therapeutic overlap — cystic fibrosis, pain, hematology and renal versus acromegaly and adrenal disease. There was never an antitrust story here.
+
+### ISSA — Block 4 · *The shareholder vote — the detail nobody reported*
+
+And Friday's vote is worth thirty seconds, because there's a split in it that tells you something.
+
+The merger itself was adopted with seventy-nine point two million shares in favor and **thirteen thousand six hundred** against. That is ninety-nine point nine-eight percent of votes cast. Shareholders were not conflicted about eighty-five dollars in cash.
+
+But on the same ballot, the advisory vote on golden-parachute compensation **failed** — about thirty-four million for, forty-five million against. It's non-binding, it doesn't touch the closing, and most people will skip right past it. I wouldn't. That is a shareholder base saying: *we love the price, we do not love what management is collecting on the way out.* When you see that split, it usually means the change-of-control package moved faster than the stock did. And it's a reminder to every founder listening that your board's comp committee is negotiating a second deal alongside the first one.
+
+Closing is expected on or about September 1st.
 
 ---
 
@@ -44,17 +64,17 @@ Three things on structure, and this is where Ambrosia lives.
 
 ### ISSA — Block 1 · *What fifteen million dollars actually buys*
 
-Put this next to the last segment: fifteen million dollars upfront. That's fifteen ten-thousandths of the Crinetics check. Vertex just bought optionality on three drug targets for less than what most companies spend on a Phase 1 site initiation.
+Put this straight next to the last segment. April 7th: fifteen million dollars upfront. That is roughly one-sixth of one percent of the Crinetics check. For that, Vertex bought a global exclusive license to Halozyme's Hypercon microparticle technology across up to three drug targets.
 
-That asymmetry is the entire point of a platform license. You are not buying a technology — you are buying the *right* to use a technology, at a price that doesn't require you to be right. All the real money is deferred into milestones and royalties, which means Halozyme only gets paid on Vertex's success. Risk sits with the party who controls the outcome. That's what a well-drafted platform deal looks like.
+That asymmetry is the entire architecture of a platform deal. You aren't buying a technology — you're buying the *right* to use one, at a price that doesn't require you to be right. Everything real is deferred into milestones and royalties on net sales, which means Halozyme only gets paid if Vertex succeeds. The risk sits with the party that controls the outcome. Compare that to the Crinetics structure, where Vertex took *all* of the risk onto its own balance sheet on day one. Same company, same year, two completely opposite risk postures — and both are correct, because the assets are at opposite ends of the certainty curve.
 
 ### ISSA — Block 2 · *The strategic tell*
 
-The deeper read: Vertex is a small-molecule house building a biologics delivery stack.
+The deeper read is what this says about the pipeline Vertex expects to have.
 
-High-concentration subcutaneous conversion is one of the most reliably value-accretive moves in this industry. It converts an infusion-center product into an at-home injection, and when you do that you get three things at once: better adherence, a defensible follow-on patent position, and a switching story that protects you the day a biosimilar shows up. The industry has watched that playbook create billions of dollars of franchise durability over the last decade.
+Hypercon is a microparticle system for hyperconcentrating biologics — you deliver the same dose in a much smaller injection volume, which is what makes at-home administration possible. Halozyme is explicit that it complements ENHANZE rather than replacing it.
 
-So this fifteen-million-dollar line item is really a statement about what Vertex expects its *next* portfolio to look like — injectable, chronic, and administered at home. You don't license delivery technology for a pipeline you don't have yet unless you're planning to have it.
+Now — Vertex is a small-molecule house by heritage. Cystic fibrosis, suzetrigine, the whole legacy is chemistry. You don't license high-concentration *biologics* delivery for a portfolio you don't have. Povetacicept is a recombinant fusion protein. This is a company building the delivery stack for an injectable, chronic, self-administered future — and doing it for fifteen million dollars before they need it. That's the cheapest strategic option anyone bought this year.
 
 ---
 
@@ -62,15 +82,17 @@ So this fifteen-million-dollar line item is really a statement about what Vertex
 
 ### ISSA — Block 1 · *This is the Alpine trade closing the loop*
 
-Track the capital. Vertex paid roughly four point nine billion dollars for Alpine Immune Sciences in 2024, and the reason they did it was povetacicept. Then in 2025 they turned around and licensed that same asset into Japan and South Korea.
+Follow the capital. Vertex paid four point nine billion for Alpine Immune Sciences in 2024, and the reason was povetacicept — the dual BAFF/APRIL antagonist. Then on June 23rd of last year they licensed that same molecule into Japan and South Korea.
 
-That is not retreat. That is portfolio management. Vertex was never going to build a nephrology sales force in Osaka — so instead of leaving the geography dormant, they converted it into upfront cash, milestones, and royalties, and they kept the US and Europe, which is where eighty percent of the value sits anyway. You defray your acquisition price using the markets you were never going to serve.
+And note the direction of the money: **Vertex receives** the upfront, the regulatory and commercial milestones, and tiered royalties. Ono takes on the clinical work, owns the marketing authorizations, and commercializes in both territories.
 
-### ISSA — Block 2 · *Why Japan, specifically, is the smart giveaway*
+That's not retreat, it's portfolio management. Vertex was never going to build a nephrology field force in Japan. So rather than leave the geography dormant, they converted it into inbound cash and a royalty stream — and kept the US and Europe, where the overwhelming majority of the value sits.
 
-And Japan is the least random territory on that list. Japan runs mass urinalysis screening through schools and workplaces, which means Japan diagnoses IgA nephropathy at a rate essentially no other country matches. The patients are identified, the nephrology community is concentrated, and Ono has the immunology and renal footprint to reach them.
+### ISSA — Block 2 · *Why Japan is the smart territory to give*
 
-So the partner selection is doing real work. Terms weren't disclosed, and I'd note that undisclosed terms on a regional license almost always means a modest upfront with the weight in milestones — which is the correct structure when your partner is taking development and regulatory risk in their own territory. Ono is buying a shot; Vertex is selling geography it wasn't using.
+Japan is the least random name on that list. Japan runs mandatory urinalysis screening through its schools — it has for decades — and studies attribute something like seventy to eighty percent of detected mesangial proliferative glomerulonephritis to that program. Which means Japan finds IgA nephropathy earlier and more systematically than almost anywhere on earth. The patients are identified, the nephrology community is concentrated, and Ono has the footprint to reach it.
+
+Terms weren't disclosed, and I'd tell founders to read that carefully: an undisclosed regional license is almost always a modest upfront with the weight in milestones. Which is the *right* structure when your partner is absorbing development and regulatory risk in their own market. Ono is buying a shot. Vertex is selling geography it wasn't going to serve.
 
 ---
 
@@ -78,15 +100,15 @@ So the partner selection is doing real work. Terms weren't disclosed, and I'd no
 
 ### ISSA — Block 1 · *Direction of travel*
 
-Note which way this deal is pointed. For three years the entire narrative has been Western pharma *in-licensing* Chinese assets — cheap molecules, fast clinical execution, NewCo structures everywhere. This is the opposite. Vertex is out-licensing a Western asset *into* China.
+Now look at which way this one points. For three years the whole narrative has been Western pharma *in*-licensing Chinese assets — cheap molecules, fast enrollment, NewCo structures everywhere. January 10th, 2025, Vertex did the opposite: out-licensed a Western asset *into* China, Hong Kong, Macau, Taiwan and Singapore. Same economics as the Ono deal — Vertex takes the upfront, regulatory milestones and tiered royalties.
 
-And it's the right asset to do it with. Greater China is the largest IgA nephropathy population on the planet — this is not a marginal territory, it's arguably the single biggest patient pool for the indication. Zai Lab has become the default counterparty for exactly this trade because they've built regulatory and commercial infrastructure a US biotech simply cannot replicate on its own timeline.
+And it's the right asset for it. China carries the largest absolute IgA nephropathy population in the world; it's the single most common biopsy-proven glomerulonephritis there. This is not a throwaway territory. Zai Lab has become the default counterparty for this trade because they've built regulatory and commercial infrastructure that a US biotech cannot replicate on any reasonable timeline.
 
-### ISSA — Block 2 · *What the two deals together tell you*
+### ISSA — Block 2 · *What the two deals tell you together*
 
-Look at Zai Lab and Ono as one move, not two. Inside twelve months, Vertex regionalized an entire acquired asset across Greater China, Singapore, Japan, and South Korea — while retaining the United States and Europe outright.
+Read Zai Lab and Ono as one move, not two. Inside about five months, Vertex regionalized an entire acquired asset across Greater China, Singapore, Japan and South Korea — while keeping the United States and Europe outright.
 
-That's the model, and I want founders to hear it clearly: **acquire the global asset, keep the two markets that carry the economics, and sell the rest for capital and speed.** Every one of those regional deals reduces the effective net cost of the Alpine acquisition without giving up a dollar of the core. When you see a company do that twice in a year with the same molecule, that's not opportunism — that's a deliberate capital recycling program.
+That's the model, and I want founders to hear it plainly: **acquire the global asset, keep the two markets that carry the economics, and monetize the rest for cash, speed, and local execution.** Every one of those regional deals defrays the effective cost of the Alpine acquisition without surrendering a dollar of the core. When a company does that twice in a year with the same molecule, that's not opportunism. That's a capital recycling program with a memo behind it.
 
 ---
 
@@ -94,38 +116,62 @@ That's the model, and I want founders to hear it clearly: **acquire the global a
 
 ### ISSA — Block 1 · *The through-line*
 
-Here's what ties all four transactions together. Vertex paid full price exactly once — for Crinetics — and they paid it for an asset where the risk was already retired. Everywhere risk was still live, they refused to pay: fifteen million for Halozyme, undisclosed regional terms for Ono and Zai Lab, all of it structured as milestones and royalties.
+Here's what ties four transactions together. Vertex wrote one enormous check — all cash, no contingency, a hundred-and-two percent premium, against no competing bidder — for a company where they had absolute internal conviction. And everywhere conviction was lower, they refused to put principal at risk: fifteen million for a platform option, and on the Asia deals they weren't paying at all, they were *collecting*.
 
-That is a company with a very clear internal rule. **Cash for certainty. Contingency for everything else.** And in a year with fifty-plus deals, that discipline is genuinely rare.
+That's a company with a very clear internal rule. **Cash where you're certain. Structure where you're not. And never confuse the two.** In a year with more than fifty biopharma deals, that discipline is rarer than it should be.
 
 ### ISSA — Block 2 · *What to watch, and the ask*
 
 Three things I'd watch from here.
 
-First, the merger agreement and the 8-K — the consideration mix and the treatment of Crinetics' unvested equity will tell you more about management retention than any press release will. Second, whether this books as a business combination, because it determines whether Vertex's next four quarters of GAAP earnings are readable at all. Third, whether endocrinology becomes an acquisition *program* or stays a single transaction. One deal is a pillar; two deals is a strategy.
+First, the first post-close quarter — specifically whether Crinetics books as a business combination, because that single accounting choice determines whether Vertex's GAAP numbers are comparable to anything. Second, that four-and-a-half-billion term loan: watch the draw and watch the 364-day tranche, because how fast Vertex retires it tells you how confident they are in cash generation. Third, whether endocrinology becomes a *program* or stays a transaction. One deal is a pillar. Two deals is a strategy.
 
-And if you're a founder trying to figure out where your asset sits in this — the answer is almost always in the comparables. Which buyers paid cash. Where the CVRs showed up and what triggered them. What the upfront-to-total ratio looks like at your stage, in your indication. That's the dataset we built Ambrosia's platform around, and it's the difference between walking into a BD meeting with a number and walking in with a *defensible* number.
+And if you're a founder trying to work out where your asset sits in all this — the answer lives in the comparables. Which buyers paid cash. Where CVRs showed up and what triggered them. What the premium looked like when there was a real auction versus a single bidder. What the upfront-to-total ratio runs at your stage, in your indication. That's the dataset we built Ambrosia's platform around — and it's the difference between walking into a BD meeting with a number, and walking in with a *defensible* number.
 
 > *Hand back to Chinmay for the close.*
 
 ---
 
-## PRODUCER'S NOTES — VERIFY BEFORE RECORD
+## FACT TABLE — EVERY LOAD-BEARING CLAIM, VERIFIED
 
-These are the load-bearing figures in Issa's script. Confirm each against primary sources (8-K, merger agreement, 10-K, press releases) before the take.
-
-| # | Claim | Source to confirm |
+| Claim in script | Verified | Source |
 |---|---|---|
-| 1 | Crinetics deal value ~$10B; largest Vertex deal ever | Merger 8-K / Vertex press release |
-| 2 | Consideration is **all cash** with **no CVR** | Merger agreement, Art. II — *if a CVR exists, Block 2 must be reworked* |
-| 3 | Projected peak combined sales >$5B → implies ~2x peak multiple | Vertex investor deck |
-| 4 | Alpine Immune Sciences acquired 2024 for ~$4.9B, booked as an **asset acquisition** with IPR&D expensed | Vertex 2024 10-K |
-| 5 | Crinetics expected to book as a **business combination** (goodwill + intangibles) | Analytical inference — keep framed as expectation, not fact |
-| 6 | Top-tier HSR filing fee ≈ $2.4M; expanded HSR rules effective Feb 2025; 30-day waiting period | FTC 2025 fee schedule |
-| 7 | Halozyme: $15M upfront, up to 3 targets, Hypercon, milestones + royalties | Halozyme press release, April 2026 |
-| 8 | Ono: povetacicept, Japan + South Korea, IgAN; terms undisclosed | Vertex press release, June 2025 |
-| 9 | Zai Lab: povetacicept, mainland China / HK / Macau / Taiwan / Singapore | Vertex press release, Jan 2025 |
-| 10 | Japan's mass urinalysis screening → highest IgAN diagnosis rates globally | Nephrology literature |
-| 11 | Greater China = largest IgAN patient population globally | Epidemiology source |
+| $85.00/share cash; ~$10.0B equity value; **$8.8B net of estimated cash** | ✅ | Vertex 8-K, Ex. 99.1, July 6 2026 |
+| **All cash, no CVR / no earnout** | ✅ | Merger agreement & 8-K — no contingent consideration |
+| **102% premium** to unaffected close; one of the year's largest biotech markups | ✅ | Bloomberg / BioPharma Dive, July 6 2026 |
+| Vertex's **largest acquisition ever** (prior: Alpine, $4.9B) | ✅ | Multiple; vs. Alpine 2024 |
+| **Sole bidder.** 6 parties identified late April; "Party A" withdrew ~May 1 (couldn't exceed ~$6B); other two out the following week | ✅ | DEFM14A background-of-the-merger, via BioPharma Dive |
+| Bid sequence: **$78 (Mar 24) → rejected Apr 5 → $83 (Apr 19) → rejected → $84.50 (May 28) → CRNX counters $87 → $85 best-and-final → board accepts June 19 → signed July 6** | ✅ | DEFM14A background section |
+| PALSONIFY (paltusotine) **FDA-approved Sept 2025**, oral, acromegaly | ✅ | Crinetics / FDA |
+| PALSONIFY revenue: **>$5M Q4'25 → $10.3M Q1'26 → $24.0M Q2'26** | ✅ | Crinetics Q1/Q2 2026 releases |
+| Atumelnant **in Phase 3** — CALM-CAH first patient dosed Dec 2025; BALANCE-CAH pediatric Ph2/3 first patient Jan 22 2026 | ✅ | Crinetics press releases |
+| **~$5B combined peak annual revenue** potential | ✅ | Vertex 8-K Ex. 99.1 |
+| **Accretive to non-GAAP operating income in 2029** | ✅ | Vertex 8-K Ex. 99.1 |
+| Analyst split (Stifel's Matteis on "full or rich price"; William Blair's Minter "reasonable if the peak sales number can be achieved") | ✅ | BioPharma Dive |
+| Vertex **$13.6B** cash + marketable securities and **zero long-term debt** at 6/30/26 | ✅ | Vertex Q2 2026 10-Q ($6,143.5M cash + $1,708.9M current + $5,789.1M LT = $13,641.5M) |
+| **$4.5B committed bridge** (BofA + Morgan Stanley, July 6) **terminated July 30**, replaced by **$4.5B senior unsecured delayed-draw Term Loan A**: $1.0B/364-day, $1.0B/2-yr, $2.5B/3-yr; **undrawn** as of the 10-Q | ✅ | Vertex Q2 2026 10-Q, subsequent events |
+| Alpine: **$4.9B, asset acquisition, $4.4B acquired IPR&D expensed in Q2 2024** | ✅ | Vertex 2024 10-K / Q2'24 results |
+| Crinetics expected to book as a **business combination** | ⚠️ **INFERENCE** — not yet stated by Vertex. Script frames it as expectation ("I'd expect"). Keep that hedge. |
+| **2026 HSR top fee tier = $2,460,000** for transactions **≥$5.869B**; effective **Feb 17, 2026** | ✅ | FTC, Jan 2026 |
+| **Expanded HSR form vacated** by E.D. Tex. **Feb 12, 2026**; Fifth Circuit denied FTC's stay; agencies accepting the **pre-2025 form** | ✅ | E.D. Tex. ruling; Skadden, A&O Shearman, Duane Morris alerts |
+| HSR waiting period expired **mid-August 2026**, no Second Request; Austria, Germany, Australia cleared | ✅ | Crinetics 8-K, Aug 14 2026 *(sources differ on Aug 12 vs Aug 14 — script says "mid-August," don't name a date on air)* |
+| Vote **Aug 28 2026**: merger adopted **79,240,098 for / 13,618 against / 10,915 abstain** (99.98% of votes cast) | ✅ | Crinetics 8-K Item 5.07 |
+| Golden-parachute advisory vote **FAILED: 33,854,149 for / 44,803,403 against** | ✅ | Same 8-K, Proposal 2 |
+| Closing expected **on or about September 1, 2026** | ✅ | Same 8-K |
+| 3 shareholder suits (McDaniels, Clark, Drulias) + demand letters; supplemental proxy filed **Aug 19 2026**, allegations denied | ✅ | Crinetics 8-K, Aug 19 2026 — *not used in script; available if Chinmay raises it* |
+| Halozyme: **April 7 2026**, global exclusive, **$15M upfront**, **up to 3 targets**, milestones + royalties on net sales; Hypercon = microparticle hyperconcentration, **complements ENHANZE** | ✅ | Halozyme press release, Apr 7 2026 |
+| Ono: **June 23 2025**, Japan + South Korea, **Vertex receives** upfront + regulatory/commercial milestones + tiered royalties; Ono runs MAs and commercializes; **terms undisclosed** | ✅ | Vertex / Ono releases |
+| Zai Lab: **Jan 10 2025**, mainland China / HK / Macau / Taiwan / Singapore, **Vertex receives** upfront + regulatory milestones + tiered royalties; **terms undisclosed** | ✅ | Vertex / Zai Lab releases |
+| Japan mandatory school urinalysis screening; ~70–80% of detected mesangial proliferative GN attributed to it | ✅ | Peer-reviewed nephrology literature (KRCP; Clin Exp Nephrol) |
+| China = largest absolute IgAN population; most common biopsy-proven GN there (~30% of biopsies in meta-analysis) | ✅ | BMC Nephrology APAC review |
 
-**Compliance:** Ambrosia platform mentions appear twice (Crinetics Block 2, Closeout Block 2). Both are embedded in analysis rather than delivered as ad reads — keep them there. No client names, no non-public deal data referenced.
+### Corrections made from the first draft — do not revert
+
+1. **"Disciplined price" → wrong.** 102% premium with a *sole bidder* and Vertex raising itself three times. The v1 framing was backwards.
+2. **"Risk was already retired" → wrong.** Atumelnant is in Phase 3. Only PALSONIFY is de-risked, and it's at a ~$100M annualized run rate.
+3. **"Spend the balance sheet rather than dilute" → incomplete.** Vertex is also taking on $4.5B of term debt — its first real leverage.
+4. **HSR: "expanded rules that took effect Feb 2025" → stale.** Those rules were vacated in Feb 2026. This deal filed on the old form.
+5. **Ono/Zai Lab payment direction.** Confirmed Vertex is the *recipient* — v1 implied it correctly but never verified. Now stated explicitly.
+6. **HSR top fee $2.4M → $2.46M**, tier threshold $5.869B (2026 schedule, not 2025).
+
+**Compliance:** Ambrosia platform mentioned twice (Crinetics Block 3, Closeout Block 2), both embedded in analysis rather than delivered as ad reads. No client names, no non-public data. All figures traceable to SEC filings or company releases.
