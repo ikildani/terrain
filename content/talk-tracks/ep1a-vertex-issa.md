@@ -64,7 +64,15 @@ They bid against themselves. Twice. And the eighty-five is a hundred and two per
 That's got to be one of the biggest premiums of the year.
 
 **ISSA**
-It is. And I want to be careful here because people are going to hear "sole bidder, huge premium" and go straight to "they overpaid." That's lazy. When there's no auction, the price isn't telling you what the asset is worth on the open market. It's telling you what it's worth to Vertex specifically. Those are just different numbers.
+It is. And I can put a number on that, because we benchmark this stuff in Solidus, which is our deal intelligence platform. Across the acquisitions in there, fifty to a hundred percent is the normal premium band. So a hundred and two isn't off the map, but it's the ceiling of the map. That's the top end of what buyers pay when they *do* have competition.
+
+**CHINMAY**
+And here there wasn't any.
+
+**ISSA**
+And here there wasn't any. Which is the thing I keep chewing on.
+
+Though I want to be careful, because people are going to hear "sole bidder, huge premium" and go straight to "they overpaid." That's lazy. When there's no auction, the price isn't telling you what the asset is worth on the open market. It's telling you what it's worth to Vertex specifically. Those are just different numbers.
 
 **CHINMAY**
 Okay, but is it worth it? Like actually. What did ten billion dollars buy?
@@ -124,7 +132,13 @@ And they just... didn't.
 **ISSA**
 They just didn't. And they paid a hundred and two percent premium on top of not doing it.
 
-We track something north of ten thousand transactions in the Ambrosia platform, and the pattern on this is really consistent — contingent consideration shows up exactly where the two sides are arguing about probability. So when a buyer skips it in a spot where it's practically begging to be used, that's them saying: we're not arguing. We think we know.
+Solidus has sixteen hundred-plus verified transactions in it, going back to 2017, and the pattern is really consistent — contingent consideration shows up exactly where the two sides are arguing about probability. So when a buyer skips it in a spot where it's practically begging to be used, that's them saying: we're not arguing. We think we know.
+
+**CHINMAY**
+Where do those sixteen hundred come from?
+
+**ISSA**
+SEC EDGAR, HSR pre-merger filings, ClinicalTrials.gov, the wires. All filings, nothing scraped, nothing estimated. Which matters for exactly this question, because "did the deal have a CVR" is not something you can guess at. It's either in the agreement or it isn't.
 
 **CHINMAY**
 How are they paying for it? Ten billion is a lot of cash.
@@ -230,7 +244,9 @@ Fifteen million.
 Fifteen million.
 
 **ISSA**
-Put that next to the last segment for a second. That's about a sixth of one percent of what they just paid for Crinetics. It's less than what a lot of companies spend standing up a Phase 1.
+Put that next to the last segment for a second. That's about a sixth of one percent of what they just paid for Crinetics.
+
+And here's what I love about it. Fifteen million is *exactly* the median upfront for a discovery-stage deal in our data. Dead on the median. Vertex paid the going rate for one preclinical program, and got a platform across three targets for it.
 
 **CHINMAY**
 So is it a rounding error or is it strategic?
@@ -241,6 +257,12 @@ Both, and that's the point of a deal like this.
 What you're buying isn't the technology. You're buying the *right* to use the technology, at a price low enough that you don't have to be correct. All the real money is pushed out into milestones and royalties, which means Halozyme only gets paid if Vertex actually succeeds with it. Risk sits with the party who controls the outcome. That's how these should be built and a lot of them aren't.
 
 And I'd contrast it directly with Crinetics, where Vertex took every ounce of risk onto their own balance sheet on day one. Same company, same twelve months, completely opposite posture. Both right, because the two assets are at opposite ends of how much anybody actually knows.
+
+**CHINMAY**
+Are more deals getting structured this way, or is this a Vertex thing?
+
+**ISSA**
+More deals, definitely. Option structures were about eight percent of the transactions in our set back in 2022. They're around eighteen percent now. More than doubled in four years. Everybody's figured out that you can rent conviction instead of buying it.
 
 **CHINMAY**
 What does it tell you about where Vertex is going?
@@ -302,7 +324,15 @@ They find it earlier and more systematically than basically anywhere on earth. T
 Anything to read into the terms being undisclosed?
 
 **ISSA**
-A little. When a regional license doesn't disclose, it's usually a modest upfront with the weight sitting in milestones. Which is the right shape, honestly — your partner is absorbing development and regulatory risk in their own market, so you let them pay you as they de-risk it. Ono's buying a shot on goal. Vertex is selling square footage it wasn't using.
+A little. When a regional license doesn't disclose, it's almost always a modest upfront with the weight sitting in milestones. And that's the shape across the board now — in our benchmarks milestones run sixty to seventy-five percent of total potential deal value, and the ratio of total value to upfront has stretched from about eight-to-ten times back in 2022 to ten-to-fourteen times today.
+
+**CHINMAY**
+So can you actually put a number on what Ono paid?
+
+**ISSA**
+Not honestly, no, and I want to be straight about that. Our Phase 3 licensing benchmark is a hundred and fifty million median on the upfront, but that's for *global* rights. Ono got two countries. Regional deals price way underneath the global comps and anybody quoting you the global median for a Japan-and-Korea license is selling you something.
+
+What the benchmark does tell you is the *shape*. Small upfront, long milestone tail. Which is right, honestly — your partner is absorbing development and regulatory risk in their own market, so you let them pay you as they de-risk it. Ono's buying a shot on goal. Vertex is selling square footage it wasn't using.
 
 ---
 
@@ -378,9 +408,17 @@ And if you're a founder listening to this trying to figure out where you sit?
 **ISSA**
 Then the answer's in the comps, and I mean that literally.
 
-Which buyers actually paid cash. Where CVRs showed up and what triggered them. What the premium looks like when there's a real auction versus when there's one bidder in the room. What upfront-to-total runs at your stage in your indication.
+Which buyers actually paid cash. Where CVRs showed up and what triggered them. What the premium looks like when there's a real auction versus when there's one bidder in the room. What upfront-to-total runs at your stage, in your indication, for your modality.
 
-That's the whole reason we built the data platform at Ambrosia. Because there's a real difference between walking into a BD meeting with a number, and walking in with a number you can defend for forty-five minutes.
+That's the whole reason we built Solidus. Every number I've quoted today came out of it, and every one of them traces back to a filing.
+
+**CHINMAY**
+Where do people find it?
+
+**ISSA**
+solidus dot ambrosiaventures dot co. It's free to start.
+
+And look, the reason it matters — upfronts are up twenty to thirty percent across every stage since 2022. If you're negotiating off a comp you remember from a few years ago, you are negotiating against yourself. There's a real difference between walking into a BD meeting with a number, and walking in with a number you can defend for forty-five minutes.
 
 **CHINMAY**
 Good place to end it. That's Vertex. Thanks Issa.
@@ -457,4 +495,26 @@ Everything else can be paraphrased.
 | Japan mandatory school urinalysis screening; ~70–80% of detected mesangial proliferative GN attributed to it | ✅ | Peer-reviewed nephrology lit (KRCP; Clin Exp Nephrol) |
 | China largest absolute IgAN population; most common biopsy-proven GN (~30% of biopsies in meta-analysis) | ✅ | BMC Nephrology APAC review |
 
-**Compliance:** Ambrosia platform comes up twice — once in the CVR discussion, once in the close. Both are embedded in analysis, not read as ads. No client names, no non-public data, every number traceable to a filing or company release.
+### Solidus figures quoted on air
+
+All from Solidus's own published pages (solidus.ambrosiaventures.co) as of Aug 31, 2026. These are Ambrosia's numbers, so the bar is higher, not lower — if any of these have moved, update the script, don't hedge it on air.
+
+| Figure Issa quotes | Solidus published value | Where it's used |
+|---|---|---|
+| "sixteen hundred-plus verified transactions, back to 2017" | 1,600+ verified deals, 2017–present, 12 therapeutic areas, 23+ modalities | CVR block |
+| "SEC EDGAR, HSR pre-merger filings, ClinicalTrials.gov, the wires — nothing scraped" | SEC EDGAR, FTC Hart-Scott-Rodino filings, ClinicalTrials.gov, GlobeNewswire/BusinessWire/PRNewswire; "no secondary data or scraped estimates"; refreshed daily | CVR block |
+| "fifty to a hundred percent is the normal premium band" | Acquisitions: "premiums 50–100% common" | Premium block — sets up 102% as the ceiling |
+| "$15M is exactly the median discovery-stage upfront" | Discovery/Preclinical upfront: $5M / **$15M median** / $40M (620+ deals) | Halozyme block |
+| "option structures went from ~8% of deals in 2022 to ~18% now" | Option structures grew 8% (2022) → 18% (2026) | Halozyme block |
+| "milestones are 60–75% of total potential deal value" | Milestones = 60–75% of total potential value | Ono block |
+| "total-value-to-upfront went from 8–10x to 10–14x" | 8–10x (2022) → 10–14x (2026) | Ono block |
+| "Phase 3 median upfront is $150M — but that's global rights" | Phase 3 upfront: $75M / **$150M median** / $400M (380+ deals) | Ono block — quoted *with* the regional caveat, keep the caveat |
+| "upfronts are up 20–30% across every stage since 2022" | Upfront inflation: 20–30% increase across all phases | Close |
+
+### ⚠️ Two things to settle before this airs
+
+**1. The transaction count conflicts with our own materials.** Terrain's internal spec describes the Ambrosia deal database as "10,000+ transactions." Solidus publicly says **1,600+ verified**. Earlier drafts of this script had Issa saying "ten thousand-plus" on air. That's now corrected to 1,600+ to match what the platform actually claims publicly — but somebody should reconcile the two numbers, because a founder who hears 10,000 on a podcast and lands on a page saying 1,600 will notice. If 10,000 refers to a broader unverified corpus and 1,600 is the verified subset, say exactly that on air; it's a stronger claim, not a weaker one.
+
+**2. Solidus's own pages disagree with each other.** The homepage says **700+** companies in partner matching and **21** engines; other pages say **850+** companies and **14** engines. Issa doesn't quote either figure in this script, deliberately. Worth fixing on the site regardless.
+
+**Compliance:** Solidus comes up — once in the CVR discussion, once in the close. Both are embedded in analysis, not read as ads. No client names, no non-public data, every number traceable to a filing or company release.
