@@ -274,6 +274,11 @@ async function checkEmailTriggers(profile: LeadProfile, trigger: string): Promis
 
   const sent = new Set((sentEmails || []).map((e) => e.email_type));
 
+  // Email 0: Pro trial nudge — after 3rd analysis (free tier approaching limit)
+  if (profile.totalAnalyses7d >= 3 && !sent.has('pro_trial_nudge')) {
+    await queueLeadEmail(profile, 'pro_trial_nudge');
+  }
+
   // Email 1: After evaluating stage (repeat indication research)
   if (profile.dealStage === 'evaluating' && !sent.has('evaluating_nurture')) {
     await queueLeadEmail(profile, 'evaluating_nurture');
@@ -287,6 +292,43 @@ async function checkEmailTriggers(profile: LeadProfile, trigger: string): Promis
   // Email 3: When score > 70 (direct Issa outreach)
   if (profile.score > 70 && !sent.has('high_intent_outreach')) {
     await queueLeadEmail(profile, 'high_intent_outreach');
+  }
+
+  // Team/Enterprise domain detection
+  await checkTeamSignal(profile);
+}
+
+async function checkTeamSignal(profile: LeadProfile): Promise<void> {
+  if (!profile.email) return;
+  const domain = profile.email.split('@')[1];
+  if (
+    !domain ||
+    ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com', 'protonmail.com'].includes(domain)
+  )
+    return;
+
+  const supabase = createAdminClient();
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 30);
+
+  const { count } = await supabase
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .like('email', `%@${domain}`)
+    .gte('updated_at', sevenDaysAgo.toISOString());
+
+  const activeUsers = count || 0;
+
+  if (activeUsers >= 5) {
+    const { postToSlack: slackPost } = await import('@/lib/slack');
+    await slackPost(
+      `🏢 Enterprise Signal: ${activeUsers} users from @${domain} active this month. This is a custom Enterprise opportunity. Contact domain: ${domain}`,
+    );
+  } else if (activeUsers >= 2) {
+    const { postToSlack: slackPost } = await import('@/lib/slack');
+    await slackPost(
+      `👥 Team Tier Signal: ${activeUsers} users from @${domain} active this month. Individual Pro subscriptions = $${activeUsers * 149}-${activeUsers * 149 * 2}/mo. Team tier ($499/mo, 10 seats) would save them money.`,
+    );
   }
 }
 

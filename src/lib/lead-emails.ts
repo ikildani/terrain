@@ -156,6 +156,69 @@ function HighIntentEmail({ profile }: { profile: LeadProfile }) {
   );
 }
 
+function ProTrialNudgeEmail({ profile }: { profile: LeadProfile }) {
+  const indication = profile.topIndications[0]
+    ? formatIndication(profile.topIndications[0])
+    : 'your target indications';
+
+  return createElement(
+    LeadEmailWrapper,
+    {},
+    createElement(
+      'p',
+      { style: { marginBottom: '14px' } },
+      `Hi${profile.fullName ? ` ${profile.fullName.split(' ')[0]}` : ''},`,
+    ),
+    createElement(
+      'p',
+      { style: { marginBottom: '14px' } },
+      `You've been doing solid research on ${indication} — looks like you're putting together a real market picture.`,
+    ),
+    createElement(
+      'p',
+      { style: { marginBottom: '14px' } },
+      `You've used your free monthly analyses. With Pro, you get unlimited market sizing, competitive landscapes, partner discovery, regulatory intelligence, and PDF export — everything you need to build a defensible market thesis.`,
+    ),
+    createElement(
+      'p',
+      { style: { marginBottom: '14px', fontWeight: '600' } },
+      `Try Pro free for 7 days — no commitment, cancel anytime.`,
+    ),
+    createElement(
+      'p',
+      { style: { marginBottom: '14px' } },
+      createElement(
+        'a',
+        {
+          href: 'https://terrain.ambrosiaventures.co/settings/billing',
+          style: {
+            display: 'inline-block',
+            background: '#00c9a7',
+            color: '#fff',
+            padding: '10px 24px',
+            borderRadius: '4px',
+            textDecoration: 'none',
+            fontWeight: '600',
+            fontSize: '14px',
+          },
+        },
+        'Start 7-Day Free Trial',
+      ),
+    ),
+    createElement(
+      'p',
+      { style: { marginBottom: '0', color: '#64748b', fontSize: '13px' } },
+      'Terrain by Ambrosia Ventures',
+      createElement('br'),
+      createElement(
+        'a',
+        { href: 'https://terrain.ambrosiaventures.co', style: { color: '#00c9a7' } },
+        'terrain.ambrosiaventures.co',
+      ),
+    ),
+  );
+}
+
 const EMAIL_CONFIG: Record<
   string,
   {
@@ -163,6 +226,13 @@ const EMAIL_CONFIG: Record<
     component: (props: { profile: LeadProfile }) => React.ReactElement;
   }
 > = {
+  pro_trial_nudge: {
+    subject: (p) => {
+      const ind = p.topIndications[0] ? formatIndication(p.topIndications[0]) : 'your research';
+      return `Continue your ${ind} analysis — try Pro free for 7 days`;
+    },
+    component: ProTrialNudgeEmail,
+  },
   evaluating_nurture: {
     subject: (p) => {
       const ind = p.topIndications[0] ? formatIndication(p.topIndications[0]) : 'your target market';

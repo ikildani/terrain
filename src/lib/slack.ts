@@ -1,6 +1,6 @@
 import { logger } from '@/lib/logger';
 
-async function postToSlack(text: string, color?: string): Promise<void> {
+export async function postToSlack(text: string, color?: string): Promise<void> {
   const webhookUrl = process.env.SLACK_WEBHOOK_URL;
   if (!webhookUrl) {
     logger.warn('slack_not_configured', { message: 'SLACK_WEBHOOK_URL not set' });
