@@ -332,6 +332,11 @@ export async function POST(request: NextRequest) {
 
     // ── Success ─────────────────────────────────────────────
     logBusinessEvent('analysis_completed', { userId: user.id, feature: 'competitive', indication });
+    // Lead scoring (non-blocking)
+    import('@/lib/lead-scoring')
+      .then(({ processLeadSignal }) => processLeadSignal(user.id, 'competitive', indication || null))
+      .catch(() => {});
+
     logApiResponse({
       route: '/api/analyze/competitive',
       status: 200,

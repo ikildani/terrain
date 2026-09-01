@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { Sparkles, Database, TableProperties, Clock, ShieldAlert, Lightbulb, Target } from 'lucide-react';
 import type { CompetitiveLandscapeOutput, Competitor } from '@/types';
+import { AdvisoryCTA } from '@/components/shared/AdvisoryCTA';
 import { cn } from '@/lib/utils/cn';
 import { useSubscription } from '@/hooks/useSubscription';
 import LandscapeMap from './LandscapeMap';
@@ -440,6 +441,8 @@ export default function CompetitiveLandscapeReport({
           )}
         </div>
       )}
+
+      <AdvisoryCTA indication={data.indication} module="competitive" />
     </div>
   );
 }

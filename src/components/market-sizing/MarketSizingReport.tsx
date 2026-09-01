@@ -8,6 +8,7 @@ import { formatMetric, formatCompact, formatCurrency, formatPercent, formatNumbe
 import { StatCard } from '@/components/shared/StatCard';
 import { DataSourceBadge } from '@/components/shared/DataSourceBadge';
 import { ConfidentialFooter } from '@/components/shared/ConfidentialFooter';
+import { AdvisoryCTA } from '@/components/shared/AdvisoryCTA';
 import { ExportButton } from '@/components/shared/ExportButton';
 import { UpgradeGate } from '@/components/shared/UpgradeGate';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -1437,6 +1438,8 @@ function MarketSizingReport({ data, input, previewMode, onPdfExport, liveIntelli
           />
         </div>
       )}
+
+      <AdvisoryCTA indication={input.indication} module="market_sizing" />
 
       <ConfidentialFooter />
     </div>

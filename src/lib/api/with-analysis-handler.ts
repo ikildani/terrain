@@ -286,6 +286,11 @@ export function withAnalysisHandler<TBody, TResult>(config: AnalysisHandlerConfi
         });
       }
 
+      // ── Lead scoring (non-blocking) ────────────────────────
+      import('@/lib/lead-scoring')
+        .then(({ processLeadSignal }) => processLeadSignal(user.id, config.feature, indication || null))
+        .catch(() => {});
+
       // ── Success ───────────────────────────────────────────
       logBusinessEvent('analysis_completed', { userId: user.id, feature: config.feature });
       logApiResponse({

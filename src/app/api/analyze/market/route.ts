@@ -558,6 +558,15 @@ export async function POST(request: NextRequest) {
       logger.warn('report_not_saved', { isDemo, hasUser: !!user, save, userId: user?.id });
     }
 
+    // ── Lead scoring (non-blocking) ────────────────────────
+    if (user && !isDemo) {
+      import('@/lib/lead-scoring')
+        .then(({ processLeadSignal }) =>
+          processLeadSignal(user.id, `market_sizing:${product_category}`, indication || null),
+        )
+        .catch(() => {});
+    }
+
     // ── Success ─────────────────────────────────────────────
     logBusinessEvent('analysis_completed', {
       userId: user?.id,
