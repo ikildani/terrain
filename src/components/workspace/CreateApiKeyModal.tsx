@@ -10,6 +10,7 @@ const AVAILABLE_SCOPES = [
   { id: 'partners', label: 'Partners', description: 'Run partner discovery analyses' },
   { id: 'regulatory', label: 'Regulatory', description: 'Run regulatory intelligence analyses' },
   { id: 'reports', label: 'Reports', description: 'Read and create workspace reports' },
+  { id: 'demand', label: 'Demand', description: 'Read indication demand profiles (Solidus / Augur demand layer)' },
   { id: '*', label: 'All Scopes', description: 'Full access to all API endpoints' },
 ] as const;
 

@@ -73,7 +73,7 @@ export interface CompetitiveLandscapeInput {
 // that represents a potential white-space opportunity.
 // ────────────────────────────────────────────────────────────
 
-const REFERENCE_MECHANISMS: Record<string, string[]> = {
+export const REFERENCE_MECHANISMS: Record<string, string[]> = {
   oncology: [
     'checkpoint_inhibitor_pd1',
     'checkpoint_inhibitor_pdl1',

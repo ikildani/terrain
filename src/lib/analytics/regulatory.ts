@@ -74,7 +74,7 @@ export interface RegulatoryAnalysisInput {
 // FDA-accepted surrogate endpoints for Accelerated Approval
 // ────────────────────────────────────────────────────────────
 
-const VALIDATED_SURROGATES: Record<string, SurrogateEndpoint[]> = {
+export const VALIDATED_SURROGATES: Record<string, SurrogateEndpoint[]> = {
   oncology: [
     {
       endpoint: 'Overall Response Rate (ORR)',
@@ -245,7 +245,7 @@ const VALIDATED_SURROGATES: Record<string, SurrogateEndpoint[]> = {
 // rates by therapy area.
 // ────────────────────────────────────────────────────────────
 
-const CRL_RECOVERY_DATA: Record<
+export const CRL_RECOVERY_DATA: Record<
   string,
   {
     historical_crl_rate_pct: number;
