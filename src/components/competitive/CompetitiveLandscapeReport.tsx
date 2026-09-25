@@ -442,7 +442,7 @@ export default function CompetitiveLandscapeReport({
         </div>
       )}
 
-      <AdvisoryCTA indication={data.indication} module="competitive" />
+      <AdvisoryCTA indication={data.summary.indication} module="competitive" />
     </div>
   );
 }
