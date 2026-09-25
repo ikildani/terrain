@@ -11,7 +11,7 @@ import type { ApiResponse, ApiKey, WorkspaceRole } from '@/types';
 
 type RouteContext = { params: Promise<{ workspaceId: string }> };
 
-const VALID_SCOPES = ['market_sizing', 'competitive', 'partners', 'regulatory', 'reports', '*'] as const;
+const VALID_SCOPES = ['market_sizing', 'competitive', 'partners', 'regulatory', 'reports', 'demand', '*'] as const;
 
 const CreateApiKeySchema = z.object({
   name: z.string().trim().min(1, 'Name is required.').max(100, 'Name must be 100 characters or fewer.'),
