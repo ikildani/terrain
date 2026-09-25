@@ -84,15 +84,27 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     });
   }
 
-  // Fetch members with profile data
-  const { data: members } = await supabase
+  // Fetch members, then their profiles in a second query.
+  // workspace_members.user_id references auth.users, not profiles, so the
+  // PostgREST embed `profiles(...)` has no FK to follow and the query errored
+  // silently; members came back empty and every owner saw "Access Restricted"
+  // on the API-keys page.
+  const { data: members, error: membersError } = await supabase
     .from('workspace_members')
-    .select('id, workspace_id, user_id, role, joined_at, invited_by, profiles(email, full_name)')
+    .select('id, workspace_id, user_id, role, joined_at, invited_by')
     .eq('workspace_id', workspaceId)
     .order('joined_at', { ascending: true });
+  if (membersError) {
+    logger.error('workspace_members_fetch_failed', { workspaceId, error: membersError.message });
+  }
+  const memberIds = (members ?? []).map((m) => m.user_id);
+  const { data: profileRows } = memberIds.length
+    ? await supabase.from('profiles').select('id, email, full_name').in('id', memberIds)
+    : { data: [] as Array<{ id: string; email: string; full_name: string | null }> };
+  const profilesById = new Map((profileRows ?? []).map((p) => [p.id, p]));
 
   const flatMembers = (members ?? []).map((m) => {
-    const profile = m.profiles as unknown as { email: string; full_name: string | null } | null;
+    const profile = profilesById.get(m.user_id) ?? null;
     return {
       id: m.id,
       workspace_id: m.workspace_id,

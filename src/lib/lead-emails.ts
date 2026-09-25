@@ -11,7 +11,7 @@ function formatIndication(ind: string): string {
   return ind.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function LeadEmailWrapper({ children }: { children: React.ReactNode }) {
+function LeadEmailWrapper({ children }: { children?: React.ReactNode }) {
   return createElement(
     'div',
     {

@@ -242,8 +242,7 @@ export async function processLeadSignal(userId: string, trigger: string, indicat
           total_cdmo_runs: profile.totalCdmoRuns,
         },
       })
-      .then(() => {})
-      .catch(() => {});
+      .then(() => {}, () => {});
 
     // Slack alert for hot+ leads
     if (profile.score > 50) {
@@ -343,8 +342,7 @@ async function queueLeadEmail(profile: LeadProfile, emailType: string): Promise<
       email_type: emailType,
       email: profile.email,
     })
-    .then(() => {})
-    .catch(() => {});
+    .then(() => {}, () => {});
 
   // Delay emails slightly — don't send immediately after analysis
   // In production this would use a queue; for now we send inline
